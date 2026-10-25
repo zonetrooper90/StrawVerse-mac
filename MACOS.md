@@ -7,7 +7,7 @@ This fork adds experimental **standalone macOS builds** to StrawVerse. Your Mac 
 1. Open [the macOS build workflow](https://github.com/zonetrooper90/StrawVerse-mac/actions/workflows/build-macos.yml).
 2. Open the newest **successful** run of *Build standalone macOS apps*.
 3. Under **Artifacts**, choose **StrawVerse-Apple-Silicon** for an M-series Mac, or **StrawVerse-Intel** for an Intel Mac.
-4. Extract the downloaded artifact ZIP, open the DMG, and drag StrawVerse into Applications.
+4. Extract the downloaded GitHub artifact ZIP (it contains only the DMG), open the DMG, and drag StrawVerse into Applications.
 
 GitHub may require you to sign in before downloading workflow artifacts.
 

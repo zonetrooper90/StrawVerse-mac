@@ -111,16 +111,16 @@ jobs:
       - name: Build React interface
         run: npm run build --prefix gui
 
-      - name: Package Mac .app, .dmg, and .zip
+      - name: Package Mac .app and .dmg
         shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
           set -euo pipefail
           cd electron
-          npx electron-builder --mac dmg zip --${{ matrix.arch }} --publish never
+          npx electron-builder --mac dmg --${{ matrix.arch }} --publish never
 
-      - name: Verify bundled tools and installers
+      - name: Verify bundled tools and DMG installer
         shell: bash
         run: |
           set -euo pipefail
@@ -132,14 +132,12 @@ jobs:
           test -x "$FFMPEG"
           "$MPV" --version | head -2
           "$FFMPEG" -version | head -2
-          ls -lh electron/dist/*.dmg electron/dist/*.zip
+          ls -lh electron/dist/*.dmg
 
-      - name: Upload the finished macOS installers
+      - name: Upload the macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: StrawVerse-${{ matrix.label }}
-          path: |
-            electron/dist/*.dmg
-            electron/dist/*.zip
+          path: electron/dist/*.dmg
           if-no-files-found: error
           retention-days: 14

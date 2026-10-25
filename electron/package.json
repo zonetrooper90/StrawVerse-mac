@@ -12,7 +12,7 @@
     "release": "bash release.sh",
     "start:prod": "cross-env NODE_ENV=production electron .",
     "postinstall": "electron-builder install-app-deps && node scripts/download-binaries.js",
-    "package:mac": "electron-builder --mac dmg zip --publish never"
+    "package:mac": "electron-builder --mac dmg --publish never"
   },
   "repository": {
     "type": "git",
@@ -88,8 +88,7 @@
     ],
     "mac": {
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ],
       "category": "public.app-category.entertainment",
       "icon": "assets/strawverse.icns",
