@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   inspect-mpv:
@@ -111,3 +112,55 @@ jobs:
           log show --last 3m --style compact \
             --predicate '(process == "amfid") OR (process == "taskgated")' 2>/dev/null | tail -50 || true
           exit 0
+
+      - name: Fetch packaged StrawVerse DMG from previous successful build
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40194397546
+          name: StrawVerse-Apple-Silicon
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/published-dmg
+
+      - name: Inspect and launch exact published MPV executable
+        shell: bash
+        run: |
+          set -u
+          DMG="$(find "$RUNNER_TEMP/published-dmg" -type f -name '*.dmg' -print -quit)"
+          test -n "$DMG" || exit 1
+          mkdir -p "$RUNNER_TEMP/straw-mounted"
+          hdiutil attach "$DMG" -nobrowse -readonly -mountpoint "$RUNNER_TEMP/straw-mounted"
+          APP="$(find "$RUNNER_TEMP/straw-mounted" -maxdepth 2 -type d -name 'StrawVerse.app' -print -quit)"
+          test -n "$APP" || exit 1
+          # Run an installed-style copy rather than running from a read-only DMG.
+          cp -R "$APP" "$RUNNER_TEMP/StrawVerse.app"
+          MPV="$RUNNER_TEMP/StrawVerse.app/Contents/Resources/mpv/mpv.app/Contents/MacOS/mpv"
+          test -x "$MPV" || exit 1
+          codesign --verify --deep --strict --verbose=2 "$RUNNER_TEMP/StrawVerse.app" || true
+          echo "--- Published MPV signature ---"
+          codesign -dv --verbose=4 "$MPV" 2>&1 | grep -E 'flags=|Signature|TeamIdentifier|Identifier|Runtime' || true
+          echo "--- Published MPV entitlements ---"
+          codesign -d --entitlements - "$MPV" 2>&1 || true
+          echo "--- Published MPV version ---"
+          "$MPV" --version | head -4
+          LOG="$RUNNER_TEMP/published-mpv.log"
+          SOCK="$RUNNER_TEMP/published-mpv.sock"
+          "$MPV" --no-config --idle=yes --force-window=yes \
+            --input-ipc-server="$SOCK" --msg-level=all=info >"$LOG" 2>&1 &
+          PID=$!
+          for i in 1 2 3 4 5 6 7 8; do
+            sleep 1
+            if ! kill -0 "$PID" 2>/dev/null; then break; fi
+            if test -S "$SOCK"; then break; fi
+          done
+          if kill -0 "$PID" 2>/dev/null; then
+            echo "Published player alive; IPC socket exists? $(test -S "$SOCK" && echo yes || echo no)"
+            kill -TERM "$PID" 2>/dev/null || true
+          fi
+          CODE=0
+          wait "$PID" || CODE=$?
+          echo "Published MPV exit status: $CODE"
+          tail -70 "$LOG" || true
+          echo "--- Recent MPV-related macOS security logs ---"
+          log show --last 3m --style compact \
+            --predicate '(process == "amfid") OR (process == "taskgated")' 2>/dev/null \
+            | grep -E -i 'mpv|StrawVerse|library|code sign|not valid' | tail -25 || true
