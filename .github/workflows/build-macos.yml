@@ -57,6 +57,11 @@ jobs:
             "https://github.com/mpv-player/mpv/releases/download/v0.41.0/$MPV_ARCHIVE" \
             -o "$RUNNER_TEMP/mpv.zip"
           unzip -q "$RUNNER_TEMP/mpv.zip" -d "$RUNNER_TEMP/mpv-extract"
+          # The official MPV .zip contains a nested mpv.tar.gz archive.
+          MPV_TAR="$(find "$RUNNER_TEMP/mpv-extract" -type f -name '*.tar.gz' -print -quit)"
+          if [ -n "$MPV_TAR" ]; then
+            tar -xzf "$MPV_TAR" -C "$RUNNER_TEMP/mpv-extract"
+          fi
           MPV_APP="$(find "$RUNNER_TEMP/mpv-extract" -type d -name mpv.app -print -quit)"
           if [ -z "$MPV_APP" ]; then
             echo "The official MPV archive did not contain mpv.app" >&2
