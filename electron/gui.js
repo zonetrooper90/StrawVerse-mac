@@ -874,8 +874,11 @@ ipcMain.handle("play-in-mpv", async (event, options) => {
   const win = BrowserWindow.getFocusedWindow() || global.win;
   if (!win) return { success: false, error: "No focused window found." };
   try {
-    await playInMpv(win, options);
-    return { success: true };
+    const result = await playInMpv(win, options);
+    if (result?.error) {
+      return { success: false, error: result.error };
+    }
+    return { success: true, ...(result || {}) };
   } catch (err) {
     return { success: false, error: err.message };
   }

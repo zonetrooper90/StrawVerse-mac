@@ -1714,9 +1714,8 @@ async function playInMpv(window, options) {
     }
   };
 
-  sendStarted();
-  setTimeout(sendStarted, 500);
-
+  // Only notify the interface after MPV reports "file-loaded" or
+  // playback progress. A successful spawn does not mean video is playing.
   try {
     client = await connectIpc(ipcPath);
     global.activeMpvClient = client;
@@ -2359,6 +2358,19 @@ async function playInMpv(window, options) {
     logger.error(
       `[MPV] IPC connection warning (playing without direct sync): ${err.message}`,
     );
+    // Detect fast failures that happened before the playback and shutdown
+    // listeners were attached. These were silently reported as success.
+    if (mpvProcess.exitCode !== null || mpvProcess.signalCode !== null) {
+      const message =
+        `MPV stopped before playback could start ` +
+        `(code ${mpvProcess.exitCode}, signal ${mpvProcess.signalCode || "none"}). ` +
+        `Check StrawVerse > Logs for '[MPV Stderr]' details.`;
+      logger.error(`[MPV Error] ${message}`);
+      if (window && !window.isDestroyed() && window.webContents) {
+        window.webContents.send("mpv-error", { message });
+      }
+      return { error: message };
+    }
   }
 
   let terminated = false;
@@ -2435,8 +2447,9 @@ async function playInMpv(window, options) {
           : null;
 
     if (targetWin) {
-      const isNormalExit =
-        hasStartedSent || code === 0 || code === 4 || signal !== null;
+      // Before 'file-loaded' we must treat any abnormal process exit as
+      // a playback failure; previously an optimistic started event masked it.
+      const isNormalExit = code === 0 || (hasStartedSent && code === 4);
 
       if (!isNormalExit) {
         targetWin.webContents.send("mpv-error", {

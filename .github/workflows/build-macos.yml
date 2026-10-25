@@ -132,6 +132,16 @@ jobs:
           test -x "$FFMPEG"
           "$MPV" --version | head -2
           "$FFMPEG" -version | head -2
+          # Decode a real, locally generated MP4 through the bundled native
+          # MPV executable. No internet video stream or installed tools needed.
+          TEST_CLIP="$RUNNER_TEMP/strawverse-mpv-smoke.mp4"
+          "$FFMPEG" -hide_banner -loglevel error -y -f lavfi \
+            -i "testsrc2=size=320x180:rate=15" -frames:v 15 \
+            -c:v mpeg4 -q:v 8 "$TEST_CLIP"
+          test -s "$TEST_CLIP"
+          "$MPV" --no-config --no-terminal --vo=null --ao=null \
+            --frames=1 "$TEST_CLIP"
+          echo "Bundled MPV decoded the test video successfully"
           # Verify the app bundle's code seal on the hosted Mac before shipping.
           codesign --verify --deep --strict --verbose=2 "$APP"
           codesign -dv --verbose=2 "$APP" 2>&1 | head -30
