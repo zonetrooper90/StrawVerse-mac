@@ -62,7 +62,8 @@ jobs:
             echo "Process alive; IPC socket exists? $(test -S "$SOCK" && echo yes || echo no)"
             kill -TERM "$PID" 2>/dev/null || true
           fi
-          wait "$PID"; CODE=$?
+          CODE=0
+          wait "$PID" || CODE=$?
           echo "Unmodified MPV exit status: $CODE"
           tail -80 "$LOG" || true
           exit 0
@@ -102,7 +103,8 @@ jobs:
             echo "Process alive; IPC socket exists? $(test -S "$SOCK" && echo yes || echo no)"
             kill -TERM "$PID" 2>/dev/null || true
           fi
-          wait "$PID"; CODE=$?
+          CODE=0
+          wait "$PID" || CODE=$?
           echo "Hardened signed MPV exit status: $CODE"
           tail -80 "$LOG" || true
           echo "---- Recent macOS security messages ----"
