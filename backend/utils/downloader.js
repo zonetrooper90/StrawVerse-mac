@@ -146,6 +146,15 @@ async function getFfmpegPath() {
   const binaryName = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
   const platformDir = process.platform === "win32" ? "win32" : "linux";
   const candidatePaths = [];
+  if (process.platform === "darwin") {
+    // Native macOS FFmpeg is packaged inside the application.
+    if (process.resourcesPath) {
+      candidatePaths.push(path.join(process.resourcesPath, "ffmpeg", "ffmpeg"));
+    }
+    candidatePaths.push(
+      path.join(__dirname, "..", "..", "electron", "ffmpeg", "darwin", "ffmpeg"),
+    );
+  }
 
   const resourceRoots = [];
   if (process.resourcesPath) {

@@ -724,7 +724,8 @@ app.whenReady().then(async () => {
     handleCustomProtocolUrl(request.url);
   });
 
-  if (app.isPackaged) {
+  if (app.isPackaged && process.platform !== "darwin") {
+    // Mac builds are distributed from this fork, not upstream's update feed.
     autoUpdater.checkForUpdatesAndNotify();
   }
 
@@ -793,6 +794,12 @@ autoUpdater.on("update-downloaded", () => {
 });
 
 ipcMain.handle("check-for-update", async () => {
+  if (process.platform === "darwin") {
+    if (global.win && !global.win.isDestroyed()) {
+      global.win.webContents.send("update-not-available");
+    }
+    return { success: true, automaticUpdatesAvailable: false };
+  }
   if (!app.isPackaged) {
     return new Promise((resolve) => {
       setTimeout(() => {

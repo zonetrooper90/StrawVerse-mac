@@ -153,6 +153,19 @@ async function prepareSubtitles(validSubs, activeReferer) {
 
 const getMpvPath = () => {
   const platform = process.platform;
+  if (platform === "darwin") {
+    // Bundled MPV; no Homebrew or separate installation needed.
+    const bundled = process.resourcesPath
+      ? path.join(process.resourcesPath, "mpv", "mpv.app", "Contents", "MacOS", "mpv")
+      : null;
+    const development = path.join(
+      __dirname, "..", "..", "electron", "mpv", "darwin",
+      "mpv.app", "Contents", "MacOS", "mpv",
+    );
+    if (bundled && fs.existsSync(bundled)) return bundled;
+    if (fs.existsSync(development)) return development;
+    return bundled || development;
+  }
   const platformDir = platform === "win32" ? "win32" : "linux";
   const exeName = platform === "win32" ? "mpv.exe" : "mpv";
 
