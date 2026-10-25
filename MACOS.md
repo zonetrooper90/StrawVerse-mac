@@ -13,7 +13,8 @@ GitHub may require you to sign in before downloading workflow artifacts.
 
 ## Notes
 
-- The apps are **unsigned and unnotarized**, so macOS Gatekeeper may block the first launch. If you trust the source, use the macOS Privacy & Security controls to allow the app. Do **not** disable Gatekeeper system-wide.
+- The apps are **ad-hoc code signed but not Apple notarized**, so macOS Gatekeeper may block the first launch. The hosted build verifies signature integrity, but an ad-hoc signature does not establish an Apple-trusted publisher. If you trust the source, check **System Settings → Privacy & Security** for **Open Anyway**. Do **not** disable Gatekeeper system-wide.
+- If macOS reports that the app is *damaged*, do not assume that proves corruption, but also do not bypass a failed integrity check blindly. Re-download the newest successful build and review the build provenance. If the integrity check passed and macOS still blocks the app because it was downloaded from the internet, removal of the quarantine attribute **for this app only** can be considered by the user who trusts the code. Proper Developer ID signing and notarization remain the friction-free solution.
 - MPV 0.41.0 and the project's FFmpeg dependency are placed **inside the app bundle**. No separate media programs are needed.
 - Automatic macOS updates are not offered because the upstream release feed does not publish compatible Mac packages; download fresh builds from this fork instead.
 - This is a first macOS port and remains **untested on an end-user Mac**. The workflow verifies packaging and binary execution on GitHub's Mac runners, but user-facing playback/download behavior still needs testing.

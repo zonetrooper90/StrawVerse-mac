@@ -102,7 +102,11 @@
           "from": "ffmpeg/darwin/ffmpeg",
           "to": "ffmpeg/ffmpeg"
         }
-      ]
+      ],
+      "identity": "-",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     }
   },
   "keywords": [

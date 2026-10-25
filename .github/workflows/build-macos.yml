@@ -132,6 +132,9 @@ jobs:
           test -x "$FFMPEG"
           "$MPV" --version | head -2
           "$FFMPEG" -version | head -2
+          # Verify the app bundle's code seal on the hosted Mac before shipping.
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          codesign -dv --verbose=2 "$APP" 2>&1 | head -30
           ls -lh electron/dist/*.dmg
 
       - name: Upload the macOS DMG
