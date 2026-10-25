@@ -153,6 +153,19 @@ async function prepareSubtitles(validSubs, activeReferer) {
 
 const getMpvPath = () => {
   const platform = process.platform;
+  if (platform === "darwin") {
+    // Bundled MPV; no Homebrew or separate installation needed.
+    const bundled = process.resourcesPath
+      ? path.join(process.resourcesPath, "mpv", "mpv.app", "Contents", "MacOS", "mpv")
+      : null;
+    const development = path.join(
+      __dirname, "..", "..", "electron", "mpv", "darwin",
+      "mpv.app", "Contents", "MacOS", "mpv",
+    );
+    if (bundled && fs.existsSync(bundled)) return bundled;
+    if (fs.existsSync(development)) return development;
+    return bundled || development;
+  }
   const platformDir = platform === "win32" ? "win32" : "linux";
   const exeName = platform === "win32" ? "mpv.exe" : "mpv";
 
@@ -1209,6 +1222,16 @@ async function playInMpv(window, options) {
 
   args.push(playUrl);
 
+  // Providers and subtitle preparation run asynchronously. If a newer
+  // playback request arrived, this older one must never replace its player.
+  if (currentRequestId !== global.activePlayRequestId) {
+    logger.info(
+      `[MPV] Ignoring superseded request #${currentRequestId} ` +
+      `(latest: #${global.activePlayRequestId}) before player activation.`,
+    );
+    return { success: true, superseded: true };
+  }
+
   const isProcessAlive =
     global.activeMpvProcess &&
     !global.activeMpvProcess.killed &&
@@ -1554,10 +1577,27 @@ async function playInMpv(window, options) {
     }
   }
 
+  // If subtitle/reuse work awaited after the first freshness check, check
+  // once more before replacing a globally active player.
+  if (currentRequestId !== global.activePlayRequestId) {
+    logger.info(
+      `[MPV] Ignoring superseded request #${currentRequestId} ` +
+      `(latest: #${global.activePlayRequestId}) before spawning MPV.`,
+    );
+    return { success: true, superseded: true };
+  }
+
   if (global.activeMpvProcess) {
+    const previous = global.activeMpvProcess;
+    logger.info(
+      `[MPV] Replacing previous player PID ${previous.pid ?? "unknown"} ` +
+      `for request #${currentRequestId} with SIGTERM.`,
+    );
     try {
-      global.activeMpvProcess.kill("SIGKILL");
-    } catch (e) {}
+      previous.kill("SIGTERM");
+    } catch (e) {
+      logger.warn(`[MPV] Error terminating previous player: ${e.message}`);
+    }
     global.activeMpvProcess = null;
   }
   if (global.activeMpvClient) {
@@ -1701,9 +1741,8 @@ async function playInMpv(window, options) {
     }
   };
 
-  sendStarted();
-  setTimeout(sendStarted, 500);
-
+  // Only notify the interface after MPV reports "file-loaded" or
+  // playback progress. A successful spawn does not mean video is playing.
   try {
     client = await connectIpc(ipcPath);
     global.activeMpvClient = client;
@@ -2346,6 +2385,28 @@ async function playInMpv(window, options) {
     logger.error(
       `[MPV] IPC connection warning (playing without direct sync): ${err.message}`,
     );
+    // If this process was replaced by another request, its termination is
+    // expected and should not show an error dialog to the user.
+    if (currentRequestId !== global.activePlayRequestId) {
+      logger.info(
+        `[MPV] Startup of request #${currentRequestId} superseded by ` +
+        `request #${global.activePlayRequestId}; ignoring old process exit.`,
+      );
+      return { success: true, superseded: true };
+    }
+    // Detect fast failures that happened before the playback and shutdown
+    // listeners were attached. These were silently reported as success.
+    if (mpvProcess.exitCode !== null || mpvProcess.signalCode !== null) {
+      const message =
+        `MPV stopped before playback could start ` +
+        `(code ${mpvProcess.exitCode}, signal ${mpvProcess.signalCode || "none"}). ` +
+        `Check StrawVerse > Logs for '[MPV Stderr]' details.`;
+      logger.error(`[MPV Error] ${message}`);
+      if (window && !window.isDestroyed() && window.webContents) {
+        window.webContents.send("mpv-error", { message });
+      }
+      return { error: message };
+    }
   }
 
   let terminated = false;
@@ -2359,11 +2420,11 @@ async function playInMpv(window, options) {
 
     if (global.activeMpvProcess === mpvProcess) {
       global.activeMpvProcess = null;
+      global.activeMpvSession = null;
     }
     if (global.activeMpvClient === client) {
       global.activeMpvClient = null;
     }
-    global.activeMpvSession = null;
     if (client && !client.destroyed) {
       client.destroy();
     }
@@ -2422,8 +2483,9 @@ async function playInMpv(window, options) {
           : null;
 
     if (targetWin) {
-      const isNormalExit =
-        hasStartedSent || code === 0 || code === 4 || signal !== null;
+      // Before 'file-loaded' we must treat any abnormal process exit as
+      // a playback failure; previously an optimistic started event masked it.
+      const isNormalExit = code === 0 || (hasStartedSent && code === 4);
 
       if (!isNormalExit) {
         targetWin.webContents.send("mpv-error", {

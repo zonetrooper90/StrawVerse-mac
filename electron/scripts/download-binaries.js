@@ -165,10 +165,14 @@ const patchSnapBuilder = () => {
 const main = async () => {
   try {
     patchSnapBuilder();
-    await setupWindows();
-    await setupLinux();
+    if (process.platform === "win32") {
+      await setupWindows();
+      await setupFfmpegWindows();
+    } else if (process.platform === "linux") {
+      await setupLinux();
+    }
+    // The macOS build supplies native MPV and FFmpeg in the app bundle.
     await setupConfig();
-    await setupFfmpegWindows();
     console.log("All binaries and custom skins configured successfully!");
   } catch (err) {
     console.error("Failed to download pre-built binaries:", err.message);
