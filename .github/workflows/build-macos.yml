@@ -132,6 +132,15 @@ jobs:
           test -x "$FFMPEG"
           "$MPV" --version | head -2
           "$FFMPEG" -version | head -2
+          echo "Checking MPV's JIT entitlement"
+          codesign -d --entitlements - "$MPV" 2>&1 \
+            | grep -F "com.apple.security.cs.allow-unsigned-executable-memory"
+          echo "Checking the main application does NOT have that entitlement"
+          if codesign -d --entitlements - "$APP" 2>&1 \
+              | grep -Fq "com.apple.security.cs.allow-unsigned-executable-memory"; then
+            echo "Unexpected LuaJIT entitlement on the primary app" >&2
+            exit 1
+          fi
           # Decode a real, locally generated MP4 through the bundled native
           # MPV executable. No internet video stream or installed tools needed.
           TEST_CLIP="$RUNNER_TEMP/strawverse-mpv-smoke.mp4"
