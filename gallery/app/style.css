@@ -1,0 +1,363 @@
+
+:root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
+*{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
+body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
+body[data-theme="midnight"]{--window:#111922;--surface:#192631;--raised:#243442;--hover:#2c4350;--line:#334c5b;--ink:#e8f0f3;--muted:#a1b5c1;--accent:#92cbc7;--accent-ink:#f8ffff;--tab:#385e68;--strong:#2b4b54;--glow:rgba(98,179,185,.15);--shadow:rgba(9,16,23,.58);--desktop:#081016}
+body[data-theme="paper"]{--window:#f7f2eb;--surface:#f0e8df;--raised:#e8ddd2;--hover:#e0d1c3;--line:#d8c6ba;--ink:#3f3838;--muted:#7a6a68;--accent:#995e63;--accent-ink:#fff;--tab:#c68f8d;--strong:#dbc0b5;--glow:rgba(180,117,109,.11);--shadow:rgba(61,41,36,.14);--desktop:#e2d6cc}
+body{background:var(--desktop);color:var(--ink);padding:20px;transition:background .18s,color .18s}.app{width:min(1400px,100%);height:calc(100vh - 40px);min-height:580px;margin:auto;background:var(--window);border:1px solid var(--line);border-radius:22px;box-shadow:0 28px 65px var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.top{z-index:5;flex:none;background:var(--window);border-bottom:1px solid var(--line);padding:22px 28px 19px}.brand-row{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:13px;min-width:0}.brandmark{color:var(--accent);display:grid;place-items:center;width:28px;height:28px}.brandname{font-size:21px;letter-spacing:-.03em;font-weight:680;white-space:nowrap}.subtitle{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 9px;margin-left:8px}.toolbar{display:flex;align-items:center;gap:8px}.iconbtn{border:0;background:transparent;color:var(--muted);border-radius:10px;width:38px;height:38px;display:grid;place-items:center}.iconbtn:hover{color:var(--ink);background:var(--hover)}.icon{display:inline-block;vertical-align:middle;flex:none}
+.tabs{width:100%;background:var(--raised);border-radius:17px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px}.tab{display:flex;align-items:center;justify-content:center;gap:10px;border:0;background:transparent;color:var(--muted);border-radius:12px;padding:13px 16px;font-weight:590;font-size:15px;transition:background .16s,color .16s}.tab:hover{background:var(--hover);color:var(--ink)}.tab.active{background:var(--tab);color:var(--accent-ink);box-shadow:0 1px 3px rgba(0,0,0,.09)}.tab svg{opacity:.9}
+.workspace{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:32px 28px 54px;scrollbar-color:var(--line) transparent}.heading-row,.section-row,.collections-head{display:flex;align-items:center;justify-content:space-between;gap:15px}.heading-row{margin-bottom:23px;align-items:end}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.13em;font-size:10px;font-weight:700;margin:0 0 9px}h1{font-size:30px;letter-spacing:-.04em;margin:0;font-weight:710}h2{font-size:20px;letter-spacing:-.025em;margin:0}h3{font-size:16px;margin:0}.muted{color:var(--muted)}.description{color:var(--muted);font-size:14px;margin:8px 0 0}.btn{border:1px solid var(--line);color:var(--ink);background:var(--raised);padding:10px 14px;border-radius:10px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-weight:600;white-space:nowrap}.btn:hover{background:var(--hover)}.btn.primary{color:var(--accent-ink);background:var(--tab);border-color:transparent}.btn.primary:hover{filter:brightness(1.12)}.btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}.btn.small{padding:8px 11px;font-size:12px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.continue{background:radial-gradient(ellipse at 90% 5%,var(--glow),transparent 52%),var(--raised);padding:24px 24px 19px;border-radius:17px;display:flex;gap:20px;align-items:center;margin-bottom:30px;border:1px solid var(--line)}.continue-icon{width:64px;height:72px;border-radius:12px;background:linear-gradient(155deg,#704e83,#305a76);display:grid;place-items:center;color:#ead4ff}.continue-copy{flex:1;min-width:0}.continue-heading{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}.continue-title{font-size:18px;font-weight:700;margin:6px 0 4px}.progress-track{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:13px;max-width:410px}.progress-fill{background:var(--accent);width:58%;height:100%;border-radius:9px}.section-row{margin:10px 0 17px}.poster-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 15px}.poster-item{min-width:0}.poster{width:100%;aspect-ratio:2/3;position:relative;border:1px solid rgba(255,255,255,.11);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;padding:13px;box-shadow:0 8px 22px rgba(0,0,0,.09);isolation:isolate;transition:transform .15s,box-shadow .15s}.poster:hover{transform:translateY(-3px);box-shadow:0 14px 24px rgba(0,0,0,.22)}.poster:before{content:"";position:absolute;width:150%;aspect-ratio:1;border:2px solid rgba(255,255,255,.2);border-radius:50%;top:-35%;left:-55%;transform:rotate(30deg);z-index:-1}.poster:after{content:"";position:absolute;height:34%;width:155%;background:linear-gradient(135deg,transparent,rgba(0,0,0,.34));bottom:-16%;left:-15%;transform:rotate(-15deg);z-index:-1}.poster .art-orb{position:absolute;top:22%;left:27%;width:47%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.62),rgba(255,255,255,.04) 62%,transparent 70%);border:1px solid rgba(255,255,255,.25);z-index:-1}.poster-name{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:clamp(14px,1.7vw,25px);line-height:1.1;letter-spacing:-.035em;color:#fff;text-shadow:0 2px 13px rgba(0,0,0,.45);margin-top:70%;text-wrap:balance}.poster-title{font-weight:600;font-size:13px;line-height:1.35;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;margin-top:10px}.meta{font-size:11px;color:var(--muted);margin-top:4px}.poster-button{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left}
+.tagbar{display:flex;gap:8px;align-items:center;overflow-x:auto;padding:3px 0 11px;margin:0 0 22px;scrollbar-width:thin}.tagchip{border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);padding:9px 13px;display:flex;align-items:center;gap:7px;white-space:nowrap;flex:none;font-size:12.5px}.tagchip:hover{background:var(--hover)}.tagchip.active{background:var(--strong);border-color:var(--accent);color:var(--ink)}.count{opacity:.65;font-size:11px}.collection-panel{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:20px 20px 22px}.collection-icon{color:var(--accent);width:42px;height:42px;border-radius:12px;background:var(--raised);display:grid;place-items:center}.collections-head{align-items:flex-start}.col-title-row{display:flex;align-items:center;gap:12px}.col-description{color:var(--muted);margin:8px 0 0;font-size:13px}.col-contents{margin-top:22px}.empty{padding:30px;text-align:center;background:var(--raised);border-radius:12px;color:var(--muted)}.tip{font-size:12px;color:var(--muted);margin:17px 0 0}.highlight{color:var(--accent)}
+.statrow{display:flex;gap:9px;flex-wrap:wrap;margin:3px 0 19px}.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:9px 12px;color:var(--muted);font-size:12px}.stat strong{color:var(--ink)}.filter-pills{display:flex;gap:8px;flex-wrap:wrap}.filterpill{border:1px solid var(--line);border-radius:999px;padding:8px 13px;background:var(--surface);color:var(--muted);font-size:12px}.filterpill.active{color:var(--ink);background:var(--strong);border-color:var(--accent)}
+.download-row{display:grid;grid-template-columns:58px 1fr auto;gap:16px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:13px;margin:12px 0;background:var(--surface)}.tiny-art{height:77px;border-radius:7px}.download-title{font-weight:700;margin:0 0 5px}.download-progress{height:5px;background:var(--line);border-radius:10px;margin-top:13px;max-width:380px}.download-progress>i{display:block;background:var(--accent);height:100%;border-radius:10px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.61);display:grid;place-items:center;z-index:20;padding:20px}.dialog{width:min(530px,100%);max-height:min(680px,90vh);overflow-y:auto;border:1px solid var(--line);border-radius:20px;background:var(--window);color:var(--ink);padding:24px;box-shadow:0 25px 85px var(--shadow)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.dialog-head h2{font-size:22px}.dialog .description{line-height:1.5}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:7px;margin-top:18px}.field label,.label{font-size:12px;color:var(--muted);font-weight:650}.field input,.field select{border:1px solid var(--line);background:var(--raised);border-radius:10px;color:var(--ink);padding:12px 13px;outline-offset:2px}.option{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);padding:13px;border-radius:12px;background:var(--surface);margin-top:8px;cursor:pointer}.option input{accent-color:var(--accent);margin-top:3px}.option b{display:block;margin-bottom:3px}.option small{display:block;color:var(--muted);line-height:1.45}.theme-list{display:grid;gap:9px;margin-top:14px}.theme-tile{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;color:var(--ink)}.theme-tile[aria-pressed="true"]{border-color:var(--accent);background:var(--raised)}.swatch{width:35px;height:35px;border-radius:9px;border:1px solid rgba(255,255,255,.15)}.dialog-sample{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);margin-top:18px}.result-list{max-height:260px;overflow-y:auto;display:grid;gap:7px;margin-top:12px}.searchresult{padding:11px;text-align:left;background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}.error{color:#ff9b9b}.success{color:var(--accent)}.only-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.footer-note{color:var(--muted);font-size:11px;text-align:center;margin:32px 0 0}
+@media(max-width:1050px){.poster-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:750px){body{padding:0}.app{height:100dvh;min-height:100dvh;border-radius:0;border:none}.top{padding:17px 17px 13px}.workspace{padding:24px 17px 35px}.poster-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:17px 10px}.brandname{font-size:17px}.subtitle{display:none}.tab{font-size:12px;padding:11px 4px;gap:6px}.heading-row{align-items:flex-start}.heading-row h1{font-size:26px}.collection-panel{padding:14px}.collections-head{flex-wrap:wrap}.continue{padding:17px}.continue-icon{display:none}}
+@media(max-width:430px){.poster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tab svg{width:16px;height:16px}.tabs{gap:2px}.tab{font-size:11px}.heading-row{display:block}.heading-row .actions{margin-top:14px}.download-row{grid-template-columns:48px 1fr}.download-row>.btn{grid-column:2;justify-self:start}}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* v0.3: shared Page Header across Discover, Library and Downloads */
+.workspace{padding:25px 28px 54px}
+.page-header{margin-bottom:21px;min-width:0}
+.page-header-primary{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:44px}
+.page-header-primary h1{font-size:27px;line-height:1.14;letter-spacing:-.035em;margin:0;flex:none}
+.page-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;min-width:0;flex-wrap:wrap}
+.page-header-divider{height:1px;background:var(--line);margin-top:15px}
+.page-header-secondary{padding-top:13px}
+.page-header .btn{min-height:38px}
+.page-header .page-filter-button{padding-right:2px}
+.page-header-library{margin-bottom:16px}
+.page-header-library .page-header-secondary{padding-top:12px}
+.page-header .library-tag-row{display:flex;align-items:center;gap:14px;min-width:0}
+.page-header .tagbar{flex:1;min-width:0;margin:0;padding:2px 0 7px;overflow-x:auto;scrollbar-width:thin}
+.page-header .tagchip{gap:9px;padding:9px 14px}
+.page-header .share-action{flex:none;align-self:center}
+.page-header .download-filters{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:1px 0 5px;scrollbar-width:thin}
+.page-header .filterpill{display:flex;align-items:center;gap:8px;white-space:nowrap;flex:none}
+.page-header .count{font-variant-numeric:tabular-nums}
+.page-header + .continue{margin-top:0}
+.collection-panel{padding:17px 19px 21px}
+.collections-head{align-items:center}
+.col-title-row h2{font-size:18px}
+.col-contents{margin-top:16px}
+.download-row:first-child{margin-top:0}
+@media(max-width:750px){
+  .workspace{padding:19px 17px 36px}
+  .page-header{margin-bottom:17px}
+  .page-header-primary h1{font-size:24px}
+  .page-header-primary{gap:9px}
+  .page-header-actions{gap:6px;flex-wrap:nowrap}
+  .page-header .btn{font-size:12px;padding:8px 10px;min-height:35px}
+  .page-header-divider{margin-top:12px}
+  .page-header-secondary{padding-top:11px}
+  .page-header .library-tag-row{gap:9px}
+  .page-header .tagchip{font-size:12px;padding:8px 11px}
+  .collection-panel{padding:14px}
+}
+@media(max-width:430px){
+  .page-header-primary{display:flex;align-items:center}
+  .page-header-primary h1{font-size:21px}
+  .page-header-actions{margin:0;gap:5px}
+  .page-header .btn{font-size:11px;padding:7px 8px;gap:5px}
+  .page-header .share-action{padding:8px 9px}
+  .page-header .tagbar{padding-bottom:6px}
+}
+
+/* v0.9: Compact Sub / Dub selection with no redundant availability line.
+   Detailed season/episode availability remains in the Episodes section. */
+.detail-back{display:inline-flex;align-items:center;gap:7px;margin:-3px 0 21px;padding:7px 5px;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600}
+.detail-back:hover{color:var(--ink)}.detail-back .icon{transform:none}
+.detail-hero{display:grid;grid-template-columns:minmax(146px,184px) minmax(0,1fr) minmax(272px,302px);gap:clamp(16px,2vw,28px);align-items:start;margin-bottom:26px}
+.detail-overview{min-width:0}
+.detail-control-panel{min-width:0;border:1px solid var(--line);border-radius:15px;background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:14px}
+.detail-control-panel .detail-actions{display:flex;flex-direction:column;gap:9px;align-items:stretch;border-top:1px solid var(--line);padding-top:14px}
+.detail-control-panel .detail-actions .btn{width:100%;min-height:42px;white-space:normal;text-align:center;line-height:1.3}
+/* The Sub / Dub control sits at the top of the actions panel.
+   Both choices remain selectable so an unavailable saved preference can be
+   shown honestly; the Watch action is disabled until an available audio is chosen. */
+.detail-audio-control{min-width:0}
+.detail-audio-toggle{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;background:var(--raised);border:1px solid var(--line);border-radius:12px}
+.detail-audio-toggle button{border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font-size:14px;font-weight:680;min-height:39px;padding:8px 12px;transition:background .12s,color .12s,border-color .12s}
+.detail-audio-toggle button:hover:not([aria-pressed="true"]){background:var(--hover);color:var(--ink)}
+.detail-audio-toggle button[aria-pressed="true"]{background:var(--tab);border-color:var(--accent);color:var(--accent-ink)}
+@media(max-width:1050px){
+  .detail-hero{grid-template-columns:160px minmax(0,1fr);gap:17px 22px}
+  .detail-control-panel{grid-column:2;grid-row:2;max-width:460px}
+  .detail-cover{grid-row:1 / span 2}
+}
+@media(max-width:680px){
+  .detail-control-panel{grid-column:1 / -1;grid-row:auto;max-width:none;padding:14px;gap:12px}
+  .detail-cover{grid-row:auto}
+  .detail-control-panel .detail-actions{flex-direction:row;flex-wrap:wrap}
+  .detail-control-panel .detail-actions .btn{width:auto;flex:1;min-width:min(170px,100%)}
+}
+
+.detail-cover{width:100%;aspect-ratio:2/3;border-radius:16px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.13);box-shadow:0 16px 42px var(--shadow);display:flex;align-items:end;justify-content:center;padding:18px;text-align:center;isolation:isolate}
+.detail-cover::after{content:"";position:absolute;inset:43% 0 0;background:linear-gradient(0deg,rgba(0,0,0,.47),transparent);z-index:-1}
+.detail-cover::before{content:"";position:absolute;width:85%;aspect-ratio:1;border:2px solid rgba(255,255,255,.3);border-radius:50%;left:9%;top:13%;box-shadow:0 0 0 24px rgba(255,255,255,.035);z-index:-1}
+.detail-cover-name{font:700 27px/.98 Georgia,serif;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5);text-wrap:balance;letter-spacing:-.03em}
+.detail-kicker{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--accent);font-weight:750;margin:3px 0 9px}
+.detail-title{font-size:clamp(27px,3vw,37px);line-height:1.08;letter-spacing:-.045em;font-weight:745;margin:0 0 15px}
+.detail-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.detail-badge{border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11.5px;color:var(--muted);background:var(--surface)}
+.detail-badge strong{color:var(--ink);font-weight:650}.detail-description{font-size:14px;line-height:1.65;color:var(--muted);margin:0 0 19px;max-width:650px}
+.detail-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.detail-actions .btn{min-height:40px}
+.detail-helper{font-size:11px;color:var(--muted);margin:11px 0 0;line-height:1.4}
+.detail-section{border-top:1px solid var(--line);padding-top:23px}.detail-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.detail-section-head h2{font-size:21px;letter-spacing:-.03em}
+.season-select{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
+.season-select select{border:1px solid var(--line);background:var(--raised);border-radius:10px;color:var(--ink);padding:9px 32px 9px 11px;max-width:210px;cursor:pointer;font-size:12px}
+.availability{display:flex;gap:19px;align-items:center;flex-wrap:wrap;padding:12px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:11px}
+.availability-label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.availability-value{font-weight:720;color:var(--ink);font-variant-numeric:tabular-nums}
+.availability small{display:block;font-size:10px;opacity:.75;margin-top:2px}
+.availability .season-status{margin-left:auto;font-size:11px;color:var(--muted)}
+.episode-list{display:flex;flex-direction:column;gap:5px}
+.episode-item{display:grid;grid-template-columns:44px minmax(160px,1fr) minmax(140px,auto) auto;align-items:center;gap:14px;border:1px solid transparent;border-bottom-color:var(--line);border-radius:10px;min-height:74px;padding:10px 12px;transition:background .14s}
+.episode-item:hover{background:var(--surface);border-color:var(--line)}
+.episode-no{font-size:21px;color:var(--muted);font-weight:550;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.episode-name{font-size:13px;font-weight:700;line-height:1.4;margin-bottom:5px}.episode-subtext{font-size:11px;color:var(--muted)}
+.episode-flags{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.audio-flag{font-size:10.5px;color:var(--ink);border:1px solid var(--line);background:var(--raised);border-radius:7px;padding:6px 9px;min-width:43px;text-align:center}
+.audio-flag.unavailable{color:var(--muted);background:transparent;opacity:.58;border-style:dashed}
+.episode-actions{display:flex;gap:5px;align-items:center}.episode-actions .iconbtn{width:35px;height:35px;background:var(--raised);color:var(--accent);border:1px solid var(--line)}.episode-actions .iconbtn:hover{background:var(--hover)}
+.episode-note{font-size:11px;color:var(--muted);margin-top:15px;line-height:1.5}
+.audio-choose{display:flex;gap:9px;margin:18px 0 10px}.audio-choose label{flex:1;display:block}.audio-choose input{position:absolute;opacity:0}.audio-choose span{display:block;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:13px 12px;text-align:center;font-weight:700;cursor:pointer}.audio-choose input:checked + span{border-color:var(--accent);background:var(--strong)}.audio-choose input:focus-visible + span{outline:2px solid var(--accent);outline-offset:3px}
+.audio-choose input:disabled + span{opacity:.48;cursor:not-allowed}
+.preview-warning{font-size:12px;line-height:1.5;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;margin:11px 0}
+.tag-picker-list{display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;margin:16px 0}.tag-picker-list label{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);cursor:pointer}.tag-picker-list input{accent-color:var(--accent);width:16px;height:16px}
+@media(max-width:850px){.detail-hero{grid-template-columns:160px minmax(0,1fr);gap:22px}.detail-cover-name{font-size:23px}.episode-item{grid-template-columns:36px minmax(125px,1fr) auto;gap:9px}.episode-flags{grid-column:2;grid-row:2}.episode-actions{grid-column:3;grid-row:1 / span 2}.episode-item{min-height:88px}.episode-no{font-size:19px}.availability{gap:11px}}
+@media(max-width:570px){.detail-hero{grid-template-columns:114px minmax(0,1fr);gap:15px;margin-bottom:23px}.detail-title{font-size:24px}.detail-cover{border-radius:10px;padding:9px}.detail-cover-name{font-size:15px}.detail-description{font-size:12px;line-height:1.5;margin-bottom:11px}.detail-kicker{font-size:9px}.detail-badges{gap:5px;margin-bottom:10px}.detail-badge{padding:5px 7px;font-size:10px}.detail-actions .btn{min-height:34px;padding:8px;font-size:11px;gap:5px}.detail-helper{font-size:10px}.availability{gap:8px}.availability .season-status{margin-left:0}.availability-label{font-size:11px}.detail-section-head h2{font-size:18px}.season-select{gap:5px}.season-select select{max-width:138px}.episode-item{padding:9px 4px;grid-template-columns:27px minmax(100px,1fr) auto}.episode-no{font-size:16px}.episode-name{font-size:12px}.episode-actions .iconbtn{width:31px;height:31px}.audio-flag{padding:5px 7px;font-size:9px}}
+@media(max-width:370px){.detail-hero{grid-template-columns:95px minmax(0,1fr);gap:10px}.detail-cover-name{font-size:13px}.detail-title{font-size:21px}.detail-badge:nth-child(3){display:none}.detail-actions{gap:5px}}
+
+/* Shared availability indicators and episode selection. */
+.preferred-badge{font-size:11px;font-weight:680;border:1px solid var(--line);padding:5px 9px;border-radius:999px;white-space:nowrap;background:var(--raised);color:var(--muted)}
+.preferred-badge.available{border-color:var(--accent);color:var(--accent);background:var(--surface)}
+.preferred-badge.unavailable{color:var(--ink);border-color:var(--line);background:var(--raised)}
+.preferred-badge.unknown{border-style:dashed}
+.episode-item.selected{border-color:var(--line);background:var(--surface)}
+.episode-select{display:block;text-align:left;width:100%;min-width:0;border:0;padding:5px 0;background:none;color:var(--ink);border-radius:5px;white-space:normal;cursor:pointer}
+.episode-select:hover .episode-name{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.episode-item.selected .episode-no{color:var(--accent)}
+.episode-selected{font-size:10px;font-weight:650;color:var(--accent);margin-left:6px;white-space:nowrap}
+@media(max-width:570px){.preferred-badge{font-size:10px}}
+
+/* v0.10 — Connected seasons: title-first cards, independently selected installments,
+   separate related films/specials, no synthetic streaming availability claims. */
+.connected-section{border-top:1px solid var(--line);padding-top:20px;margin:0 0 24px}
+.connected-section-header{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:13px}
+.connected-section-header h2{font-size:19px;letter-spacing:-.03em;margin:0}
+.connected-section-note{font-size:11px;color:var(--muted);line-height:1.4}
+.connected-season-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(166px,1fr));gap:9px}
+.connected-season-card{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:105px;padding:13px 12px;text-align:left;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);transition:border-color .15s,background .15s}
+.connected-season-card:hover{border-color:var(--accent);background:var(--hover)}
+.connected-season-card[aria-pressed="true"]{border-color:var(--accent);background:var(--strong);box-shadow:0 0 0 1px var(--glow) inset}
+.connected-season-copy{min-width:0;display:flex;flex-direction:column;gap:5px}
+.connected-season-name{font-size:13px;font-weight:750;line-height:1.25;overflow-wrap:anywhere}
+.connected-season-number{font-size:11px;color:var(--muted);line-height:1.3}
+.connected-season-provider{font-size:10px;color:var(--muted);line-height:1.25;margin-top:2px}
+.connected-season-card[aria-pressed="true"] .connected-season-provider{color:var(--ink)}
+.connected-season-check{flex:none;color:var(--accent)}
+.connected-related{margin-top:16px;border-top:1px solid var(--line);padding-top:15px}
+.connected-related-header{font-size:12px;font-weight:740;color:var(--ink);margin-bottom:9px}
+.connected-related-list{display:flex;gap:8px;flex-wrap:wrap}
+.connected-related-button{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 13px;display:flex;gap:10px;align-items:center;text-align:left;color:var(--ink);min-width:0}
+.connected-related-button:hover,.connected-related-button[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
+.connected-related-button b{display:block;font-size:12px;font-weight:700;line-height:1.35}
+.connected-related-button small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.selected-installment{font-size:14px;color:var(--accent);font-weight:710;line-height:1.35;margin:-4px 0 11px}
+.selected-installment small{font-size:11px;font-weight:560;color:var(--muted);display:block;margin-top:4px}
+.installment-meta-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:9px}
+.provider-unmatched{display:flex;gap:13px;align-items:flex-start;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px;margin:10px 0 0}
+.provider-unmatched strong{display:block;font-size:13px;margin-bottom:6px}
+.provider-unmatched p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+.provider-unmatched .btn{flex:none}
+@media(max-width:850px){.connected-season-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:570px){.connected-season-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.connected-season-card{padding:10px;min-height:99px}.connected-season-name{font-size:12px}.connected-section-header{align-items:flex-start;flex-direction:column;gap:4px}.provider-unmatched{flex-direction:column;gap:10px}}
+@media(max-width:370px){.connected-season-list{grid-template-columns:1fr}.connected-season-card{min-height:72px}}
+
+/* v0.12 — in-context installment navigation. Nothing opens over the episode list. */
+.inline-installments{margin-bottom:20px}
+.inline-installment-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.inline-installment-tabs{display:flex;gap:5px;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
+.inline-installment-tabs::-webkit-scrollbar{display:none}
+.inline-installment-tab{flex:none;border:1px solid transparent;border-radius:9px;padding:7px 11px;background:transparent;color:var(--muted);font-size:12px;font-weight:670;white-space:nowrap}
+.inline-installment-tab:hover{background:var(--surface);color:var(--ink)}
+.inline-installment-tab[aria-pressed=true]{border-color:var(--line);background:var(--raised);color:var(--ink)}
+.inline-installment-arrows{display:flex;gap:5px;flex:none}
+.inline-arrow{display:grid;place-items:center;background:var(--surface);color:var(--muted);border:1px solid var(--line);height:31px;width:31px;border-radius:9px}
+.inline-arrow:hover{background:var(--hover);color:var(--ink);border-color:var(--accent)}
+.inline-arrow:focus-visible,.inline-installment-card:focus-visible,.inline-installment-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.inline-arrow.previous .icon{transform:rotate(180deg)}
+.inline-installment-rail{width:100%;display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:1px 0 6px}
+.inline-installment-card{display:flex;flex:0 0 clamp(180px,25%,290px);align-items:center;justify-content:space-between;gap:8px;min-height:66px;max-width:290px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 12px;text-align:left;scroll-snap-align:start;transition:border-color .12s,background .12s}
+.inline-installment-card:hover{background:var(--hover);border-color:var(--accent)}
+.inline-installment-card[aria-current=true]{background:var(--strong);border-color:var(--accent)}
+.inline-installment-card .installment-name{font-size:12px;font-weight:750;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.inline-installment-card .installment-number{font-size:11px;line-height:1.4;color:var(--muted);display:block;margin-top:4px}
+.inline-installment-card .icon{color:var(--accent);flex:none}
+.inline-installment-card:not([aria-current=true]) .icon{display:none}
+.inline-installment-rail:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.detail-section-head.installment-section-head{align-items:center;gap:12px;margin-bottom:12px}
+.detail-section-head.installment-section-head .season-select{display:block;overflow-wrap:anywhere;text-align:right}
+@media(max-width:700px){
+ .inline-installment-card{flex-basis:clamp(170px,55%,240px)}
+ .inline-installments{margin-bottom:14px}
+}
+@media(max-width:460px){
+ .inline-installment-top{gap:5px}
+ .inline-installment-tab{padding:7px 9px;font-size:11px}
+ .inline-arrow{width:29px;height:29px}
+ .inline-installment-card{flex-basis:76%;max-width:245px}
+ .inline-installment-card .installment-name{font-size:12px}
+ .detail-section-head.installment-section-head{flex-direction:row;align-items:baseline}
+}
+
+/* v0.14 — Responsive, in-context playback row.
+   Wide layouts retain the original action panel at the right.
+   Below 1050px, the poster and series details occupy the first row, while
+   audio / Watch / Tags share a single full-width row beneath both.
+   No overlay, no new panel height, and no lost episode context. */
+.detail-action-label-short{display:none}
+@media(max-width:1050px){
+  .detail-hero{
+    display:grid;
+    grid-template-columns:minmax(136px,180px) minmax(0,1fr);
+    align-items:start;
+    gap:17px 20px;
+  }
+  .detail-cover{grid-column:1;grid-row:1;}
+  .detail-overview{grid-column:2;grid-row:1;}
+  .detail-control-panel{
+    grid-column:1/-1;grid-row:2;max-width:none;min-width:0;
+    display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.05fr) minmax(0,1fr);
+    align-items:stretch;gap:10px;padding:0;background:transparent;border:0;border-radius:0;
+  }
+  .detail-control-panel .detail-actions{display:contents;}
+  .detail-control-panel .detail-actions .btn{
+    box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+    width:100%;min-width:0;min-height:46px;padding:9px 10px;
+    white-space:nowrap;text-align:center;gap:8px;
+  }
+  .detail-audio-control{display:flex;align-items:stretch;min-width:0;}
+  .detail-audio-toggle{width:100%;min-height:46px;box-sizing:border-box;gap:3px;padding:3px;}
+  .detail-audio-toggle button{min-height:38px;padding:7px 7px;}
+}
+@media(max-width:850px){
+  .detail-hero{grid-template-columns:160px minmax(0,1fr)}
+}
+@media(max-width:680px){
+  .detail-hero{grid-template-columns:128px minmax(0,1fr);gap:14px 16px;}
+  .detail-control-panel{grid-column:1/-1;grid-row:2;gap:8px;padding:0;max-width:none;}
+}
+@media(max-width:620px){
+  .detail-action-label-long{display:none}
+  .detail-action-label-short{display:inline}
+  .detail-control-panel{grid-template-columns:minmax(0,1.15fr) minmax(0,.9fr) minmax(0,.8fr);gap:8px;}
+  .detail-control-panel .detail-actions .btn{min-height:44px;padding:7px 7px;font-size:12px;gap:6px;}
+  .detail-audio-toggle{min-height:44px;}
+  .detail-audio-toggle button{font-size:12px;min-height:36px;padding:6px 5px;}
+}
+@media(max-width:570px){
+  .detail-hero{grid-template-columns:114px minmax(0,1fr);gap:14px;}
+  .detail-control-panel{grid-template-columns:minmax(0,1.15fr) minmax(0,.9fr) minmax(0,.8fr);gap:7px;}
+  .detail-control-panel .detail-actions .btn{min-height:43px;padding:7px 6px;font-size:12px;gap:5px;}
+  .detail-control-panel .detail-actions .btn .icon{width:15px;height:15px;flex:none;}
+  .detail-audio-toggle{min-height:43px;}
+  .detail-audio-toggle button{min-height:35px;padding:5px 3px;}
+}
+@media(max-width:370px){
+  .detail-hero{grid-template-columns:95px minmax(0,1fr);gap:10px;}
+  .detail-control-panel{gap:5px;}
+  .detail-control-panel .detail-actions .btn{padding:6px 4px;font-size:11px;gap:3px;}
+  .detail-control-panel .detail-actions .btn .icon{width:14px;height:14px;}
+  .detail-audio-toggle{padding:2px;gap:2px;}
+  .detail-audio-toggle button{font-size:11px;padding:4px 2px;}
+}
+
+
+/* v0.14 — Watch uses the already-selected Sub/Dub version and opens a player
+   preview directly. This replaces the redundant audio-selection dialog. */
+.playback-page{max-width:1120px;margin:auto;min-width:0}
+.playback-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:22px 0 19px;flex-wrap:wrap}
+.playback-heading h1{font-size:clamp(24px,3vw,35px);margin:0 0 8px}
+.playback-meta{font-size:13px;color:var(--muted);margin:0;line-height:1.6}
+.playback-audio{border:1px solid var(--line);border-radius:99px;padding:8px 13px;font-size:12px;color:var(--ink);background:var(--surface);white-space:nowrap}
+.playback-screen{width:100%;aspect-ratio:16/9;border-radius:17px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 44%,var(--raised) 0%,var(--window) 72%);display:grid;place-items:center;min-height:210px;overflow:hidden}
+.playback-screen-center{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:11px;text-align:center;padding:16px;max-width:420px;color:var(--accent)}
+.playback-screen-center strong{color:var(--ink);font-size:19px}
+.playback-screen-center span{color:var(--muted);font-size:13px;line-height:1.5}
+.playback-footnote{color:var(--muted);font-size:12px;line-height:1.7;max-width:720px;margin:17px 0}
+@media(max-width:570px){.playback-heading{align-items:start;margin-top:15px}.playback-audio{font-size:11px}.playback-screen{min-height:210px}.playback-screen-center strong{font-size:17px}}
+
+
+/* Custom player layout; design based on Gallery v0.14. */
+body.desktop-build{padding:0;background:var(--window)}
+body.desktop-build .app{width:100%;height:100vh;max-width:none;min-height:350px;border:0;border-radius:0;box-shadow:none}
+body.desktop-build .top{-webkit-app-region:drag;padding-top:25px}
+body.desktop-build .top button,body.desktop-build .tabs{-webkit-app-region:no-drag}
+body.desktop-build *:not(input):not(textarea){-webkit-user-select:none;user-select:none}
+body.desktop-build input,body.desktop-build textarea{-webkit-user-select:text;user-select:text}
+.player-area{width:100%;position:relative;background:#050508;aspect-ratio:16/9;border:1px solid #332a3d;border-radius:17px;overflow:hidden;isolation:isolate}
+.player-area video{width:100%;height:100%;display:block;object-fit:contain;background:#050508}
+.player-area:fullscreen{border:0;border-radius:0;display:flex;align-items:center;justify-content:center;background:#050508}
+.player-area:fullscreen video{max-height:100%}
+.player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:2;transition:opacity .23s ease}
+.player-overlay>*{pointer-events:auto}
+.player-top{padding:18px 20px 45px;background:linear-gradient(rgba(2,2,5,.85),transparent);display:flex;gap:16px;justify-content:space-between;align-items:start;color:#f4f1f7}
+.player-top strong{font-size:14px}.player-top small{display:block;color:#d4cbdc;margin-top:5px;font-size:11px}
+.player-bottom{padding:58px 21px 20px;background:linear-gradient(transparent,rgba(4,3,8,.94) 68%);color:#f8f5fc}
+.player-controls{display:grid;grid-template-columns:1fr auto 1fr;gap:13px;align-items:center;margin-top:20px}
+.player-controls .controls-left,.player-controls .controls-right,.player-controls .controls-middle{display:flex;align-items:center;gap:14px}
+.player-controls .controls-left{justify-content:flex-start}.player-controls .controls-middle{justify-content:center}.player-controls .controls-right{justify-content:flex-end}
+.player-icon{display:grid;place-items:center;border:0;background:transparent;color:#f5f0fa;width:35px;height:35px;border-radius:10px;padding:5px;flex:none}
+.player-icon:hover{background:rgba(255,255,255,.14);color:var(--accent)}.player-icon:focus-visible{outline:2px solid var(--accent)}
+.player-icon[aria-pressed="true"]{background:var(--tab);color:#fff}
+.player-main-action{border:0;border-radius:50%;width:54px;height:54px;background:var(--tab);color:#fff;display:grid;place-items:center;box-shadow:0 3px 13px rgba(0,0,0,.28)}
+.player-main-action:hover{filter:brightness(1.15)}.player-main-action:disabled{opacity:.5}
+.player-progress-row{display:flex;gap:13px;align-items:center}
+.player-time{font-size:11px;color:#eee8f4;white-space:nowrap;min-width:35px;font-variant-numeric:tabular-nums}
+.player-time:last-child{text-align:right}
+.player-progress{position:relative;min-width:0;flex:1;height:26px;display:flex;align-items:center;cursor:pointer}
+.player-progress-bar{display:flex;width:100%;height:5px;gap:5px;align-items:center;position:relative}
+.player-watched{height:5px;background:var(--accent);border-radius:8px;flex:0 0 0%}
+.player-remaining{height:5px;background:var(--player-remaining);border-radius:8px;flex:1}
+.player-progress input{position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;opacity:0}
+.player-scrub{position:absolute;left:0%;top:50%;transform:translate(-50%,-50%);border-radius:50%;width:12px;height:12px;background:var(--accent);box-shadow:0 0 0 2px #e8dff1;opacity:0;pointer-events:none;transition:opacity .1s}
+.player-progress:hover .player-scrub,.player-progress:focus-within .player-scrub{opacity:1}
+.player-volume{width:78px;max-width:10vw;accent-color:var(--accent)}
+.player-no-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:48px 22px 140px;text-align:center;background:radial-gradient(ellipse at 50% 25%,#20152a,#050508 70%)}
+.player-empty-inner{max-width:410px;display:flex;align-items:center;flex-direction:column;gap:12px}
+.player-empty-inner strong{font-size:20px;color:#f4eaf7}.player-empty-inner p{color:#c2b5cb;line-height:1.55;margin:0 0 3px;font-size:13px}
+.player-note{font-size:12px;color:var(--muted);line-height:1.65;margin:14px 0 20px}
+.player-episode-nav{border:1px solid var(--line);background:var(--surface);border-radius:13px;display:flex;align-items:center;justify-content:space-between;padding:13px 16px;gap:12px;margin-top:16px}
+.player-episode-nav .player-episode-label{flex:1;min-width:0}.player-episode-nav strong{display:block;font-size:13px}.player-episode-nav small{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+.player-episode-actions{display:flex;gap:9px}.player-episode-actions .btn{font-size:12px}
+.player-notice{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 13px;font-size:12px;color:var(--muted);margin:13px 0}
+.player-file-actions{display:flex;flex-wrap:wrap;gap:9px;margin:9px 0 0}
+.player-settings-row{display:flex;gap:12px;align-items:center;justify-content:flex-end}.player-settings-row select{background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:5px 9px}
+.player-area:fullscreen .player-bottom{padding-bottom:30px}
+@media (max-width:720px){.player-controls{gap:6px}.player-controls .controls-left,.player-controls .controls-middle,.player-controls .controls-right{gap:5px}.player-volume{width:55px}.player-area{min-height:230px}.player-bottom{padding:46px 11px 12px}.player-top{padding:12px 13px 24px}.player-icon{width:30px;height:30px}.player-main-action{width:44px;height:44px}.player-episode-nav{flex-wrap:wrap}.player-episode-actions{width:100%}.player-episode-actions .btn{flex:1}.player-no-media{padding-bottom:115px}}
+@media(max-width:440px){.player-volume{display:none}.player-controls .controls-left{gap:0}.player-controls .controls-right{gap:0}.player-progress-row{gap:8px}.player-time{font-size:10px}.player-empty-inner strong{font-size:14px}.player-empty-inner p{font-size:11px}.player-no-media{padding-bottom:85px}}
+
+/* Accent and remaining timeline segments inherit the current theme. */
+body[data-theme="neon"]{--player-remaining:rgba(174,153,192,.40)}
+body[data-theme="midnight"]{--player-remaining:rgba(104,141,160,.47)}
+body[data-theme="paper"]{--player-remaining:rgba(205,161,150,.55)}
+body[data-theme="paper"] .player-main-action,body[data-theme="paper"] .player-icon[aria-pressed="true"]{background:#995e63}
+.player-no-media[hidden]{display:none!important}
+
+/* On narrow windows, keep the empty-state explanation clear of the controls. */
+@media(max-width:600px){
+ .player-no-media{padding:48px 16px 114px}
+ .player-empty-inner{gap:5px}
+ .player-empty-inner>svg,.player-empty-inner>p,.player-empty-inner>.btn{display:none}
+ .player-empty-inner strong{font-size:13px;font-weight:600}
+}
+
+/* macOS hidden-inset titlebar: leave room for traffic lights. */
+body.desktop-build .top{padding-top:34px}
+body.desktop-build .brand-row{padding-left:66px}
+@media(max-width:750px){body.desktop-build .brand-row{padding-left:66px}}

@@ -1,0 +1,83 @@
+# Temporary, isolated Gallery preview in the StrawVerse repository.
+# The working StrawVerse source/build branches are never changed by this workflow.
+name: Gallery v0.2.0 | Apple Silicon preview
+
+on:
+  push:
+    branches:
+      - gallery/v0.2.0-preview
+    paths:
+      - '.github/workflows/gallery-preview-macos.yml'
+      - 'gallery/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gallery-arm64:
+    name: Package Gallery v0.2.0 (ARM64)
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    defaults:
+      run:
+        shell: bash
+        working-directory: gallery
+    steps:
+      - name: Checkout the temporary Gallery branch
+        uses: actions/checkout@v4
+
+      - name: Confirm the native Apple Silicon runner
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = 'arm64'
+          sw_vers
+
+      - name: Install Node.js on the CI runner only
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Gallery dependencies on the CI runner only
+        run: npm install --no-audit --no-fund
+
+      - name: Validate Gallery sources and unit tests
+        run: npm run check
+
+      - name: Package independent Gallery.app
+        run: npm run pack:mac
+
+      - name: Verify ARM64 application and create Finder-ready ZIP
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find dist -maxdepth 3 -type d -name Gallery.app -print -quit)
+          test -n "$APP_PATH"
+          PLIST="$APP_PATH/Contents/Info.plist"
+          test -f "$PLIST"
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$PLIST")
+          test "$BUNDLE_ID" = 'dev.gallery.anime'
+          EXE=$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$PLIST")
+          BIN="$APP_PATH/Contents/MacOS/$EXE"
+          test -x "$BIN"
+          echo 'Bundle executable:'
+          file "$BIN"
+          lipo -archs "$BIN" | grep -Eq '(^|[[:space:]])arm64($|[[:space:]])'
+          if lipo -archs "$BIN" | grep -q x86_64; then
+            echo 'Intel architecture unexpectedly included' >&2
+            exit 1
+          fi
+          mkdir -p release
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" release/Gallery-v0.2.0-Apple-Silicon.zip
+          unzip -t release/Gallery-v0.2.0-Apple-Silicon.zip >/dev/null
+          echo '### Gallery v0.2.0 — Apple Silicon' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Built isolated Gallery.app, independently of StrawVerse. This development preview is unsigned and not notarized.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload testable app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-v0.2.0-Apple-Silicon
+          path: gallery/release/Gallery-v0.2.0-Apple-Silicon.zip
+          if-no-files-found: error
+          retention-days: 30

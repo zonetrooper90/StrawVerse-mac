@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery · v0.2.0</title><link rel="stylesheet" href="./style.css"></head><body data-theme="neon">
+<div class="app" aria-label="Gallery for macOS preview">
+  <header class="top">
+    <div class="brand-row">
+      <div class="brand"><span class="brandmark" id="brand-icon"></span><span class="brandname">Gallery</span><span class="subtitle">Apple Silicon · v0.2.0</span></div>
+      <div class="toolbar"><button class="iconbtn" id="search" aria-label="Search anime" title="Search anime"></button><button class="iconbtn" id="settings" aria-label="Themes and preferences" title="Themes and preferences"></button></div>
+    </div>
+    <nav class="tabs" aria-label="Main navigation">
+      <button type="button" class="tab active" id="nav-discover" data-view="discover" aria-current="page"></button>
+      <button type="button" class="tab" id="nav-library" data-view="library"></button>
+      <button type="button" class="tab" id="nav-downloads" data-view="downloads"></button>
+    </nav>
+  </header>
+  <main class="workspace" id="workspace" tabindex="-1"><div id="screen"></div></main>
+</div>
+<div id="modal-host"></div>
+<script src="./renderer.js"></script></body></html>

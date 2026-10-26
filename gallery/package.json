@@ -1,0 +1,44 @@
+{
+  "name": "gallery-anime-macos-dev",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Gallery anime preview for Apple Silicon macOS (local playback foundation)",
+  "main": "electron/main.cjs",
+  "author": "Gallery development project",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check electron/main.cjs && node --check electron/preload.cjs && node --check electron/settings.cjs && node --check electron/vlc.cjs && node --check app/renderer.js && node --test tests/*.test.cjs",
+    "pack:mac": "electron-builder --mac dir --arm64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^37.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "dev.gallery.anime",
+    "productName": "Gallery",
+    "asar": true,
+    "files": [
+      "app/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.video",
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "identity": null,
+      "hardenedRuntime": false
+    }
+  }
+}
