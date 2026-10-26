@@ -187,7 +187,7 @@ function playbackPage(){
    <video id="local-video" playsinline preload="metadata" aria-label="Local video playback"></video>
    <div class="player-no-media" id="player-empty"><div class="player-empty-inner">${icon('film',35)}<strong>No streaming source connected yet</strong><p>The anime entries in this development build are examples. Open a local video file to test our actual player controls.</p><button type="button" class="btn primary" id="open-local-video">${icon('folder',16)} Open local video…</button></div></div>
    <div class="player-overlay" id="player-overlay">
-    <div class="player-top"><div><strong>${escapeHTML(installmentDisplayName(x,s))}</strong><small>${escapeHTML(installmentSubLabel(s))} · ${escapeHTML(label)}</small></div><button type="button" class="player-icon" id="top-fullscreen" aria-label="Toggle fullscreen">${icon('maximize',19)}</button></div>
+    <div class="player-top"><div><strong>${escapeHTML(installmentDisplayName(x,s))}</strong><small>${escapeHTML(installmentSubLabel(s))} · ${escapeHTML(label)}</small></div></div>
     <div class="player-bottom"><div class="player-progress-row"><span class="player-time" id="current-time">00:00</span><div class="player-progress" id="timeline"><div class="player-progress-bar"><div class="player-watched" id="watched"></div><div class="player-remaining"></div></div><span class="player-scrub" id="scrub-knob"></span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek within episode" disabled></div><span class="player-time" id="duration-time">00:00</span></div>
     <div class="player-controls"><div class="controls-left"><button type="button" class="player-icon" id="mute" aria-label="Mute or unmute">${icon('volume',21)}</button><input type="range" class="player-volume" id="volume" min="0" max="100" value="100" aria-label="Volume"></div><div class="controls-middle"><button type="button" class="player-icon" id="rewind10" aria-label="Rewind 10 seconds">${icon('rewind10',29)}</button><button type="button" class="player-main-action" id="pause-play" aria-label="Play" disabled>${icon('play',25)}</button><button type="button" class="player-icon" id="forward10" aria-label="Forward 10 seconds">${icon('forward10',29)}</button></div><div class="controls-right"><button type="button" class="player-icon" id="toggle-subs" aria-label="Show or hide subtitles" aria-pressed="${p.subtitles}">${icon('captions',22)}</button><button type="button" class="player-icon" id="player-settings" aria-label="Playback speed">${icon('settings',21)}</button><button type="button" class="player-icon" id="fullscreen" aria-label="Toggle fullscreen">${icon('maximize',21)}</button></div></div></div>
    </div>
@@ -320,7 +320,7 @@ function initializePlayer(){
   document.getElementById('save-rate').onclick=()=>{v.playbackRate=Number(document.getElementById('video-rate').value);closeModal();};
  };
  const fullscreen=()=>{const area=document.getElementById('player-area');if(!document.fullscreenElement)area.requestFullscreen?.().catch(()=>showPlayerNotice('Fullscreen is not available in this environment.'));else document.exitFullscreen?.();};
- document.getElementById('fullscreen').onclick=fullscreen;document.getElementById('top-fullscreen').onclick=fullscreen;
+ document.getElementById('fullscreen').onclick=fullscreen;
  document.getElementById('previous-episode').onclick=()=>advanceEpisode(-1);
  document.getElementById('next-episode').onclick=()=>advanceEpisode(1);
  document.getElementById('open-external-vlc').onclick=async()=>{
