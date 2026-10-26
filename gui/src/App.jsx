@@ -56,7 +56,7 @@ export default function App() {
       );
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, 300);
+      }, 400);
     }, 5000);
   };
 
@@ -702,7 +702,10 @@ export default function App() {
         malLoggedIn={malLoggedIn}
         developerMode={developerMode}
       />
-      <main className="u-style-8">
+      <main
+        key={`${current.view}-${current.params?.id ?? ""}-${["home", "discover"].includes(current.view) ? contentType : ""}`}
+        className="u-style-8 view-fade-in"
+      >
         <Suspense fallback={<ViewLoading />}>{renderActiveView()}</Suspense>
       </main>
 
