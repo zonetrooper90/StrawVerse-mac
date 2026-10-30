@@ -1,5 +1,41 @@
 # Changelog
 
+# [11.1.1] - 2026-10-26
+
+### Android Updates & Notifications
+
+- **Tap to Install from Notification Bar:** When an app update finishes downloading, you can now tap the notification directly in your Android notification shade to open the installer immediately
+
+### Mobile & Marketplace
+
+- **Fixed Broken Mobile Marketplace Layout:** extension cards were cut off on the left with blank space on the right on mobile screens. The header buttons and tabs now wrap neatly to fit your phone.
+
+### Database & Mapping Stability
+
+- **Fixed Mapping Sync Errors:** Fixed an issue where mapping database updates would fail on mobile due to missing unmapped tables and schema differences, ensuring updates apply smoothly.
+
+# [11.1.0] - 2026-10-25
+
+### Discover, Filters & Browsing
+
+- **New Dedicated Filters Page:** Added a full-featured Filters page allowing you to easily browse and discover anime and manga by Genre (Action, Romance, Isekai, etc.), Release Season, Year, Format (TV, Movie, OVA, Manga, Manhwa), Airing Status, and your MyAnimeList watch status.
+- **Filter by Extension / Mapped Status:** You can now filter specifically for titles linked to MyAnimeList or browse unmapped titles unique to your installed community extensions.
+- **Better Discover Covers:** Fixed an issue where new episode releases on the Discover tab would display wide video screenshots instead of vertical poster covers ( pahe ).
+
+### Library & Organization
+
+- **Added "Completed" Status:** You can now mark your anime and manga as "Completed" directly from the library tags dropdown, matching the rest of your watching and reading lists.
+- **Cleaner Library Menu:** Streamlined the library tags list so internal download labels no longer clutter your status selection.
+
+### Extensions & Sources
+
+- **Fixed Extension Icons:** Fixed community extension icons (.ico) not displaying in Settings and player source dropdowns so they show up everywhere consistently just like in the Marketplace.
+- **Smarter Source Linking:** AnimePahe links now lock onto the anime's title so your library and watch history stay connected even when provider links or IDs change behind the scenes.
+- **Synced Custom Mappings:** When linking an anime or manga manually, detailed titles, episode counts, and poster art now link seamlessly across providers and your library.
+- **Scoped Extension Mapping & Instant Cleanup:** Installing an extension now only fetches mapping and unmapped metadata for that specific provider instead of transferring unnecessary database records. Deleting an extension immediately purges its mapping tables, unmapped items, and settings from your device.
+- **Compacted Delta Sync & Auto-Reconciliation:** Delta mapping updates are squashed to transmit only the latest net state for installed extensions. Local manual links and unmapped entries are automatically reconciled and pruned when server mappings arrive, eliminating duplicate metadata.
+- **Dynamic Catalog Filters & Clean Metadata:** The Catalog source dropdown now strictly shows installed extensions that have unmapped results.
+
 # [11.0.4] - 2026-10-25
 
 ### Android Extensions & Marketplace

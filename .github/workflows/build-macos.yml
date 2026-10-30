@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - feature/native-macos-build
+      - feature/native-macos-v11.1.1
     paths:
       - ".github/workflows/build-macos.yml"
       - "electron/**"
