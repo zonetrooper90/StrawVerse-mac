@@ -46,8 +46,29 @@ jobs:
       - name: Validate Gallery sources and unit tests
         run: npm run check
 
-      - name: Package independent Gallery.app
-        run: npm run pack:mac
+      - name: Sign and package Gallery Playback Test
+        env:
+          CSC_LINK: ${{ secrets.GALLERY_MAC_CERT_P12 }}
+          CSC_KEY_PASSWORD: ${{ secrets.GALLERY_MAC_CERT_PASSWORD }}
+          APPLE_ID: ${{ secrets.GALLERY_APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.GALLERY_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.GALLERY_APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${CSC_LINK:-}" && -n "${CSC_KEY_PASSWORD:-}" && -n "${APPLE_ID:-}" && -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" && -n "${APPLE_TEAM_ID:-}" ]]; then
+            echo "GALLERY_SIGNING_MODE=developer-id" >> "$GITHUB_ENV"
+            export CSC_IDENTITY_AUTO_DISCOVERY=true
+            echo "Building a Developer ID-signed and notarized app"
+            npm run pack:mac -- --config.mac.notarize=true
+          elif [[ -n "${CSC_LINK:-}" || -n "${CSC_KEY_PASSWORD:-}" || -n "${APPLE_ID:-}" || -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" || -n "${APPLE_TEAM_ID:-}" ]]; then
+            echo "::error::Incomplete Apple signing credentials. All five Gallery secrets are required."
+            exit 1
+          else
+            echo "GALLERY_SIGNING_MODE=ad-hoc" >> "$GITHUB_ENV"
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+            echo "::warning::Ad-hoc test build only: without Apple Developer ID signing and notarization, macOS may still block first launch."
+            npm run pack:mac -- --config.mac.identity=- --config.mac.hardenedRuntime=false --config.mac.notarize=false
+          fi
 
       - name: Verify ARM64 application and create Finder-ready ZIP
         run: |
@@ -68,11 +89,21 @@ jobs:
             echo 'Intel architecture unexpectedly included' >&2
             exit 1
           fi
+          echo 'Checking the app signature before archiving'
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          if [[ "$GALLERY_SIGNING_MODE" = "developer-id" ]]; then
+            spctl --assess --type exec --verbose=2 "$APP_PATH"
+            xcrun stapler validate "$APP_PATH"
+          fi
           mkdir -p release
           ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" release/Gallery-Playback-Test-Apple-Silicon.zip
           unzip -t release/Gallery-Playback-Test-Apple-Silicon.zip >/dev/null
           echo '### Gallery Playback Test — Apple Silicon' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Built Gallery Playback Test.app with a separate bundle identifier and settings folder. This test build is unsigned and not notarized.' >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$GALLERY_SIGNING_MODE" = "developer-id" ]]; then
+            echo 'Developer ID signed, notarized, stapled, and verified. This distribution is designed to pass Gatekeeper.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Ad-hoc development signature only; macOS Gatekeeper still requires user approval on a downloaded copy. To distribute without warnings, configure the Apple Developer signing/notarization secrets.' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload testable app
         uses: actions/upload-artifact@v4
