@@ -9,7 +9,7 @@ const {validateVLC,findVLC}=require('./vlc.cjs');
 
 // This application is intentionally isolated from StrawVerse Mac's installation
 // and userData path. The product name/app ID can be renamed later.
-app.setName('Gallery');
+app.setName('Gallery Playback Test');
 let mainWindow=null, currentVideoPath=null, currentSettings=null,settingsPath=null;
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
 app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});
@@ -26,7 +26,7 @@ function createMenu(){
 function createWindow(){
  mainWindow=new BrowserWindow({
   width:1260,height:870,minWidth:680,minHeight:520,
-  title:'Gallery',backgroundColor:'#171221',
+  title:'Gallery Playback Test',backgroundColor:'#171221',
   titleBarStyle:process.platform==='darwin'?'hiddenInset':'default',
   show:false,
   webPreferences:{
@@ -62,6 +62,20 @@ function registerHandlers(){
   currentVideoPath=chosen;
   return {name:path.basename(chosen),fileURL:pathToFileURL(chosen).href};
  });
+ ipcMain.handle('gallery:subtitle:pick',async event=>{
+  assertMainWindow(event);
+  const result=await dialog.showOpenDialog(mainWindow,{
+   title:'Load a subtitle file',properties:['openFile'],
+   filters:[{name:'Subtitles',extensions:['srt','vtt']}]
+  });
+  if(result.canceled||!result.filePaths?.[0])return null;
+  const selected=path.resolve(result.filePaths[0]);
+  const ext=path.extname(selected).toLowerCase();
+  if(!['.srt','.vtt'].includes(ext))throw Error('Please select an .srt or .vtt subtitle file.');
+  const stats=fs.statSync(selected);
+  if(!stats.isFile()||stats.size>5*1024*1024)throw Error('Subtitle file must be a regular text file smaller than 5 MB.');
+  return {name:path.basename(selected),text:await fs.promises.readFile(selected,'utf8')};
+ });
  ipcMain.handle('gallery:vlc:locate',async event=>{
   assertMainWindow(event);
   const choice=await dialog.showOpenDialog(mainWindow,{title:'Select VLC.app',message:'Locate your VLC installation',properties:['openFile','openDirectory'],defaultPath:'/Applications'});
@@ -84,7 +98,7 @@ function registerHandlers(){
  });
 }
 app.whenReady().then(()=>{
- const userDataDir=path.join(app.getPath('appData'),'GalleryAnime');
+ const userDataDir=path.join(app.getPath('appData'),'GalleryAnimePlaybackTest');
  app.setPath('userData',userDataDir);
  settingsPath=path.join(userDataDir,'settings.json');
  currentSettings=readSettings(settingsPath);
