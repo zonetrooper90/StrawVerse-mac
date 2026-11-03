@@ -98,6 +98,10 @@ jobs:
           mkdir -p release
           ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" release/Gallery-Playback-Test-Apple-Silicon.zip
           unzip -t release/Gallery-Playback-Test-Apple-Silicon.zip >/dev/null
+          EXTRACTED_DIR=$(mktemp -d)
+          trap 'rm -rf "$EXTRACTED_DIR"' EXIT
+          ditto -x -k release/Gallery-Playback-Test-Apple-Silicon.zip "$EXTRACTED_DIR"
+          codesign --verify --deep --strict --verbose=2 "$EXTRACTED_DIR/Gallery Playback Test.app"
           echo '### Gallery Playback Test — Apple Silicon' >> "$GITHUB_STEP_SUMMARY"
           if [[ "$GALLERY_SIGNING_MODE" = "developer-id" ]]; then
             echo 'Developer ID signed, notarized, stapled, and verified. This distribution is designed to pass Gatekeeper.' >> "$GITHUB_STEP_SUMMARY"
