@@ -361,3 +361,6 @@ body[data-theme="paper"] .player-main-action,body[data-theme="paper"] .player-ic
 body.desktop-build .top{padding-top:34px}
 body.desktop-build .brand-row{padding-left:66px}
 @media(max-width:750px){body.desktop-build .brand-row{padding-left:66px}}
+
+/* Playback-only test: cue styling for observing subtitle/control overlap. */
+.player-area video::cue{color:#f8f5ff;background:rgba(0,0,0,.55);text-shadow:0 1px 2px #000;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
