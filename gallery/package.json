@@ -1,14 +1,14 @@
 {
   "name": "gallery-anime-macos-dev",
   "private": true,
-  "version": "0.2.0",
-  "description": "Gallery anime preview for Apple Silicon macOS (local playback foundation)",
+  "version": "0.2.0-playback-test.1",
+  "description": "Isolated Apple Silicon playback/subtitle testing build (local files)",
   "main": "electron/main.cjs",
   "author": "Gallery development project",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "check": "node --check electron/main.cjs && node --check electron/preload.cjs && node --check electron/settings.cjs && node --check electron/vlc.cjs && node --check app/renderer.js && node --test tests/*.test.cjs",
+    "check": "node --check electron/main.cjs && node --check electron/preload.cjs && node --check electron/settings.cjs && node --check electron/vlc.cjs && node --check app/subtitles.js && node --check app/renderer.js && node --test tests/*.test.cjs",
     "pack:mac": "electron-builder --mac dir --arm64 --publish never"
   },
   "devDependencies": {
@@ -16,8 +16,8 @@
     "electron-builder": "^26.0.0"
   },
   "build": {
-    "appId": "dev.gallery.anime",
-    "productName": "Gallery",
+    "appId": "dev.gallery.anime.playback-test",
+    "productName": "Gallery Playback Test",
     "asar": true,
     "files": [
       "app/**/*",
