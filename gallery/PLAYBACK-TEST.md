@@ -4,9 +4,9 @@ This branch is a disposable **local-video and subtitle testing build** of Galler
 
 ## Download and run
 
-Open [the Gallery Playback Test workflow runs](https://github.com/zonetrooper90/StrawVerse-mac/actions/workflows/gallery-preview-macos.yml?query=branch%3Agallery%2Fplayback-subtitle-test). Choose a successful run, download the `Gallery-Playback-Test-Apple-Silicon` artifact, unpack it, and unpack `Gallery-Playback-Test-Apple-Silicon.zip` to obtain **Gallery Playback Test.app**.
+Open [the Gallery Playback Test workflow runs](https://github.com/zonetrooper90/StrawVerse-mac/actions/workflows/gallery-preview-macos.yml?query=branch%3Agallery%2Fplayback-subtitle-test). Choose a successful run and download the **`Gallery-Playback-Test-Apple-Silicon-DMG`** artifact. Unzip the GitHub artifact to obtain **`Gallery-Playback-Test-arm64.dmg`**, open the DMG, and drag **Gallery Playback Test.app** into Applications. This matches the earlier successful StrawVerse Mac development-build workflow.
 
-The app is built for **Apple Silicon only**. The build workflow now distinguishes **ad-hoc development signing** from **Developer ID signing and notarization**. Until valid Apple credentials are configured, macOS Gatekeeper can still block the downloaded app. You may need to approve it manually; do not disable Gatekeeper globally. An ad-hoc signature does not make an app trusted on another Mac.
+The app is built for **Apple Silicon only**. The app is **ad-hoc signed, not Apple notarized**, using the same development distribution method as the earlier StrawVerse Mac builds. GitHub Actions verifies the code signature both in the app build and after mounting the DMG. Gatekeeper may still require first-launch approval because ad-hoc signing is not Apple Developer ID signing. Do not disable Gatekeeper globally.
 
 ## Test the player controls with subtitles
 
@@ -31,18 +31,7 @@ The local subtitle file is read only after you choose it. Its text is converted 
 
 GitHub Actions runs `npm run check` (including subtitle conversion tests) before packaging the ARM64 app.
 
-## Warning-free macOS distribution
 
-A standard GitHub Actions ZIP cannot by itself prevent macOS Gatekeeper's quarantine prompts. **Normal first-launch without an exception requires an Apple Developer ID Application certificate and Apple notarization**, including a stapled ticket. A personal Apple ID or an ad-hoc signature is insufficient.
+## Distribution verification
 
-If you have an Apple Developer Program account, set these **repository Actions secrets** (never commit them or paste them in chat):
-
-- `GALLERY_MAC_CERT_P12`: base64-encoded export of your Developer ID Application certificate and private key in a .p12 file
-- `GALLERY_MAC_CERT_PASSWORD`: password for the exported .p12
-- `GALLERY_APPLE_ID`: Apple ID used for notarization
-- `GALLERY_APP_SPECIFIC_PASSWORD`: an app-specific password for the Apple ID
-- `GALLERY_APPLE_TEAM_ID`: Apple Developer Team ID
-
-The workflow automatically selects the signed/notarized path only when **all five secrets** exist. It enables Hardened Runtime, requests notarization, and verifies the app signature, Gatekeeper assessment and notarization ticket before publishing the ZIP. Incomplete credentials fail the build instead of silently publishing an untrusted app.
-
-Without those secrets, GitHub Actions creates a clearly marked **ad-hoc development build** and verifies the resulting code signature for packaging integrity, but **this cannot eliminate Gatekeeper warnings for downloaded apps**. The workflow does not and must not remove the security quarantine attribute on the user's Mac.
+The workflow builds **Apple Silicon only**, verifies the ad-hoc signature with `codesign --verify --deep --strict`, verifies the DMG, mounts it, and verifies the actual packaged `.app` again. It does not require Apple Developer credentials. A passed CI run guarantees the archive passed these checks on the GitHub runner, but it does not certify Apple notarization or predict all Gatekeeper prompts on the testing Mac.
