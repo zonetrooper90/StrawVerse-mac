@@ -1,6 +1,5 @@
-# Temporary, isolated Gallery preview in the StrawVerse repository.
-# The working StrawVerse source/build branches are never changed by this workflow.
-name: Gallery Playback Test | Apple Silicon
+# Isolated Gallery playback-testing branch; the original Gallery and StrawVerse branches are not modified.
+name: Gallery Playback Test | Apple Silicon DMG
 
 on:
   push:
@@ -16,7 +15,7 @@ permissions:
 
 jobs:
   gallery-arm64:
-    name: Package Gallery Playback Test (ARM64)
+    name: Build signed Gallery Playback Test DMG (ARM64)
     runs-on: macos-15
     timeout-minutes: 45
     env:
@@ -26,55 +25,38 @@ jobs:
         shell: bash
         working-directory: gallery
     steps:
-      - name: Checkout the isolated Gallery playback-test branch
+      - name: Checkout isolated Gallery playback-test branch
         uses: actions/checkout@v4
 
-      - name: Confirm the native Apple Silicon runner
+      - name: Confirm Apple Silicon runner
         run: |
           set -euo pipefail
           test "$(uname -m)" = 'arm64'
           sw_vers
 
-      - name: Install Node.js on the CI runner only
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Install Gallery dependencies on the CI runner only
+      - name: Install Gallery dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Validate Gallery sources and unit tests
+      - name: Validate Gallery sources and subtitle tests
         run: npm run check
 
-      - name: Sign and package Gallery Playback Test
-        env:
-          CSC_LINK: ${{ secrets.GALLERY_MAC_CERT_P12 }}
-          CSC_KEY_PASSWORD: ${{ secrets.GALLERY_MAC_CERT_PASSWORD }}
-          APPLE_ID: ${{ secrets.GALLERY_APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.GALLERY_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.GALLERY_APPLE_TEAM_ID }}
+      - name: Package ad-hoc signed Apple Silicon DMG
         run: |
           set -euo pipefail
-          if [[ -n "${CSC_LINK:-}" && -n "${CSC_KEY_PASSWORD:-}" && -n "${APPLE_ID:-}" && -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" && -n "${APPLE_TEAM_ID:-}" ]]; then
-            echo "GALLERY_SIGNING_MODE=developer-id" >> "$GITHUB_ENV"
-            export CSC_IDENTITY_AUTO_DISCOVERY=true
-            echo "Building a Developer ID-signed and notarized app"
-            npm run pack:mac -- --config.mac.notarize=true
-          elif [[ -n "${CSC_LINK:-}" || -n "${CSC_KEY_PASSWORD:-}" || -n "${APPLE_ID:-}" || -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" || -n "${APPLE_TEAM_ID:-}" ]]; then
-            echo "::error::Incomplete Apple signing credentials. All five Gallery secrets are required."
-            exit 1
-          else
-            echo "GALLERY_SIGNING_MODE=ad-hoc" >> "$GITHUB_ENV"
-            export CSC_IDENTITY_AUTO_DISCOVERY=false
-            echo "::warning::Ad-hoc test build only: without Apple Developer ID signing and notarization, macOS may still block first launch."
-            npm run pack:mac -- --config.mac.identity=- --config.mac.hardenedRuntime=false --config.mac.notarize=false
-          fi
+          npm run pack:mac
 
-      - name: Verify ARM64 application and create Finder-ready ZIP
+      - name: Verify signed app and mounted DMG
         run: |
           set -euo pipefail
           APP_PATH=$(find dist -maxdepth 3 -type d -name 'Gallery Playback Test.app' -print -quit)
+          DMG_PATH="dist/Gallery-Playback-Test-arm64.dmg"
           test -n "$APP_PATH"
+          test -s "$DMG_PATH"
           PLIST="$APP_PATH/Contents/Info.plist"
           test -f "$PLIST"
           BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$PLIST")
@@ -82,37 +64,32 @@ jobs:
           EXE=$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$PLIST")
           BIN="$APP_PATH/Contents/MacOS/$EXE"
           test -x "$BIN"
-          echo 'Bundle executable:'
-          file "$BIN"
+          echo 'Verifying ARM64 architecture'
           lipo -archs "$BIN" | grep -Eq '(^|[[:space:]])arm64($|[[:space:]])'
           if lipo -archs "$BIN" | grep -q x86_64; then
-            echo 'Intel architecture unexpectedly included' >&2
+            echo "Intel architecture unexpectedly included" >&2
             exit 1
           fi
-          echo 'Checking the app signature before archiving'
+          echo 'Verifying the ad-hoc code signature'
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-          if [[ "$GALLERY_SIGNING_MODE" = "developer-id" ]]; then
-            spctl --assess --type exec --verbose=2 "$APP_PATH"
-            xcrun stapler validate "$APP_PATH"
-          fi
-          mkdir -p release
-          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" release/Gallery-Playback-Test-Apple-Silicon.zip
-          unzip -t release/Gallery-Playback-Test-Apple-Silicon.zip >/dev/null
-          EXTRACTED_DIR=$(mktemp -d)
-          trap 'rm -rf "$EXTRACTED_DIR"' EXIT
-          ditto -x -k release/Gallery-Playback-Test-Apple-Silicon.zip "$EXTRACTED_DIR"
-          codesign --verify --deep --strict --verbose=2 "$EXTRACTED_DIR/Gallery Playback Test.app"
-          echo '### Gallery Playback Test — Apple Silicon' >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$GALLERY_SIGNING_MODE" = "developer-id" ]]; then
-            echo 'Developer ID signed, notarized, stapled, and verified. This distribution is designed to pass Gatekeeper.' >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo 'Ad-hoc development signature only; macOS Gatekeeper still requires user approval on a downloaded copy. To distribute without warnings, configure the Apple Developer signing/notarization secrets.' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          codesign -dv --verbose=2 "$APP_PATH" 2>&1 | grep -F 'Signature=adhoc'
+          echo 'Verifying the packaged disk image'
+          hdiutil verify "$DMG_PATH"
+          MOUNT="$RUNNER_TEMP/gallery-playback-dmg"
+          mkdir -p "$MOUNT"
+          hdiutil attach -readonly -nobrowse -quiet -mountpoint "$MOUNT" "$DMG_PATH"
+          trap 'hdiutil detach -quiet "$MOUNT" || true' EXIT
+          codesign --verify --deep --strict --verbose=2 "$MOUNT/Gallery Playback Test.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$MOUNT/Gallery Playback Test.app/Contents/Info.plist")" = 'dev.gallery.anime.playback-test'
+          hdiutil detach -quiet "$MOUNT"
+          trap - EXIT
+          echo '### Gallery Playback Test — Apple Silicon DMG' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Ad-hoc signed and code-signature verified, including inside the mounted DMG; same development-distribution method as the earlier StrawVerse Mac build. This app is not Apple-notarized and Gatekeeper may still require first-launch approval.' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload testable app
+      - name: Upload Gallery Playback Test DMG
         uses: actions/upload-artifact@v4
         with:
-          name: Gallery-Playback-Test-Apple-Silicon
-          path: gallery/release/Gallery-Playback-Test-Apple-Silicon.zip
+          name: Gallery-Playback-Test-Apple-Silicon-DMG
+          path: gallery/dist/Gallery-Playback-Test-arm64.dmg
           if-no-files-found: error
           retention-days: 30
