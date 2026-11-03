@@ -15,7 +15,7 @@ The app is built for **Apple Silicon only**. The app is **ad-hoc signed, not App
 3. Below the video, choose either:
    - **Sample subtitles** — creates temporary example captions near your current playback position. No subtitle file is needed.
    - **Load .srt/.vtt…** — opens a native macOS file picker and loads an external SRT or WebVTT text file (up to 5 MiB).
-4. Test the **CC** button to show/hide the captions. Seek, pause, use fullscreen, and inspect the caption position relative to the real player controls.
+4. Test the **CC** button to show/hide the captions. During playback, stop moving the pointer for about **2.6 seconds**: the existing title and player controls should fade away, leaving subtitles visible. Move the pointer to show controls again. Pause to keep them visible, then try seeking and fullscreen.
 
 The local subtitle file is read only after you choose it. Its text is converted to WebVTT in memory, attached to the active video, and removed when the video is changed. No file is uploaded.
 
