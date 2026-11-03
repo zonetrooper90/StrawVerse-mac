@@ -1,7 +1,7 @@
 {
   "name": "gallery-anime-macos-dev",
   "private": true,
-  "version": "0.2.0-playback-test.1",
+  "version": "0.2.0-playback-test.2",
   "description": "Isolated Apple Silicon playback/subtitle testing build (local files)",
   "main": "electron/main.cjs",
   "author": "Gallery development project",
@@ -37,8 +37,7 @@
           ]
         }
       ],
-      "identity": null,
-      "hardenedRuntime": false
+      "hardenedRuntime": true
     }
   }
 }
