@@ -22,7 +22,7 @@ const demo=[
 const state={playback:null,playbackReturnScroll:0,view:'discover',theme:'neon',tag:'All Titles',filterStatus:'All',filterAudio:'All',downloadStatus:'All',query:'',tags:['Watching','Downloads','Plan to Watch','Comfort Picks','Weekend Queue'],kind:{'Watching':'system','Downloads':'system','Plan to Watch':'system','Comfort Picks':'custom','Weekend Queue':'custom'},importDoc:null,detailId:null,detailSeason:0,detailEpisode:1,detailReturnView:'discover',detailReturnScroll:0,detailAudio:null,detailRelated:null,installmentTab:'seasons',seasonTags:{},defaultPlayback:'sub',defaultDownload:'sub',defaultSubtitles:true};
 const screen=document.getElementById('screen'); const workspace=document.getElementById('workspace'); const modalHost=document.getElementById('modal-host');
 function countTag(t){return t==='All Titles'?demo.length:demo.filter(x=>x.tags.includes(t)).length;}
-function setView(view){state.playback=null;state.view=view;state.detailId=null;state.query='';for(const tab of document.querySelectorAll('.tab')){const active=tab.dataset.view===view;tab.classList.toggle('active',active);if(active)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current');}render();workspace.scrollTop=0;}
+function setView(view){clearSubtitleTrack();state.playback=null;state.view=view;state.detailId=null;state.query='';for(const tab of document.querySelectorAll('.tab')){const active=tab.dataset.view===view;tab.classList.toggle('active',active);if(active)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current');}render();workspace.scrollTop=0;}
 function artCard(item){return `<article class="poster-item"><button class="poster-button" data-detail="${escapeHTML(item.id)}" title="View ${escapeHTML(item.name)}"><div class="poster" style="background:${item.art}"><span class="art-orb"></span><span class="poster-name">${escapeHTML(item.name)}</span></div><div class="poster-title">${escapeHTML(item.name)}</div><div class="meta">${escapeHTML(item.status)} · ${escapeHTML(item.lang)}</div></button></article>`;}
 function gallery(items){return items.length?`<div class="poster-grid">${items.map(artCard).join('')}</div>`:'<div class="empty">No matching anime in this sample collection.</div>';}
 function searchItems(items){if(!state.query.trim())return items;let q=state.query.trim().toLowerCase();return items.filter(x=>x.name.toLowerCase().includes(q));}
@@ -182,7 +182,7 @@ function playbackPage(){
  const prev=p.episode>1, next=p.episode<s.total;
  return `<section class="playback-page" aria-label="Gallery video player">
   <button type="button" class="detail-back" id="back-from-playback">${icon('back',18)} Back to episodes</button>
-  <div class="playback-heading"><div><div class="detail-kicker">Gallery player · v0.2.0 preview</div><h1>${escapeHTML(x.name)}</h1><p class="playback-meta">${escapeHTML(installmentDisplayName(x,s))} · ${escapeHTML(installmentSubLabel(s))} · ${escapeHTML(label)}</p></div><span class="playback-audio">${escapeHTML(audioName(p.audio))} · selected</span></div>
+  <div class="playback-heading"><div><div class="detail-kicker">Gallery player · local playback test</div><h1>${escapeHTML(x.name)}</h1><p class="playback-meta">${escapeHTML(installmentDisplayName(x,s))} · ${escapeHTML(installmentSubLabel(s))} · ${escapeHTML(label)}</p></div><span class="playback-audio">${escapeHTML(audioName(p.audio))} · selected</span></div>
   <div class="player-area" id="player-area" aria-label="Video and controls">
    <video id="local-video" playsinline preload="metadata" aria-label="Local video playback"></video>
    <div class="player-no-media" id="player-empty"><div class="player-empty-inner">${icon('film',35)}<strong>No streaming source connected yet</strong><p>The anime entries in this development build are examples. Open a local video file to test our actual player controls.</p><button type="button" class="btn primary" id="open-local-video">${icon('folder',16)} Open local video…</button></div></div>
@@ -192,13 +192,13 @@ function playbackPage(){
     <div class="player-controls"><div class="controls-left"><button type="button" class="player-icon" id="mute" aria-label="Mute or unmute">${icon('volume',21)}</button><input type="range" class="player-volume" id="volume" min="0" max="100" value="100" aria-label="Volume"></div><div class="controls-middle"><button type="button" class="player-icon" id="rewind10" aria-label="Rewind 10 seconds">${icon('rewind10',29)}</button><button type="button" class="player-main-action" id="pause-play" aria-label="Play" disabled>${icon('play',25)}</button><button type="button" class="player-icon" id="forward10" aria-label="Forward 10 seconds">${icon('forward10',29)}</button></div><div class="controls-right"><button type="button" class="player-icon" id="toggle-subs" aria-label="Show or hide subtitles" aria-pressed="${p.subtitles}">${icon('captions',22)}</button><button type="button" class="player-icon" id="player-settings" aria-label="Playback speed">${icon('settings',21)}</button><button type="button" class="player-icon" id="fullscreen" aria-label="Toggle fullscreen">${icon('maximize',21)}</button></div></div></div>
    </div>
   </div>
-  <div class="player-file-actions"><button class="btn small" id="change-local-video">${icon('folder',15)} Open local video…</button><button class="btn small" id="open-external-vlc" disabled>Open in VLC</button><span class="muted" id="local-file-label" style="align-self:center;font-size:12px">No local file selected</span></div>
+  <div class="player-file-actions"><button class="btn small" id="change-local-video">${icon('folder',15)} Open local video…</button><button class="btn small" id="open-subtitle-file" disabled>Load .srt/.vtt…</button><button class="btn small" id="sample-subtitles" disabled>Sample subtitles</button><button class="btn small" id="open-external-vlc" disabled>Open in VLC</button><span class="muted" id="local-file-label" style="align-self:center;font-size:12px">No local file selected</span><span class="muted" id="subtitle-file-label" style="align-self:center;font-size:12px">No subtitles loaded</span></div>
   <div class="player-episode-nav"><div class="player-episode-label"><strong>${escapeHTML(installmentDisplayName(x,s))}</strong><small>${escapeHTML(installmentSubLabel(s))} · ${escapeHTML(label)} · ${escapeHTML(audioName(p.audio))}</small></div><div class="player-episode-actions"><button class="btn small" id="previous-episode" ${!prev?'disabled':''}>${icon('back',15)} Previous episode</button><button class="btn small" id="next-episode" ${!next?'disabled':''}>Next episode ${icon('chevron',15)}</button></div></div>
-  <div class="player-notice" id="player-notice">Local-file playback is functional where Electron supports the file's codec. Actual provider streams, bundled MPV rendering, and subtitle imports are not connected yet. Gallery does not autoplay the next episode.</div>
+  <div class="player-notice" id="player-notice">Local-file playback is functional where Electron supports the file's codec. Streaming and bundled MPV are not connected in this test. Use the subtitle file picker or sample captions to inspect subtitle positioning. Up Next has not been implemented.</div>
  </section>`;
 }
 function backFromPlayback(){
- document.getElementById("local-video")?.pause();isLocalVideoReady=false;
+ document.getElementById("local-video")?.pause();clearSubtitleTrack();isLocalVideoReady=false;
  state.playback=null;render();workspace.scrollTop=state.playbackReturnScroll;
 }
 function showEpisodeAction(action,n){
@@ -236,6 +236,7 @@ function showFindSource(){const x=demo.find(d=>d.id===state.detailId),s=x&&activ
 
 /* Electron bridge is narrowly scoped; standalone preview still renders. */
 let localVideoName='',isLocalVideoReady=false,lastExternalPlayerStatus='not checked';
+let activeSubtitleBlobUrl=null;
 let savingPreference=false;
 async function saveDesktopPreferences(){
  if(!window.galleryDesktop)return;
@@ -256,6 +257,34 @@ async function setupDesktopSettings(){
  }catch(err){console.warn('Could not load local settings:',err)}
 }
 function fmtTime(sec){if(!Number.isFinite(sec)||sec<0)return '00:00';const x=Math.floor(sec);return `${String(Math.floor(x/3600)).padStart(x>=3600?1:2,'0')}:${String(Math.floor(x%3600/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`.replace(/^00:/,'');}
+function clearSubtitleTrack(){
+ const video=document.getElementById('local-video');
+ video?.querySelector('track[data-gallery-subtitles]')?.remove();
+ if(activeSubtitleBlobUrl){URL.revokeObjectURL(activeSubtitleBlobUrl);activeSubtitleBlobUrl=null;}
+ const label=document.getElementById('subtitle-file-label');
+ if(label)label.textContent='No subtitles loaded';
+}
+function installSubtitleTrack(vtt,name){
+ const video=document.getElementById('local-video');
+ if(!video||!isLocalVideoReady)throw Error('Load a video before adding subtitles.');
+ clearSubtitleTrack();
+ activeSubtitleBlobUrl=URL.createObjectURL(new Blob([vtt],{type:'text/vtt;charset=utf-8'}));
+ const track=document.createElement('track');
+ track.dataset.gallerySubtitles='true';
+ track.kind='subtitles';
+ track.label=name;
+ track.srclang='und';
+ track.default=Boolean(state.playback?.subtitles);
+ track.src=activeSubtitleBlobUrl;
+ track.addEventListener('load',()=>{
+  track.track.mode=state.playback?.subtitles?'showing':'hidden';
+ });
+ track.addEventListener('error',()=>showPlayerNotice('The subtitle track could not be loaded by the built-in player.'));
+ video.appendChild(track);
+ track.track.mode=state.playback?.subtitles?'showing':'hidden';
+ document.getElementById('toggle-subs').setAttribute('aria-pressed',String(Boolean(state.playback?.subtitles)));
+ document.getElementById('subtitle-file-label').textContent=name;
+}
 function updatePlaybackUI(){
  const video=document.getElementById('local-video');if(!video)return;
  const duration=Number.isFinite(video.duration)?video.duration:0;
@@ -276,12 +305,14 @@ async function openLocalForPlayer(){
  catch(error){showPlayerNotice(`Unable to open file: ${error.message}`);return;}
  if(!chosen)return;
  const video=document.getElementById('local-video');if(!video)return;
- video.pause();isLocalVideoReady=false;localVideoName=chosen.name;
+ video.pause();clearSubtitleTrack();isLocalVideoReady=false;localVideoName=chosen.name;
  video.src=chosen.fileURL;video.load();
+ document.getElementById('open-subtitle-file').disabled=false;
+ document.getElementById('sample-subtitles').disabled=false;
  document.getElementById('player-empty').hidden=true;
  document.getElementById('local-file-label').textContent=chosen.name;
  document.getElementById('open-external-vlc').disabled=false;
- showPlayerNotice(`Selected local file: ${chosen.name}. The codec must be supported by Electron for in-app playback. Subtitles and streaming providers are not wired in this milestone.`);
+ showPlayerNotice(`Selected local file: ${chosen.name}. The codec must be supported by Electron for in-app playback. You can load an .srt/.vtt file or use sample captions.`);
  if(state.playerPreference==='vlc'){
   const result=await window.galleryDesktop.openInVLC();
   if(result.ok){
@@ -297,7 +328,7 @@ function advanceEpisode(step){
  if(!p||!s)return;const newEp=p.episode+step;
  if(newEp<1||newEp>s.total)return;
  state.detailEpisode=newEp;state.playback={...p,episode:newEp};
- isLocalVideoReady=false;localVideoName='';render();workspace.scrollTop=0;
+ clearSubtitleTrack();isLocalVideoReady=false;localVideoName='';render();workspace.scrollTop=0;
 }
 function initializePlayer(){
  const v=document.getElementById('local-video');if(!v)return;
@@ -308,13 +339,28 @@ function initializePlayer(){
  for(const name of ['timeupdate','durationchange','play','pause','ended','volumechange'])v.addEventListener(name,updatePlaybackUI);
  document.getElementById('open-local-video').onclick=openLocalForPlayer;
  document.getElementById('change-local-video').onclick=openLocalForPlayer;
+ document.getElementById('open-subtitle-file').onclick=async()=>{
+  if(!window.galleryDesktop){showPlayerNotice('Subtitle files can only be selected in the Mac app.');return;}
+  try{
+   const chosen=await window.galleryDesktop.openSubtitle();
+   if(!chosen)return;
+   installSubtitleTrack(window.GallerySubtitles.toWebVtt(chosen.text),chosen.name);
+   showPlayerNotice('Loaded subtitles: '+chosen.name+'. Use the CC control to show or hide them.');
+  }catch(error){showPlayerNotice('Unable to load subtitles: '+error.message);}
+ };
+ document.getElementById('sample-subtitles').onclick=()=>{
+  try{
+   installSubtitleTrack(window.GallerySubtitles.sampleWebVtt(v.duration,v.currentTime),'Sample subtitles (test only)');
+   showPlayerNotice('Sample subtitles are loaded around the current playback position. These are test captions, not video dialogue.');
+  }catch(error){showPlayerNotice('Unable to show sample subtitles: '+error.message);}
+ };
  document.getElementById('pause-play').onclick=()=>{if(!isLocalVideoReady)return;if(v.paused)v.play().catch(e=>showPlayerNotice('Unable to play file: '+e.message));else v.pause();};
  document.getElementById('rewind10').onclick=()=>{if(Number.isFinite(v.duration))v.currentTime=Math.max(0,v.currentTime-10);};
  document.getElementById('forward10').onclick=()=>{if(Number.isFinite(v.duration))v.currentTime=Math.min(v.duration,v.currentTime+10);};
  document.getElementById('seek').oninput=e=>{if(Number.isFinite(v.duration))v.currentTime=v.duration*Number(e.target.value)/1000;};
  const volume=document.getElementById('volume');volume.oninput=()=>{v.volume=Number(volume.value)/100;v.muted=v.volume===0;};
  document.getElementById('mute').onclick=()=>{v.muted=!v.muted;document.getElementById('mute').setAttribute('aria-label',v.muted?'Unmute':'Mute');};
- document.getElementById('toggle-subs').onclick=e=>{const target=e.currentTarget;const tracks=Array.from(v.textTracks||[]);if(!tracks.length){showPlayerNotice('No subtitle tracks are loaded for this local file. External subtitle imports are planned.');return;}const activate=target.getAttribute('aria-pressed')!=='true';tracks.forEach(t=>t.mode=activate?'showing':'disabled');target.setAttribute('aria-pressed',String(activate));};
+ document.getElementById('toggle-subs').onclick=e=>{const target=e.currentTarget;const tracks=Array.from(v.textTracks||[]);if(!tracks.length){showPlayerNotice('No subtitle tracks are loaded for this local file. External subtitle imports are planned.');return;}const activate=target.getAttribute('aria-pressed')!=='true';tracks.forEach(t=>t.mode=activate?'showing':'hidden');state.playback.subtitles=activate;target.setAttribute('aria-pressed',String(activate));};
  document.getElementById('player-settings').onclick=()=>{
   modal('Playback speed',`<p class="description">Speed applies to the currently open local video.</p><div class="field"><label for="video-rate">Playback speed</label><select id="video-rate">${[0.5,0.75,1,1.25,1.5,2].map(r=>`<option value="${r}" ${v.playbackRate===r?'selected':''}>${r}×</option>`).join('')}</select></div>`,`<button class="btn primary" id="save-rate">Apply</button>`);
   document.getElementById('save-rate').onclick=()=>{v.playbackRate=Number(document.getElementById('video-rate').value);closeModal();};
