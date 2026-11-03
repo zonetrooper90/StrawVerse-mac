@@ -237,6 +237,7 @@ function showFindSource(){const x=demo.find(d=>d.id===state.detailId),s=x&&activ
 /* Electron bridge is narrowly scoped; standalone preview still renders. */
 let localVideoName='',isLocalVideoReady=false,lastExternalPlayerStatus='not checked';
 let activeSubtitleBlobUrl=null;
+let detachPlayerAutoHide=null;
 let savingPreference=false;
 async function saveDesktopPreferences(){
  if(!window.galleryDesktop)return;
@@ -330,10 +331,90 @@ function advanceEpisode(step){
  state.detailEpisode=newEp;state.playback={...p,episode:newEp};
  clearSubtitleTrack();isLocalVideoReady=false;localVideoName='';render();workspace.scrollTop=0;
 }
+/* Only the existing player overlay changes visibility; no extra control layer is created. */
+function initializePlayerAutoHide(video) {
+ const area=document.getElementById('player-area');
+ const overlay=document.getElementById('player-overlay');
+ if(!area||!overlay)return ()=>{};
+ const HIDE_AFTER_MS=2600;
+ let timer=null;
+ let pointerHeld=false;
+ let keyboardNavigation=false;
+ const events=[];
+ const on=(target,type,fn)=>{target.addEventListener(type,fn);events.push(()=>target.removeEventListener(type,fn));};
+ const clearTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+ const isPlaying=()=>isLocalVideoReady && !video.paused && !video.ended;
+ const reveal=()=>{
+  clearTimer();
+  area.classList.remove('controls-hidden');
+  overlay.inert=false;
+ };
+ const hide=()=>{
+  timer=null;
+  if(!isPlaying()||pointerHeld||(keyboardNavigation&&overlay.contains(document.activeElement)))return;
+  area.classList.add('controls-hidden');
+  overlay.inert=true;
+ };
+ const queueHide=(delay=HIDE_AFTER_MS)=>{
+  clearTimer();
+  if(isPlaying())timer=setTimeout(hide,delay);
+ };
+ const refresh=()=>{
+  reveal();
+  queueHide();
+ };
+ on(area,'pointermove',()=>{
+  keyboardNavigation=false;
+  refresh();
+ });
+ on(area,'pointerdown',()=>{
+  pointerHeld=true;
+  keyboardNavigation=false;
+  reveal();
+ });
+ on(document,'pointerup',()=>{
+  if(!pointerHeld)return;
+  pointerHeld=false;
+  // Mouse-clicked buttons should not keep the entire control bar visible forever.
+  if(!keyboardNavigation&&overlay.contains(document.activeElement))document.activeElement.blur();
+  queueHide();
+ });
+ on(document,'pointercancel',()=>{
+  pointerHeld=false;
+  queueHide();
+ });
+ on(area,'pointerleave',()=>queueHide(400));
+ on(area,'focusin',()=>{
+  if(!pointerHeld)keyboardNavigation=true;
+  reveal();
+ });
+ on(area,'focusout',()=>{
+  if(!area.contains(document.activeElement)){keyboardNavigation=false;queueHide();}
+ });
+ on(area,'keydown',()=>{
+  keyboardNavigation=true;
+  reveal();
+ });
+ on(video,'play',refresh);
+ on(video,'pause',reveal);
+ on(video,'ended',reveal);
+ on(video,'loadedmetadata',refresh);
+ on(document,'fullscreenchange',refresh);
+ area.tabIndex=0;
+ refresh();
+ return ()=>{
+  clearTimer();
+  events.forEach(off=>off());
+  area.classList.remove('controls-hidden');
+  overlay.inert=false;
+ };
+}
+
 function initializePlayer(){
  const v=document.getElementById('local-video');if(!v)return;
  isLocalVideoReady=false;localVideoName='';
  v.volume=1;v.autoplay=false;v.loop=false;
+ detachPlayerAutoHide=initializePlayerAutoHide(v);
  v.addEventListener('loadedmetadata',()=>{isLocalVideoReady=true;document.getElementById('player-empty').hidden=true;updatePlaybackUI();});
  v.addEventListener('error',()=>{isLocalVideoReady=false;document.getElementById('player-empty').hidden=false;showPlayerNotice('The selected file cannot be decoded in the integrated Chromium player. You may try VLC, if installed, or another compatible file.');updatePlaybackUI();});
  for(const name of ['timeupdate','durationchange','play','pause','ended','volumechange'])v.addEventListener(name,updatePlaybackUI);
@@ -379,6 +460,7 @@ function initializePlayer(){
 }
 
 function render(){
+ if(detachPlayerAutoHide){detachPlayerAutoHide();detachPlayerAutoHide=null;}
  const oldTagScroll=screen.querySelector('.tagbar')?.scrollLeft||0;
  const priorRailScroll=screen.querySelector('#inline-installment-rail')?.scrollLeft||0;
  workspace.classList.toggle('library-view',state.view==='library'&&!state.detailId);
