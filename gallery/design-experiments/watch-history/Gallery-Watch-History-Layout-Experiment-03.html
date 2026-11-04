@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Gallery — Watch History Layout Experiment 03</title>
+<style>
+/* Standalone Gallery layout study, not a new numbered Gallery release.
+   Theme variables and disappearing overlay scrollbar behavior follow Gallery v99.
+   Experiment 03: stable-position episode status controls and in-place state updates (no panel reanimation).
+   Retains Experiment 02 two-column layout, center divider and disappearing scrollbars.
+   All data is fabricated demonstration state; no external dependencies or images. */
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-size:14px;font-synthesis:none}
+*{box-sizing:border-box}html,body{margin:0;height:100%}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.4;cursor:not-allowed}
+body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
+body[data-theme="midnight"]{--window:#111922;--surface:#192631;--raised:#243442;--hover:#2c4350;--line:#334c5b;--ink:#e8f0f3;--muted:#a1b5c1;--accent:#92cbc7;--accent-ink:#f8ffff;--tab:#385e68;--strong:#2b4b54;--glow:rgba(98,179,185,.15);--shadow:rgba(9,16,23,.58);--desktop:#081016}
+body[data-theme="paper"]{--window:#f7f2eb;--surface:#f0e8df;--raised:#e8ddd2;--hover:#e0d1c3;--line:#d8c6ba;--ink:#3f3838;--muted:#7a6a68;--accent:#995e63;--accent-ink:#fff;--tab:#c68f8d;--strong:#dbc0b5;--glow:rgba(180,117,109,.11);--shadow:rgba(61,41,36,.14);--desktop:#e2d6cc}
+body{padding:20px;background:var(--desktop);color:var(--ink);transition:background .18s,color .18s}
+.app{width:min(1400px,100%);height:calc(100dvh - 40px);min-height:490px;max-height:1100px;margin:auto;background:var(--window);border:1px solid var(--line);border-radius:22px;box-shadow:0 28px 65px var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.top{flex:none;z-index:5;padding:22px 28px 19px;border-bottom:1px solid var(--line);background:var(--window)}
+.brand-row{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}
+.brand{display:flex;gap:12px;align-items:center;min-width:0}.brandmark{color:var(--accent);display:grid;place-items:center;width:28px;height:28px}.brand-name{font-size:21px;letter-spacing:-.03em;font-weight:680;white-space:nowrap}.subtitle{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 9px;margin-left:6px;white-space:nowrap}
+.toolbar{display:flex;gap:7px;align-items:center;min-width:0}.iconbtn{height:38px;width:38px;flex:none;border:0;background:transparent;border-radius:10px;color:var(--muted);display:grid;place-items:center}.iconbtn:hover{color:var(--ink);background:var(--hover)}.icon{display:block;width:20px;height:20px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px;background:var(--raised);border-radius:17px}.tab{display:flex;gap:10px;align-items:center;justify-content:center;padding:13px 16px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:15px;font-weight:590;transition:background .16s,color .16s}.tab:hover{background:var(--hover);color:var(--ink)}.tab.active{background:var(--tab);color:var(--accent-ink);box-shadow:0 1px 3px rgba(0,0,0,.09)}
+.search-wrap{display:flex;align-items:center;min-width:0}.search-wrap.open{background:var(--raised);border:1px solid var(--line);border-radius:12px}.search-wrap.open .iconbtn{color:var(--accent)}.search-field{display:flex;align-items:center;max-width:0;opacity:0;overflow:hidden;visibility:hidden;transition:max-width .23s ease,opacity .23s ease}.search-wrap.open .search-field{max-width:235px;opacity:1;visibility:visible}.search-field input{width:188px;min-width:0;border:0;background:transparent;color:var(--ink);outline:none;padding:8px 0}.search-field input::-webkit-search-cancel-button{appearance:none}.search-field input::placeholder{color:var(--muted)}.search-close{width:30px;height:32px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);border-radius:8px}.search-close:hover{background:var(--hover);color:var(--ink)}
+.content-shell{position:relative;flex:1;min-height:0;overflow:hidden}.content-scroll{height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;scrollbar-gutter:auto;padding:25px 28px 54px}.content-scroll::-webkit-scrollbar,.episode-scroll::-webkit-scrollbar{display:none;width:0;height:0}
+.page-topline{display:flex;justify-content:space-between;align-items:center;gap:12px}.back{display:inline-flex;align-items:center;gap:7px;background:transparent;border:0;padding:7px 3px;color:var(--muted);font-size:13px;font-weight:600}.back:hover{color:var(--ink)}.test-note{font-size:11px;color:var(--muted);white-space:nowrap}.page-header{margin-top:13px;margin-bottom:21px}.page-header-primary{display:flex;align-items:center;justify-content:space-between;gap:15px;min-width:0}.page-title{font-weight:710;font-size:27px;letter-spacing:-.035em;line-height:1.14;margin:0}.page-caption{font-size:13px;line-height:1.5;color:var(--muted);margin:8px 0 0}.header-divider{height:1px;background:var(--line);margin-top:15px}.page-controls{display:flex;gap:12px;justify-content:space-between;align-items:center;padding-top:15px;flex-wrap:wrap}
+.segmented{display:inline-flex;align-items:center;gap:3px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--raised);max-width:100%}.segmented button{border:0;background:transparent;border-radius:9px;color:var(--muted);font-size:12px;font-weight:650;padding:9px 13px;white-space:nowrap;transition:color .14s,background .14s}.segmented button:hover{color:var(--ink)}.segmented button[aria-pressed="true"]{background:var(--tab);color:var(--accent-ink);box-shadow:0 1px 4px rgba(0,0,0,.09)}
+.sort-button{display:inline-flex;gap:8px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);padding:9px 12px;min-height:37px;font-size:12px;font-weight:630;white-space:nowrap}.sort-button:hover{color:var(--ink);background:var(--hover)}.sort-button svg{width:17px;height:17px}.sort-button .sort-arrow{transition:transform .22s ease}.sort-button.oldest .sort-arrow{transform:rotate(180deg)}
+.results-heading{display:flex;align-items:center;gap:10px;padding:6px 0 12px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase}.results-heading:not(:first-child){padding-top:24px}.results-heading:after{content:"";height:1px;background:var(--line);flex:1}.result-summary{font-size:11px;color:var(--muted);margin-bottom:13px}.row-list{display:flex;flex-direction:column;gap:9px}.history-row{border:1px solid var(--line);background:var(--surface);border-radius:15px;overflow:hidden;transition:border-color .2s,background .2s}.history-row:hover{border-color:color-mix(in srgb,var(--line) 65%,var(--accent))}.history-row.expanded{background:var(--surface);border-color:color-mix(in srgb,var(--line) 40%,var(--accent))}
+.history-summary{display:flex;align-items:center;gap:15px;padding:13px 15px;min-height:102px}.cover-link{display:block;flex:none;border:0;padding:0;background:none;border-radius:9px}.cover{width:57px;height:79px;border-radius:9px;background:var(--cover);position:relative;overflow:hidden;isolation:isolate;border:1px solid rgba(255,255,255,.10);box-shadow:0 5px 13px rgba(0,0,0,.12)}.cover::before{content:"";position:absolute;width:74px;height:74px;border:1px solid rgba(255,255,255,.22);border-radius:50%;left:-23px;top:4px;transform:rotate(22deg)}.cover::after{content:"";position:absolute;left:-28px;bottom:-20px;width:110px;height:64px;background:linear-gradient(150deg,transparent,rgba(10,9,14,.57));transform:rotate(-19deg)}.cover-label{position:absolute;z-index:1;inset:auto 5px 7px;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.7);font-family:Georgia,"Times New Roman",serif;font-size:9px;line-height:1.1;font-weight:700;overflow-wrap:anywhere;text-align:center}
+.history-copy{flex:1;min-width:0}.history-title{padding:0;border:0;background:transparent;color:var(--ink);font-size:15px;font-weight:680;line-height:1.35;text-align:left;max-width:100%;overflow-wrap:anywhere}.history-title:hover{color:var(--accent)}.meta-line{font-size:12px;color:var(--muted);line-height:1.35;margin-top:6px}.meta-line.secondary{font-size:11px}.history-status{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:12px;font-weight:650;margin-top:6px}.history-status .icon{width:15px;height:15px}.progress-bits{display:flex;gap:5px;align-items:center;margin-top:9px;width:min(350px,100%);height:5px}.progress-done{height:5px;border-radius:99px;background:var(--accent);flex:none}.progress-left{height:5px;flex:1;border-radius:99px;background:var(--line)}
+.row-actions{display:flex;align-items:center;gap:4px;flex:none;margin-left:6px}.action-icon{display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:10px;color:var(--muted);background:transparent;transition:background .15s,color .15s}.action-icon:hover{background:var(--hover);color:var(--ink)}.action-icon.trash:hover{color:#e8a2ab;background:color-mix(in srgb,#df7381 12%,var(--surface))}.action-icon .icon{width:19px;height:19px}.action-icon.chevron .icon{transition:transform .24s ease}.expanded .action-icon.chevron .icon{transform:rotate(180deg)}
+.episodes-panel{border-top:1px solid var(--line);background:color-mix(in srgb,var(--raised) 34%,var(--surface));padding:13px 18px 15px 87px;animation:expand-in .2s ease both}.episodes-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.episodes-head strong{font-size:12px;font-weight:690}.episodes-head span{font-size:11px;color:var(--muted)}.episode-scroll-shell{position:relative}.episode-scroll-shell::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px);background:color-mix(in srgb,var(--line) 82%,var(--accent));z-index:1;pointer-events:none}.episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;scrollbar-gutter:auto;max-height:252px}.episode-row{min-width:0;height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 62%,transparent)}.episode-row:nth-child(odd){padding-right:22px}.episode-row:nth-child(even){padding-left:22px}.episode-row:hover{background:var(--hover)}.episode-row-main{min-width:0;display:flex;align-items:center;gap:8px;flex:1}.episode-number{font-variant-numeric:tabular-nums;font-size:12px;font-weight:640;min-width:69px}.episode-progress{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.episode-toggle{display:flex;align-items:center;justify-content:flex-start;gap:8px;flex:0 0 151px;width:151px;padding:5px 7px;border:0;background:transparent;color:var(--muted);font-size:11px;border-radius:8px;white-space:nowrap}.episode-status-label{flex:1;min-width:0;text-align:left}.episode-toggle:hover{background:var(--hover);color:var(--ink)}.episode-toggle[aria-pressed="true"]{color:var(--accent)}.status-icon{display:grid;place-items:center;border:1.7px solid currentColor;border-radius:50%;width:18px;height:18px;flex:none}.status-icon.checked{border-color:var(--accent);background:var(--accent);color:var(--window)}.status-icon.partial{color:var(--accent);position:relative}.status-icon.partial::after{content:"";width:7px;height:7px;background:var(--accent);border-radius:50%}.status-icon.never{opacity:.52}.status-icon svg{height:13px;width:13px;stroke-width:3}
+.episode-hint{font-size:11px;color:var(--muted);margin:11px 0 0;line-height:1.45}.empty{padding:40px 18px;border:1px dashed var(--line);background:var(--surface);border-radius:15px;text-align:center;color:var(--muted)}.empty h2{font-size:16px;color:var(--ink);margin:12px 0 6px}.empty p{margin:0;font-size:12px;line-height:1.6}
+.undo-tray{background:var(--raised);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:17px}.undo-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}.undo-top strong{font-size:12px}.undo-top .hint{font-size:11px;color:var(--muted);margin-top:4px}.undo-items{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.undo-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;background:var(--surface);max-width:100%;font-size:11px}.undo-chip .name{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.undo-chip button{border:0;border-left:1px solid var(--line);background:transparent;color:var(--accent);font-size:11px;font-weight:700;padding-left:8px}.undo-chip button:hover{text-decoration:underline}.session-badge{font-size:10px;color:var(--muted);margin-top:8px}
+.info-note{margin-top:25px;border-top:1px solid var(--line);padding-top:17px;color:var(--muted);font-size:12px;line-height:1.55}.info-note strong{color:var(--ink)}.placeholder{padding:36px 0;min-height:250px}.placeholder h2{font-size:24px;margin:0 0 10px}.placeholder p{max-width:60ch;color:var(--muted);line-height:1.6}.btn{border:1px solid var(--line);border-radius:10px;background:var(--raised);color:var(--ink);padding:10px 14px;font-weight:650}.btn:hover{background:var(--hover)}.btn.primary{background:var(--tab);color:var(--accent-ink);border-color:transparent}
+/* Gallery v99-style overlay thumb, no permanent gutter or native scrollbar. */
+.scroll-overlay{position:absolute;top:6px;right:5px;bottom:6px;width:8px;z-index:4;pointer-events:none;opacity:0;transition:opacity .4s ease}.scroll-overlay.is-visible{opacity:1}.scroll-thumb{position:absolute;right:0;top:0;width:7px;height:46px;border-radius:999px;background:color-mix(in srgb,var(--muted) 72%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--window) 35%,transparent);pointer-events:none}.scroll-overlay.is-visible .scroll-thumb{pointer-events:auto;cursor:default}.scroll-overlay.is-dragging .scroll-thumb{background:var(--muted)}.episode-scroll-shell .scroll-overlay{right:1px;top:2px;bottom:2px;width:7px;z-index:2}.episode-scroll-shell .scroll-thumb{width:6px}
+.toast{position:absolute;bottom:20px;left:50%;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--strong);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:12px;box-shadow:0 12px 30px var(--shadow);z-index:15;transition:opacity .2s,transform .2s;max-width:min(520px,90%);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+@keyframes expand-in{from{opacity:.5;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+/* Keep adjacent episode/status pairs unambiguous in narrow layouts. */
+@media(max-width:820px){.episode-scroll{grid-template-columns:minmax(0,1fr)}.episode-scroll-shell::before{display:none}.episode-row:nth-child(n){padding:0 10px}}
+@media(max-width:750px){body{padding:0}.app{height:100dvh;min-height:0;border:0;border-radius:0;max-height:none}.top{padding:15px 17px 14px}.brand-row{margin-bottom:15px}.brand-name{font-size:20px}.subtitle{display:none}.tabs{padding:4px}.tab{font-size:12px;padding:10px 4px}.content-scroll{padding:17px 17px 35px}.page-title{font-size:24px}.history-summary{gap:11px;padding:11px 10px}.history-title{font-size:13px}.cover{width:48px;height:69px}.episodes-panel{padding-left:16px}.meta-line{font-size:11px}.row-actions{gap:0;margin-left:0}.action-icon{width:34px;height:34px}}
+@media(max-width:430px){.toolbar{gap:3px}.search-wrap.open .search-field{max-width:145px}.search-field input{width:103px;font-size:12px}.tab{font-size:11px;gap:3px}.page-controls{align-items:stretch}.segmented{width:100%;justify-content:space-between}.segmented button{padding:9px 10px;flex:1}.sort-button{margin-left:auto}.cover{width:41px;height:61px}.cover-label{font-size:7.5px}.history-summary{gap:9px;min-height:88px}.history-title{font-size:12.5px}.history-status{font-size:11px}.history-copy .meta-line{margin-top:4px}.row-actions .action-icon{width:29px;height:32px}.row-actions .icon{width:18px;height:18px}.episode-row{padding:0 4px}.episode-number{min-width:63px}.episode-progress{font-size:10px}.episode-toggle{font-size:10px;gap:4px;padding:5px 2px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body data-theme="neon">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand-row">
+      <div class="brand">
+        <span class="brandmark" aria-hidden="true"><svg class="icon" style="width:28px;height:28px" viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M9 5v14M5 10h14M14 10l-3 4 3 4"/></svg></span>
+        <span class="brand-name">Gallery</span><span class="subtitle">Watch History · Layout Experiment</span>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap" id="search-wrap">
+          <button class="iconbtn" type="button" id="search-toggle" title="Search Watch History" aria-label="Search Watch History" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+          <div class="search-field" id="search-field"><input type="search" id="search-input" placeholder="Search history…" autocomplete="off" spellcheck="false" aria-label="Search Watch History"><button class="search-close" id="search-close" title="Close search" aria-label="Close search" type="button">×</button></div>
+        </div>
+        <button class="iconbtn" id="theme-toggle" aria-label="Cycle preview theme" title="Preview theme (experiment only)" type="button"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Gallery navigation (experiment)">
+      <button class="tab active" data-tab="discover" type="button">Discover</button>
+      <button class="tab" data-tab="library" type="button">Library</button>
+      <button class="tab" data-tab="downloads" type="button">Downloads</button>
+    </nav>
+  </header>
+  <div class="content-shell" id="content-shell">
+    <main class="content-scroll" id="content-scroll" tabindex="-1"><div id="page"></div></main>
+    <div class="scroll-overlay" aria-hidden="true" id="main-overlay"><div class="scroll-thumb"></div></div>
+  </div>
+  <div class="toast" role="status" id="toast" aria-live="polite"></div>
+</div>
+<script>
+'use strict';
+// In-memory prototype: no real episode playback, provider data, or localStorage writes.
+const icons={
+  arrowLeft:'<path d="m14 6-6 6 6 6"/><path d="M8 12h12"/>',
+  chevronDown:'<path d="m6 9 6 6 6-6"/>',
+  trash:'<path d="M4 7h16M10 4h4M6 7l1 14h10l1-14M10 11v6m4-6v6"/>',
+  sort:'<path d="M8 3v18m-4-4 4 4 4-4M16 21V3m-4 4 4-4 4 4"/>',
+  check:'<path d="m5 12 4 4L19 6"/>',
+  checkCircle:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+function icon(name,cls='icon') {return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${icons[name]}</svg>`;}
+function esc(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const createEpisodes=(count,watchedCount,partialEpisode=null,partialSeconds=0,duration=1440)=>Array.from({length:count},(_,i)=>{
+ const n=i+1,wasWatched=n<=watchedCount;
+ return {n,watched:wasWatched,started:wasWatched||(n===partialEpisode),progressSeconds:wasWatched?duration: (n===partialEpisode?partialSeconds:0),duration};
+});
+const records=[
+ {id:'q2',title:'The Quintessential Quintuplets ∬',short:'Quints ∬',cover:'linear-gradient(145deg,#413759,#7e6694 48%,#cda1ba)',library:true,last:'2026-11-04',dates:['2026-11-04','2026-11-03'],episodes:createEpisodes(12,7,8,872)},
+ {id:'pkm',title:'Pokémon — Indigo League',short:'Pokémon',cover:'linear-gradient(145deg,#285886,#5c8cc6 52%,#f4c36e)',library:false,last:'2026-11-03',dates:['2025-06-21','2026-11-03'],episodes:createEpisodes(100,74,75,608,1320)},
+ {id:'frieren',title:"Frieren: Beyond Journey's End",short:'Frieren',cover:'linear-gradient(147deg,#3f6569,#8cbcb4 48%,#b9bd95)',library:true,last:'2026-10-30',dates:['2026-10-30'],episodes:createEpisodes(28,16,17,914)},
+ {id:'q1',title:'The Quintessential Quintuplets',short:'Quints',cover:'linear-gradient(145deg,#533a60,#b67f9b 52%,#ebbaa4)',library:true,last:'2026-10-28',dates:['2025-06-19','2026-10-28'],episodes:createEpisodes(12,12)},
+ {id:'solo',title:'Solo Leveling',short:'Solo',cover:'linear-gradient(148deg,#121b36,#49618e 49%,#8b6ab1)',library:false,last:'2026-09-12',dates:['2026-09-12'],episodes:createEpisodes(12,8,9,430)},
+ {id:'violet',title:'Violet Evergarden',short:'Violet',cover:'linear-gradient(145deg,#465b8a,#7b99ba 51%,#cfb69b)',library:true,last:'2025-08-20',dates:['2025-08-20'],episodes:createEpisodes(13,13)},
+ {id:'moon',title:'Moonlit Signals 2025',short:'Moonlit',cover:'linear-gradient(145deg,#322554,#74548f 51%,#c48b9c)',library:false,last:'2026-01-15',dates:['2026-01-15'],episodes:createEpisodes(12,3,4,319)},
+ {id:'aot',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',library:true,last:'2025-04-10',dates:['2025-04-10'],episodes:createEpisodes(16,9,10,611)},
+ {id:'astra',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',library:false,last:'2024-12-16',dates:['2024-12-16'],episodes:createEpisodes(12,12)}
+];
+let view='history',statusFilter='all',sortDirection='newest',query='',expanded=new Set(),pendingRemoved=new Set();
+let mainScroller=null,innerScrollers=new Map(),toastTimer=null;
+const page=document.getElementById('page'),mainScroll=document.getElementById('content-scroll'),searchWrap=document.getElementById('search-wrap'),searchInput=document.getElementById('search-input');
+function countWatched(r){return r.episodes.filter(e=>e.watched).length;}
+function isCompleted(r){return r.episodes.length>0&&countWatched(r)===r.episodes.length;}
+function formatDate(date){return new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmt(seconds){return `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;}
+function lastPlayedEpisode(r){return [...r.episodes].reverse().find(e=>e.started)||r.episodes[0];}
+function relevantMoment(r){const ep=lastPlayedEpisode(r);return `Episode ${ep.n} · ${fmt(ep.progressSeconds)} / ${fmt(ep.duration)}`;}
+function sorted(arr){return [...arr].sort((a,b)=>sortDirection==='newest'?b.last.localeCompare(a.last):a.last.localeCompare(b.last));}
+const months=['january','february','march','april','may','june','july','august','september','october','november','december'];
+function searchGroups(list){
+ const q=query.trim().toLowerCase();
+ if(!q)return [{label:null,items:sorted(list)}];
+ const singleYear=/^(19|20)\d{2}$/.test(q);
+ const lastYear=q==='last year';
+ const m=q.match(/^([a-z]+)\s+((?:19|20)\d{2})$/);
+ const month=m?months.indexOf(m[1]):-1;
+ const year=singleYear?q:lastYear?String(new Date().getFullYear()-1):(m&&month!==-1?m[2]:null);
+ const datePredicate=(r)=>year!==null && r.dates.some(d=>d.startsWith(year)&&(month===-1||Number(d.slice(5,7))===month+1));
+ const titlePredicate=(r)=>r.title.toLowerCase().includes(q);
+ if(year!==null){
+   const dateMatches=sorted(list.filter(datePredicate));
+   const byDate=new Set(dateMatches.map(r=>r.id));
+   const titleMatches=sorted(list.filter(r=>!byDate.has(r.id)&&titlePredicate(r)));
+   return [{label:month!==-1?`Watched in ${months[month][0].toUpperCase()+months[month].slice(1)} ${year}`:`Watched in ${year}`,items:dateMatches},{label:'Title matches',items:titleMatches}].filter(group=>group.items.length);
+ }
+ return [{label:null,items:sorted(list.filter(titlePredicate))}];
+}
+function visibleGroups(){const active=records.filter(r=>!pendingRemoved.has(r.id)&& (statusFilter==='all'||(statusFilter==='completed')===isCompleted(r)));return searchGroups(active);}
+function renderHistory({preserveScroll=true}={}){
+ if(view!=='history')return;
+ const prevY=preserveScroll?mainScroll.scrollTop:0;
+ const innerPositions=new Map([...innerScrollers.entries()].map(([id,s])=>[id,s.el.scrollTop]));
+ innerScrollers.forEach(s=>s.destroy());innerScrollers.clear();
+ const groups=visibleGroups();const count=groups.reduce((sum,g)=>sum+g.items.length,0);
+ const removedList=records.filter(r=>pendingRemoved.has(r.id));
+ page.innerHTML=`
+  <div class="page-topline"><button class="back" type="button" data-action="leave">${icon('arrowLeft')} Discover</button><span class="test-note">Interactive layout study · Not connected to playback</span></div>
+  <div class="page-header">
+    <div class="page-header-primary"><h1 class="page-title">Watch History</h1></div>
+    <p class="page-caption">Your viewing history, one entry per anime season.</p>
+    <div class="header-divider"></div>
+    <div class="page-controls"><div class="segmented" role="group" aria-label="Filter Watch History">
+      ${[['all','All'],['progress','In Progress'],['completed','Completed']].map(([v,label])=>`<button type="button" data-filter="${v}" aria-pressed="${statusFilter===v}">${label}</button>`).join('')}
+      </div><button class="sort-button ${sortDirection==='oldest'?'oldest':''}" type="button" data-action="sort" title="Reverse history sorting">${icon('sort','icon sort-arrow')}<span>${sortDirection==='newest'?'Newest First':'Oldest First'}</span></button></div>
+  </div>
+  ${removedList.length?`<div class="undo-tray" role="region" aria-label="Pending history removals">
+   <div class="undo-top"><div><strong>${removedList.length} ${removedList.length===1?'season':'seasons'} removed from view</strong><div class="hint">You can restore ${removedList.length===1?'it':'them'} until you leave Watch History.</div></div><button type="button" class="btn" data-action="restore-all">Undo all</button></div>
+   <div class="undo-items">${removedList.map(r=>`<div class="undo-chip"><span class="name">${esc(r.title)}</span><button type="button" data-restore="${esc(r.id)}" aria-label="Undo removal of ${esc(r.title)}">Undo</button></div>`).join('')}</div>
+   </div>`:''}
+  <div class="result-summary">${count} ${count===1?'season':'seasons'} ${query?'matching your search':'in this view'}${query?' · Search and filter work together':''}</div>
+  ${count?groups.map(g=>`${g.label?`<div class="results-heading">${esc(g.label)}</div>`:''}<div class="row-list">${g.items.map(renderRow).join('')}</div>`).join(''):
+   `<div class="empty">${icon('checkCircle','icon')}<h2>Nothing to show</h2><p>${query?'Try a different title, year, or month.':'Try another filter, or undo a removed season.'}</p></div>`}
+  <div class="info-note"><strong>Experiment only.</strong> Covers are CSS placeholders. Episode statuses and dates are example data; changes here aren't saved to Gallery. Click titles to see the intended Library/Discover routing, expand seasons to correct watched episodes, or try the session-long Undo.</div>
+ `;
+ for(const id of expanded){
+  const panel=page.querySelector(`[data-episode-shell="${id}"]`);
+  if(!panel)continue;
+  const area=panel.querySelector('.episode-scroll');
+  const ctrl=attachDisappearingScrollbar(area,panel.querySelector('.scroll-overlay'));
+  innerScrollers.set(id,ctrl);
+  if(innerPositions.has(id)){area.scrollTop=innerPositions.get(id);}else{
+   const r=records.find(r=>r.id===id),last=lastPlayedEpisode(r),idx=last.n-1;
+   const cols=window.matchMedia('(max-width:820px)').matches?1:2;
+   if(r.episodes.length>6*cols)area.scrollTop=Math.max(0,(Math.floor(idx/cols)-2)*42);
+  }
+  ctrl.update();
+ }
+ mainScroll.scrollTop=prevY;
+ mainScroller?.update();
+}
+function renderSummary(r){
+ const completed=isCompleted(r),numWatched=countWatched(r),open=expanded.has(r.id),pct=numWatched/r.episodes.length*100;
+ return `<div class="history-summary">
+   <button type="button" class="cover-link" data-open="${r.id}" aria-label="Open ${esc(r.title)} in ${r.library?'Library':'Discover'}"><div class="cover" style="--cover:${r.cover}"><span class="cover-label">${esc(r.short)}</span></div></button>
+   <div class="history-copy"><button type="button" class="history-title" data-open="${r.id}">${esc(r.title)}</button>
+    ${completed?`<div class="history-status">${icon('checkCircle')} Completed</div>`:
+     `<div class="meta-line">${esc(relevantMoment(r))}</div><div class="meta-line secondary">${numWatched} of ${r.episodes.length} episodes watched</div><div class="progress-bits" aria-hidden="true"><div class="progress-done" style="width:calc(${pct}% - ${pct>0&&pct<100?'3px':'0px'})"></div>${pct<100?'<div class="progress-left"></div>':''}</div>`}
+    <div class="meta-line secondary">Last watched ${formatDate(r.last)}</div>
+   </div>
+   <div class="row-actions"><button class="action-icon chevron" type="button" data-expand="${r.id}" aria-expanded="${open}" aria-label="${open?'Collapse':'Expand'} episodes for ${esc(r.title)}" title="${open?'Collapse':'Manage watched episodes'}">${icon('chevronDown')}</button><button class="action-icon trash" type="button" data-remove="${r.id}" aria-label="Remove ${esc(r.title)} from Watch History" title="Remove from Watch History">${icon('trash')}</button></div>
+  </div>`;
+}
+function renderRow(r){
+ const numWatched=countWatched(r),open=expanded.has(r.id);
+ return `<section class="history-row ${open?'expanded':''}" data-history-row="${r.id}" aria-label="${esc(r.title)}">
+  ${renderSummary(r)}
+  ${open?`<div class="episodes-panel"><div class="episodes-head"><strong>Episodes</strong><span>${numWatched} / ${r.episodes.length} watched</span></div>
+   <div class="episode-scroll-shell" data-episode-shell="${r.id}"><div class="episode-scroll" tabindex="0" role="region" aria-label="Scrollable episodes for ${esc(r.title)}">${r.episodes.map(ep=>renderEpisode(r,ep)).join('')}</div><div class="scroll-overlay" aria-hidden="true"><div class="scroll-thumb"></div></div></div>
+   <div class="episode-hint">Select the status control to mark or unmark an episode. Playback positions stay separate from completion. ${r.episodes.length>(window.matchMedia('(max-width:820px)').matches?6:12)?'Scroll inside this list to reach every episode.':''}</div></div>`:''}
+ </section>`;
+}
+function updateEpisodeInPlace(button,r,ep){
+ // Keep the expanded panel and all scrollbar handlers mounted; update only the
+ // selected episode, its season summary and the expanded header count.
+ const state=ep.watched?'watched':ep.started?'partial':'never';
+ const label=ep.watched?'Watched':ep.started?'Partially watched':'Not watched';
+ button.setAttribute('aria-pressed',String(ep.watched));
+ button.title=ep.watched?'Unmark episode as Watched':'Mark episode as Watched';
+ const symbol=button.querySelector('.status-icon');
+ symbol.className='status-icon '+state;
+ symbol.innerHTML=ep.watched?icon('check','icon'):'';
+ button.querySelector('.episode-status-label').textContent=label;
+ const episodeMain=button.closest('.episode-row').querySelector('.episode-row-main');
+ let progress=episodeMain.querySelector('.episode-progress');
+ if(ep.started&&!ep.watched){
+  if(!progress){progress=document.createElement('span');progress.className='episode-progress';episodeMain.append(progress);}
+  progress.textContent=`${fmt(ep.progressSeconds)} / ${fmt(ep.duration)}`;
+ }else{progress?.remove();}
+ const season=button.closest('.history-row');
+ const summaryTemplate=document.createElement('template');
+ summaryTemplate.innerHTML=renderSummary(r);
+ season.querySelector('.history-summary').replaceWith(summaryTemplate.content.firstElementChild);
+ season.querySelector('.episodes-head span').textContent=`${countWatched(r)} / ${r.episodes.length} watched`;
+ // No page-wide renderHistory(), no flash, no scroll jump and no focus reset.
+}
+function renderEpisode(r,ep){
+ const state=ep.watched?'watched':ep.started?'partial':'never';
+ const label=ep.watched?'Watched':ep.started?'Partially watched':'Not watched';
+ const progress=ep.started&&!ep.watched?`<span class="episode-progress">${fmt(ep.progressSeconds)} / ${fmt(ep.duration)}</span>`:'';
+ return `<div class="episode-row"><div class="episode-row-main"><span class="episode-number">Episode ${ep.n}</span>${progress}</div><button type="button" class="episode-toggle" data-toggle-episode="${r.id}:${ep.n}" aria-pressed="${ep.watched}" title="${ep.watched?'Unmark episode as Watched':'Mark episode as Watched'}"><span class="status-icon ${state}">${ep.watched?icon('check','icon'):''}</span><span class="episode-status-label">${label}</span></button></div>`;
+}
+function renderPlaceholder(tab='discover'){
+ const title=tab[0].toUpperCase()+tab.slice(1);
+ page.innerHTML=`<div class="placeholder"><h2>${esc(title)}</h2><p>This is a standalone <strong>Watch History layout experiment</strong>, not a rebuild of ${esc(title)}. Leaving the history page commits any pending removals and resets search, filters and sort order as agreed.</p><button class="btn primary" data-action="return-history">Open Watch History</button></div>`;
+ mainScroll.scrollTop=0;mainScroller?.update();
+}
+function setView(next){
+ if(next!==view){
+  if(view==='history'&&next!=='history'){
+   for(let i=records.length-1;i>=0;i--)if(pendingRemoved.has(records[i].id))records.splice(i,1);
+   pendingRemoved.clear();expanded.clear();statusFilter='all';sortDirection='newest';query='';closeSearch();
+  }
+  view=next;
+  document.querySelectorAll('.tab').forEach(t=>{const is=t.dataset.tab===(next==='history'?'discover':next);t.classList.toggle('active',is);t.setAttribute('aria-current',is?'page':'false');});
+ }
+ if(next==='history')renderHistory({preserveScroll:false});else renderPlaceholder(next);
+}
+function closeSearch(){searchWrap.classList.remove('open');document.getElementById('search-toggle').setAttribute('aria-expanded','false');searchInput.value='';}
+function showToast(message){const t=document.getElementById('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3600);}
+function attachDisappearingScrollbar(el,overlay){
+ // Mirrors Gallery v99: hidden native scrollbar, one overlay thumb, fade ~950ms after scrolling,
+ // no gutter, and a draggable visible thumb.
+ const thumb=overlay.querySelector('.scroll-thumb');let fadeTimer=null,dragging=false,dragY=0,dragTop=0,intentUntil=0;
+ function update(){const max=el.scrollHeight-el.clientHeight,h=overlay.clientHeight;if(max<=1||h<=0){overlay.classList.remove('is-visible');return false;}
+  const th=Math.min(h,Math.max(40,Math.round(h*el.clientHeight/el.scrollHeight)));
+  const top=(h-th)*(el.scrollTop/max);thumb.style.height=th+'px';thumb.style.transform=`translate3d(0,${top}px,0)`;return true;
+ }
+ function reveal(){if(!update())return;overlay.classList.add('is-visible');clearTimeout(fadeTimer);fadeTimer=setTimeout(()=>{if(!dragging)overlay.classList.remove('is-visible');},950);}
+ function userScrolled(){intentUntil=performance.now()+1400;reveal();}
+ function onWheel(){userScrolled();}
+ function onTouch(){userScrolled();}
+ function onScroll(){update();if(performance.now()<intentUntil||dragging)reveal();}
+ function onKey(ev){if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(ev.key))userScrolled();}
+ function onDown(ev){if(ev.button!==0||!update())return;ev.preventDefault();dragging=true;dragY=ev.clientY;dragTop=el.scrollTop;overlay.classList.add('is-visible','is-dragging');clearTimeout(fadeTimer);thumb.setPointerCapture(ev.pointerId);}
+ function onMove(ev){if(!dragging)return;const distance=overlay.clientHeight-thumb.getBoundingClientRect().height,max=el.scrollHeight-el.clientHeight;if(distance>0)el.scrollTop=dragTop+(ev.clientY-dragY)*max/distance;reveal();}
+ function onUp(){if(!dragging)return;dragging=false;overlay.classList.remove('is-dragging');reveal();}
+ el.addEventListener('wheel',onWheel,{passive:true});el.addEventListener('touchmove',onTouch,{passive:true});el.addEventListener('scroll',onScroll,{passive:true});el.addEventListener('keydown',onKey);
+ thumb.addEventListener('pointerdown',onDown);thumb.addEventListener('pointermove',onMove);thumb.addEventListener('pointerup',onUp);thumb.addEventListener('pointercancel',onUp);thumb.addEventListener('lostpointercapture',onUp);
+ return {el,update,reveal,destroy(){clearTimeout(fadeTimer);el.removeEventListener('wheel',onWheel);el.removeEventListener('touchmove',onTouch);el.removeEventListener('scroll',onScroll);el.removeEventListener('keydown',onKey);thumb.removeEventListener('pointerdown',onDown);thumb.removeEventListener('pointermove',onMove);thumb.removeEventListener('pointerup',onUp);thumb.removeEventListener('pointercancel',onUp);thumb.removeEventListener('lostpointercapture',onUp);}};
+}
+page.addEventListener('click',ev=>{
+ const b=ev.target.closest('button');if(!b)return;
+ if(b.dataset.filter){statusFilter=b.dataset.filter;renderHistory();return;}
+ if(b.dataset.action==='sort'){sortDirection=sortDirection==='newest'?'oldest':'newest';renderHistory();return;}
+ if(b.dataset.expand){const id=b.dataset.expand;const was=expanded.has(id);if(was)expanded.delete(id);else expanded.add(id);renderHistory();return;}
+ if(b.dataset.remove){pendingRemoved.add(b.dataset.remove);expanded.delete(b.dataset.remove);renderHistory();showToast('Removed from this view. Undo remains available until you leave Watch History.');return;}
+ if(b.dataset.restore){pendingRemoved.delete(b.dataset.restore);renderHistory();return;}
+ if(b.dataset.action==='restore-all'){pendingRemoved.clear();renderHistory();return;}
+ if(b.dataset.open){const r=records.find(x=>x.id===b.dataset.open);showToast(`In Gallery, this opens ${r.title} in ${r.library?'Library':'Discover'}. This experiment does not duplicate that page.`);return;}
+ if(b.dataset.toggleEpisode){const [id,nText]=b.dataset.toggleEpisode.split(':'),r=records.find(x=>x.id===id),e=r.episodes[Number(nText)-1];
+  // Unmarking doesn't discard saved playback position; it becomes Partial if playback was recorded.
+  e.watched=!e.watched;
+  updateEpisodeInPlace(b,r,e);return;
+ }
+ if(b.dataset.action==='leave'){setView('discover');return;}
+ if(b.dataset.action==='return-history'){setView('history');return;}
+});
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.tab)));
+document.getElementById('search-toggle').addEventListener('click',()=>{
+ if(view!=='history'){setView('history');}
+ const open=!searchWrap.classList.contains('open');searchWrap.classList.toggle('open',open);document.getElementById('search-toggle').setAttribute('aria-expanded',String(open));if(open){searchInput.focus();}else{query='';searchInput.value='';renderHistory();}
+});
+document.getElementById('search-close').addEventListener('click',()=>{query='';closeSearch();renderHistory();});
+searchInput.addEventListener('input',()=>{query=searchInput.value;renderHistory({preserveScroll:false});});
+const themes=['neon','midnight','paper'];document.getElementById('theme-toggle').addEventListener('click',()=>{const idx=themes.indexOf(document.body.dataset.theme);document.body.dataset.theme=themes[(idx+1)%themes.length];showToast('Preview theme: '+document.body.dataset.theme);});
+mainScroller=attachDisappearingScrollbar(mainScroll,document.getElementById('main-overlay'));
+const resizeObserver=new ResizeObserver(()=>{mainScroller.update();for(const s of innerScrollers.values())s.update();});resizeObserver.observe(document.getElementById('content-shell'));
+renderHistory({preserveScroll:false});
+</script>
+</body>
+</html>
