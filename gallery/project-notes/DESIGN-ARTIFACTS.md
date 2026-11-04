@@ -66,3 +66,14 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - **Flashing on episode-status changes:** toggling a watched control updates the season count but causes the entire expanded episode list to re-render and replay its expansion/fade animation. A status correction should update only the necessary row and season summary without restarting the panel's animation, moving the scroll position, or affecting the fading scrollbar.
 - **Shifting checkbox/status control:** the watched-state labels (`Watched`, `Not watched`, `Partially watched`) have differing text widths, causing the checkbox position to move horizontally after clicking. Keep each status control at a stable X-coordinate by reserving fixed label space (sufficient for the longest state label), without changing the existing two-column layout or icon-before-text direction.
 - User identified both problems in a screen recording and confirmed both were the intended feedback. **Do not treat either fix as implemented or approved for a new numbered experiment yet.**
+
+## Watch History layout experiment 03 — interaction fixes (2026-11-04)
+
+- File: [Gallery-Watch-History-Layout-Experiment-03.html](../design-experiments/watch-history/Gallery-Watch-History-Layout-Experiment-03.html)
+- Status: **awaiting user review**; standalone experiment, not integrated into Gallery v99.
+- Backed up to GitHub `gallery/design-checkpoints` and persistent ChatGPT Library at `/Gallery Backups/Design Experiments/2026-11-04/Gallery-Watch-History-Layout-Experiment-03.html`.
+- Verified source file size: **40,372 bytes**; SHA-256: `4a02f2834ac84869ef03f82eb83a1a838feb9a8367a374e3bf4084cf367f4508`.
+- Relative to Experiment 02: **(1)** toggling an episode changes only the relevant episode DOM/state, the season summary and expanded header count; no full-page/expanded-list reconstruction, no panel flash, and preserved episode scroll instance/position/focus. **(2)** fixed 151px status control with consistent icon-before-text placement across `Watched`, `Partially watched`, `Not watched` so the checkbox does not shift.
+- Retains two-column layout with center divider, six-row scroll cap, responsive single-column layout, fading custom overlay scrollbars, search, filters, sorting, separate removal and Undo.
+- Chromium interaction tests passed at 1400, 900, 760, and 390px: no horizontal overflow or JavaScript exceptions, status controls maintain pixel position after toggling, panel node identity persists, scroll position remains stable, correct one/two-column responsive behavior. Also tested switching a season between Completed and In Progress without collapsing the panel.
+- Do not assume visually approved until the user reviews it.
