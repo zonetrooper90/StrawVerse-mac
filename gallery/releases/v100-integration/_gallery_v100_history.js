@@ -6,15 +6,15 @@ function whMakeEpisodes(count, watchedCount=0, partialEpisode=null, partialSecon
  return Array.from({length:count},(_,i)=>{const n=i+1,watched=n<=watchedCount;return {n,watched,started:watched||n===partialEpisode,progressSeconds:watched?duration:(n===partialEpisode?partialSeconds:0),duration};});
 }
 const whSeed=[
- {id:'q2',group:'quints',galleryId:'demo:quints',installmentId:'quints-s2',title:'The Quintessential Quintuplets ∬',short:'Quints ∬',cover:'linear-gradient(145deg,#413759,#7e6694 48%,#cda1ba)',last:'2026-11-04',dates:['2026-11-04','2026-11-03'],episodes:whMakeEpisodes(12,7,8,872)},
- {id:'pkm',group:'pokemon',galleryId:null,installmentId:'pokemon-ind',title:'Pokémon — Indigo League',short:'Pokémon',cover:'linear-gradient(145deg,#285886,#5c8cc6 52%,#f4c36e)',last:'2026-11-03',dates:['2025-06-21','2026-11-03'],episodes:whMakeEpisodes(100,74,75,608,1320)},
- {id:'frieren',group:'frieren',galleryId:null,installmentId:'frieren-s1',title:"Frieren: Beyond Journey's End",short:'Frieren',cover:'linear-gradient(147deg,#3f6569,#8cbcb4 48%,#b9bd95)',last:'2026-10-30',dates:['2026-10-30'],episodes:whMakeEpisodes(28,16,17,914)},
- {id:'q1',group:'quints',galleryId:'demo:quints',installmentId:'quints-s1',title:'The Quintessential Quintuplets',short:'Quints',cover:'linear-gradient(145deg,#533a60,#b67f9b 52%,#ebbaa4)',last:'2026-10-28',dates:['2025-06-19','2026-10-28'],episodes:whMakeEpisodes(12,12)},
- {id:'solo',group:'solo',galleryId:'demo:solo',installmentId:'solo-s1',title:'Solo Leveling',short:'Solo',cover:'linear-gradient(148deg,#121b36,#49618e 49%,#8b6ab1)',last:'2026-09-12',dates:['2026-09-12'],episodes:whMakeEpisodes(12,8,9,430)},
- {id:'violet',group:'violet',galleryId:null,installmentId:'violet-s1',title:'Violet Evergarden',short:'Violet',cover:'linear-gradient(145deg,#465b8a,#7b99ba 51%,#cfb69b)',last:'2025-08-20',dates:['2025-08-20'],episodes:whMakeEpisodes(13,13)},
- {id:'moon',group:'moon',galleryId:'demo:01',installmentId:'moon-s1',title:'Moonlit Signals 2025',short:'Moonlit',cover:'linear-gradient(145deg,#322554,#74548f 51%,#c48b9c)',last:'2026-01-15',dates:['2026-01-15'],episodes:whMakeEpisodes(12,3,4,319)},
- {id:'aot',group:'aot',galleryId:'demo:aot',installmentId:'aot-final',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',last:'2025-04-10',dates:['2025-04-10'],episodes:whMakeEpisodes(16,9,10,611)},
- {id:'astra',group:'astra',galleryId:'demo:02',installmentId:'astra-s1',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',last:'2024-12-16',dates:['2024-12-16'],episodes:whMakeEpisodes(12,12)}
+ {id:'q2',library:true,group:'quints',galleryId:'demo:quints',installmentId:'quints-s2',title:'The Quintessential Quintuplets ∬',short:'Quints ∬',cover:'linear-gradient(145deg,#413759,#7e6694 48%,#cda1ba)',last:'2026-11-04',dates:['2026-11-04','2026-11-03'],episodes:whMakeEpisodes(12,7,8,872)},
+ {id:'pkm',library:false,group:'pokemon',galleryId:null,installmentId:'pokemon-ind',title:'Pokémon — Indigo League',short:'Pokémon',cover:'linear-gradient(145deg,#285886,#5c8cc6 52%,#f4c36e)',last:'2026-11-03',dates:['2025-06-21','2026-11-03'],episodes:whMakeEpisodes(100,74,75,608,1320)},
+ {id:'frieren',library:true,group:'frieren',galleryId:null,installmentId:'frieren-s1',title:"Frieren: Beyond Journey's End",short:'Frieren',cover:'linear-gradient(147deg,#3f6569,#8cbcb4 48%,#b9bd95)',last:'2026-10-30',dates:['2026-10-30'],episodes:whMakeEpisodes(28,16,17,914)},
+ {id:'q1',library:true,group:'quints',galleryId:'demo:quints',installmentId:'quints-s1',title:'The Quintessential Quintuplets',short:'Quints',cover:'linear-gradient(145deg,#533a60,#b67f9b 52%,#ebbaa4)',last:'2026-10-28',dates:['2025-06-19','2026-10-28'],episodes:whMakeEpisodes(12,12)},
+ {id:'solo',library:false,group:'solo',galleryId:'demo:solo',installmentId:'solo-s1',title:'Solo Leveling',short:'Solo',cover:'linear-gradient(148deg,#121b36,#49618e 49%,#8b6ab1)',last:'2026-09-12',dates:['2026-09-12'],episodes:whMakeEpisodes(12,8,9,430)},
+ {id:'violet',library:true,group:'violet',galleryId:null,installmentId:'violet-s1',title:'Violet Evergarden',short:'Violet',cover:'linear-gradient(145deg,#465b8a,#7b99ba 51%,#cfb69b)',last:'2025-08-20',dates:['2025-08-20'],episodes:whMakeEpisodes(13,13)},
+ {id:'moon',library:false,group:'moon',galleryId:'demo:01',installmentId:'moon-s1',title:'Moonlit Signals 2025',short:'Moonlit',cover:'linear-gradient(145deg,#322554,#74548f 51%,#c48b9c)',last:'2026-01-15',dates:['2026-01-15'],episodes:whMakeEpisodes(12,3,4,319)},
+ {id:'aot',library:true,group:'aot',galleryId:'demo:aot',installmentId:'aot-final',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',last:'2025-04-10',dates:['2025-04-10'],episodes:whMakeEpisodes(16,9,10,611)},
+ {id:'astra',library:false,group:'astra',galleryId:'demo:02',installmentId:'astra-s1',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',last:'2024-12-16',dates:['2024-12-16'],episodes:whMakeEpisodes(12,12)}
 ];
 function whLoadRecords(){
  try{const saved=JSON.parse(localStorage.getItem(whStorageKey));if(Array.isArray(saved)&&saved.every(r=>typeof r.id==='string'&&Array.isArray(r.episodes)))return saved;}
@@ -145,7 +145,8 @@ function whOpenTitle(r){
   modal('Sample Watch History entry',`<p class="description">${escapeHTML(r.title)} is a layout-testing record; this HTML version has no matching anime detail page. The Watch History entry remains editable here.</p>`,`<button class="btn primary" id="wh-sample-okay">Got it</button>`);
   document.getElementById('wh-sample-okay')?.addEventListener('click',closeModal);return;
  }
- whExit({renderAfter:false});showDetail(r.galleryId);
+ const targetView=r.library?'library':'discover';
+ whExit({renderAfter:false});state.view=targetView;updateActiveTab(targetView);showDetail(r.galleryId);state.detailReturnScroll=tabPages[targetView].scrollTop;
  const x=demo.find(x=>x.id===r.galleryId);const index=getSeasons(x).findIndex(s=>s.id===r.installmentId);
  if(index>=0){state.detailSeason=index;state.detailRelated=null;render();}
 }
@@ -172,7 +173,7 @@ function whRecordLocalPlayback(video,markWatched=false){
  const anime=demo.find(x=>x.id===state.detailId),installment=anime&&activeInstallment(anime);if(!anime||!installment)return;
  const id='local:'+anime.id+':'+String(installment.id||installment.label||'s1');let rec=whRecords.find(r=>r.galleryId===anime.id&&r.installmentId===(installment.id||null))||whRecords.find(r=>r.id===id);
  if(!rec){
-  rec={id,group:anime.id,galleryId:anime.id,installmentId:installment.id||null,title:installmentDisplayName(anime,installment),short:anime.name.split(' ').slice(0,2).join(' '),cover:anime.art,last:'',dates:[],latestEpisode:state.playback.episode,episodes:whMakeEpisodes(installment.total||1)};
+  rec={id,group:anime.id,library:state.view==='library',galleryId:anime.id,installmentId:installment.id||null,title:installmentDisplayName(anime,installment),short:anime.name.split(' ').slice(0,2).join(' '),cover:anime.art,last:'',dates:[],latestEpisode:state.playback.episode,episodes:whMakeEpisodes(installment.total||1)};
   whRecords.unshift(rec);
  }
  const n=state.playback.episode;let ep=rec.episodes.find(e=>e.n===n);if(!ep){ep={n,watched:false,started:false,progressSeconds:0,duration:Math.floor(video.duration)};rec.episodes.push(ep);rec.episodes.sort((a,b)=>a.n-b.n);}
