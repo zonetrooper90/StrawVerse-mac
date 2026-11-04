@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Gallery — Forward 10s ↔ Next Episode · SVG Morph Experiment</title>
+<style>
+:root{color-scheme:dark;--page:#101016;--panel:#1b1a23;--panel-2:#24222d;--ink:#f6f4fb;--muted:#a8a2b2;--accent:#d8bdff;--line:#383443;--outline:#d6b8ff}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}
+body{background:radial-gradient(ellipse at 52% -10%,#292137 0%,transparent 55%),var(--page);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--outline);outline-offset:4px}button:focus:not(:focus-visible){outline:none}
+main{width:min(1050px,calc(100% - 44px));margin:52px auto 70px}
+header{margin:0 0 27px}.eyebrow{font-size:10px;font-weight:720;text-transform:uppercase;letter-spacing:.16em;color:#bea6dc;margin:0 0 10px}
+h1{font-size:clamp(25px,4.5vw,35px);letter-spacing:-.047em;font-weight:720;margin:0 0 9px}
+.lede{margin:0;color:var(--muted);line-height:1.6;max-width:740px;font-size:13px}
+.experiment{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(285px,1fr);gap:17px;align-items:stretch}
+.card{border:1px solid var(--line);background:linear-gradient(155deg,#211d2a,#16161d);border-radius:16px;overflow:hidden;min-width:0}
+.hero{display:flex;flex-direction:column;min-height:382px}.hero-inner{flex:1;display:grid;place-items:center;position:relative;min-height:278px}
+.hero-inner:before{content:"";position:absolute;inset:15px;background:radial-gradient(circle at 50% 51%,rgba(161,123,232,.1),transparent 54%);pointer-events:none}
+.guide{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:.45}.guide-circle{width:202px;height:202px;border:1px dashed #6d607d;border-radius:50%}.guide-cross-h,.guide-cross-v{position:absolute;background:#76678044}.guide-cross-h{height:1px;width:230px}.guide-cross-v{height:230px;width:1px}
+.hero-btn{position:relative;width:198px;height:198px;display:grid;place-items:center;color:var(--accent);border:1px solid #a184cc44;border-radius:40px;background:#8064b01c;transition:background .2s,border-color .2s;user-select:none}.hero-btn:hover{background:#8064b033;border-color:#b99be077}.hero-btn:active{background:#8064b047}
+.morph-svg{width:100%;height:100%;display:block;overflow:visible;stroke:currentColor;fill:none;stroke-width:1.73;stroke-linecap:round;stroke-linejoin:round;}
+.hero-btn .morph-svg{width:134px;height:134px}.hero-caption{border-top:1px solid var(--line);padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.hero-caption .label{font-weight:660;font-size:13px}.hero-caption .sub{font-size:11px;line-height:1.5;margin-top:4px;color:var(--muted)}
+.progress-pill{background:#3a3147;color:#dac7ef;border:1px solid #67577d;border-radius:100px;padding:6px 10px;white-space:nowrap;font-size:10px;font-variant-numeric:tabular-nums}
+.test-panel{padding:23px;display:flex;flex-direction:column;gap:21px}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#b9adc9;font-weight:750;margin:0 0 13px}
+.action-row{display:flex;gap:9px}.action{border:1px solid #68567e;border-radius:10px;background:#4a385d;color:#f9f6ff;padding:12px 14px;font-size:12px;font-weight:670;min-height:41px;flex:1;transition:background .2s}.action:hover{background:#5d4775}.action.secondary{background:#282430;border-color:#4a4356;color:#ddd6e7}.action.secondary:hover{background:#393241}
+.control-group{display:grid;gap:11px}.control-group label{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:12px;color:#ddd6e7}.control-group output{font-variant-numeric:tabular-nums;color:#bba1de;font-size:11px;white-space:nowrap}
+input[type=range]{width:100%;margin:0;accent-color:#cda9ff;cursor:pointer}
+.note{font-size:11px;line-height:1.65;color:#aaa3b7;margin:0}.note strong{color:#eee7f7}
+.check{font-size:12px;color:#ddd6e7;display:flex;align-items:center;gap:9px;cursor:pointer}.check input{accent-color:#cda9ff}
+.player-demo{margin-top:17px;border:1px solid var(--line);border-radius:14px;padding:22px 24px 20px;background:linear-gradient(145deg,#24212e,#111118 80%);box-shadow:0 12px 45px #0002}
+.demo-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:36px}.demo-head strong{font-size:13px;font-weight:640}.demo-head span{color:#aba2b8;font-size:11px}
+.seek{height:3px;border-radius:6px;background:#62576d;position:relative;margin:0 0 19px}.seek::before{content:"";width:76%;height:100%;background:#c9a2f9;position:absolute;left:0;top:0;border-radius:inherit}.seek::after{content:"";position:absolute;left:76%;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);background:#e0caff}
+.demo-controls{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:40px}.demo-side{display:flex;gap:8px;align-items:center}.demo-side:last-child{justify-content:flex-end}.demo-btn{height:38px;width:38px;border:0;border-radius:10px;background:transparent;color:#f5f0fc;display:grid;place-items:center;padding:7px}.demo-btn svg{width:25px;height:25px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}.demo-btn:hover{background:#ffffff1e}.demo-btn.round{width:43px;height:43px;border-radius:50%;background:#b68be02c}.demo-mid{display:flex;align-items:center;gap:12px}.demo-mid .morph-trigger{color:#dec3ff}.volume-track{height:3px;width:64px;background:linear-gradient(to right,#dac2ff 75%,#5c5068 75%);border-radius:8px}
+footer{margin-top:16px;display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap;color:#8f879c;font-size:11px;line-height:1.6}.keyboard{border:1px solid #4a4355;border-radius:5px;padding:2px 5px;color:#cec4d9}
+@media(max-width:770px){main{width:min(560px,calc(100% - 30px));margin:30px auto 50px}.experiment{grid-template-columns:1fr}.hero{min-height:345px}.hero-inner{min-height:250px}.test-panel{padding:20px}.demo-head{margin-bottom:32px}}
+@media(max-width:470px){.player-demo{padding:15px}.demo-side .volume-track{display:none}.demo-mid{gap:3px}.demo-side{gap:0}.demo-btn{height:33px;width:33px}.demo-mid .demo-btn.round{width:40px;height:40px}.demo-btn svg{height:22px;width:22px}.hero-btn{width:165px;height:165px}.hero-btn .morph-svg{width:115px;height:115px}.guide-circle{width:168px;height:168px}.guide-cross-h{width:190px}.guide-cross-v{height:190px}}
+@media(prefers-reduced-motion:reduce){.hero-btn,.action{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <p class="eyebrow">Gallery / Standalone design experiment</p>
+  <h1>One icon, two actions.</h1>
+  <p class="lede">A geometric SVG morph between <strong>Forward 10 Seconds</strong> and <strong>Next Episode</strong>. No icon swap or crossfade: the same vector strokes continuously reshape, including the “10”. This experiment does not modify Gallery.</p>
+</header>
+<div class="experiment">
+  <section class="card hero" aria-label="Enlarged animated icon preview">
+    <div class="hero-inner">
+      <div class="guide" aria-hidden="true"><div class="guide-circle"></div><div class="guide-cross-h"></div><div class="guide-cross-v"></div></div>
+      <button type="button" id="hero-toggle" class="hero-btn morph-trigger" title="Morph to the other icon" aria-label="Morph to Next Episode">
+        <svg class="morph-svg" viewBox="0 0 24 24" role="img" aria-label="Animated Forward 10 Seconds icon">
+          <path data-part="ring"></path><path data-part="arrow"></path><path data-part="one"></path><path data-part="zero"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="hero-caption"><div><div class="label" id="icon-state">Forward 10 Seconds</div><div class="sub">Click the icon to morph in either direction.</div></div><div class="progress-pill" id="progress-pill">0% morphed</div></div>
+  </section>
+  <section class="card test-panel" aria-label="Animation controls">
+    <div><div class="section-title">Choose a state</div><div class="action-row"><button type="button" class="action secondary" id="to-forward">↶ &nbsp; Forward 10s</button><button type="button" class="action" id="to-next">Next Episode &nbsp; ↷</button></div></div>
+    <div class="control-group"><label for="scrub">Inspect the morph <output id="scrub-label">0%</output></label><input type="range" min="0" max="100" step="0.1" value="0" id="scrub" aria-label="Scrub between icon shapes"></div>
+    <div class="control-group"><label for="duration">Animation feel <output id="duration-label">420 ms</output></label><input type="range" min="220" max="800" step="10" value="420" id="duration" aria-label="Adjust transition duration"></div>
+    <label class="check" for="pingpong"><input type="checkbox" id="pingpong"> Repeat the morph back and forth</label>
+    <p class="note"><strong>Try reversing it halfway through:</strong> Click “Next Episode”, then immediately click “Forward 10s”. The shapes reverse from their current geometry rather than jumping to an endpoint.</p>
+  </section>
+</div>
+<section class="player-demo" aria-label="Player sized button preview">
+  <div class="demo-head"><strong>At actual player-control size</strong><span>Same morph · 28 px icon</span></div>
+  <div class="seek"></div>
+  <div class="demo-controls">
+    <div class="demo-side"><button class="demo-btn" title="Volume" aria-label="Volume" type="button"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button><div class="volume-track"></div></div>
+    <div class="demo-mid">
+      <button class="demo-btn" type="button" title="Back 10 seconds" aria-label="Back 10 seconds"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><text x="12" y="15" stroke="none" fill="currentColor" font-size="7" text-anchor="middle" font-family="system-ui" font-weight="750">10</text></svg></button>
+      <button class="demo-btn round" type="button" title="Play / pause" aria-label="Play / pause"><svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="2.8"/></svg></button>
+      <button class="demo-btn morph-trigger" type="button" id="player-toggle" title="Morph between Forward 10s and Next Episode" aria-label="Morph to Next Episode"><svg class="morph-svg" viewBox="0 0 24 24" role="img" aria-label="Animated forward action"><path data-part="ring"></path><path data-part="arrow"></path><path data-part="one"></path><path data-part="zero"></path></svg></button>
+    </div>
+    <div class="demo-side"><button type="button" class="demo-btn" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-1-1-2-2.5-.3L12 5l-1.5 2.2-2.5.3-1 2-2 1v3l2 1 1 2 2.5.3L12 19l1.5-2.2 2.5-.3 1-2z"/></svg></button><button type="button" class="demo-btn" title="Fullscreen" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></button></div>
+  </div>
+</section>
+<footer><span>Self-contained HTML · No internet connection, animation libraries, or installation required.</span><span><span class="keyboard">Space</span> to reverse · <span class="keyboard">←</span> / <span class="keyboard">→</span> to choose a state</span></footer>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+// Every pair has the same SVG path commands and point count. Animation is true path interpolation.
+// The "10" strokes become parts of the Next glyph, rather than cross-fading away.
+const shapes={
+ ring:{
+  from:[21,12, 21,17,17,21,12,21, 7,21,3,17,3,12, 3,7,7,3,12,3, 16.5,3,19,5,21,8],
+  to:  [15.8,12, 12.2,14.9,8.6,17.7,5.1,20, 5.1,16,5.1,8,5.1,4, 8.6,6.3,12.2,9.1,15.8,12, 15.8,12,15.8,12,15.8,12],
+  render:p=>'M'+p.slice(0,2).join(' ')+' C'+p.slice(2,8).join(' ')+' C'+p.slice(8,14).join(' ')+' C'+p.slice(14,20).join(' ')+' C'+p.slice(20,26).join(' ')
+ },
+ arrow:{
+  from:[21,3,21,8,16,8], to:[19,4,19,12,19,20],
+  render:p=>'M'+p.slice(0,2).join(' ')+' L'+p.slice(2,4).join(' ')+' L'+p.slice(4,6).join(' ')
+ },
+ one:{
+  from:[9.5,10.6,10.8,9.6,10.8,15.1], to:[15.8,12,15.8,12,15.8,12],
+  render:p=>'M'+p.slice(0,2).join(' ')+' L'+p.slice(2,4).join(' ')+' L'+p.slice(4,6).join(' ')
+ },
+ zero:{
+  from:[14,9.4,15.5,9.4,15.5,15.1,14,15.1,12.5,15.1,12.5,9.4,14,9.4],
+  to:[15.8,12,15.8,12,15.8,12,15.8,12,15.8,12,15.8,12,15.8,12],
+  render:p=>'M'+p.slice(0,2).join(' ')+' C'+p.slice(2,8).join(' ')+' C'+p.slice(8,14).join(' ')
+ }
+};
+const svgParts=[...document.querySelectorAll('.morph-svg')].map(svg=>({svg,parts:Object.fromEntries([...svg.querySelectorAll('[data-part]')].map(p=>[p.dataset.part,p]))}));
+const motion={position:0,velocity:0,target:0,active:false,last:0,frame:0,duration:420};
+const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+const round=n=>Number(n.toFixed(3));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function render(){
+ const t=clamp(motion.position,0,1);
+ svgParts.forEach(({svg,parts})=>{
+  for(const [name,shape] of Object.entries(shapes)){
+   const vals=shape.from.map((n,i)=>round(lerp(n,shape.to[i],t)));
+   parts[name].setAttribute('d',shape.render(vals));
+   if(name==='one'||name==='zero'){const q=clamp((t-.48)/.48,0,1);const smooth=q*q*(3-2*q);parts[name].style.strokeWidth=String(1.73*(1-smooth));}
+  }
+  svg.setAttribute('aria-label',t<.5?'Forward 10 Seconds morphing to Next Episode':'Next Episode morphing from Forward 10 Seconds');
+ });
+ $('scrub').value=String(round(t*100));
+ $('scrub-label').textContent=Math.round(t*100)+'%';
+ $('progress-pill').textContent=Math.round(t*100)+'% morphed';
+ $('icon-state').textContent=t<.02?'Forward 10 Seconds':t>.98?'Next Episode':'Morphing · '+Math.round(t*100)+'%';
+ const next=motion.target<.5;
+ document.querySelectorAll('.morph-trigger').forEach(btn=>{btn.setAttribute('aria-label',next?'Morph to Next Episode':'Morph to Forward 10 Seconds');btn.title=next?'Morph to Next Episode':'Morph to Forward 10 Seconds'});
+ $('to-forward').classList.toggle('secondary',motion.target>.5);
+ $('to-next').classList.toggle('secondary',motion.target<.5);
+ $('to-forward').classList.toggle('action',true);
+ $('to-next').classList.toggle('action',true);
+}
+function frame(now){
+ motion.frame=0;
+ if(!motion.active)return;
+ const dt=Math.min(.03,Math.max(.001,(now-motion.last)/1000));motion.last=now;
+ // Critically damped second-order movement; retained velocity keeps mid-animation reversals fluid.
+ const omega=7.9/(motion.duration/1000);
+ const acceleration=(motion.target-motion.position)*omega*omega-2*omega*motion.velocity;
+ motion.velocity+=acceleration*dt;
+ motion.position+=motion.velocity*dt;
+ motion.position=clamp(motion.position,0,1);
+ if(Math.abs(motion.target-motion.position)<.00025&&Math.abs(motion.velocity)<.005){
+  motion.position=motion.target;motion.velocity=0;motion.active=false;
+  if($('pingpong').checked){setTimeout(()=>{if($('pingpong').checked&& !motion.active)animateTo(1-motion.target)},330)}
+ }
+ render();
+ if(motion.active)motion.frame=requestAnimationFrame(frame);
+}
+function animateTo(target){
+ target=clamp(target,0,1);motion.target=target;
+ if(reduceMotion){motion.position=target;motion.velocity=0;motion.active=false;if(motion.frame)cancelAnimationFrame(motion.frame);motion.frame=0;render();return}
+ if(!motion.active){motion.last=performance.now();motion.active=true;motion.frame=requestAnimationFrame(frame)}
+ render();
+}
+function toggle(){animateTo(motion.target<.5?1:0)}
+$('hero-toggle').addEventListener('click',toggle);
+$('player-toggle').addEventListener('click',toggle);
+$('to-forward').addEventListener('click',()=>animateTo(0));
+$('to-next').addEventListener('click',()=>animateTo(1));
+$('duration').addEventListener('input',()=>{motion.duration=Number($('duration').value);$('duration-label').textContent=motion.duration+' ms'});
+$('scrub').addEventListener('input',()=>{if(motion.frame)cancelAnimationFrame(motion.frame);motion.frame=0;motion.active=false;motion.velocity=0;motion.position=Number($('scrub').value)/100;motion.target=motion.position;render()});
+$('pingpong').addEventListener('change',()=>{if($('pingpong').checked)animateTo(motion.target<.5?1:0)});
+document.addEventListener('keydown',e=>{if(['INPUT','BUTTON','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.code==='Space'){e.preventDefault();toggle()}else if(e.code==='ArrowLeft'){e.preventDefault();animateTo(0)}else if(e.code==='ArrowRight'){e.preventDefault();animateTo(1)}});
+render();
+})();
+</script>
+</body>
+</html>
