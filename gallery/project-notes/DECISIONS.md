@@ -56,6 +56,14 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 - Never exclude a valid match merely because it has lower priority. Group or clearly identify matches by reason, and show an entry only once if it matches both title and viewing year.
 - This is an agreed *search ranking and coverage rule*; exact search-results presentation still requires design review before implementation.
 
+## AGREED: Watch History sorting
+- Sort full Watch History by **Last Watched** (most recent actual playback for each season).
+- **Newest First** is the default. Provide a compact control to reverse direction to **Oldest First**, without introducing a larger sort-method menu.
+- Keep the same newest/oldest control when using status filters or search. Reversing direction must not change the underlying episode/season history.
+- Manual corrections to Watched/Unwatched flags do **not** change the last-watched timestamp or move a season in the sort order; actual viewing activity does.
+- When searching for a viewing year, preserve the previously agreed search-match priority (date matches before title matches for standalone years), and use chronological order within the relevant matches.
+- The specific persistence/reset behavior of status filters and sort direction between visits is not yet finalized.
+
 ## Current HTML status
 - v96 A28: main Settings/subtitle preview reference.
 - v97: Settings integration.
