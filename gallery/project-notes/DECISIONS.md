@@ -75,7 +75,7 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 - v97: Settings integration.
 - v98: Tabler icons, player morph / Play Next experiment integration.
 - v99: player refinements (subtitle selection moved into Player Settings, rightward Play Next transitions, two-tone timeline without knob).
-- The latest complete HTML milestone is **v99**, but see VERSION-INDEX.md and backup location for whether its actual bytes have been committed. Keep GitHub source branches and standalone HTML milestones distinct.
+- **v100**: approved integration of Watch History Experiment 03 into v99, including the Discover Recently Watched strip, per-season history rows, two-column expandable episode controls with fixed-position Watched status and scroll cap, date search/status filter/sort and session-long Undo. The player workspace also uses the same fading overlay scrollbar as Discover/Library (no native persistent scrollbar/gutter). The full HTML is backed up in persistent Library, and recovery source files are committed to GitHub; see VERSION-INDEX.md and v100-integration/README.md. This is a browser-development preview with initial sample history and limited local-video tracking, **not** a production provider-connected macOS build.
 
 ## Next-session startup checklist
 1. Read WORKFLOW.md and this file.
