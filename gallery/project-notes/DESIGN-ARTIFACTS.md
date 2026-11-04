@@ -39,3 +39,14 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 4. Prefer committing the actual files to `gallery/design-checkpoints`; if the GitHub transfer is unavailable, store in persistent Library and explicitly document the gap.
 5. Continue keeping **numbered Gallery versions** and **standalone experiments** separate. Creating an experiment does not authorize a new numbered build.
 6. Never generate/edit images without explicit user approval.
+
+## New Watch History layout experiment — pending user review (2026-11-04)
+
+- File: [Gallery-Watch-History-Layout-Experiment-01.html](../design-experiments/watch-history/Gallery-Watch-History-Layout-Experiment-01.html)
+- Status: **interactive prototype for review, NOT yet approved or integrated**; not a numbered Gallery release.
+- Backups: complete HTML committed to this `gallery/design-checkpoints` branch **and** saved to persistent ChatGPT Library at `/Gallery Backups/Design Experiments/2026-11-04/Gallery-Watch-History-Layout-Experiment-01.html`.
+- Source file size: **37,987 bytes**
+- SHA-256: `ab170c5716b773832ac963201266a5ab7d77a33d3e15c9022b3d0b31a5f5c737`
+- Contains: full season-level list, short/long expandable episode management (100-episode test season), two custom fading draggable scrollbar overlays (main page and inner episode lists) matching Gallery v99 behavior, sort/status filters, historical year/title search priority, separate-season completed status, explicit Remove and session-long Undo, and representative Library/Discover routing notices.
+- Browser checks (Chromium): long-list capped at 252px with all 100 rows available; hidden native scrollbar and fading overlay; manual status toggles; sorting; date-search grouping with deduplication; filters; removal/Undo; reset on navigation; 390px width without horizontal overflow; no JavaScript page errors.
+- Scope: illustrative offline demo data only; does **not** modify Gallery v99 or implement real playback-history persistence.
