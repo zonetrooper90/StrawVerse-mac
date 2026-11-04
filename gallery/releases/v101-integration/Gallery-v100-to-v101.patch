@@ -1,0 +1,106 @@
+--- Gallery-v100.html
++++ Gallery-v101.html
+@@ -1,5 +1,5 @@
+ <!doctype html>
+-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery v100 — Watch History and Player Scrollbars</title><style>
++<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery v101 — Watch History and Player Scrollbars</title><style>
+ :root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
+ *{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
+ body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
+@@ -2635,25 +2635,30 @@
+ #wh-root .wh-undo-item button{border:0;background:none;border-left:1px solid var(--line);padding-left:8px;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer}
+ #wh-root .wh-empty{padding:36px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:12px;text-align:center}
+ #wh-root .wh-prototype-note{padding:16px 0;margin-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.5}
+-/* Discover: one cover per anime; View History is fixed at the far right. */
++/* v101: Discover Recently Watched — slide-out info panel behind a stationary portrait.
++   The cover never changes size. Its item expands in the flex row to move neighboring
++   cards and the final View History tile out of the way, without horizontal scrolling. */
+ .continue.wh-recent{padding:14px 18px 13px;display:block;min-width:0;margin-bottom:30px}
+ .wh-recent-header{font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);margin-bottom:10px}
+-.wh-recent-row{display:flex;align-items:stretch;gap:10px;min-width:0;height:96px;overflow:hidden}
+-.wh-recent-card{position:relative;flex:0 0 66px;width:66px;min-width:0;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:var(--cover);overflow:hidden;color:white;cursor:pointer;padding:0;text-align:left}
++.wh-recent-row{--wh-panel-width:188px;display:flex;align-items:stretch;gap:10px;min-width:0;width:100%;height:96px;overflow:hidden}
++.wh-recent-item{position:relative;display:block;flex:0 0 66px;width:66px;height:96px;min-width:0;overflow:hidden;transition:flex-basis .32s cubic-bezier(.22,.75,.22,1);isolation:isolate}
++.wh-recent-item.is-preview-hidden{display:none!important}
++.wh-recent-item:hover,.wh-recent-item:focus-within{flex-basis:calc(66px + var(--wh-panel-width));z-index:1}
++.wh-recent-card{position:absolute;z-index:2;top:0;left:0;width:66px;height:96px;box-sizing:border-box;display:block;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:var(--cover);overflow:hidden;color:white;cursor:pointer;padding:0;text-align:left}
+ .wh-recent-card:before{content:"";position:absolute;border:1px solid rgba(255,255,255,.35);border-radius:50%;width:77px;height:77px;top:4px;left:-25px}
+ .wh-recent-card:after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(0deg,rgba(0,0,0,.72),transparent);pointer-events:none}
++.wh-recent-card:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+ .wh-recent-card-label{position:absolute;z-index:1;bottom:5px;left:5px;right:5px;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px #000;line-height:1.2;overflow:hidden;max-height:3.6em}
+-.wh-recent-card-detail{position:absolute;z-index:2;inset:0;background:color-mix(in srgb,var(--window) 87%,transparent);color:var(--ink);display:flex;flex-direction:column;justify-content:center;gap:5px;padding:7px;font-size:10px;line-height:1.25;opacity:0;transition:opacity .18s;pointer-events:none;overflow:hidden}
+-.wh-recent-card-detail strong{font-size:10px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+-.wh-recent-card:hover .wh-recent-card-detail,.wh-recent-card:focus-visible .wh-recent-card-detail{opacity:1}
+-.wh-recent-view{margin-left:auto;flex:0 0 106px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;font-size:11px;font-weight:690;cursor:pointer;padding:8px;text-align:center}
+-.wh-recent-view:hover{background:var(--hover);color:var(--ink)}
+-.wh-recent-view .icon{width:22px;height:22px;color:var(--accent)}
+-@media(max-width:1180px){.wh-recent-card:nth-child(n+9){display:none}}
+-@media(max-width:950px){.wh-recent-card:nth-child(n+7){display:none}}
+-@media(max-width:760px){.wh-recent-card:nth-child(n+5){display:none}}
+-@media(max-width:560px){.wh-recent-card:nth-child(n+4){display:none}.wh-recent-row{gap:7px}.wh-recent-view{flex-basis:93px}}
+-@media(max-width:410px){.wh-recent-card:nth-child(n+3){display:none}}
++/* Slightly shorter (84px versus 96px) and vertically centered, as in the drawing.
++   It moves from directly behind the 66px cover; the cover stays in front. */
++.wh-recent-info{position:absolute;z-index:1;top:6px;left:66px;width:var(--wh-panel-width);height:84px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:7px;min-width:0;padding:9px 12px 9px 13px;border:1px solid var(--line);border-left:0;border-radius:0 10px 10px 0;background:var(--surface);color:var(--ink);box-shadow:3px 4px 12px rgba(0,0,0,.1);transform:translate3d(-100%,0,0);opacity:0;transition:transform .32s cubic-bezier(.22,.75,.22,1),opacity .13s ease;pointer-events:none}
++.wh-recent-item:hover .wh-recent-info,.wh-recent-item:focus-within .wh-recent-info{transform:translate3d(0,0,0);opacity:1}
++.wh-recent-info strong{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.24;font-weight:680;overflow-wrap:anywhere}
++.wh-recent-info span{font-size:11px;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++.wh-recent-view{margin:0;flex:0 0 66px;width:66px;height:96px;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:10px;font-weight:690;cursor:pointer;padding:7px 4px;text-align:center;white-space:normal}
++.wh-recent-view:hover,.wh-recent-view:focus-visible{background:var(--hover);color:var(--ink)}
++.wh-recent-view .icon{width:21px;height:21px;color:var(--accent)}
++@media(prefers-reduced-motion:reduce){.wh-recent-item,.wh-recent-info{transition:none!important}}
+ @media(max-width:820px){#wh-root .wh-episode-scroll{grid-template-columns:minmax(0,1fr)}#wh-root .wh-episode-shell:before{display:none}#wh-root .wh-episode:nth-child(n){padding:0 10px}}
+ @media(max-width:750px){#wh-root .wh-summary{gap:10px;padding:11px 10px}#wh-root .wh-cover{width:48px;height:68px}#wh-root .wh-episodes{padding-left:14px}#wh-root .wh-anime-title{font-size:13px}#wh-root .wh-actions{gap:0}#wh-root .wh-action{width:30px;height:32px}}
+ @media(max-width:430px){#wh-root .wh-controls{align-items:stretch}#wh-root .wh-segmented{flex:1;justify-content:space-between}#wh-root .wh-segmented button{padding:8px 9px;flex:1}#wh-root .wh-sort{margin-left:auto}#wh-root .wh-cover{width:42px;height:61px}#wh-root .wh-summary{gap:8px}#wh-root .wh-episode-toggle{font-size:10px;gap:5px;padding:5px 3px}#wh-root .wh-episode-number{min-width:63px}#wh-root .wh-episode-position{font-size:10px}}
+@@ -3080,6 +3085,7 @@
+  for(const el of content.querySelectorAll('[data-tag]'))el.addEventListener('click',()=>{if(searchOpen)closeInlineSearch(false);hideTabScrollOverlay();state.tag=el.dataset.tag;render();});
+  for(const el of content.querySelectorAll('[data-download-filter]'))el.addEventListener('click',()=>{if(searchOpen)closeInlineSearch(false);hideTabScrollOverlay();state.downloadStatus=el.dataset.downloadFilter;render();});
+  on('filters',showFilters);on('wh-view-history',whEnter);
++ if(view==='discover')whSetupRecentPreview(content);
+  for(const button of content.querySelectorAll('[data-wh-recent]'))button.addEventListener('click',()=>{const r=whRecords.find(r=>r.id===button.dataset.whRecent);if(!r)return;whEnter();whOpenTitle(r);});
+  on('resume',()=>showDetail('demo:02'));on('discover-browse-sources',openSourceManagerFromDiscover);
+  on('import',showImport);on('newtag',showNewTag);on('sharetag',showShare);
+@@ -3306,11 +3312,33 @@
+  };
+  return `<svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyph[name]||''}</svg>`;
+ }
++/* Keep the View History tile immediately after the last visible cover. Reserve space
++   for any one expanded card so neither it nor the shortcut clips at the row edge.
++   No fixed breakpoint-count guesses: fit is based on the row's real available width. */
++let whRecentResizeObserver=null;
++function whSetupRecentPreview(content){
++ if(whRecentResizeObserver){whRecentResizeObserver.disconnect();whRecentResizeObserver=null;}
++ const row=content.querySelector('.wh-recent-row');if(!row)return;
++ const covers=[...row.querySelectorAll('.wh-recent-item')];
++ const fit=()=>{
++  const width=row.clientWidth;if(width<=0)return;
++  const coverWidth=66,gap=10;
++  // On a very narrow window the info panel scales to the remaining space.
++  const panelWidth=Math.min(188,Math.max(55,width-coverWidth*2-gap));
++  row.style.setProperty('--wh-panel-width',panelWidth+'px');
++  const max=Math.max(1,Math.floor((width-coverWidth-panelWidth)/(coverWidth+gap)));
++  covers.forEach((item,index)=>{item.classList.toggle('is-preview-hidden',index>=max);});
++ };
++ fit();
++ if(typeof ResizeObserver==='function'){
++  whRecentResizeObserver=new ResizeObserver(fit);whRecentResizeObserver.observe(row);
++ }else window.addEventListener('resize',fit,{passive:true});
++}
+ function whPreviewMarkup(){
+  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
+  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
+  <div class="wh-recent-header">Recently Watched</div>
+- <div class="wh-recent-row">${recent.map(r=>`<button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${r.cover}" title="${escapeHTML(r.title)}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span><span class="wh-recent-card-detail"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></span></button>`).join('')}
++ <div class="wh-recent-row">${recent.map(r=>`<div class="wh-recent-item"><button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${r.cover}" aria-label="Open ${escapeHTML(r.title)}; ${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}" title="${escapeHTML(r.title)}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span></button><div class="wh-recent-info" aria-hidden="true"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></div></div>`).join('')}
+  <button class="wh-recent-view" type="button" id="wh-view-history">${whSmallIcon('history')}<span>View History</span></button></div></section></div></div>`;
+ }
+ function whEpisodeMarkup(r,ep){
+@@ -3340,7 +3368,7 @@
+  ${removed.length?`<aside class="wh-undo" aria-label="Pending removals"><div class="wh-undo-top"><div><strong>${removed.length} ${removed.length===1?'season':'seasons'} removed from view</strong><div class="wh-undo-hint">Undo is available until you leave Watch History.</div></div><button type="button" class="btn small" data-wh-undo-all>Undo all</button></div><div class="wh-undo-items">${removed.map(r=>`<div class="wh-undo-item"><span>${escapeHTML(r.title)}</span><button type="button" data-wh-undo="${escapeHTML(r.id)}" aria-label="Undo removal of ${escapeHTML(r.title)}">Undo</button></div>`).join('')}</div></aside>`:''}
+  <div class="wh-result-count">${total} ${total===1?'season':'seasons'} ${whSearch?'matching your search':'in this view'}</div>
+  ${total?groups.map(g=>`${g.label?`<div class="wh-match-heading">${escapeHTML(g.label)}</div>`:''}<div class="wh-list">${g.items.map(whRowMarkup).join('')}</div>`).join(''):`<div class="wh-empty">Nothing to show. ${whSearch?'Try a different title or viewing date.':'Try another filter, or undo a removal.'}</div>`}
+- <div class="wh-prototype-note">Gallery v100 design preview: the initial history entries and covers are sample data for testing the UI. Actual source streaming isn't yet connected in this HTML prototype. When a supported local video plays, this preview can record its progress on this device.</div>
++ <div class="wh-prototype-note">Gallery v101 design preview: the initial history entries and covers are sample data for testing the UI. Actual source streaming isn't yet connected in this HTML prototype. When a supported local video plays, this preview can record its progress on this device.</div>
+  </section>`;
+ }
+ function whAttachInner(area,overlay){
