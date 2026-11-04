@@ -1,5 +1,20 @@
 {
   "files": {
+    "Gallery-v96-A28.html": {
+      "parts": 11,
+      "size": 6762915,
+      "sha256": "b60f882a7b0528d28d00810e1983c48e2d98f7ad7f619d89ddd5f575517fd32c"
+    },
+    "Gallery-v97.html": {
+      "parts": 11,
+      "size": 6763831,
+      "sha256": "b948e845bb7d4f23119cd62f21481b4f046c27e64ea98b8c1bf657463ab094f7"
+    },
+    "Gallery-v98.html": {
+      "parts": 11,
+      "size": 6773168,
+      "sha256": "7e5238b8e27072242eb7cf0911dcdf88864de00d9bbaced4ee3a8178178f470c"
+    },
     "Gallery-v99.html": {
       "parts": 11,
       "size": 6776286,

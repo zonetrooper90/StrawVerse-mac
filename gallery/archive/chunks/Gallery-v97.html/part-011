@@ -1,0 +1,1647 @@
+const SUBTITLE_PREVIEW_TEXT='The quick brown fox\njumps over the lazy dog.';
+/* v93 — Five user-facing, named relative subtitle sizes. The values below are
+   reference units at a 1080-high displayed video area (not physical display
+   pixels, not source-video dimensions). Only the names appear in the UI.
+   Persist stable preset IDs, never a resolution-specific font size. */
+const SUBTITLE_SIZES=Object.freeze([
+ {id:'extra-small',label:'Extra Small',reference:28},
+ {id:'small',label:'Small',reference:36},
+ {id:'normal',label:'Normal',reference:44},
+ {id:'large',label:'Large',reference:54},
+ {id:'extra-large',label:'Extra Large',reference:64}
+]);
+const SUBTITLE_DEFAULTS=Object.freeze({font:'system',size:'normal',color:'#f5f5f5',colorMode:'white',customColor:'#ffffff',customColorSet:false,outline:3,outlineColor:'#08080b',shadow:3,shadowColor:'#08080b',boxOpacity:65,boxColor:'#08080b',effect:'outline',outlinePreset:'normal',shadowPreset:'normal',boxPreset:'normal',});
+const SUBTITLE_TEXT_COLOR_PRESETS=Object.freeze({white:'#f5f5f5',yellow:'#ffe066'});
+// A10 — Consistent Subtle / Normal / Strong labels under Effect intensity.
+// The UI offers named effect presets, while the renderer still uses numbers.
+// Outline values respect the existing font-size-dependent maximum.
+const SUBTITLE_EFFECT_PRESETS=Object.freeze({
+ outline:{light:1,normal:3,strong:5},
+ shadow:{light:1.5,normal:3,strong:6},
+ box:{light:35,normal:65,strong:85}
+});
+const SUBTITLE_EFFECT_LABELS=Object.freeze(['Subtle','Normal','Strong']);
+function subtitlePresetValue(effect,preset,size){
+ const n=SUBTITLE_EFFECT_PRESETS[effect]?.[preset]??SUBTITLE_EFFECT_PRESETS[effect]?.normal??0;
+ return effect==='outline'?Math.min(maximumSubtitleOutline(size),n):n;
+}
+function subtitleNearestPreset(effect,value,size){
+ const presets=Object.keys(SUBTITLE_EFFECT_PRESETS[effect]||{});
+ return presets.reduce((best,id)=>Math.abs(subtitlePresetValue(effect,id,size)-value)<Math.abs(subtitlePresetValue(effect,best,size)-value)?id:best,'normal');
+}
+function assignSubtitlePresetNumbers(prefs){
+ for(const [effect,key,presetKey] of [['outline','outline','outlinePreset'],['shadow','shadow','shadowPreset'],['box','boxOpacity','boxPreset']]){
+  prefs[key]=subtitlePresetValue(effect,prefs[presetKey],prefs.size);
+ }
+}
+
+function normalizeSubtitleSize(size){
+ if(typeof size==='string' && SUBTITLE_SIZES.some(entry=>entry.id===size))return size;
+ // Migrate saved v82–v92 numeric sizes to the nearest named preset.
+ if(typeof size==='number' && Number.isFinite(size))
+  return SUBTITLE_SIZES.reduce((best,entry)=>Math.abs(entry.reference-size)<Math.abs(best.reference-size)?entry:best).id;
+ return SUBTITLE_DEFAULTS.size;
+}
+function subtitleReferenceSize(size){
+ return (SUBTITLE_SIZES.find(entry=>entry.id===size)||SUBTITLE_SIZES[2]).reference;
+}
+// Same proportional cap as v88: one eighth of the reference font size,
+// rounded down to half-steps and never above six reference units.
+function maximumSubtitleOutline(size){return Math.min(6,Math.floor(subtitleReferenceSize(size)/4)/2)}
+const SUBTITLE_FONTS=Object.freeze({system:'-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',atkinson:'"Atkinson Hyperlegible Next", -apple-system, sans-serif',inter:'Inter, -apple-system, sans-serif'});
+function readSubtitlePrefs(){
+ try{
+  const raw=JSON.parse(localStorage.getItem('gallery.subtitlePreferences')||localStorage.getItem('gallery.layoutExperimentA.subtitlePreview')||'{}');
+  if(!raw||typeof raw!=='object')return {...SUBTITLE_DEFAULTS};
+  const v={...SUBTITLE_DEFAULTS};
+  if(Object.hasOwn(SUBTITLE_FONTS,raw.font))v.font=raw.font;
+  v.size=normalizeSubtitleSize(raw.size);
+  for(const [key,min,max] of [['outline',0,6],['shadow',0,10]])
+   if(Number.isFinite(raw[key]))v[key]=Math.max(min,Math.min(max,Math.round(raw[key]*2)/2));
+  v.outline=Math.min(v.outline,maximumSubtitleOutline(v.size));
+  if(Number.isFinite(raw.boxOpacity))v.boxOpacity=Math.max(0,Math.min(100,Math.round(raw.boxOpacity/5)*5));
+  for(const key of ['color','outlineColor','shadowColor','boxColor'])
+   if(/^#[0-9a-fA-F]{6}$/.test(raw[key]||''))v[key]=raw[key].toLowerCase();
+   // Legacy copies stored only a hex value. Treat the former #FFFFFF default
+   // as the new Soft White preset; preserve all other user-selected colors.
+   const validHex=c=>typeof c==='string' && /^#[0-9a-fA-F]{6}$/.test(c);
+   if(['white','yellow','custom'].includes(raw.colorMode)){
+    v.colorMode=raw.colorMode;
+    if(validHex(raw.customColor))v.customColor=raw.customColor.toLowerCase();
+    else if(v.colorMode==='custom' && validHex(raw.color))v.customColor=raw.color.toLowerCase();
+   }else if(validHex(raw.color)){
+    const previous=raw.color.toLowerCase();
+    if(previous==='#ffe066')v.colorMode='yellow';
+    else if(previous!=='#ffffff' && previous!=='#f5f5f5'){
+     v.colorMode='custom';v.customColor=previous;
+    }
+   }
+   // Older experiments did not store whether Custom had ever been chosen.
+   // A nondefault saved swatch or a previously selected Custom mode implies yes.
+   v.customColorSet=typeof raw.customColorSet==='boolean'
+    ?raw.customColorSet
+    :(v.colorMode==='custom'||v.customColor!==SUBTITLE_DEFAULTS.customColor);
+   v.color=v.colorMode==='custom'?v.customColor:SUBTITLE_TEXT_COLOR_PRESETS[v.colorMode];
+   if(!Object.hasOwn(raw,'shadowColor'))v.shadowColor=v.outlineColor;
+  if(['outline','shadow','box','none'].includes(raw.effect))v.effect=raw.effect;
+  // Migrate the separate background selector from v95 to the unified style.
+  // When an old background was enabled, preserve that explicit choice.
+  if(['solid','translucent'].includes(raw.background) && !['box','none'].includes(raw.effect)){
+   v.effect='box';v.boxOpacity=raw.background==='solid'?100:60;
+  }
+  // Existing A8 slider settings are mapped to their nearest A9 named preset.
+  for(const [effect,key,presetKey] of [['outline','outline','outlinePreset'],['shadow','shadow','shadowPreset'],['box','boxOpacity','boxPreset']]){
+   const saved=raw[presetKey];
+   v[presetKey]=['light','normal','strong'].includes(saved)?saved:subtitleNearestPreset(effect,v[key],v.size);
+  }
+  assignSubtitlePresetNumbers(v);
+  return v;
+ }catch{return {...SUBTITLE_DEFAULTS};}
+}
+let subtitlePrefs=readSubtitlePrefs();
+let subtitleLastStyledEffect=subtitlePrefs.effect==='none'?'outline':subtitlePrefs.effect;
+function persistSubtitlePrefs(){try{localStorage.setItem('gallery.subtitlePreferences',JSON.stringify(subtitlePrefs));}catch{}}
+const settingsSections=[
+ ['appearance','Appearance','palette'],
+ ['playback','Playback','play'],
+ ['downloads','Downloads','download'],
+ ['sources','Sources','globe'],
+ ['about','About','info']
+];
+
+/* v62 Sources preview — Sample data is intentionally separate from rendering.
+   Later, a source service can provide this shape without changing the UI. */
+const SOURCES_PREVIEW_CATALOG=Object.freeze([
+ {id:'anikoto',name:'anikoto',publisher:'TheYogMehta',repository:'official',latest:'7.0.0',minApp:'11.1.0',initialVersion:'6.0.1',initialHealth:'healthy'},
+ {id:'pahe',name:'pahe',publisher:'TheYogMehta',repository:'official',latest:'7.0.1',minApp:'11.1.0',initialVersion:'6.0.1',initialHealth:'incompatible'}
+]);
+const SOURCES_PREVIEW_REPO=Object.freeze({id:'official',name:'Official StrawVerse extensions',publisher:'TheYogMehta',url:'https://github.com/TheYogMehta/extensions'});
+// On entering Sources, show installed extensions if there are any;
+// otherwise lead with the Marketplace. Keep the tab order stable.
+function preferredSourcesTab(){
+ return SOURCES_PREVIEW_CATALOG.some(p=>!!sourceDemoState[p.id]?.installed)?'installed':'marketplace';
+}
+let sourcesTab='installed';
+let sourcesExpanded=new Set();
+let sourcesFeedback='';
+let sourceDemoState={};
+let sourceDemoRepos=[];
+let sourceDemoBusy=null;
+let sourceDemoBusyAction=null;
+let sourceDemoPhase=-1;
+let sourceDemoOpToken=0;
+function resetSourcesPreview(){
+ sourceDemoOpToken++;
+ sourceDemoState=Object.fromEntries(SOURCES_PREVIEW_CATALOG.map(p=>[p.id,{installed:p.initialVersion,health:p.initialHealth,nextOutcome:'working',notice:null,backup:null}]));
+ sourceDemoRepos=[];sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;sourcesExpanded.clear();
+ sourcesFeedback='Demo restored: sample source versions and states reset.';
+ sourcesTab=preferredSourcesTab();
+ renderSourcesPreview();
+ refreshDiscoverFromSourcePreview();
+}
+// Initialise only the demonstration model, never touch source files or network.
+sourceDemoState=Object.fromEntries(SOURCES_PREVIEW_CATALOG.map(p=>[p.id,{installed:p.initialVersion,health:p.initialHealth,nextOutcome:'working',notice:null,backup:null}]));
+
+/* v68 · Independent mock provider listings reconciled by Gallery's canonical anime IDs.
+   These are local demonstration fixtures; this is not an actual anime index,
+   title-matching algorithm, provider API, or downloaded content. */
+const SOURCE_PREVIEW_LISTINGS=Object.freeze({
+ anikoto:Object.freeze(['demo:quints','demo:solo','demo:long','demo:aot','demo:01','demo:02','demo:03','demo:04','demo:05','demo:06','demo:08']),
+ pahe:Object.freeze(['demo:quints','demo:solo','demo:aot','demo:02','demo:06','demo:07','demo:08','demo:09','demo:10'])
+});
+function getSourceCataloguePreview(){
+ const installed=SOURCES_PREVIEW_CATALOG.filter(p=>!!sourceDemoState[p.id]?.installed);
+ // A temporarily offline provider keeps previously known catalogue entries visible.
+ // A broken/incompatible extension cannot supply a current listing in this demo.
+ const catalogSources=installed.filter(p=>!['incompatible','broken'].includes(sourceDemoState[p.id].health));
+ const listings=new Map();
+ for(const provider of catalogSources){
+  for(const id of SOURCE_PREVIEW_LISTINGS[provider.id]||[]){
+   if(!listings.has(id))listings.set(id,new Set());
+   listings.get(id).add(provider.id);
+  }
+ }
+ return {
+  installed, catalogSources, listings,
+  titles:demo.filter(item=>listings.has(item.id)),
+  duplicates:[...listings.values()].filter(providers=>providers.size>1).length,
+  cached:catalogSources.some(p=>sourceDemoState[p.id].health==='offline')
+ };
+}
+function sourceCatalogueEmptyMarkup(model){
+ const hasSources=model.installed.length>0;
+ const title=hasSources?'Your sources need attention':'Discover starts with a source';
+ const desc=hasSources
+  ?'Your installed sources cannot currently provide a catalogue. Open Sources to inspect their status or install another provider. Your Library and Downloads are still available.'
+  :'Install an anime source to start exploring titles. The official StrawVerse repository is already configured.';
+ return `<section class="discover-source-empty" aria-label="${hasSources?'Sources need attention':'No sources installed'}"><div class="discover-source-empty-icon">${icon(hasSources?'info':'compass',26)}</div><h2>${title}</h2><p>${desc}</p><button type="button" class="btn primary" id="discover-browse-sources">${icon('globe',16)} ${hasSources?'Manage Sources':'Browse Sources'}</button><p class="discover-source-note">Local interface simulation · no real extensions or websites are accessed.</p></section>`;
+}
+function discoverSourceCount(model,items){
+ const count=items.length;
+ return `${count} ${count===1?'sample title':'sample titles'}${model.catalogSources.length?` · ${model.catalogSources.length} ${model.catalogSources.length===1?'source':'sources'}`:''}`;
+}
+function openSourceManagerFromDiscover(){
+ showSettings();
+ // The Settings page is independent of the main navigation; use its native
+ // section switch and its built-in installed-first/marketplace-first rule.
+ setSettingsSection('sources');
+ if(preferredSourcesTab()==='marketplace')setSourcesTab('marketplace',false);
+}
+function refreshDiscoverFromSourcePreview(){
+ if(tabPagesReady){
+  const panel=tabPages.discover;
+  const originalScroll=panel.scrollTop;
+  renderTabPage('discover');
+  panel.scrollTop=originalScroll;
+ }
+}
+function sourcesCatalogueScenarioMarkup(){
+ const preview=getSourceCataloguePreview();
+ return `<details class="sources-scenario sources-catalogue-preview"><summary>Preview Discover with different installed sources</summary><p>Try zero, one, or two installed sources. These shortcuts only update sample source availability; your Library entries, viewing history, and Downloads are not changed.</p><div class="sources-catalogue-actions"><button type="button" class="btn small" data-source-action="catalogue-none">No sources</button><button type="button" class="btn small" data-source-action="catalogue-one">Anikoto only</button><button type="button" class="btn small" data-source-action="catalogue-both">Both sources</button></div><p class="sources-catalogue-current">Currently: ${preview.installed.length} installed · ${preview.titles.length} distinct Discover titles${preview.duplicates?` · ${preview.duplicates} shared titles merged`:''}. Visit Discover to see the result.</p></details>`;
+}
+function applySourceCatalogueScenario(mode){
+ // Cancel simulated asynchronous updates before switching preview presets.
+ sourceDemoOpToken++;
+ sourceOperationEnd();
+ for(const p of SOURCES_PREVIEW_CATALOG){
+  const enabled=mode==='catalogue-both'||(mode==='catalogue-one'&&p.id==='anikoto');
+  sourceDemoState[p.id]={installed:enabled?p.latest:null,health:'healthy',nextOutcome:'working',notice:null,backup:null};
+ }
+ sourcesExpanded.clear();
+ sourcesTab=preferredSourcesTab();
+ const model=getSourceCataloguePreview();
+ sourcesFeedback=`Demo: ${model.installed.length} installed ${model.installed.length===1?'source':'sources'}; ${model.titles.length} distinct titles in Discover. Your Library and Downloads were preserved.`;
+ renderSourcesPreview();
+ refreshDiscoverFromSourcePreview();
+}
+
+function sourceVersionNewer(current,latest){if(!current)return false;const x=current.split('.').map(Number),y=latest.split('.').map(Number);for(let i=0;i<Math.max(x.length,y.length);i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)<(y[i]||0);}return false;}
+// The prototype distinguishes installed files, extension validation, and provider health.
+// Update outcomes are chosen by the tester, not inferred from real network activity.
+const SOURCE_UPDATE_PHASES=['Preparing update','Downloading update','Validating extension','Activating version','Checking provider'];
+function sourcesStatus(p){
+ const d=sourceDemoState[p.id];
+ if(sourceDemoBusy===p.id)return {label:sourceDemoBusyAction==='retry'?'Checking…':sourceDemoBusyAction==='update'?'Updating…':'Installing…',kind:'',description:'The demonstration is progressing through validation and activation.'};
+ if(!d.installed)return {label:'Not installed',kind:'',description:'This provider has not been installed.'};
+ if(d.notice?.kind==='error')return {label:'Update failed',kind:'needs-attention',description:d.notice.text};
+ if(d.health==='incompatible')return {label:'Update required',kind:'needs-attention',description:`The v${d.installed} file remains installed but cannot load. Updating may repair it; the previous version is not assumed to work.`};
+ if(d.health==='broken')return {label:'Source broken',kind:'needs-attention',description:`The v${d.installed} extension is known not to work in this simulated scenario. An update may repair it.`};
+ if(d.health==='offline')return {label:'Source unavailable',kind:'offline',description:`The installed v${d.installed} extension is intact, but its provider cannot currently be reached. This is not proof of broken code or missing episodes.`};
+ if(sourceVersionNewer(d.installed,p.latest))return {label:'Update available',kind:'needs-attention',description:`A newer version is available. Gallery validates it before activation and retains a recovery copy of a previously working version.`};
+ return {label:'Installed',kind:'',description:'The extension is installed and loaded successfully in this sample.'};
+}
+function sourceUpdateStageMarkup(){
+ const retry=sourceDemoBusyAction==='retry';
+ const i=Math.max(0,sourceDemoPhase);
+ const stage=retry?'Checking provider':SOURCE_UPDATE_PHASES[i];
+ const step=retry?'':' · '+(i+1)+' of '+SOURCE_UPDATE_PHASES.length;
+ const progress=retry?60:((i+1)*100/SOURCE_UPDATE_PHASES.length);
+ return {
+  inline:`<span class="sources-inline-progress" title="${escapeHTML(stage+step)}">${icon('refresh',13)}<span>${escapeHTML(stage+step)}</span></span>`,
+  track:`<div class="sources-update-track" role="progressbar" aria-label="${escapeHTML(stage)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><span class="sources-update-track-fill" style="width:${progress}%"></span></div>`
+ };
+}
+function sourceResultSummary(p,d){
+ if(!d.notice)return `v${escapeHTML(p.latest)} available${d.installed?` · <b>v${escapeHTML(d.installed)} installed</b>`:''}`;
+ let summary;
+ if(d.notice.kind==='error')summary=`Update failed · ${d.installed?'v'+d.installed+' preserved':'Nothing installed'}`;
+ else if(d.notice.kind==='warning')summary=`v${d.installed} installed · Provider unavailable`;
+ else summary=`v${d.installed} installed · Provider verified`;
+ return `<span class="sources-inline-result is-${d.notice.kind}" title="${escapeHTML(d.notice.text)}">${icon(d.notice.kind==='success'?'check':'info',13)}<span>${escapeHTML(summary)}</span></span>`;
+}
+function sourcesProviderMarkup(p){
+ const d=sourceDemoState[p.id],st=sourcesStatus(p),isInstalled=!!d.installed,busy=!!sourceDemoBusy,active=sourceDemoBusy===p.id,expanded=sourcesExpanded.has(p.id);
+ const action=isInstalled?(sourceVersionNewer(d.installed,p.latest)?'Update':null):'Install';
+ const primary=action?`<button type="button" class="btn small primary" data-source-action="${action.toLowerCase()}" data-source-id="${p.id}" ${busy?'disabled':''}>${action}</button>`:'';
+ const backup=d.backup;
+ const recovery=backup?`<p class="sources-recovery-note">Recovery copy: <b>v${escapeHTML(backup.version)}</b> · ${backup.usable?'last known working version':'not confirmed working'}. ${backup.usable?'You may choose to restore it.':'Gallery will not suggest restoring a known-broken or unverified version.'}</p>${backup.usable?`<div class="sources-recovery-actions"><button type="button" class="btn small" data-source-action="restore" data-source-id="${p.id}" ${busy?'disabled':''}>Restore v${escapeHTML(backup.version)}…</button></div>`:''}`:'';
+ const needsAlternative=isInstalled&&(d.health==='offline'||d.health==='broken'||d.health==='incompatible');
+ const alternatives=needsAlternative?`<div class="sources-recovery-actions"><button type="button" class="btn small" data-source-action="retry" data-source-id="${p.id}" ${busy?'disabled':''}>Retry source check</button><button type="button" class="btn small" data-source-action="other-sources" data-source-id="${p.id}">Other Sources</button></div>`:'';
+ const progress=active?sourceUpdateStageMarkup():null;
+ const subline=progress?progress.inline:sourceResultSummary(p,d);
+ const content=`<div class="sources-provider-main"><div class="sources-provider-icon" aria-hidden="true">${p.name[0].toUpperCase()}</div><div class="sources-provider-copy"><div class="sources-provider-name"><strong>${escapeHTML(p.name)}</strong><span class="sources-publisher">@${escapeHTML(p.publisher)}</span></div><div class="sources-version" ${active?'role="status" aria-live="polite"':''}>${subline}</div></div><div class="sources-provider-controls"><span class="sources-status ${st.kind}">${escapeHTML(st.label)}</span><span class="sources-action-slot">${primary}</span><button type="button" class="sources-detail-toggle" data-source-action="details" data-source-id="${p.id}" aria-expanded="${expanded}">${expanded?'Less':'Details'} ${icon('chevron',13)}</button></div></div>`;
+ const details=expanded?`<div class="sources-provider-detail"><p>${escapeHTML(st.description)}</p><div class="sources-detail-meta"><span><strong>Publisher</strong> @${escapeHTML(p.publisher)}</span><span><strong>Requires</strong> StrawVerse ${escapeHTML(p.minApp)}+</span><span><strong>Repository</strong> Official</span></div>${recovery}${alternatives}<div class="sources-detail-actions"><a class="sources-link" href="${SOURCES_PREVIEW_REPO.url}" target="_blank" rel="noopener noreferrer">View repository ↗</a>${isInstalled?`<button type="button" class="sources-danger" data-source-action="remove" data-source-id="${p.id}" ${busy?'disabled':''}>Remove extension…</button>`:''}</div></div>`:'';
+ return `<article class="sources-provider" data-source-entry="${p.id}">${content}${progress?progress.track:''}${details}</article>`;
+}
+function sourcesScenarioMarkup(){
+ return `<details class="sources-scenario"><summary>Preview other source and update states</summary><p>Pick a source condition and the outcome of its next update. No files or provider websites are accessed.</p><div class="field"><label for="sources-scenario-provider">Provider</label><select id="sources-scenario-provider">${SOURCES_PREVIEW_CATALOG.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join('')}</select></div><div class="field"><label for="sources-scenario-state">Current extension condition</label><select id="sources-scenario-state"><option value="healthy">Working</option><option value="offline">Provider temporarily unavailable</option><option value="broken">Old source no longer works</option><option value="incompatible">Extension cannot load</option></select></div><div class="field"><label for="sources-scenario-outcome">Next update result</label><select id="sources-scenario-outcome"><option value="working">New source works</option><option value="rejected">New extension fails validation</option><option value="unreachable">New extension loads, but provider is unavailable</option></select></div><button type="button" class="btn small" data-source-action="simulate" style="margin-top:12px">Apply scenario</button><p class="sources-scenario-footnote">A provider outage alone does not prove an old extension is broken. Only a previously working version is offered as a recovery option.</p></details>`;
+}
+function sourcesRepoMarkup(r,official){
+ const hint=official?'Official repository · always configured':`${r.kind==='github'?'GitHub repository':'Direct marketplace manifest'} · Format checked only`;
+ return `<div class="sources-repo" ${official?'id="settings-official-repository" tabindex="-1"':''} title="${escapeHTML(hint)}"><div class="sources-repo-icon" aria-hidden="true">${icon(official?'check':'globe',18)}</div><div class="sources-repo-copy"><strong title="${escapeHTML(r.name)}">${escapeHTML(r.name)}</strong><small title="${escapeHTML(r.url)}">${escapeHTML(r.url)}</small></div><div class="sources-repo-actions"><span class="sources-repo-status">${official?'Built in':'Not verified'}</span>${official?'':`<button type="button" class="sources-danger" data-source-action="remove-repo" data-repo-id="${escapeHTML(r.id)}" aria-label="Remove ${escapeHTML(r.name)} repository">Remove</button>`}</div></div>`;
+}
+function renderSourcesPreview(){
+ const shell=settingsPage.querySelector('#sources-shell');if(!shell)return;
+ for(const el of shell.querySelectorAll('[data-source-tab]')){
+  const current=el.dataset.sourceTab===sourcesTab;
+  el.setAttribute('aria-selected',String(current));el.tabIndex=current?0:-1;
+ }
+ const count=SOURCES_PREVIEW_CATALOG.filter(p=>!!sourceDemoState[p.id].installed).length;
+ const number=shell.querySelector('#sources-installed-count');if(number)number.textContent=count;
+ const region=shell.querySelector('#sources-dynamic-content');
+ const feedback=shell.querySelector('#sources-status-message');if(feedback)feedback.textContent=sourcesFeedback;
+ if(!region)return;
+ if(sourcesTab==='marketplace'||sourcesTab==='installed'){
+  const available=sourcesTab==='marketplace'?SOURCES_PREVIEW_CATALOG:SOURCES_PREVIEW_CATALOG.filter(p=>!!sourceDemoState[p.id].installed);
+  region.innerHTML=`<div id="sources-${sourcesTab}-region" tabindex="-1"><div class="sources-section-top"><div><h3>${sourcesTab==='marketplace'?'Marketplace':'Installed sources'}</h3><p>${sourcesTab==='marketplace'?'Browse sources from the built-in StrawVerse repository.':'Extensions remain listed here even if they are unable to load.'}</p></div><button class="sources-preview-reset" type="button" data-source-action="reset">Reset demo</button></div>${available.length?`<div class="sources-provider-list">${available.map(sourcesProviderMarkup).join('')}</div>`:'<div class="sources-empty">No sources installed in this demonstration.<br><button type="button" class="btn small" data-source-action="browse-marketplace" style="margin-top:14px">Browse Marketplace</button></div>'}${sourcesCatalogueScenarioMarkup()}${sourcesTab==='installed'?sourcesScenarioMarkup():''}</div>`;
+ }else{
+  region.innerHTML=`<div id="settings-repositories-card" tabindex="-1"><div class="sources-section-top"><div><h3>Repositories</h3><p>The official repository is always configured. You can add or remove community repository entries.</p></div><button class="sources-preview-reset" type="button" data-source-action="reset">Reset demo</button></div><div class="sources-repo-list">${sourcesRepoMarkup(SOURCES_PREVIEW_REPO,true)}${sourceDemoRepos.map(r=>sourcesRepoMarkup(r,false)).join('')}</div><div class="sources-repo-add"><button type="button" class="btn small" data-source-action="add-repo">${icon('plus',16)} Add repository…</button></div><p class="settings-card-note">Links are checked for format and duplicates locally. This prototype does not fetch manifests or install sources. The desktop application will verify repository contents before listing extensions.</p></div>`;
+ }
+}
+function setSourcesTab(next,resetScroll=true){
+ if(!['marketplace','installed','repositories'].includes(next))return;
+ sourcesTab=next;renderSourcesPreview();
+ if(resetScroll)requestAnimationFrame(()=>{
+  const el=settingsPage.querySelector('.sources-subnav');if(el)revealSettingsControl(el);
+ });
+}
+function sourceOperationEnd(){sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;}
+function beginPreviewUpdate(p,entry,action){
+ const id=p.id;
+ const previous={version:entry.installed,health:entry.health,working:entry.health==='healthy'};
+ const result=entry.nextOutcome||'working';
+ sourceDemoBusy=id;sourceDemoBusyAction=action;sourceDemoPhase=0;entry.notice=null;
+ const token=++sourceDemoOpToken;
+ sourcesFeedback=`Preview: ${action==='install'?'installing':'updating'} ${p.name}. No real files are touched.`;
+ renderSourcesPreview();
+ function advance(phase){
+  if(token!==sourceDemoOpToken||sourceDemoBusy!==id)return;
+  sourceDemoPhase=phase;
+  sourcesFeedback=`${p.name}: ${SOURCE_UPDATE_PHASES[phase].toLowerCase()} (simulation).`;
+  renderSourcesPreview();
+  if(result==='rejected'&&phase===SOURCE_UPDATE_PHASES.indexOf('Validating extension')){
+   setTimeout(()=>{
+    if(token!==sourceDemoOpToken)return;
+    sourceOperationEnd();
+    entry.notice={kind:'error',text:`Update validation failed. ${previous.version?`v${previous.version} remains installed ${previous.working?'and working':'but was already unavailable'}.`:'No version was installed.'} Nothing was replaced.`};
+    sourcesFeedback=`Preview: ${p.name} update rejected. Existing installation preserved.`;
+    renderSourcesPreview();
+   },850);return;
+  }
+  if(phase<SOURCE_UPDATE_PHASES.length-1){setTimeout(()=>advance(phase+1),850);return;}
+  setTimeout(()=>{
+   if(token!==sourceDemoOpToken)return;
+   // Extension passed validation/activation. Provider reachability is a separate test.
+   entry.installed=p.latest;
+   if(previous.version&&previous.version!==p.latest){entry.backup={version:previous.version,usable:previous.working,health:previous.health};}
+   if(result==='unreachable'){
+    entry.health='offline';
+    entry.notice={kind:'warning',text:`v${p.latest} activated, but the provider could not be reached. The new version stays installed; no automatic rollback was made.`};
+    sourcesFeedback=`Preview: ${p.name} updated, but its provider is unavailable. Retry or select another source.`;
+   }else{
+    entry.health='healthy';
+    entry.notice={kind:'success',text:`v${p.latest} activated and the provider check passed. ${entry.backup?.usable?'The previous working version is retained as a recovery copy.':''}`};
+    sourcesFeedback=`Preview: ${p.name} v${p.latest} installed successfully. No files were downloaded.`;
+   }
+   sourceOperationEnd();renderSourcesPreview();refreshDiscoverFromSourcePreview();
+  },900);
+ }
+ setTimeout(()=>advance(1),700);
+}
+function previewSourceAction(action,id){
+ const p=SOURCES_PREVIEW_CATALOG.find(x=>x.id===id);if(!p)return;
+ const entry=sourceDemoState[id];
+ if(action==='details'){
+  if(sourcesExpanded.has(id))sourcesExpanded.delete(id);else sourcesExpanded.add(id);
+  renderSourcesPreview();
+  settingsPage.querySelector(`[data-source-action="details"][data-source-id="${id}"]`)?.focus({preventScroll:true});
+  return;
+ }
+ if(action==='other-sources'){
+  sourcesFeedback=`Select another provider for the episode if needed. ${p.name} remains the preferred source until you change it.`;
+  setSourcesTab('marketplace');return;
+ }
+ if(sourceDemoBusy)return;
+ if(action==='remove'){
+  modal('Remove source?',`<p class="description"><strong>${escapeHTML(p.name)}</strong> will be marked as removed in this interface preview. In the real app, removing a source will not delete your Library, watch history, or downloaded files.</p><p class="tip">No files on your Mac are changed here.</p>`,`<button class="btn" id="source-remove-cancel">Cancel</button><button class="btn primary" id="source-remove-confirm">Remove in preview</button>`);
+  document.getElementById('source-remove-cancel').onclick=closeModal;
+  document.getElementById('source-remove-confirm').onclick=()=>{
+   entry.installed=null;entry.health='healthy';entry.backup=null;entry.notice=null;sourcesFeedback=`Preview: ${p.name} removed. Your anime library remains untouched.`;closeModal();
+   if(sourcesTab==='installed'&&preferredSourcesTab()==='marketplace')sourcesTab='marketplace';
+   renderSourcesPreview();refreshDiscoverFromSourcePreview();
+  };
+  return;
+ }
+ if(action==='restore'){
+  const backup=entry.backup;
+  if(!backup||!backup.usable)return;
+  modal('Restore previous extension?',`<p class="description">Restore the last known working version of <b>${escapeHTML(p.name)}</b> (v${escapeHTML(backup.version)})? Gallery would check the recovery copy before activating it. It will not automatically replace the current version.</p><p class="tip">This is a simulated restoration.</p>`,`<button class="btn" id="source-restore-cancel">Cancel</button><button class="btn primary" id="source-restore-confirm">Restore in preview</button>`);
+  document.getElementById('source-restore-cancel').onclick=closeModal;
+  document.getElementById('source-restore-confirm').onclick=()=>{
+   entry.installed=backup.version;entry.health=backup.health;entry.backup=null;
+   entry.notice={kind:'success',text:`v${entry.installed} was restored in the preview. A real app would verify the recovery copy and recheck provider health.`};
+   sourcesFeedback=`Preview: ${p.name} restored to v${entry.installed}.`;
+   closeModal();renderSourcesPreview();refreshDiscoverFromSourcePreview();
+  };
+  return;
+ }
+ if(action==='retry'){
+  if(!entry.installed)return;
+  sourceDemoBusy=id;sourceDemoBusyAction='retry';sourceDemoPhase=SOURCE_UPDATE_PHASES.length-1;const token=++sourceDemoOpToken;
+  entry.notice=null;sourcesFeedback=`Preview: checking ${p.name}'s provider again…`;renderSourcesPreview();
+  setTimeout(()=>{
+   if(token!==sourceDemoOpToken)return;
+   sourceOperationEnd();
+   if(entry.nextOutcome==='working'){
+    entry.health='healthy';entry.notice={kind:'success',text:'The simulated provider recheck succeeded. The selected source was not changed.'};
+    sourcesFeedback=`Preview: ${p.name} provider is available again.`;
+   }else{
+    entry.health='offline';entry.notice={kind:'warning',text:'The simulated provider recheck still failed. Keep the installed version and choose Retry or Other Sources.'};
+    sourcesFeedback=`Preview: ${p.name} provider is still unavailable.`;
+   }
+   renderSourcesPreview();refreshDiscoverFromSourcePreview();
+  },950);
+  return;
+ }
+ if(!['install','update'].includes(action))return;
+ beginPreviewUpdate(p,entry,action);
+}
+// Local-only URL shape checks; these do NOT establish that a remote repository exists
+// or that an extension is trusted, compatible, or safe to install.
+function parsePreviewRepoUrl(text){
+ let url;
+ try{url=new URL(text.trim());}catch(_){return {error:'Enter a complete HTTPS repository URL.'};}
+ if(url.protocol!=='https:'||url.username||url.password){return {error:'Use an HTTPS URL without a username or password.'};}
+ if(url.search||url.hash){return {error:'Remove query parameters and fragments from the URL.'};}
+ const host=url.hostname.toLowerCase();
+ if(!host||host==='localhost'||host.endsWith('.localhost')||host==='127.0.0.1'||host==='[::1]')return {error:'Use a public repository URL.'};
+ const pieces=url.pathname.split('/').filter(Boolean);
+ if(host==='github.com'){
+  if(pieces.length!==2||!pieces.every(x=>/^[a-z0-9_.-]+$/i.test(x))){return {error:'Use a GitHub URL like https://github.com/owner/repository.'};}
+  const owner=pieces[0],repo=pieces[1].replace(/\.git$/i,'');
+  if(!repo)return {error:'Include the repository name in the GitHub URL.'};
+  return {url:`https://github.com/${owner}/${repo}`,key:`github:${owner.toLowerCase()}/${repo.toLowerCase()}`,name:`${owner}/${repo}`,kind:'github'};
+ }
+ if(host==='raw.githubusercontent.com'){
+  let path=pieces;
+  if(path[2]==='refs'&&path[3]==='heads')path=[path[0],path[1],...path.slice(4)];
+  if(path.length<4||path.at(-1).toLowerCase()!=='marketplace.json'||!path.slice(0,2).every(x=>/^[a-z0-9_.-]+$/i.test(x))){return {error:'Use a raw GitHub marketplace.json URL, including its branch.'};}
+  const [owner,repo]=path;
+  return {url:`https://raw.githubusercontent.com/${pieces.join('/')}`,key:`github:${owner.toLowerCase()}/${repo.toLowerCase()}`,name:`${owner}/${repo}`,kind:'manifest'};
+ }
+ if(pieces.at(-1)?.toLowerCase()!=='marketplace.json')return {error:'Use a GitHub repository URL or a direct marketplace.json URL.'};
+ if(!host.includes('.'))return {error:'Enter a valid repository hostname.'};
+ return {url:url.origin+url.pathname.replace(/\/$/,''),key:`manifest:${host}${url.pathname.replace(/\/$/,'')}`,name:`${host} / marketplace.json`,kind:'manifest'};
+}
+function sourceRepoIsDuplicate(parsed){
+ const official=parsePreviewRepoUrl(SOURCES_PREVIEW_REPO.url);
+ return parsed.key===official.key||sourceDemoRepos.some(r=>r.key===parsed.key);
+}
+function previewRepoInput(){
+ modal('Add repository',`<p class="description">Add a StrawVerse-compatible repository to the <b>local preview</b>. No internet connection or extension download occurs.</p><div class="field"><label for="source-repo-url">GitHub repository or direct marketplace.json URL</label><input type="url" id="source-repo-url" placeholder="https://github.com/owner/extensions" autocomplete="off" spellcheck="false" aria-describedby="source-repo-validation"></div><p class="sources-repo-validation" id="source-repo-validation" aria-live="polite">Paste a repository link to check its URL format.</p>`,`<button class="btn" id="source-repo-cancel">Cancel</button><button class="btn primary" id="source-repo-add-preview" disabled>Add preview entry</button>`);
+ const input=document.getElementById('source-repo-url');
+ const hint=document.getElementById('source-repo-validation');
+ const add=document.getElementById('source-repo-add-preview');
+ document.getElementById('source-repo-cancel').onclick=closeModal;
+ let candidate=null;
+ function validate(){
+  const value=input.value.trim();
+  candidate=value?parsePreviewRepoUrl(value):null;
+  if(candidate&&!candidate.error&&sourceRepoIsDuplicate(candidate))candidate={error:'This repository is already configured, possibly through a different URL format.'};
+  const error=candidate?.error;
+  const valid=!!candidate&&!error;
+  add.disabled=!valid;
+  input.setAttribute('aria-invalid',error?'true':'false');
+  hint.className='sources-repo-validation'+(error?' is-error':valid?' is-valid':'');
+  hint.textContent=error|| (valid?'URL format accepted. Repository contents are NOT verified.':'Paste a repository link to check its URL format.');
+ }
+ input.addEventListener('input',validate);
+ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!add.disabled){e.preventDefault();add.click();}});
+ add.onclick=()=>{
+  validate();if(!candidate||candidate.error)return;
+  const id='preview-'+(sourceDemoRepos.length+1)+'-'+Date.now();
+  sourceDemoRepos.push({id,...candidate});
+  sourcesFeedback=`Added ${candidate.name} to the local preview. Its contents have not been fetched or verified.`;
+  closeModal();renderSourcesPreview();
+ };
+ input.focus({preventScroll:true});
+}
+function previewRemoveRepo(id){
+ const r=sourceDemoRepos.find(r=>r.id===id);if(!r)return;
+ modal('Remove repository?',`<p class="description">Remove <strong>${escapeHTML(r.name)}</strong> from the Marketplace preview?</p><p class="tip">Installed extensions from this repository would remain on your Mac. They would stop receiving updates through this repository until it is added again. This prototype changes no files.</p>`,`<button class="btn" id="source-repo-keep">Keep repository</button><button class="btn" id="source-repo-remove">Remove repository</button>`);
+ document.getElementById('source-repo-keep').onclick=closeModal;
+ document.getElementById('source-repo-remove').onclick=()=>{
+  sourceDemoRepos=sourceDemoRepos.filter(x=>x.id!==id);
+  sourcesFeedback=`Removed ${r.name} from preview. Installed extension state is unchanged.`;
+  closeModal();renderSourcesPreview();
+ };
+}
+function attachSourcesPreview(){
+ const shell=settingsPage.querySelector('#sources-shell');if(!shell)return;
+ renderSourcesPreview();
+ shell.addEventListener('click',event=>{
+  const tab=event.target.closest('[data-source-tab]');if(tab){setSourcesTab(tab.dataset.sourceTab);return;}
+  const action=event.target.closest('[data-source-action]');if(!action)return;
+  const mode=action.dataset.sourceAction;
+  if(mode==='reset'){resetSourcesPreview();return;}
+  if(mode==='browse-marketplace'){setSourcesTab('marketplace');return;}
+  if(mode==='simulate'){
+   const id=shell.querySelector('#sources-scenario-provider').value;
+   const health=shell.querySelector('#sources-scenario-state').value;
+   const outcome=shell.querySelector('#sources-scenario-outcome').value;
+   if(sourceDemoState[id]){
+    sourceDemoState[id].health=health;sourceDemoState[id].nextOutcome=outcome;sourceDemoState[id].notice=null;
+    sourcesFeedback=`Preview: ${id} is ${health}; next update will ${outcome==='working'?'succeed':outcome==='rejected'?'fail validation':'leave the provider unreachable'}.`;
+    renderSourcesPreview();refreshDiscoverFromSourcePreview();
+   }
+   return;
+  }
+  if(['catalogue-none','catalogue-one','catalogue-both'].includes(mode)){applySourceCatalogueScenario(mode);return;}
+  if(mode==='add-repo'){previewRepoInput();return;}
+  if(mode==='remove-repo'){previewRemoveRepo(action.dataset.repoId);return;}
+  previewSourceAction(mode,action.dataset.sourceId);
+ });
+ shell.addEventListener('keydown',event=>{
+  const current=event.target.closest('[data-source-tab]');if(!current||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const keys=['installed','marketplace','repositories'];const i=keys.indexOf(current.dataset.sourceTab);
+  const index=event.key==='Home'?0:event.key==='End'?2:(i+(event.key==='ArrowLeft'?-1:1)+3)%3;
+  setSourcesTab(keys[index]);shell.querySelector(`[data-source-tab="${keys[index]}"]`)?.focus({preventScroll:true});
+ });
+}
+
+/* v75 · About & Legal — quiet hierarchy, with Gallery v74 Settings visual language. */
+function galleryBuildDisplay(){
+ const brandVersion=(document.querySelector('.brand .subtitle')?.textContent||'').match(/v\d+(?:\.\d+)*/)?.[0]||'prototype';
+ const revision=(document.title.match(/–\s*v(\d+)\s*·/)||[])[1]||'?';
+ return {brandVersion,revision};
+}
+function aboutMarkup(){
+ const build=galleryBuildDisplay();
+ const link=(href,label)=>`<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+ const row=(id,ico,title,detail,context='')=>`<button class="about-menu-item" type="button" data-about-open="${id}">${icon(ico,19)}<span class="about-menu-copy"><strong>${title}</strong><small>${detail}</small></span>${context?`<span class="about-menu-context">${context}</span>`:''}${icon('chevron',17)}</button>`;
+ const page=(id,title,description,html)=>`<section class="about-detail" data-about-view="${id}" aria-label="${title}" hidden><h3 class="about-detail-title" id="settings-about-${id}" tabindex="-1">${title}</h3><p class="about-detail-description">${description}</p>${html}</section>`;
+ const miniNote='<p class="about-legal-note">Draft content for the proposed native Gallery application. These statements are design commitments, not a verified description of this HTML prototype or a final legal policy.</p>';
+ return `<div class="about-shell" id="settings-about-root">
+  <section class="about-overview" data-about-view="overview" aria-label="About Gallery">
+   <div class="about-identity" id="settings-about-card" tabindex="-1">
+    <div class="about-identity-primary">
+     <span class="about-identity-logo" aria-hidden="true">${icon('clapper',34)}</span>
+     <div class="about-identity-copy"><h3>Gallery</h3><p class="about-identity-description">Your anime library and player for macOS.</p><p class="about-identity-version">Interface prototype ${escapeHTML(build.revision)}</p></div>
+    </div>
+    <dl class="about-identity-facts" aria-label="Application details">
+     <div class="about-identity-fact"><dt>Version</dt><dd>${escapeHTML(build.brandVersion)}</dd></div>
+     <div class="about-identity-fact"><dt>Platform</dt><dd>macOS · Apple Silicon</dd></div>
+     <div class="about-identity-fact"><dt>Based on</dt><dd>StrawVerse</dd></div>
+    </dl>
+   </div>
+   <p class="about-group-label">PROJECT</p>
+   <div class="about-menu" aria-label="Project details">
+    ${row('credits','heart','Acknowledgements','Projects and contributors','StrawVerse · TheYogMehta')}
+    ${row('licenses','info','Open Source Licenses','Software licenses and notices','GPL-3.0')}
+   </div>
+   <p class="about-group-label about-group-gap">LEGAL</p>
+   <div class="about-menu" aria-label="Legal information">
+    ${row('legal','globe','Legal &amp; Privacy','Terms, privacy and copyright information','Privacy-conscious by design')}
+   </div>
+   <p class="about-footnote">Gallery is an independent project based on ${link('https://github.com/TheYogMehta/StrawVerse','StrawVerse')} by TheYogMehta. Not an official StrawVerse release.</p>
+  </section>
+  ${page('credits','Acknowledgements','The people and open-source projects behind Gallery.',`
+   <div class="about-detail-card">
+    <h4>Built on StrawVerse</h4>
+    <p>Gallery is being developed as an independent macOS application based on <strong>StrawVerse</strong>, created by <strong>TheYogMehta</strong>. Gallery is not an official StrawVerse release.</p>
+    <div class="about-detail-links">${link('https://github.com/TheYogMehta/StrawVerse','StrawVerse on GitHub ↗')}${link('https://github.com/TheYogMehta/extensions','Official extensions ↗')}</div>
+   </div>
+   <div class="about-menu about-nested-menu" aria-label="Additional acknowledgements">
+    ${row('components','play','Third-Party Components','Playback tools, extensions and dependencies')}
+   </div>
+   <p class="about-detail-footnote">Credits and licenses for dependencies actually bundled with the future native release will be generated from its build inventory and reviewed.</p>
+  `)}
+  ${page('licenses','Open Source Licenses','Software licenses and attribution notices.',`
+   <div class="about-detail-card">
+    <div class="about-detail-line"><span><strong>StrawVerse</strong><small>GNU General Public License, version 3 (GPL-3.0-only)</small></span>${link('https://github.com/TheYogMehta/StrawVerse/blob/main/LICENSE','Read GPL-3.0 ↗')}</div>
+    <div class="about-detail-line"><span><strong>Gallery's future native release</strong><small>Applicable source, copyright notices and full license texts will accompany the distributed app, as required.</small></span></div>
+    <div class="about-detail-line"><span><strong>Third-party dependencies</strong><small>License inventory will reflect the libraries and binaries actually shipped, not an assumed dependency list.</small></span></div>
+   </div>
+   <p class="about-detail-footnote">This standalone HTML prototype is not the finished macOS distribution. No generated native license inventory exists yet.</p>
+  `)}
+  ${page('components','Third-Party Components','Media and extension technologies under consideration.',`
+   <div class="about-detail-card">
+    <div class="about-detail-line"><span><strong>mpv</strong><small>Planned native video playback integration</small></span>${link('https://github.com/mpv-player/mpv','Project ↗')}</div>
+    <div class="about-detail-line"><span><strong>FFmpeg</strong><small>Possible media processing dependency; shipped configuration and license must be verified</small></span>${link('https://ffmpeg.org/','Project ↗')}</div>
+    <div class="about-detail-line"><span><strong>StrawVerse-compatible sources</strong><small>Individual extensions are provided by their respective maintainers.</small></span></div>
+   </div>
+   <p class="about-detail-footnote">These are plans, not a claim that any native media binary is included in this HTML prototype.</p>
+  `)}
+  ${page('legal','Legal &amp; Privacy','How Gallery is intended to work and what third parties can see.',`
+   <div class="about-privacy-summary"><span class="about-privacy-symbol">${icon('info',21)}</span><div><h4>Privacy-conscious by design</h4><p>No developer analytics, telemetry or tracking is planned. External providers can still receive network requests and may collect information independently.</p></div></div>
+   <div class="about-menu" aria-label="Legal documents">
+    ${row('terms','info','Terms of Service','Use of Gallery, sources and responsibilities')}
+    ${row('privacy','globe','Privacy Policy','Local data and third-party network requests')}
+    ${row('copyright','film','Copyright &amp; Disclaimer','External content and copyright enquiries')}
+   </div>
+   <p class="about-detail-footnote">These are working drafts based on Gallery's intended behavior, not copied StrawVerse legal terms. They must be checked against the finished native implementation before release.</p>
+  `)}
+  ${page('terms','Terms of Service','Proposed terms for the future Gallery macOS application.',`
+   ${miniNote}
+   <article class="about-legal-document">
+    <h4>1. Open-source software</h4><p>Gallery is being developed from the GPL-licensed StrawVerse project. Rights to copy, modify and distribute covered software are governed by the applicable open-source licenses, including GNU GPL v3.0; these terms do not replace those rights.</p>
+    <h4>2. Application and external services</h4><p>Gallery is intended as a macOS client that retrieves information and content through user-selected third-party sources. Availability and operation of those external services are outside Gallery's control. Local downloads and application data may be stored on the user's Mac.</p>
+    <h4>3. User responsibility</h4><p>Users are responsible for their choices of sources and for complying with applicable laws and the terms of external services.</p>
+    <h4>4. Warranty</h4><p>GPL-covered software is provided subject to the disclaimer of warranty in its license, to the extent permitted by applicable law. Any additional terms for Gallery must be reviewed before public distribution.</p>
+    <h4>5. Support</h4><p>Support and issue-reporting contact details for Gallery will be provided when the project is released. The StrawVerse community is independent from Gallery.</p>
+   </article>
+  `)}
+  ${page('privacy','Privacy Policy','Proposed privacy commitments for the future Gallery app.',`
+   ${miniNote}
+   <div class="about-privacy-summary about-privacy-summary-compact"><span class="about-privacy-symbol">${icon('info',20)}</span><div><h4>No developer data collection</h4><p>Our goal is zero analytics, developer telemetry, tracking identifiers or automatic crash-report uploads.</p></div></div>
+   <article class="about-legal-document">
+    <h4>1. Data stored on your device</h4><p>Gallery is intended to store your library, watch progress, downloads and preferences on your Mac, rather than sending those records to Gallery's developers. Locally stored information remains under your control.</p>
+    <h4>2. No developer analytics</h4><p>Gallery will not deliberately include developer usage analytics, advertising trackers or automatic diagnostic uploads. This commitment must be verified in the native release and its included dependencies.</p>
+    <h4>3. Third-party connections</h4><p>To search for anime, retrieve metadata, play video, use source extensions or check for updates, Gallery may contact external websites and services directly. Those services can receive your IP address and information about requested content, and may independently log or analyze requests under their own policies.</p>
+    <h4>4. Optional integrations</h4><p>If external accounts or synchronization are introduced later, they should be optional and clearly explain what data will be shared. Gallery does not require a developer-operated account by design.</p>
+    <h4>5. Your choices</h4><p>Users will be able to manage local app data and their installed sources. Detailed storage, export and deletion instructions will be confirmed for the native release.</p>
+   </article>
+  `)}
+  ${page('copyright','Copyright &amp; Disclaimer','Proposed statement about content and third-party providers.',`
+   ${miniNote}
+   <article class="about-legal-document">
+    <h4>1. Independent client</h4><p>Gallery is intended as an independent macOS application that interacts with external content providers. It is not an official StrawVerse release and does not operate a developer-hosted library of third-party media.</p>
+    <h4>2. Local retrieval and downloads</h4><p>Metadata requests, playback and user-initiated downloads may involve external sources and files stored on the user's device. Gallery therefore should not claim that no content is ever indexed, cached or downloaded.</p>
+    <h4>3. Third-party rights</h4><p>Content and services accessible through sources belong to their respective owners and providers. Users should respect applicable copyright law and provider terms.</p>
+    <h4>4. Copyright enquiries</h4><p>Requests relating to content hosted by third parties should normally be directed to the appropriate host or provider. Gallery-specific contact information and an appropriate handling process must be established before distribution; this disclaimer does not remove any applicable legal obligations.</p>
+   </article>
+  `)}
+ </div>`;
+}
+let currentAboutView='overview';
+const aboutViewParents={overview:null,credits:'overview',licenses:'overview',components:'credits',legal:'overview',terms:'legal',privacy:'legal',copyright:'legal'};
+function updateSettingsBackButton(){
+ const back=settingsPage.querySelector('#settings-back');
+ if(!back)return;
+ const inDetail=settingsLastSection==='about'&&currentAboutView!=='overview';
+ const parent=inDetail?aboutViewParents[currentAboutView]:null;
+ const dest=parent==='overview'?'About':parent==='legal'?'Legal & Privacy':parent==='credits'?'Acknowledgements':'Gallery';
+ back.setAttribute('aria-label',inDetail?'Back to '+dest:'Back to Gallery');
+ back.setAttribute('title',inDetail?'Back to '+dest:'Back to Gallery');
+ const label=back.querySelector('span');
+ if(label)label.textContent=inDetail?dest:'Back';
+}
+function settingsBackAction(){
+ if(settingsLastSection==='about'&&currentAboutView!=='overview')setAboutView(aboutViewParents[currentAboutView]||'overview');
+ else closeSettings();
+}
+function setAboutView(view,focusHeading=true){
+ const root=settingsPage.querySelector('#settings-about-root');
+ if(!root)return;
+ const active=Object.hasOwn(aboutViewParents,view)?view:'overview';
+ currentAboutView=active;
+ updateSettingsBackButton();
+ for(const section of root.querySelectorAll('[data-about-view]'))section.hidden=section.dataset.aboutView!==active;
+ if(active==='overview'){
+  if(focusHeading)root.querySelector('#settings-about-card')?.focus({preventScroll:true});
+ }else if(focusHeading){
+  root.querySelector(`[data-about-view="${active}"] .about-detail-title`)?.focus({preventScroll:true});
+ }
+ workspace.scrollTop=0;
+ requestAnimationFrame(updateTabScrollOverlay);
+}
+
+function subtitleAppearanceMarkup(){
+ const fontOptions=[['system','System (San Francisco)'],['atkinson','Atkinson Hyperlegible Next'],['inter','Inter']];
+ const choices=(items,value)=>items.map(([id,title])=>`<option value="${id}" ${value===id?'selected':''}>${title}</option>`).join('');
+ const styles=[['outline','Outline'],['shadow','Drop Shadow'],['box','Background Box'],['none','None']];
+ return `<div class="subtitle-workbench" aria-label="Subtitle appearance and live preview">
+ <div class="settings-card subtitle-preview-card">
+  <div class="subtitle-preview-top"><div><div class="settings-card-title">Live subtitle preview</div><p class="settings-card-note">Automatically cycles between the bright and dark shrine scenes.</p></div><button type="button" class="btn small subtitle-preview-reset" id="subtitle-reset">Reset to defaults</button></div>
+  <div class="subtitle-experiment-preview-layout">
+  <div class="subtitle-stage" id="subtitle-preview-stage" data-position="bottom" aria-label="Live subtitle preview with an automatic day and night shrine crossfade">
+    <button class="subtitle-preview-expand subtitle-stage-expand" type="button" id="subtitle-expand-preview" aria-label="Expand subtitle preview" title="Expand preview">${icon('maximize',17)}</button>
+    <img class="subtitle-stage-image subtitle-stage-day" alt="" draggable="false"><img class="subtitle-stage-image subtitle-stage-night" alt="" draggable="false">
+    <div class="subtitle-stage-shade" aria-hidden="true"></div><div class="subtitle-preview-caption" id="subtitle-live-caption" aria-live="off"></div>
+  </div>
+  <div class="subtitle-experiment-font-panel" aria-label="Typography controls next to preview">
+   <div class="field subtitle-font-field"><label for="subtitle-font">Font</label><select id="subtitle-font">${choices(fontOptions,subtitlePrefs.font)}</select></div>
+   <div class="field subtitle-size-field">
+    <div class="subtitle-experiment-size-heading"><span class="subtitle-effect-label" id="subtitle-size-label">Text size</span><span class="subtitle-size-current" id="subtitle-size-current">${(SUBTITLE_SIZES.find(p=>p.id===subtitlePrefs.size)||SUBTITLE_SIZES[2]).label}</span></div>
+    <div class="subtitle-size-options subtitle-size-abbreviated" role="group" aria-labelledby="subtitle-size-label">${SUBTITLE_SIZES.map((preset,index)=>`<button type="button" class="subtitle-size-button" data-subtitle-size="${preset.id}" aria-label="${preset.label}" aria-pressed="${subtitlePrefs.size===preset.id}" title="${preset.label}">${['XS','S','N','L','XL'][index]}</button>`).join('')}</div>
+   </div>
+   <div class="field subtitle-experiment-text-color-field">
+    <span class="subtitle-effect-label" id="subtitle-text-color-label">Text color</span>
+    <div class="subtitle-text-color-choices" role="group" aria-labelledby="subtitle-text-color-label">
+     <button type="button" class="subtitle-text-color-choice" data-subtitle-text-color="white" aria-label="Soft White" title="Soft White · #F5F5F5" aria-pressed="${subtitlePrefs.colorMode==='white'}"><span class="subtitle-choice-swatch" style="background:#F5F5F5" aria-hidden="true"></span><span>White</span></button>
+     <button type="button" class="subtitle-text-color-choice" data-subtitle-text-color="yellow" aria-label="Yellow" title="Yellow · #FFE066" aria-pressed="${subtitlePrefs.colorMode==='yellow'}"><span class="subtitle-choice-swatch" style="background:#FFE066" aria-hidden="true"></span><span>Yellow</span></button>
+     <button type="button" class="subtitle-text-color-choice" data-subtitle-text-color="custom" aria-label="Custom text color" aria-pressed="${subtitlePrefs.colorMode==='custom'}"><span class="subtitle-choice-swatch" id="subtitle-custom-swatch" style="background:${subtitlePrefs.customColor}" aria-hidden="true"></span><span>Custom</span></button>
+    </div>
+   </div>
+    <div class="subtitle-experiment-style-group">
+    <div class="field subtitle-experiment-style-field"><span class="subtitle-effect-label" id="subtitle-effect-label">Subtitle style</span><div class="subtitle-style-switch" role="group" aria-labelledby="subtitle-effect-label">${styles.map(([id,label])=>`<button type="button" class="subtitle-effect-button" data-subtitle-effect="${id}" aria-pressed="${subtitlePrefs.effect===id}">${label}</button>`).join('')}</div></div>
+   </div>
+    <div class="subtitle-tuning-grid subtitle-experiment-effect-controls" id="subtitle-tuning-grid" data-subtitle-style="${subtitlePrefs.effect}">
+     <div class="field subtitle-range-field" id="subtitle-strength-field">
+      <div class="subtitle-control-caption">
+       <span class="subtitle-effect-label" id="subtitle-effect-amount-label">Effect intensity</span>
+       <span class="subtitle-effect-color-inline" id="subtitle-effect-color-field">
+        <button type="button" class="subtitle-text-color-choice subtitle-effect-color-button" id="subtitle-effect-color" aria-label="Edit outline color" title="Edit outline color" aria-haspopup="dialog"><span class="subtitle-choice-swatch" id="subtitle-effect-color-swatch" style="background:${subtitlePrefs.outlineColor}" aria-hidden="true"></span><span>Color</span></button>
+        <output class="only-sr" id="subtitle-effect-color-value">${subtitlePrefs.outlineColor.toUpperCase()}</output>
+       </span>
+      </div>
+      <div class="subtitle-effect-strength-options" role="group" aria-labelledby="subtitle-effect-amount-label">
+       ${['light','normal','strong'].map((value,i)=>`<button type="button" class="subtitle-effect-strength-button" data-effect-strength="${value}" aria-pressed="${subtitlePrefs[({outline:'outlinePreset',shadow:'shadowPreset',box:'boxPreset'})[subtitlePrefs.effect]]===value}">${SUBTITLE_EFFECT_LABELS[i]}</button>`).join('')}
+      </div>
+     </div>
+    </div>
+  </div>
+  </div>
+ </div>
+ <div class="subtitle-experiment-utilities" id="settings-subtitle-appearance" tabindex="0" role="region" aria-label="Subtitle settings utilities">
+  <details class="subtitle-rendering-details"><summary>${icon('info',15)}About subtitle rendering</summary><p>Subtitle sizes scale with the displayed video area, not the video file's resolution or Retina pixel density. These settings are saved locally and used in this live preview. Applying custom subtitle styling in the playback engine is still planned; actual mpv rendering and author-defined subtitle styling may differ.</p></details>
+  <span class="only-sr" id="subtitle-saved-status" role="status" aria-live="polite"></span>
+ </div>
+ </div>`;
+}
+function setPlaybackTab(tab,resetScroll=true){
+ cancelGalleryTextColorPopover(false);
+ if(!['general','subtitles'].includes(tab))return;
+ playbackTab=tab;
+ for(const pane of settingsPage.querySelectorAll('[data-playback-pane]'))pane.hidden=pane.dataset.playbackPane!==tab;
+ for(const button of settingsPage.querySelectorAll('[data-playback-tab]')){
+  const current=button.dataset.playbackTab===tab;
+  button.setAttribute('aria-selected',String(current));button.tabIndex=current?0:-1;
+ }
+ if(resetScroll){workspace.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});hideTabScrollOverlay();}
+ if(tab==='subtitles')requestAnimationFrame(renderSubtitlePreview);
+}
+let subtitleResizeObserver=null;
+function renderSubtitleStage(stage){
+ const caption=stage?.querySelector('.subtitle-preview-caption');
+ if(!stage||!caption)return;
+ // Size relative to the displayed video area in logical CSS pixels.
+ const displayedHeight=stage.getBoundingClientRect().height||720;
+ const scale=displayedHeight/1080;
+ caption.textContent=SUBTITLE_PREVIEW_TEXT;
+ caption.style.fontFamily=SUBTITLE_FONTS[subtitlePrefs.font];
+ caption.style.fontSize=(subtitleReferenceSize(subtitlePrefs.size)*scale).toFixed(2)+'px';
+ caption.style.webkitTextStroke='0px transparent';
+ caption.style.textShadow='none';
+ caption.style.backgroundColor='transparent';
+ caption.style.padding='0';
+ caption.style.borderRadius='0';
+ const style=subtitlePrefs.effect;
+ if(style==='outline'){
+  caption.style.webkitTextStroke=(subtitlePrefs.outline*scale).toFixed(2)+'px '+subtitlePrefs.outlineColor;
+ }else if(style==='shadow'){
+  const strength=subtitlePrefs.shadow*scale;
+  caption.style.textShadow=strength>0?`${(strength*.48).toFixed(2)}px ${(strength*.68).toFixed(2)}px ${(strength*1.65).toFixed(2)}px ${subtitlePrefs.shadowColor}`:'none';
+ }else if(style==='box'){
+  const h=subtitlePrefs.boxColor.replace('#','');
+  const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  caption.style.backgroundColor=`rgba(${r},${g},${b},${subtitlePrefs.boxOpacity/100})`;
+  caption.style.padding='0.24em .55em';
+  caption.style.borderRadius='0.25em';
+ }
+ caption.style.paintOrder='stroke fill';
+ caption.style.color=subtitlePrefs.color;
+}
+/* v91 — One shared value drives both night layers on the SAME frame.
+   Unlike v90, there are no independent CSS animation objects to synchronize.
+   Keep the agreed comparison timing: 4.8s fades + 1.7s holds = 13s loop.
+   Match the comparison's actual smoothstep easing (3t² − 2t³). */
+const SUBTITLE_FADE_MS=4800;
+const SUBTITLE_HOLD_MS=1700;
+const SUBTITLE_LOOP_MS=2*(SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS);
+const subtitleReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+let subtitleCycleStartTime=null;
+let subtitleCycleFrame=null;
+function subtitleNightMix(time){
+ if(subtitleReducedMotion.matches)return 0;
+ if(subtitleCycleStartTime===null)subtitleCycleStartTime=time;
+ const t=((time-subtitleCycleStartTime)%SUBTITLE_LOOP_MS+SUBTITLE_LOOP_MS)%SUBTITLE_LOOP_MS;
+ const smooth=x=>x*x*(3-2*x);
+ if(t<SUBTITLE_FADE_MS)return smooth(t/SUBTITLE_FADE_MS);
+ if(t<SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS)return 1;
+ if(t<2*SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS)return 1-smooth((t-SUBTITLE_FADE_MS-SUBTITLE_HOLD_MS)/SUBTITLE_FADE_MS);
+ return 0;
+}
+function subtitleStages(){
+ return [settingsPage.querySelector('#subtitle-preview-stage'),modalHost.querySelector('#subtitle-expanded-stage')].filter(Boolean);
+}
+function subtitleCycleIsVisible(){
+ return !!modalHost.querySelector('#subtitle-expanded-stage') ||
+  (document.body.classList.contains('settings-view') && !settingsClosing &&
+   settingsLastSection==='playback' && playbackTab==='subtitles');
+}
+function paintSubtitleNight(time){
+ const opacity=subtitleNightMix(time).toFixed(6);
+ // Paint one identical numeric value to both layers, never separate calculations.
+ for(const stage of subtitleStages()){
+  const layer=stage.querySelector('.subtitle-stage-night');
+  if(layer && layer.style.opacity!==opacity)layer.style.opacity=opacity;
+ }
+}
+function tickSubtitleNight(time){
+ subtitleCycleFrame=null;
+ if(document.hidden || subtitleReducedMotion.matches || !subtitleCycleIsVisible())return;
+ paintSubtitleNight(time);
+ subtitleCycleFrame=requestAnimationFrame(tickSubtitleNight);
+}
+function updateSharedSubtitleClock(){
+ paintSubtitleNight(performance.now());
+ if(subtitleCycleFrame===null && !document.hidden &&
+    !subtitleReducedMotion.matches && subtitleCycleIsVisible())
+  subtitleCycleFrame=requestAnimationFrame(tickSubtitleNight);
+}
+subtitleReducedMotion.addEventListener('change',()=>{
+ if(subtitleCycleFrame!==null){cancelAnimationFrame(subtitleCycleFrame);subtitleCycleFrame=null;}
+ updateSharedSubtitleClock();
+});
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden && subtitleCycleFrame!==null){cancelAnimationFrame(subtitleCycleFrame);subtitleCycleFrame=null;}
+ else if(!document.hidden)updateSharedSubtitleClock();
+});
+function renderSubtitlePreview(){
+ renderSubtitleStage(settingsPage.querySelector('#subtitle-preview-stage'));
+ renderSubtitleStage(modalHost.querySelector('#subtitle-expanded-stage'));
+ updateSharedSubtitleClock();
+}
+function showExpandedSubtitlePreview(){
+ // Reuse Gallery's established dialog lifecycle, focus trapping and Escape key.
+ modal('Expanded subtitle preview',`<p class="subtitle-expanded-note">Inspect the subtitle effect against the same automatic day/night shrine scenes at a larger size.</p>
+  <div class="subtitle-expanded-viewport" id="subtitle-expanded-viewport">
+   <div class="subtitle-stage" id="subtitle-expanded-stage" data-position="bottom" aria-label="Expanded live subtitle preview with automatic day and night crossfade">
+    <img class="subtitle-stage-image subtitle-stage-day" alt="" draggable="false"><img class="subtitle-stage-image subtitle-stage-night" alt="" draggable="false"><div class="subtitle-stage-shade" aria-hidden="true"></div><div class="subtitle-preview-caption" aria-live="off"></div>
+   </div>
+  </div>
+  <div class="subtitle-expanded-toolbar"><button type="button" class="btn small" id="subtitle-actual-size" aria-pressed="false">View at 100%</button><p class="subtitle-expanded-help" id="subtitle-expanded-help">Fit to window. 100% shows the original 1280 × 720 CSS-pixel preview (scroll to inspect on smaller screens).</p></div>`);
+ const dialog=modalHost.querySelector('.dialog');
+ dialog.classList.add('subtitle-preview-dialog');
+ const stage=dialog.querySelector('#subtitle-expanded-stage');
+ stage.querySelector('.subtitle-stage-day').src=SHRINE_DAY_IMAGE;
+ stage.querySelector('.subtitle-stage-night').src=SHRINE_NIGHT_IMAGE;
+ const viewport=dialog.querySelector('#subtitle-expanded-viewport');
+ const actual=dialog.querySelector('#subtitle-actual-size');
+ actual.addEventListener('click',()=>{
+  const enabled=viewport.classList.toggle('is-actual-size');
+  actual.setAttribute('aria-pressed',String(enabled));
+  actual.textContent=enabled?'Fit to window':'View at 100%';
+  viewport.scrollLeft=enabled?(viewport.scrollWidth-viewport.clientWidth)/2:0;
+  if(!enabled)viewport.scrollTop=0;
+  renderSubtitlePreview();
+ });
+ subtitleResizeObserver?.observe(stage);
+ renderSubtitlePreview();
+ requestAnimationFrame(renderSubtitlePreview);
+}
+/* A12: Small, theme-aware color editor with live preview, explicit commit and
+   cancel, pointer and keyboard access. Kept outside Gallery's clipped .app. */
+let cancelGalleryTextColorPopover=()=>{};
+function galleryHexToHSV(hex){
+ const x=hex.replace('#','');const r=parseInt(x.slice(0,2),16)/255,g=parseInt(x.slice(2,4),16)/255,b=parseInt(x.slice(4,6),16)/255;
+ const max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min;
+ let hue=0;
+ if(delta){
+  if(max===r)hue=((g-b)/delta)%6;
+  else if(max===g)hue=(b-r)/delta+2;
+  else hue=(r-g)/delta+4;
+  hue=(hue*60+360)%360;
+ }
+ return {h:hue,s:max===0?0:delta/max*100,v:max*100};
+}
+function galleryHSVToHex(h,s,v){
+ const sat=s/100,val=v/100,chroma=val*sat,x=chroma*(1-Math.abs(((h/60)%2)-1)),m=val-chroma;
+ let rgb;
+ if(h<60)rgb=[chroma,x,0];else if(h<120)rgb=[x,chroma,0];else if(h<180)rgb=[0,chroma,x];
+ else if(h<240)rgb=[0,x,chroma];else if(h<300)rgb=[x,0,chroma];else rgb=[chroma,0,x];
+ return '#'+rgb.map(n=>Math.round((n+m)*255).toString(16).padStart(2,'0')).join('');
+}
+function openGalleryColorPopover(trigger,mode='text'){
+ // First close a stale editor, if any. The local snapshot below is authoritative.
+ cancelGalleryTextColorPopover(false);
+  const effectKey=mode==='effect'?({outline:'outlineColor',shadow:'shadowColor',box:'boxColor'}[subtitlePrefs.effect]):null;
+  if(mode==='effect'&&!effectKey)return;
+  const prior=mode==='text'?{colorMode:subtitlePrefs.colorMode,color:subtitlePrefs.color,
+   customColor:subtitlePrefs.customColor,customColorSet:subtitlePrefs.customColorSet}
+   :{[effectKey]:subtitlePrefs[effectKey]};
+  let value=(mode==='effect'?subtitlePrefs[effectKey]:subtitlePrefs.customColor).toLowerCase();
+ let hsv=galleryHexToHSV(value);
+ if(hsv.s<0.01)hsv.h=278; // Purple starting hue for a previously white swatch.
+ const popup=document.createElement('div');
+ popup.className='gallery-color-popover';
+  const heading=mode==='effect'?'Effect color':'Custom text color';
+  popup.setAttribute('role','dialog');popup.setAttribute('aria-label',heading);
+  popup.innerHTML=`<div class="gallery-color-heading"><span class="gallery-color-title">${heading}</span><button type="button" class="gallery-color-close" aria-label="Cancel color change" title="Cancel">×</button></div>
+ <div class="gallery-color-area" tabindex="0" role="slider" aria-label="Color saturation and brightness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="Color saturation and brightness"><span class="gallery-color-target" aria-hidden="true"></span></div>
+ <input type="range" class="gallery-color-hue" min="0" max="359" step="1" aria-label="Hue" value="${hsv.h}">
+ <div class="gallery-color-bottom"><div class="gallery-color-sample" aria-hidden="true"></div><input type="text" class="gallery-color-hex" aria-label="Hex color" spellcheck="false" autocapitalize="characters" autocomplete="off" maxlength="7" value="${value.toUpperCase()}"><button type="button" class="gallery-color-done">Done</button></div>`;
+ document.body.appendChild(popup);
+ // Only needed when a short window cannot accommodate the anchored editor.
+ let backdrop=null;
+ const area=popup.querySelector('.gallery-color-area'), hue=popup.querySelector('.gallery-color-hue'),hex=popup.querySelector('.gallery-color-hex');
+ const done=popup.querySelector('.gallery-color-done'),sample=popup.querySelector('.gallery-color-sample');
+ let closed=false;
+ const position=()=>{
+  if(closed)return;
+  if(!trigger.isConnected||!document.body.classList.contains('settings-view')){close(false,false);return;}
+  const app=document.querySelector('.app');
+  const workspace=document.getElementById('workspace');
+  const panel=trigger.closest('.subtitle-experiment-font-panel');
+  const anchor=mode==='text'?panel?.querySelector('.subtitle-text-color-choices'):trigger;
+  if(!app||!workspace||!panel||!anchor){close(false,false);return;}
+  const a=app.getBoundingClientRect(),p=panel.getBoundingClientRect(),c=anchor.getBoundingClientRect();
+  const v=workspace.getBoundingClientRect();
+  const margin=12,gap=2,panelInset=2;
+  const visibleTop=Math.max(v.top+8,a.top+8,0);
+  const visibleBottom=Math.min(v.bottom-8,a.bottom-8,innerHeight-8);
+  const usableHeight=Math.max(0,visibleBottom-visibleTop);
+  const compact=usableHeight<385;
+  popup.classList.toggle('is-short-window',compact);
+  popup.style.maxHeight='';popup.style.overflowY='';
+  area.style.height='110px';
+  if(compact){
+   if(!backdrop){
+    backdrop=document.createElement('div');backdrop.className='gallery-color-backdrop';
+    backdrop.setAttribute('aria-hidden','true');document.body.appendChild(backdrop);
+   }
+   backdrop.style.left=Math.max(0,v.left)+'px';
+   backdrop.style.top=Math.max(0,v.top)+'px';
+   backdrop.style.width=Math.max(0,Math.min(innerWidth,v.right)-Math.max(0,v.left))+'px';
+   backdrop.style.height=Math.max(0,Math.min(innerHeight,v.bottom)-Math.max(0,v.top))+'px';
+   const settingsContent=document.querySelector('.settings-content');
+   const r=settingsContent?.getBoundingClientRect()||v;
+   const horizontalLeft=Math.max(8,v.left+12,r.left+8);
+   const horizontalRight=Math.min(innerWidth-8,v.right-12,r.right-8);
+   const width=Math.max(160,Math.min(258,horizontalRight-horizontalLeft));
+   popup.style.width=width+'px';
+   // Preserve a useful color area; the popup scrolls internally only when
+   // there truly is not enough vertical space for all of its controls.
+   area.style.height=Math.max(48,Math.min(110,usableHeight-153))+'px';
+   popup.style.maxHeight=Math.max(90,usableHeight-10)+'px';
+   popup.style.overflowY='auto';
+   const height=Math.min(popup.offsetHeight,usableHeight-10);
+   const center=(horizontalLeft+horizontalRight)/2;
+   const left=Math.max(horizontalLeft,Math.min(center-width/2,horizontalRight-width));
+   const top=visibleTop+Math.max(0,(usableHeight-height)/2);
+   popup.style.left=Math.round(left)+'px';popup.style.top=Math.round(top)+'px';
+   return;
+  }
+  if(backdrop){backdrop.remove();backdrop=null;}
+  // Normal sizes retain A25's right-column anchored positioning; the header
+  // is now a hard top boundary even if the settings page has been scrolled.
+  const leftBound=Math.max(a.left+margin,p.left+10,v.left+8,0);
+  const rightBound=Math.min(a.right-margin,p.right-10,v.right-8,innerWidth);
+  const available=Math.max(0,rightBound-leftBound);
+  popup.style.width=Math.max(0,Math.min(258,available))+'px';
+  const w=popup.offsetWidth;
+  const left=Math.max(leftBound,Math.min(c.right-w,rightBound-w));
+  const viewTop=Math.max(visibleTop,p.top+panelInset);
+  const viewBottom=Math.min(visibleBottom,p.bottom-panelInset);
+  const fullHeight=popup.offsetHeight;
+  let top;
+  if(mode==='text'){
+   const idealTop=c.bottom+gap;
+   const availableBelowChoices=viewBottom-idealTop;
+   if(availableBelowChoices<fullHeight){
+    area.style.height=Math.max(70,110-(fullHeight-availableBelowChoices))+'px';
+   }
+   top=Math.max(viewTop,Math.min(idealTop,viewBottom-popup.offsetHeight));
+  }else{
+   const availableAbove=c.top-gap-viewTop;
+   if(availableAbove<fullHeight){
+    area.style.height=Math.max(70,110-(fullHeight-availableAbove))+'px';
+   }
+   top=Math.max(viewTop,Math.min(c.top-gap-popup.offsetHeight,viewBottom-popup.offsetHeight));
+  }
+  popup.style.left=Math.round(left)+'px';popup.style.top=Math.round(top)+'px';
+ };
+ const draw=(preview=true)=>{
+  value=galleryHSVToHex(hsv.h,hsv.s,hsv.v);
+  popup.style.setProperty('--gallery-hue',String(hsv.h));
+  popup.style.setProperty('--gallery-sat',String(hsv.s));
+  popup.style.setProperty('--gallery-val',String(hsv.v));
+  const marker=popup.querySelector('.gallery-color-target');
+  marker.style.left=hsv.s+'%';marker.style.top=(100-hsv.v)+'%';
+  area.setAttribute('aria-valuenow',String(Math.round(hsv.s)));
+  area.setAttribute('aria-valuetext',`${Math.round(hsv.s)} percent saturation, ${Math.round(hsv.v)} percent brightness`);
+  if(document.activeElement!==hex)hex.value=value.toUpperCase();
+  hue.value=String(hsv.h);sample.style.backgroundColor=value;
+  hex.setAttribute('aria-invalid','false');done.disabled=false;
+   if(preview){
+    if(mode==='effect')subtitlePrefs[effectKey]=value;
+    else {subtitlePrefs.colorMode='custom';subtitlePrefs.customColor=value;subtitlePrefs.color=value;}
+    updateSubtitleControls();renderSubtitlePreview();
+   }
+ };
+ function close(accept=false,restoreFocus=true){
+  if(closed)return;closed=true;
+   if(accept){
+    if(mode==='effect')subtitlePrefs[effectKey]=value;
+    else {subtitlePrefs.colorMode='custom';subtitlePrefs.customColor=value;
+     subtitlePrefs.color=value;subtitlePrefs.customColorSet=true;}
+    persistSubtitlePrefs();
+   }else{Object.assign(subtitlePrefs,prior);}
+  updateSubtitleControls();renderSubtitlePreview();
+  document.removeEventListener('pointerdown',outside,true);
+  document.removeEventListener('keydown',onKey,true);
+  window.removeEventListener('resize',position);
+  document.removeEventListener('scroll',position,true);
+  popup.remove();if(backdrop){backdrop.remove();backdrop=null;}cancelGalleryTextColorPopover=()=>{};
+  if(restoreFocus&&trigger.isConnected)trigger.focus({preventScroll:true});
+ }
+ cancelGalleryTextColorPopover=(focus=true)=>close(false,focus);
+ const outside=e=>{if(!popup.contains(e.target)&&e.target!==trigger&&!trigger.contains(e.target))close(false,false);};
+ const onKey=e=>{
+  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close(false);return;}
+  if(e.key==='Tab'){
+   const nodes=[popup.querySelector('.gallery-color-close'),area,hue,hex,done];
+   const index=nodes.indexOf(document.activeElement);
+   if(e.shiftKey&&(index<=0)){e.preventDefault();nodes[nodes.length-1].focus();}
+   else if(!e.shiftKey&&index===nodes.length-1){e.preventDefault();nodes[0].focus();}
+  }
+ };
+ const setFromPointer=e=>{
+  const r=area.getBoundingClientRect();
+  hsv.s=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));
+  hsv.v=100-Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100));
+  draw();
+ };
+ area.addEventListener('pointerdown',e=>{if(e.button!==0)return;area.focus({preventScroll:true});area.setPointerCapture(e.pointerId);setFromPointer(e);});
+ area.addEventListener('pointermove',e=>{if(e.buttons===1&&area.hasPointerCapture(e.pointerId))setFromPointer(e);});
+ area.addEventListener('keydown',e=>{
+  const step=e.shiftKey?10:2;
+  if(e.key==='ArrowLeft')hsv.s=Math.max(0,hsv.s-step);
+  else if(e.key==='ArrowRight')hsv.s=Math.min(100,hsv.s+step);
+  else if(e.key==='ArrowUp')hsv.v=Math.min(100,hsv.v+step);
+  else if(e.key==='ArrowDown')hsv.v=Math.max(0,hsv.v-step);
+  else return;
+  e.preventDefault();draw();
+ });
+ hue.addEventListener('input',()=>{hsv.h=Number(hue.value);draw();});
+ hex.addEventListener('input',()=>{
+  const candidate=hex.value.trim();const valid=/^#[0-9a-fA-F]{6}$/.test(candidate);
+  hex.setAttribute('aria-invalid',String(!valid));done.disabled=!valid;
+  if(valid){hsv=galleryHexToHSV(candidate);value=candidate.toLowerCase();
+   // A grayscale hex color does not need to reset the previously chosen hue.
+   if(hsv.s===0)hsv.h=Number(hue.value);
+   draw();}
+ });
+ hex.addEventListener('blur',()=>{if(hex.getAttribute('aria-invalid')==='true'){hex.value=value.toUpperCase();hex.setAttribute('aria-invalid','false');done.disabled=false;}});
+ hex.addEventListener('keydown',e=>{if(e.key==='Enter'&&!done.disabled){e.preventDefault();close(true);}});
+ done.addEventListener('click',()=>close(true));
+ popup.querySelector('.gallery-color-close').addEventListener('click',()=>close(false));
+ document.addEventListener('pointerdown',outside,true);
+ document.addEventListener('keydown',onKey,true);
+ window.addEventListener('resize',position);
+ document.addEventListener('scroll',position,true);
+ draw(true);position();area.focus({preventScroll:true});
+}
+
+function setupSubtitlePreview(){
+ const stage=settingsPage.querySelector('#subtitle-preview-stage');if(!stage)return;
+ settingsPage.querySelector('#subtitle-expand-preview')?.addEventListener('click',showExpandedSubtitlePreview);
+ const d=stage.querySelector('.subtitle-stage-day'); const n=stage.querySelector('.subtitle-stage-night');
+ d.src=SHRINE_DAY_IMAGE;n.src=SHRINE_NIGHT_IMAGE;
+ const controls={font:'subtitle-font'};
+ const bind=(key,id)=>{const el=settingsPage.querySelector('#'+id);el.addEventListener('input',()=>{
+  subtitlePrefs[key]=el.value;
+  persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+ });};
+  for(const [key,id] of Object.entries(controls))bind(key,id);
+  for(const button of settingsPage.querySelectorAll('[data-subtitle-text-color]'))button.addEventListener('click',()=>{
+   const mode=button.dataset.subtitleTextColor;
+   if(!['white','yellow','custom'].includes(mode))return;
+   if(mode==='custom'){
+    // Unsaved or already selected = edit; saved and inactive = recall once.
+    if(!subtitlePrefs.customColorSet||subtitlePrefs.colorMode==='custom'){
+openGalleryColorPopover(button,'text');return;
+    }
+   }
+   subtitlePrefs.colorMode=mode;
+   subtitlePrefs.color=mode==='custom'?subtitlePrefs.customColor:SUBTITLE_TEXT_COLOR_PRESETS[mode];
+   persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+  });
+ for(const button of settingsPage.querySelectorAll('[data-subtitle-size]'))button.addEventListener('click',()=>{
+  subtitlePrefs.size=normalizeSubtitleSize(button.dataset.subtitleSize);
+  subtitlePrefs.outline=subtitlePresetValue('outline',subtitlePrefs.outlinePreset,subtitlePrefs.size);
+  persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+ });
+ for(const button of settingsPage.querySelectorAll('[data-subtitle-effect]'))button.addEventListener('click',()=>{
+  subtitlePrefs.effect=button.dataset.subtitleEffect;
+  persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+ });
+ for(const button of settingsPage.querySelectorAll('[data-effect-strength]'))button.addEventListener('click',()=>{
+  const effect=subtitlePrefs.effect;
+  const key={outline:'outline',shadow:'shadow',box:'boxOpacity'}[effect];
+  const presetKey={outline:'outlinePreset',shadow:'shadowPreset',box:'boxPreset'}[effect];
+  if(!key||!presetKey)return;
+  subtitlePrefs[presetKey]=button.dataset.effectStrength;
+  subtitlePrefs[key]=subtitlePresetValue(effect,subtitlePrefs[presetKey],subtitlePrefs.size);
+  persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+ });
+ settingsPage.querySelector('#subtitle-effect-color').addEventListener('click',e=>{
+  if(subtitlePrefs.effect==='none')return;
+  openGalleryColorPopover(e.currentTarget,'effect');
+ });
+ settingsPage.querySelector('#subtitle-reset').addEventListener('click',()=>{
+  subtitlePrefs={...SUBTITLE_DEFAULTS};persistSubtitlePrefs();updateSubtitleControls();renderSubtitlePreview();
+  settingsPage.querySelector('#subtitle-saved-status').textContent='Subtitle preview settings reset to defaults.';
+ });
+ subtitleResizeObserver?.disconnect();
+ if('ResizeObserver' in window){subtitleResizeObserver=new ResizeObserver(()=>renderSubtitlePreview());subtitleResizeObserver.observe(stage);}
+ updateSubtitleControls();requestAnimationFrame(renderSubtitlePreview);
+}
+function updateSubtitleControls(){
+ const fields={font:'subtitle-font'};
+ for(const [key,id] of Object.entries(fields)){
+  const el=settingsPage.querySelector('#'+id);
+  if(el && el.value!==String(subtitlePrefs[key]))el.value=subtitlePrefs[key];
+ }
+ for(const button of settingsPage.querySelectorAll('[data-subtitle-size]'))
+  button.setAttribute('aria-pressed',String(button.dataset.subtitleSize===subtitlePrefs.size));
+ const currentSizeLabel=settingsPage.querySelector('#subtitle-size-current');
+ if(currentSizeLabel)currentSizeLabel.textContent=(SUBTITLE_SIZES.find(p=>p.id===subtitlePrefs.size)||SUBTITLE_SIZES[2]).label;
+ const selected=subtitlePrefs.effect;
+ for(const button of settingsPage.querySelectorAll('[data-subtitle-effect]'))
+  button.setAttribute('aria-pressed',String(button.dataset.subtitleEffect===selected));
+ const noEffect=selected==='none';
+ if(!noEffect)subtitleLastStyledEffect=selected;
+ const effectForControls=noEffect?subtitleLastStyledEffect:selected;
+ const grid=settingsPage.querySelector('#subtitle-tuning-grid');
+ if(grid){
+  grid.dataset.subtitleStyle=selected;
+  grid.hidden=false;
+  grid.classList.toggle('is-disabled',noEffect);
+  grid.setAttribute('aria-disabled',String(noEffect));
+ }
+ const strengthField=settingsPage.querySelector('#subtitle-strength-field');
+ const effectColorField=settingsPage.querySelector('#subtitle-effect-color-field');
+ if(strengthField)strengthField.hidden=false;
+ if(effectColorField)effectColorField.hidden=false;
+ const sliderLabel=settingsPage.querySelector('#subtitle-effect-amount-label');
+ const strengthKey={outline:'outlinePreset',shadow:'shadowPreset',box:'boxPreset'}[effectForControls];
+ const strengthLabels=SUBTITLE_EFFECT_LABELS;
+ if(sliderLabel)sliderLabel.textContent='Effect intensity';
+ for(const [i,button] of Array.from(settingsPage.querySelectorAll('[data-effect-strength]')).entries()){
+  const id=button.dataset.effectStrength;
+  button.textContent=strengthLabels[i]||id;
+  button.setAttribute('aria-pressed',String(Boolean(strengthKey)&&subtitlePrefs[strengthKey]===id));
+  button.disabled=noEffect;
+  button.title=noEffect?'Choose a subtitle style to adjust effect intensity':'Effect intensity · '+(strengthLabels[i]||id);
+ }
+  const colorButton=settingsPage.querySelector('#subtitle-effect-color');
+ const colorOutput=settingsPage.querySelector('#subtitle-effect-color-value');
+  const colorSwatch=settingsPage.querySelector('#subtitle-effect-color-swatch');
+ const colorKey={outline:'outlineColor',shadow:'shadowColor',box:'boxColor'}[effectForControls];
+ const colorName={outline:'Outline color',shadow:'Shadow color',box:'Background box color'}[effectForControls];
+  if(colorButton && colorKey){
+   colorButton.disabled=noEffect;
+   colorButton.setAttribute('aria-label',noEffect?'Effect color unavailable when subtitle style is None':'Edit '+colorName.toLowerCase());
+   colorButton.title=noEffect?'Choose a subtitle style to edit effect color':'Edit '+colorName.toLowerCase()+' · '+subtitlePrefs[colorKey].toUpperCase();
+  }
+  if(colorSwatch && colorKey)colorSwatch.style.backgroundColor=subtitlePrefs[colorKey];
+ if(colorOutput && colorKey)colorOutput.textContent=subtitlePrefs[colorKey].toUpperCase();
+  for(const button of settingsPage.querySelectorAll('[data-subtitle-text-color]'))
+   button.setAttribute('aria-pressed',String(button.dataset.subtitleTextColor===subtitlePrefs.colorMode));
+  const customButton=settingsPage.querySelector('[data-subtitle-text-color="custom"]');
+  if(customButton){
+   const action=!subtitlePrefs.customColorSet?'Choose a custom subtitle text color'
+    :subtitlePrefs.colorMode==='custom'?'Edit custom subtitle text color'
+    :'Use saved custom subtitle text color';
+   customButton.setAttribute('aria-label',action);
+   customButton.title=action+(subtitlePrefs.customColorSet?' · '+subtitlePrefs.customColor.toUpperCase():'');
+  }
+  const customInput=settingsPage.querySelector('#subtitle-custom-color');
+  if(customInput && customInput.value!==subtitlePrefs.customColor)customInput.value=subtitlePrefs.customColor;
+  const customOutput=settingsPage.querySelector('#subtitle-custom-color-value');
+  if(customOutput)customOutput.textContent=subtitlePrefs.customColor.toUpperCase();
+  const customSwatch=settingsPage.querySelector('#subtitle-custom-swatch');
+  if(customSwatch)customSwatch.style.backgroundColor=subtitlePrefs.customColor;
+}
+
+function settingsMarkup(){
+ const fontTile=(id,label,name,desc)=>`<button type="button" class="settings-font-tile" data-font-choice="${id}" aria-pressed="${state.font===id}" aria-label="Use ${label} font"><span class="settings-font-top"><span><span class="settings-font-name">${label}</span><span class="settings-font-sub">${desc}</span></span><span class="settings-font-check">${icon('check',18)}</span></span><span class="settings-font-example">${fontPreviewMarkupTile()}</span></button>`;
+ const themeTile=(id,title,description,gradient)=>`<button type="button" class="theme-tile settings-theme-tile" data-theme-button="${id}" aria-pressed="${state.theme===id}"><span class="swatch" style="background:${gradient}"></span><span><b>${title}</b><small>${description}</small></span>${icon('check',16)}</button>`;
+ const audio=(id,value,label)=>`<div class="field"><label for="${id}">${label}</label><select id="${id}"><option value="sub" ${value==='sub'?'selected':''}>Japanese (Sub)</option><option value="dub" ${value==='dub'?'selected':''}>English (Dub)</option></select></div>`;
+ const panel=(key,title,description,body)=>`<section class="settings-panel" data-settings-panel="${key}" aria-label="${title}" ${key===settingsLastSection?'':'hidden'}><header class="settings-panel-head"><h2>${title}</h2><p class="description">${description}</p></header>${body}</section>`;
+ return `<header class="settings-page-head"><h1>Settings</h1><button type="button" class="settings-back" id="settings-back" aria-label="Back to Gallery">${icon('back',18)}<span>Back</span></button></header>
+ <div class="settings-layout"><nav class="settings-side" aria-label="Settings sections">${settingsSections.map(([key,label,ico])=>`<button type="button" class="settings-section-button ${settingsLastSection===key?'is-active':''}" data-settings-section="${key}" aria-current="${settingsLastSection===key?'page':'false'}">${icon(ico,19)}<span>${label}</span></button>`).join('')}</nav>
+ <div class="settings-content"><section class="settings-search-results" id="settings-search-results" role="region" aria-label="Settings search results" hidden></section>${panel('appearance','Appearance','Choose how Gallery looks and feels.',`<div class="appearance-subnav" role="tablist" aria-label="Appearance categories"><button type="button" role="tab" id="appearance-theme-tab" aria-controls="appearance-theme-pane" data-appearance-tab="theme" aria-selected="${appearanceTab==='theme'}" tabindex="${appearanceTab==='theme'?'0':'-1'}">Theme</button><button type="button" role="tab" id="appearance-typography-tab" aria-controls="appearance-typography-pane" data-appearance-tab="typography" aria-selected="${appearanceTab==='typography'}" tabindex="${appearanceTab==='typography'?'0':'-1'}">Typography</button></div><div class="appearance-pane" id="appearance-theme-pane" data-appearance-pane="theme" role="tabpanel" aria-labelledby="appearance-theme-tab" ${appearanceTab==='theme'?'':'hidden'}><div class="settings-card" id="settings-theme-card" tabindex="-1"><div class="settings-card-title">Theme</div><p class="settings-card-note">Your selection applies immediately.</p><div class="theme-list settings-theme-list">${themeTile('neon','Neon Reel','Lavender accents, minimal glow','linear-gradient(145deg,#171221,#c5a0ed)')}${themeTile('midnight','Midnight Cinema','Quiet and cinematic','linear-gradient(145deg,#111922,#92cbc7)')}${themeTile('paper','Paper Lantern','Warm and light','linear-gradient(145deg,#f7f2eb,#c68f8d)')}</div></div></div>
+ <div class="appearance-pane" id="appearance-typography-pane" data-appearance-pane="typography" role="tabpanel" aria-labelledby="appearance-typography-tab" ${appearanceTab==='typography'?'':'hidden'}><div class="settings-card" id="settings-font-card" tabindex="-1"><div class="settings-card-title">Typography</div><p class="settings-card-note">Choose the font you find most comfortable to read. The selection applies throughout Gallery. Choose what feels best to you.</p>
+ <div class="settings-font-list" role="group" aria-label="Application font">
+ ${fontTile('system','System','San Francisco','The familiar macOS default')}
+ ${fontTile('atkinson','Atkinson Hyperlegible Next','Atkinson Hyperlegible Next','Distinctive letterforms')}
+ ${fontTile('inter','Inter','Inter','Clean, modern typography')}
+ </div>
+ <p class="settings-font-missing" id="settings-font-missing" role="status" aria-live="polite" hidden></p>
+ <p class="settings-font-notice">This standalone HTML uses locally installed fonts and makes no font-service requests. If a font is not installed, the system font is shown instead. A future native build can bundle the custom fonts locally, subject to their license notices. <a href="https://www.brailleinstitute.org/freefont/" target="_blank" rel="noopener noreferrer">Atkinson Hyperlegible Next</a> · <a href="https://rsms.me/inter/" target="_blank" rel="noopener noreferrer">Inter</a></p>
+ </div></div>`)}
+ ${panel('playback','Playback','Set playback preferences and customize subtitles.',`<div class="appearance-subnav playback-subnav" role="tablist" aria-label="Playback categories"><button type="button" role="tab" id="playback-general-tab" aria-controls="playback-general-pane" data-playback-tab="general" aria-selected="${playbackTab==='general'}" tabindex="${playbackTab==='general'?'0':'-1'}">General</button><button type="button" role="tab" id="playback-subtitles-tab" aria-controls="playback-subtitles-pane" data-playback-tab="subtitles" aria-selected="${playbackTab==='subtitles'}" tabindex="${playbackTab==='subtitles'?'0':'-1'}">Subtitles</button></div>
+ <div class="playback-pane" id="playback-general-pane" data-playback-pane="general" role="tabpanel" aria-labelledby="playback-general-tab" ${playbackTab==='general'?'':'hidden'}><div class="settings-card"><div class="settings-card-title">Playback preferences</div>${audio('pref-playback',state.defaultPlayback,'Default playback audio')}<div class="field"><label for="pref-subs">Subtitles when playback starts</label><select id="pref-subs"><option value="on" ${state.defaultSubtitles?'selected':''}>On</option><option value="off" ${!state.defaultSubtitles?'selected':''}>Off</option></select></div><div class="field"><label for="pref-autoplay">Autoplay next episode</label><select id="pref-autoplay"><option value="on" ${state.autoplayNextEpisode?'selected':''}>On</option><option value="off" ${!state.autoplayNextEpisode?'selected':''}>Off</option></select></div><p class="settings-card-note">Your autoplay choice is saved locally. Automatic next-episode playback will become available when the new player is integrated.</p></div><div class="settings-card"><div class="settings-card-title">Player integration</div><div class="field"><label for="player-pref">Preferred player for local files</label><select id="player-pref"><option value="built-in" ${(state.playerPreference||'built-in')==='built-in'?'selected':''}>Built-in (recommended)</option><option value="vlc" ${state.playerPreference==='vlc'?'selected':''}>VLC (optional · external)</option></select></div><p class="settings-card-note">External player subtitles, compatibility, and watch progress cannot be guaranteed. Gallery recommends the built-in player.</p><button type="button" class="btn small" id="locate-vlc">Locate VLC manually…</button><div class="tip" id="vlc-detection" aria-live="polite">VLC detection uses standard application locations and macOS Spotlight metadata — no full disk scan.</div></div></div>
+ <div class="playback-pane" id="playback-subtitles-pane" data-playback-pane="subtitles" role="tabpanel" aria-labelledby="playback-subtitles-tab" ${playbackTab==='subtitles'?'':'hidden'}>${subtitleAppearanceMarkup()}</div>`)}
+ ${panel('downloads','Downloads','Set preferences for new downloads.',`<div class="settings-card"><div class="settings-card-title">Download preferences</div>${audio('pref-download',state.defaultDownload,'Default download language')}<p class="settings-card-note">A title's available languages may differ from your preference.</p></div><div class="settings-card download-location-settings" id="settings-download-location" tabindex="-1"><div class="settings-card-title">Destination folder</div><p class="settings-card-note">Previously saved files keep their original recorded location.</p><label class="download-folder-choice"><input type="radio" name="download-destination" value="default" ${(state.downloadDestination||'default')==='default'?'checked':''}><span><b>Standard Downloads folder</b><small>Use your Mac's Downloads folder</small></span></label><label class="download-folder-choice"><input type="radio" name="download-destination" value="custom" ${state.downloadDestination==='custom'?'checked':''}><span><b>Custom destination</b><small>Folder picker will be available in the macOS implementation</small></span></label><div class="download-folder-placeholder" id="download-folder-placeholder" ${state.downloadDestination==='custom'?'':'hidden'}>${icon('folder',16)} Folder selection is not available in this HTML prototype.</div><p class="tip">This browser prototype does not access files or folders. Download destination selection is a design preview, not a saved system location.</p></div>`)}
+ ${panel('sources','Sources','Browse and manage StrawVerse-compatible extensions.',`<div class="sources-shell" id="sources-shell" tabindex="-1"><div class="sources-demo-banner">${icon('info',17)}<span><b>Interactive interface preview.</b> Providers, versions, installation states, and repositories below are sample data. Install, update, and repository controls are simulated; they do not change your Mac or fetch extensions.</span></div><div class="sources-subnav" role="tablist" aria-label="Source management"><button type="button" role="tab" data-source-tab="installed" aria-selected="true">Installed <span class="sources-count" id="sources-installed-count">2</span></button><button type="button" role="tab" data-source-tab="marketplace" aria-selected="false">Marketplace</button><button type="button" role="tab" data-source-tab="repositories" aria-selected="false">Repositories</button></div><div id="sources-status-message" class="sources-feedback" role="status" aria-live="polite"></div><div id="sources-dynamic-content"></div></div>`)}
+ ${panel('about','About','Application information, acknowledgements and legal details.', aboutMarkup())}
+ </div></div>`;
+}
+/* v59 — Search settings across sections without changing their preferences.
+   This index mirrors real v59 controls. Unimplemented Sources features remain previews. */
+const settingsSearchIndex=[
+ {key:'theme',section:'appearance',title:'Theme',path:'Appearance → Theme',target:'settings-theme-card',terms:'appearance color colour style light dark display theme look interface personalize customise neon reel midnight cinema paper lantern'},
+ {key:'font',section:'appearance',title:'Typography',path:'Appearance → Typography',target:'settings-font-card',terms:'font fonts typeface typography atkinson hyperlegible next braille institute dyslexia reading readability low vision accessible accessibility inter san francisco system text characters letters alphabet language locale numbers special symbols preview'},
+ {key:'subtitle-appearance',section:'playback',playbackTab:'subtitles',title:'Subtitle appearance',path:'Playback → Subtitles',target:'settings-subtitle-appearance',terms:'subtitles captions outline thickness drop shadow shadow strength font size effects customize appearance preview live position border text colour color white soft white yellow custom background box opacity none night day shrine video accessibility'},
+ {key:'audio',section:'playback',title:'Default playback audio',path:'Playback → Playback preferences',target:'pref-playback',terms:'language sound voice dialogue dub sub japanese english audio playback preferred'},
+ {key:'subtitles',section:'playback',title:'Subtitles when playback starts',path:'Playback → Playback preferences',target:'pref-subs',terms:'subtitle subtitles captions cc closed caption language text on off playback accessibility'},
+ {key:'player',section:'playback',title:'Preferred player for local files',path:'Playback → Player integration',target:'player-pref',terms:'vlc mpv built-in player playback video external default local files'},
+ {key:'vlc',section:'playback',title:'Locate VLC manually',path:'Playback → Player integration',target:'locate-vlc',terms:'vlc external media player find locate choose app macos'},
+ {key:'download-language',section:'downloads',title:'Default download language',path:'Downloads → Download preferences',target:'pref-download',terms:'download language audio dub sub english japanese preferred'},
+ {key:'destination',section:'downloads',title:'Destination folder',path:'Downloads → Destination folder',target:'settings-download-location',terms:'download location path save files folder directory standard downloads custom storage drive disk destination'},
+ {key:'marketplace',section:'sources',sourceTab:'marketplace',title:'Sources Marketplace',path:'Sources → Marketplace',target:'sources-marketplace-region',terms:'source sources scraper extension extensions addon provider plugin install update marketplace discover anime'},
+ {key:'installed',section:'sources',sourceTab:'installed',title:'Installed sources',path:'Sources → Installed',target:'sources-installed-region',terms:'installed sources extensions providers health blocked incompatible update unavailable manage remove'},
+ {key:'repositories',section:'sources',sourceTab:'repositories',title:'Repositories',path:'Sources → Repositories',target:'settings-repositories-card',terms:'source sources extension repository repo github community add manage providers'},
+ {key:'official-repository',section:'sources',sourceTab:'repositories',title:'Official StrawVerse repository',path:'Sources → Repositories',target:'settings-official-repository',terms:'strawverse repository repo official default built-in extensions'},
+ {key:'about',section:'about',title:'About Gallery',path:'About → Application information',target:'settings-about-card',terms:'about app application gallery version build apple silicon mac os information prototype'},
+ {key:'strawverse-credits',section:'about',aboutView:'credits',title:'Acknowledgements',path:'About → Acknowledgements',target:'settings-about-credits',terms:'strawverse original author creator theyogmehta open source fork upstream github repository credits attribution'},
+ {key:'license-credits',section:'about',aboutView:'licenses',title:'Open Source Licenses',path:'About → Open Source Licenses',target:'settings-about-licenses',terms:'license licensing gpl version 3 software copyright acknowledgements third party dependencies generated'},
+ {key:'media-credits',section:'about',aboutView:'components',title:'Third-Party Components',path:'About → Acknowledgements → Third-Party Components',target:'settings-about-components',terms:'mpv ffmpeg media player video libraries components open source author licenses extension publishers'},
+ {key:'legal',section:'about',aboutView:'legal',title:'Legal & Privacy',path:'About → Legal & Privacy',target:'settings-about-legal',terms:'legal privacy policy terms of service copyright disclaimer independent providers'},
+ {key:'terms',section:'about',aboutView:'terms',title:'Terms of Service',path:'About → Legal & Privacy → Terms of Service',target:'settings-about-terms',terms:'terms conditions warranty software license user responsibility support open-source external services'},
+ {key:'privacy',section:'about',aboutView:'privacy',title:'Privacy Policy',path:'About → Legal & Privacy → Privacy Policy',target:'settings-about-privacy',terms:'privacy personal data zero collection telemetry local storage tracking analytics user history external providers networks ip addresses no tracking'},
+ {key:'copyright',section:'about',aboutView:'copyright',title:'Copyright & Disclaimer',path:'About → Legal & Privacy → Copyright & Disclaimer',target:'settings-about-copyright',terms:'copyright dmca disclaimer legal media sources downloads hosting third party content intellectual property'}
+];
+function setAppearanceTab(tab,resetScroll=true){
+ if(!['theme','typography'].includes(tab))return;
+ appearanceTab=tab;
+ for(const pane of settingsPage.querySelectorAll('[data-appearance-pane]'))pane.hidden=pane.dataset.appearancePane!==tab;
+ for(const button of settingsPage.querySelectorAll('[data-appearance-tab]')){
+  const current=button.dataset.appearanceTab===tab;
+  button.setAttribute('aria-selected',String(current));button.tabIndex=current?0:-1;
+ }
+ if(resetScroll){workspace.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});hideTabScrollOverlay();}
+}
+function matchedSettingsResults(query){
+ const words=query.toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim().split(/\s+/).filter(Boolean);
+ if(!words.length)return [];
+ return settingsSearchIndex.filter(item=>{
+  const text=(item.title+' '+item.path+' '+item.terms).toLocaleLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
+  return words.every(word=>text.includes(word));
+ });
+}
+function renderSettingsSearchResults(){
+ const container=settingsPage.querySelector('#settings-search-results');
+ if(!container)return;
+ const searching=searchOpen&&document.body.classList.contains('settings-view');
+ settingsPage.classList.toggle('is-searching',searching);
+ for(const button of settingsPage.querySelectorAll('[data-settings-section]'))button.setAttribute('aria-current',!searching&&button.dataset.settingsSection===settingsLastSection?'page':'false');
+ if(!searching){
+  container.hidden=true;
+  for(const panel of settingsPage.querySelectorAll('[data-settings-panel]'))panel.hidden=panel.dataset.settingsPanel!==settingsLastSection;
+  return;
+ }
+ for(const panel of settingsPage.querySelectorAll('[data-settings-panel]'))panel.hidden=true;
+ container.hidden=false;
+ const query=searchInput.value.trim();
+ const matches=matchedSettingsResults(query);
+ if(!query){
+  container.innerHTML=`<header class="settings-panel-head"><h2>Search settings</h2><p class="description">Find a preference from any Settings section.</p></header><div class="settings-search-placeholder">${icon('search',22)}<div><b>What would you like to change?</b><p>Try “language”, “subtitles”, “theme”, or “sources”.</p></div></div>`;
+  return;
+ }
+ let html=`<header class="settings-panel-head"><h2>Search results</h2><p class="description" aria-live="polite">${matches.length} ${matches.length===1?'setting':'settings'} found for “${escapeHTML(query)}”</p></header>`;
+ if(!matches.length)html+=`<div class="settings-search-placeholder settings-search-no-results">${icon('search',22)}<div><b>No matching settings</b><p>Try a different term or browse the sections on the left.</p></div></div>`;
+ else for(const [key,label] of settingsSections){
+  const items=matches.filter(item=>item.section===key);
+  if(!items.length)continue;
+  html+=`<section class="settings-result-group" aria-label="${escapeHTML(label)}"><h3>${escapeHTML(label)}</h3><div class="settings-result-stack">${items.map(item=>`<button class="settings-result-item" type="button" data-settings-search-key="${item.key}" aria-label="Open ${escapeHTML(item.title)} in ${escapeHTML(label)}"><span class="settings-result-text"><strong>${escapeHTML(item.title)}</strong><small>${escapeHTML(item.path)}</small></span>${icon('chevron',18)}</button>`).join('')}</div></section>`;
+ }
+ container.innerHTML=html;
+ for(const button of container.querySelectorAll('[data-settings-search-key]'))button.addEventListener('click',()=>navigateToSettingsResult(button.dataset.settingsSearchKey));
+}
+let settingsJumpTimer=null;
+function navigateToSettingsResult(key){
+ const item=settingsSearchIndex.find(x=>x.key===key);
+ if(!item)return;
+ closeInlineSearch(false);
+ setSettingsSection(item.section,false);
+ if(item.section==='appearance')setAppearanceTab(item.key==='font'?'typography':'theme',false);
+ if(item.section==='playback')setPlaybackTab(item.playbackTab||'general',false);
+ if(item.section==='sources'&&item.sourceTab)setSourcesTab(item.sourceTab,false);
+ if(item.section==='about')setAboutView(item.aboutView||'overview',false);
+ const el=document.getElementById(item.target);
+ if(!el)return;
+ el.focus({preventScroll:true});
+ el.classList.remove('settings-search-target');
+ void el.offsetWidth;
+ el.classList.add('settings-search-target');
+ clearTimeout(settingsJumpTimer);
+ settingsJumpTimer=setTimeout(()=>el.classList.remove('settings-search-target'),2200);
+ // Content is already mounted: move only the Settings scroll container.
+ requestAnimationFrame(()=>revealSettingsControl(el));
+}
+function settingsResultButtons(){return [...settingsPage.querySelectorAll('.settings-result-item')];}
+
+function setSettingsSection(key,resetScroll=true){
+ cancelGalleryTextColorPopover(false);
+ if(!settingsSections.some(item=>item[0]===key))return;
+ if(searchOpen)closeInlineSearch(false);
+ if(key==='about')setAboutView('overview',false);
+ if(key==='appearance'&&settingsLastSection!=='appearance')setAppearanceTab('theme',false);
+ if(key==='playback'&&settingsLastSection!=='playback')setPlaybackTab('general',false);
+ // Pick the landing tab when navigating into Sources, not on every render.
+ // A user's explicit tab choice remains in effect while they stay in Sources.
+ if(key==='sources'&&settingsLastSection!=='sources'){
+  sourcesTab=preferredSourcesTab();
+  renderSourcesPreview();
+ }
+ settingsLastSection=key;
+ updateSettingsBackButton();
+ for(const button of settingsPage.querySelectorAll('[data-settings-section]')){
+  const active=button.dataset.settingsSection===key;
+  button.classList.toggle('is-active',active);
+  button.setAttribute('aria-current',active?'page':'false');
+ }
+ for(const panel of settingsPage.querySelectorAll('[data-settings-panel]'))panel.hidden=panel.dataset.settingsPanel!==key;
+ if(resetScroll)workspace.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ hideTabScrollOverlay();
+}
+function showSettings(){
+ if(document.body.classList.contains('settings-view')||settingsClosing)return;
+ if(modalHost.firstChild)return;
+ // Each new visit starts at Appearance; contextual deep links can select a
+ // different section immediately after showSettings().
+ settingsLastSection='appearance';
+ appearanceTab='theme';
+ playbackTab='general';
+ currentAboutView='overview';
+ clearTimeout(settingsReturnAnimationTimer);
+ document.body.classList.remove('returning-to-gallery');
+ workspace.classList.remove('returning-to-gallery');
+ closeInlineSearch(false);
+ settingsReturnScroll=workspace.scrollTop;
+ hideTabScrollOverlay();
+ sourcesTab=preferredSourcesTab();
+ settingsPage.innerHTML=settingsMarkup();
+ settingsPage.hidden=false;
+ document.body.classList.add('settings-view');
+ workspace.classList.add('settings-mode');
+ // The hidden main content is never destroyed, and cannot receive keyboard focus.
+ tabPagesViewport.inert=true;
+ screen.inert=true;
+ document.querySelector('.tabs').inert=true;
+ workspace.scrollTop=0;
+ const settingsButton=document.getElementById('settings');
+ configureHeaderSearchContext();
+ settingsButton.setAttribute('aria-label','Close settings');
+ settingsButton.setAttribute('title','Close settings');
+ settingsButton.setAttribute('aria-expanded','true');
+ settingsButton.setAttribute('aria-controls','settings-page');
+ for(const button of settingsPage.querySelectorAll('[data-settings-section]'))button.addEventListener('click',()=>setSettingsSection(button.dataset.settingsSection));
+ for(const button of settingsPage.querySelectorAll('[data-appearance-tab]'))button.addEventListener('click',()=>setAppearanceTab(button.dataset.appearanceTab));
+ for(const button of settingsPage.querySelectorAll('[data-playback-tab]'))button.addEventListener('click',()=>setPlaybackTab(button.dataset.playbackTab));
+ settingsPage.querySelector('.playback-subnav')?.addEventListener('keydown',event=>{
+  const button=event.target.closest('[data-playback-tab]');
+  if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const tab=event.key==='Home'?'general':event.key==='End'?'subtitles':button.dataset.playbackTab==='general'?'subtitles':'general';
+  setPlaybackTab(tab);settingsPage.querySelector('[data-playback-tab="'+tab+'"]')?.focus({preventScroll:true});
+ });
+ settingsPage.querySelector('.appearance-subnav')?.addEventListener('keydown',event=>{
+  const button=event.target.closest('[data-appearance-tab]');
+  if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const tab=event.key==='Home'?'theme':event.key==='End'?'typography':button.dataset.appearanceTab==='theme'?'typography':'theme';
+  setAppearanceTab(tab);settingsPage.querySelector('[data-appearance-tab="'+tab+'"]')?.focus({preventScroll:true});
+ });
+ document.getElementById('settings-back').addEventListener('click',settingsBackAction);
+ settingsPage.querySelector('#settings-about-root')?.addEventListener('click',event=>{
+  const forward=event.target.closest('[data-about-open]');
+  if(forward){setAboutView(forward.dataset.aboutOpen);return;}
+ });
+ attachSourcesPreview();
+ for(const tile of settingsPage.querySelectorAll('[data-theme-button]'))tile.addEventListener('click',()=>{
+  const next=tile.dataset.themeButton;
+  if(next===state.theme)return;
+  state.theme=next;
+  document.body.dataset.theme=next;
+  for(const option of settingsPage.querySelectorAll('[data-theme-button]'))option.setAttribute('aria-pressed',String(option.dataset.themeButton===next));
+  saveDesktopPreferences();
+ });
+ for(const tile of settingsPage.querySelectorAll('[data-font-choice]'))tile.addEventListener('click',()=>setGalleryFont(tile.dataset.fontChoice));
+ updateGalleryFontNotice();
+ setupSubtitlePreview();
+ for(const [id,field] of [['pref-playback' ,'defaultPlayback'],['pref-download','defaultDownload'],['player-pref','playerPreference']]){
+  settingsPage.querySelector('#'+id).addEventListener('change',event=>{state[field]=event.target.value;if(field==='defaultPlayback')state.detailAudio=null;saveDesktopPreferences();});
+ }
+ settingsPage.querySelector('#pref-subs').addEventListener('change',event=>{state.defaultSubtitles=event.target.value==='on';saveDesktopPreferences();});
+  settingsPage.querySelector('#pref-autoplay').addEventListener('change',event=>{state.autoplayNextEpisode=event.target.value==='on';try{localStorage.setItem('gallery.autoplayNextEpisode',state.autoplayNextEpisode?'on':'off');}catch{}});
+ for(const radio of settingsPage.querySelectorAll('input[name="download-destination"]'))radio.addEventListener('change',()=>{
+  state.downloadDestination=radio.value;
+  const preview=settingsPage.querySelector('#download-folder-placeholder');
+  if(preview)preview.hidden=radio.value!=='custom';
+ });
+ settingsPage.querySelector('#locate-vlc').addEventListener('click',async()=>{
+  const status=settingsPage.querySelector('#vlc-detection');
+  if(!window.galleryDesktop){status.textContent='Available in the macOS application only.';return;}
+  const result=await window.galleryDesktop.locateVLC();
+  if(status?.isConnected)status.textContent=result.ok?'Selected: '+result.path:result.message;
+ });
+ settingsPage.querySelector('#settings-back').focus({preventScroll:true});
+ requestAnimationFrame(updateTabScrollOverlay);
+}
+function closeSettings(){
+ if(!document.body.classList.contains('settings-view')||settingsClosing)return;
+ cancelGalleryTextColorPopover(false);
+ hideTabScrollOverlay();
+ if(searchOpen)closeInlineSearch(false);
+ if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}
+ subtitleResizeObserver?.disconnect();
+ settingsClosing=true;
+ // Keyboard and pointer input cannot interact with an exiting page.
+ settingsPage.inert=true;
+ const button=document.getElementById('settings');
+ button.focus({preventScroll:true});
+ let completed=false;
+ const finish=()=>{
+  if(completed)return;
+  completed=true;
+  clearTimeout(settingsCloseFallback);
+  settingsPage.removeEventListener('animationend',onExitEnd);
+  settingsPage.classList.remove('is-leaving');
+  settingsPage.hidden=true;
+  settingsPage.innerHTML='';
+  settingsPage.inert=false;
+  document.body.classList.remove('settings-view');
+  workspace.classList.remove('settings-mode');
+  tabPagesViewport.inert=false;
+  screen.inert=false;
+  document.querySelector('.tabs').inert=false;
+  workspace.scrollTop=settingsReturnScroll;
+  button.setAttribute('aria-label','Open settings');
+  button.setAttribute('title','Settings');
+  button.setAttribute('aria-expanded','false');
+  settingsClosing=false;
+  // Gallery and its navigation ease back in instead of hard-cutting.
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+   document.body.classList.add('returning-to-gallery');
+   workspace.classList.add('returning-to-gallery');
+   clearTimeout(settingsReturnAnimationTimer);
+   settingsReturnAnimationTimer=setTimeout(()=>{
+    document.body.classList.remove('returning-to-gallery');
+    workspace.classList.remove('returning-to-gallery');
+   },160);
+  }
+  requestAnimationFrame(()=>{updateTabIndicator();updateTabScrollOverlay();});
+ };
+ const onExitEnd=event=>{if(event.target===settingsPage&&event.animationName==='settings-exit')finish();};
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+ settingsPage.addEventListener('animationend',onExitEnd);
+ settingsPage.classList.add('is-leaving');
+ // Defensive fallback for a tab/backgrounded document whose animation is skipped.
+ settingsCloseFallback=setTimeout(finish,240);
+}
+// Deliberate keyboard focus and scroll: Chrome must not jump-cut to an off-screen
+// Settings control on Tab/Shift+Tab. Unrelated dialogs keep their existing trap.
+let settingsScrollFrame=null;
+function revealSettingsControl(el){
+ if(!settingsPage.contains(el)||!settingsPage.offsetParent)return;
+ const view=workspace.getBoundingClientRect(),rect=el.getBoundingClientRect();
+ const margin=20;
+ let target=workspace.scrollTop;
+ if(rect.top<view.top+margin)target+=rect.top-(view.top+margin);
+ else if(rect.bottom>view.bottom-margin)target+=rect.bottom-(view.bottom-margin);
+ target=Math.max(0,Math.min(target,workspace.scrollHeight-workspace.clientHeight));
+ if(settingsScrollFrame!==null)cancelAnimationFrame(settingsScrollFrame);
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){workspace.scrollTop=target;settingsScrollFrame=null;return;}
+ const from=workspace.scrollTop;const distance=target-from;if(Math.abs(distance)<1){settingsScrollFrame=null;return;}
+ let started=null;const duration=Math.min(380,Math.max(190,190+Math.sqrt(Math.abs(distance))*5));
+ function step(time){if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;}
+ settingsScrollFrame=requestAnimationFrame(step);
+}
+workspace.addEventListener('wheel',()=>{if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}},{passive:true});
+document.addEventListener('keydown',event=>{
+if(!document.body.classList.contains('settings-view')||modalHost.firstChild||document.querySelector('.gallery-color-popover'))return;
+ if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(searchOpen)closeInlineSearch();else closeSettings();return;}
+ if(event.key!=='Tab'||event.altKey||event.ctrlKey||event.metaKey)return;
+ const controls=[searchToggle,searchInput,searchClear,searchClose,document.getElementById('settings'),...settingsPage.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden]')&&!el.hidden&&!el.closest('[inert]'));
+ if(!controls.length)return;
+ const index=controls.indexOf(document.activeElement);
+ const back=event.shiftKey;
+ const next=controls[index<0?(back?controls.length-1:0):(index+(back?-1:1)+controls.length)%controls.length];
+ event.preventDefault();
+ next.focus({preventScroll:true});
+ revealSettingsControl(next);
+},true);
+
+function showFilters(){modal('Discovery filters',`<p class="description">Combinable filters, independent of sorting. Missing data must be represented as Unknown in production.</p><div class="field"><label for="status-filter">Airing status</label><select id="status-filter"><option>All</option><option>Completed</option><option>Ongoing</option></select></div><div class="field"><label for="audio-filter">Available audio</label><select id="audio-filter"><option>All</option><option>Sub</option><option>Dub</option></select></div>`,`<button class="btn" id="reset-filters">Reset</button><button class="btn primary" id="apply-filters">Apply filters</button>`);document.getElementById('status-filter').value=state.filterStatus;document.getElementById('audio-filter').value=state.filterAudio;document.getElementById('reset-filters').onclick=()=>{state.filterStatus='All';state.filterAudio='All';closeModal();render();};document.getElementById('apply-filters').onclick=()=>{state.filterStatus=document.getElementById('status-filter').value;state.filterAudio=document.getElementById('audio-filter').value;closeModal();render();};}
+/* v55 — Library and Downloads retain their ordinary controls and layout until
+   the user actually types. The tag/status selection remains unmodified. */
+/* v54 — Search is a contextual tool in the active tab, never a new tab.
+   Search field is absolutely anchored LEFT of the stationary header icon.
+   Discover's Continue Watching stays mounted so its collapse animates. */
+const searchToggle=document.getElementById('search');
+const headerSearch=document.getElementById('header-search');
+const headerRow=document.querySelector('.brand-row');
+const searchField=document.getElementById('header-search-field');
+const searchInput=document.getElementById('header-search-input');
+const searchClear=document.getElementById('header-search-clear');
+const searchClose=document.getElementById('header-search-close');
+let searchOpen=false;
+let searchScrollBefore=0;
+function searchPlaceholder(){
+ if(document.body.classList.contains('settings-view'))return 'Search settings…';
+ return state.view==='library'?'Search your library…':state.view==='downloads'?'Search downloads…':'Search anime…';
+}
+function configureHeaderSearchContext(){
+ const isSettings=document.body.classList.contains('settings-view');
+ const label=isSettings?'Search settings':state.view==='library'?'Search library':state.view==='downloads'?'Search downloads':'Search anime';
+ if(!searchOpen)searchToggle.setAttribute('aria-label',label);
+ searchToggle.title=searchOpen?'Close search':label;
+ searchInput.placeholder=searchPlaceholder();
+ searchField.querySelector('label').textContent=label;
+}
+function searchResultButtons(){return [...tabPages[state.view].querySelectorAll('.poster-button[data-detail]')];}
+function updateDiscoverSearchResults(){
+ const content=tabPages.discover.querySelector('.tab-page-content');
+ const results=content.querySelector('.discover-result-region');
+ if(!results)return;
+ const model=getSourceCataloguePreview();
+ const titles=searchOpen?searchItems(model.titles):model.titles.filter(x=>(state.filterStatus==='All'||x.status===state.filterStatus)&&(state.filterAudio==='All'||x.lang.includes(state.filterAudio)));
+ results.innerHTML=model.titles.length?(titles.length?gallery(titles):'<div class="search-empty">No matching titles in this sample catalogue.</div>'):sourceCatalogueEmptyMarkup(model);
+ content.querySelector('.discover-results-heading').textContent=searchOpen&&state.query.trim()?'Search results':'Explore anime';
+ content.querySelector('.discover-result-count').textContent=discoverSourceCount(model,titles);
+ content.querySelector('#discover-browse-sources')?.addEventListener('click',()=>{closeInlineSearch(false);openSourceManagerFromDiscover();});
+ // Search updates only the poster region; the Continue Watching DOM and its
+ // height animation are never interrupted by live input changes.
+ for(const el of results.querySelectorAll('[data-detail]'))el.addEventListener('click',()=>{closeInlineSearch(false);showDetail(el.dataset.detail);});
+ requestAnimationFrame(updateTabScrollOverlay);
+}
+function updateInlineSearchResults(){
+ if(!searchOpen)return;
+ state.query=searchInput.value;
+ searchClear.hidden=!state.query;
+ searchClose.hidden=!!state.query;
+ if(document.body.classList.contains('settings-view')){renderSettingsSearchResults();requestAnimationFrame(updateTabScrollOverlay);return;}
+ if(state.view==='discover')updateDiscoverSearchResults();
+ else {
+  renderTabPage(state.view);
+  tabPages[state.view].scrollTop=state.query.trim()?0:searchScrollBefore;
+ }
+ requestAnimationFrame(updateTabScrollOverlay);
+}
+function openInlineSearch(){
+ if(searchOpen){searchInput.focus({preventScroll:true});return;}
+ if(state.playback||modalHost.firstChild)return;
+ const searchingSettings=document.body.classList.contains('settings-view');
+ if(state.detailId&&!searchingSettings)setView(state.view); // Return to the active tab, not always Discover.
+ searchScrollBefore=searchingSettings?workspace.scrollTop:tabPages[state.view].scrollTop;
+ searchOpen=true;
+ state.query='';
+ headerRow.classList.add('is-searching');
+ headerSearch.classList.add('is-open');
+ searchToggle.setAttribute('aria-expanded','true');
+ searchToggle.setAttribute('aria-label','Close search');
+ searchToggle.title='Close search';
+ searchField.inert=false;
+ searchField.setAttribute('aria-hidden','false');
+ searchInput.placeholder=searchPlaceholder();
+ searchInput.value='';
+ searchClear.hidden=true;
+ searchClose.hidden=false;
+ if(searchingSettings)renderSettingsSearchResults();
+ if(!searchingSettings&&state.view==='discover'){
+  tabPages.discover.classList.add('search-scope-open');
+  updateDiscoverSearchResults();
+ }
+ // Opening Search does not rerender or move Library/Downloads. Only Discover
+ // animates Continue Watching, as agreed in the existing search design.
+ if(!searchingSettings&&state.view==='discover')tabPages.discover.scrollTop=0;
+ hideTabScrollOverlay();
+ searchInput.focus({preventScroll:true});
+}
+function closeInlineSearch(restoreFocus=true){
+ if(!searchOpen)return;
+ const view=state.view;
+ const searchingSettings=document.body.classList.contains('settings-view');
+ const hadQuery=Boolean(state.query.trim());
+ searchOpen=false;
+ state.query='';
+ headerRow.classList.remove('is-searching');
+ headerSearch.classList.remove('is-open');
+ searchToggle.setAttribute('aria-expanded','false');
+ searchToggle.setAttribute('aria-label',searchingSettings?'Search settings':'Search '+(view==='library'?'library':view==='downloads'?'downloads':'anime'));
+ searchToggle.title=searchingSettings?'Search settings':'Search';
+ searchField.inert=true;
+ searchField.setAttribute('aria-hidden','true');
+ searchInput.value='';
+ searchClear.hidden=true;
+ searchClose.hidden=false;
+ if(searchingSettings){renderSettingsSearchResults();workspace.scrollTop=searchScrollBefore;}
+ else if(!state.detailId&&!state.playback){
+  if(view==='discover'){
+   tabPages.discover.classList.remove('search-scope-open');
+   updateDiscoverSearchResults();
+  }else if(hadQuery)renderTabPage(view);
+  tabPages[view].scrollTop=searchScrollBefore;
+ }
+ if(restoreFocus)searchToggle.focus({preventScroll:true});
+ requestAnimationFrame(updateTabScrollOverlay);
+}
+function toggleInlineSearch(){if(searchOpen)closeInlineSearch();else openInlineSearch();}
+searchInput.addEventListener('input',updateInlineSearchResults);
+searchInput.addEventListener('keydown',event=>{
+ if(document.body.classList.contains('settings-view')){
+  if(event.key==='ArrowDown'||event.key==='Enter'){
+   const first=settingsResultButtons()[0];
+   if(first){event.preventDefault();if(event.key==='Enter')first.click();else first.focus({preventScroll:true});}
+  }
+  return;
+ }
+ if(state.view==='downloads')return;
+ if(event.key==='ArrowDown'||event.key==='Enter'){
+  const first=searchResultButtons()[0];
+  if(first){event.preventDefault();if(event.key==='Enter')first.click();else first.focus({preventScroll:false});}
+ }
+});
+for(const view of ['discover','library']){
+ tabPages[view].addEventListener('keydown',event=>{
+  if(!searchOpen||state.view!==view||!['ArrowDown','ArrowUp'].includes(event.key))return;
+  const buttons=searchResultButtons();
+  const at=buttons.indexOf(document.activeElement);
+  if(at<0)return;
+  event.preventDefault();
+  if(event.key==='ArrowDown'&&at<buttons.length-1)buttons[at+1].focus({preventScroll:false});
+  else if(event.key==='ArrowUp'&&at>0)buttons[at-1].focus({preventScroll:false});
+  else if(event.key==='ArrowUp'&&at===0)searchInput.focus({preventScroll:true});
+ });
+}
+settingsPage.addEventListener('keydown',event=>{
+ if(!searchOpen||!document.body.classList.contains('settings-view')||!['ArrowDown','ArrowUp'].includes(event.key))return;
+ const results=settingsResultButtons();
+ const i=results.indexOf(document.activeElement);
+ if(i<0)return;
+ event.preventDefault();
+ if(event.key==='ArrowDown'&&i<results.length-1)results[i+1].focus({preventScroll:false});
+ else if(event.key==='ArrowUp'&&i>0)results[i-1].focus({preventScroll:false});
+ else if(event.key==='ArrowUp')searchInput.focus({preventScroll:true});
+});
+searchClear.addEventListener('click',()=>{searchInput.value='';updateInlineSearchResults();searchInput.focus({preventScroll:true});});
+searchClose.addEventListener('click',()=>closeInlineSearch());
+
+function showShare(){const tag=state.tag;const titles=demo.filter(x=>x.tags.includes(tag));const doc={format:'anime-gallery-tag',version:1,tag:{name:tag,type:state.kind[tag]},entries:titles.map(x=>({id:x.id,title:x.name,type:'series',source:'fictional-demo'}))};modal(`Share “${tag}”`,`<p class="description">Export a portable collection. The recipient can preview it or explicitly merge its titles into a tag.</p><div class="dialog-sample"><b>${titles.length} anime</b><p class="description">${escapeHTML(titles.slice(0,4).map(x=>x.name).join(' · '))}${titles.length>4?' …':''}</p></div><p class="tip">This demonstration exports fictional data, without videos, downloads, viewing history, or account information.</p>`,`<button class="btn" id="cancel-export">Cancel</button><button class="btn primary" id="export-tag">${icon('share',16)} Export sample file</button>`);document.getElementById('cancel-export').onclick=closeModal;document.getElementById('export-tag').onclick=()=>{const blob=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});const link=document.createElement('a');const url=URL.createObjectURL(blob);link.href=url;link.download=`${tag.toLowerCase().replace(/[^a-z0-9]+/g,'-')||'anime-tag'}.anime-collection.json`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);closeModal();};}
+function showNewTag(){modal('Create a library tag',`<p class="description">Custom tags live alongside Watching, Downloads, and Plan to Watch.</p><div class="field"><label for="tag-name">Tag name</label><input id="tag-name" maxlength="45" placeholder="e.g. Movie Night" autocomplete="off"></div><p class="error" id="tag-error" aria-live="polite"></p>`,`<button class="btn" id="cancel-tag">Cancel</button><button class="btn primary" id="create-tag">${icon('plus',16)} Create tag</button>`);document.getElementById('cancel-tag').onclick=closeModal;document.getElementById('create-tag').onclick=()=>{const raw=document.getElementById('tag-name').value.trim().replace(/\s+/g,' ');const error=document.getElementById('tag-error');if(!raw||/[\x00-\x1F\x7F]/.test(raw)){error.textContent='Enter a valid tag name.';return;}if(state.tags.some(x=>x.toLowerCase()===raw.toLowerCase())||raw.toLowerCase()==='all titles'){error.textContent='A tag with that name already exists.';return;}state.tags.push(raw);state.kind[raw]='custom';state.tag=raw;closeModal();render();};}
+function showDeleteTag(){
+ const tag=state.tag;if(state.kind[tag]!=='custom')return;
+ const total=countTag(tag);
+ modal(`Delete “${tag}”?`,`<p class="description">This removes the custom tag from <b>${total} ${total===1?'title':'titles'}</b>. The anime themselves will stay in your Library.</p><p class="tip">Changes in this HTML prototype are temporary and reset when you reload.</p>`,`<button class="btn" id="cancel-delete-tag">Cancel</button><button class="btn primary" id="confirm-delete-tag">Delete tag</button>`);
+ document.getElementById('cancel-delete-tag').onclick=closeModal;
+ document.getElementById('confirm-delete-tag').onclick=()=>{
+  state.tags=state.tags.filter(t=>t!==tag);delete state.kind[tag];
+  demo.forEach(x=>{x.tags=x.tags.filter(t=>t!==tag)});
+  Object.keys(state.seasonTags).forEach(k=>{state.seasonTags[k]=state.seasonTags[k].filter(t=>t!==tag)});
+  state.tag='All Titles';closeModal();render();
+ };
+}
+function showRenameTag(){const old=state.tag;if(state.kind[old]!=='custom')return;modal('Rename custom tag',`<div class="field"><label for="tag-rename">Tag name</label><input id="tag-rename" maxlength="45" value="${escapeHTML(old)}"></div><p class="error" id="tag-error" aria-live="polite"></p>`,`<button class="btn" id="cancel-tag">Cancel</button><button class="btn primary" id="rename-tag">Save name</button>`);document.getElementById('cancel-tag').onclick=closeModal;document.getElementById('rename-tag').onclick=()=>{const raw=document.getElementById('tag-rename').value.trim();if(!raw||state.tags.some(x=>x.toLowerCase()===raw.toLowerCase()&&x!==old)){document.getElementById('tag-error').textContent='Choose a unique name.';return;}state.tags=state.tags.map(x=>x===old?raw:x);delete state.kind[old];state.kind[raw]='custom';demo.forEach(x=>x.tags=x.tags.map(t=>t===old?raw:t));state.tag=raw;closeModal();render();};}
+function showImport(){state.importDoc=null;modal('Import shared collection',`<p class="description">Open a compatible, locally saved collection file. Preview it before making any changes to your sample library.</p><div class="field"><label for="import-file">Collection file (.json)</label><input id="import-file" type="file" accept=".json,application/json"></div><div id="import-status" class="dialog-sample"><p class="description">Tip: export a sample tag first, then import that file to test this flow.</p></div>`,`<button class="btn" id="cancel-import">Cancel</button><button class="btn primary" id="preview-import" disabled>Preview collection</button>`);document.getElementById('cancel-import').onclick=closeModal;document.getElementById('import-file').onchange=async(e)=>{const f=e.target.files?.[0];const status=document.getElementById('import-status');state.importDoc=null;document.getElementById('preview-import').disabled=true;if(!f)return;if(f.size>1024*1024){status.innerHTML='<p class="error">File is too large for this prototype (max 1 MB).</p>';return;}try{const parsed=JSON.parse(await f.text());if(parsed.format!=='anime-gallery-tag'||parsed.version!==1||typeof parsed.tag?.name!=='string'||!Array.isArray(parsed.entries)||parsed.entries.length>500||!parsed.entries.every(x=>typeof x.id==='string'&&typeof x.title==='string'))throw Error('Unsupported or malformed collection file.');state.importDoc=parsed;status.innerHTML=`<b>${escapeHTML(parsed.tag.name)}</b><p class="description">${parsed.entries.length} entries found. Preview them before importing.</p>`;document.getElementById('preview-import').disabled=false;}catch(err){status.innerHTML=`<p class="error">${escapeHTML(err.message)}</p>`;}};document.getElementById('preview-import').onclick=showImportPreview;}
+function showImportPreview(){const d=state.importDoc;if(!d)return;const matched=d.entries.map(en=>({entry:en,found:demo.find(x=>x.id===en.id)}));let recognized=matched.filter(x=>x.found).length;let missing=matched.length-recognized;modal(`Preview “${d.tag.name}”`,`<p class="description">Nothing has been imported yet. Matches use demonstration IDs only; the real application will need reliable anime and season matching.</p><div class="dialog-sample"><b>${recognized} matches · ${missing} unmatched</b><p class="description">Only matched titles can be merged in this prototype. Unmatched titles are never guessed.</p></div><div class="result-list">${matched.slice(0,14).map(x=>`<div class="searchresult"><span>${escapeHTML(x.entry.title)}</span><span class="${x.found?'success':'muted'}">${x.found?'Matched':'Review'}</span></div>`).join('')}${matched.length>14?'<div class="tip">Showing first 14 entries.</div>':''}</div><div class="field"><label for="import-target">Import into</label><select id="import-target"><option value="__new__">New custom tag: ${escapeHTML(d.tag.name)}</option>${state.tags.map(t=>`<option value="${escapeHTML(t)}">Existing: ${escapeHTML(t)}</option>`).join('')}</select></div><p class="tip">For safety, importing into a built-in tag in this demo only changes tag membership. It never changes watched or downloaded state.</p>`,`<button class="btn" id="cancel-import-preview">Cancel</button><button class="btn primary" id="merge-import">Merge matched titles</button>`);document.getElementById('cancel-import-preview').onclick=closeModal;document.getElementById('merge-import').onclick=()=>{const dest=document.getElementById('import-target').value;let finalTag=dest;if(dest==='__new__'){let base=String(d.tag.name||'Shared collection').trim().slice(0,40)||'Shared collection';finalTag=base;let n=2;while(state.tags.some(t=>t.toLowerCase()===finalTag.toLowerCase())){finalTag=base+' ('+n++ +')';}state.tags.push(finalTag);state.kind[finalTag]='custom';}for(const record of matched){if(record.found&&!record.found.tags.includes(finalTag))record.found.tags.push(finalTag);}state.tag=finalTag;closeModal();setView('library');};}
+document.addEventListener('pointerdown',event=>{
+ const wrap=tabPages.library?.querySelector('.collection-menu-wrap');
+ if(!wrap||wrap.contains(event.target))return;
+ const menu=wrap.querySelector('.collection-menu'),button=wrap.querySelector('#tag-options');
+ if(menu&&!menu.hidden){menu.hidden=true;button?.setAttribute('aria-expanded','false');}
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ const menu=tabPages.library?.querySelector('#tag-options-menu');
+ if(menu&&!menu.hidden){menu.hidden=true;const button=tabPages.library.querySelector('#tag-options');button?.setAttribute('aria-expanded','false');button?.focus();event.preventDefault();}
+});
+for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.getElementById('settings').innerHTML=icon('settings',23);document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML=icon('close',15);searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});render();setupDesktopSettings();setupTabHover();updateTabIndicator();requestAnimationFrame(()=>document.querySelector('.tab-indicator')?.classList.add('is-ready'));window.addEventListener('resize',updateTabIndicator);
+window.addEventListener('resize',()=>tabPages.library?.querySelector('.tagbar')?.galleryRefresh?.(true));
+</script></body></html>
