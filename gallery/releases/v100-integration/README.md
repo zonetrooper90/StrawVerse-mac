@@ -6,8 +6,8 @@
 
 - **File:** `Gallery-v100.html`
 - **Location:** persistent ChatGPT Library `/Gallery Backups/2026-11-04/Gallery-v100.html`
-- **Size:** 6,812,616 bytes
-- **SHA-256:** `fa3af3d595d98bb9a3f3003c7dc61cbdfc3d2602116e51fb31e01c2fd78fe1c2`
+- **Size:** 6,812,924 bytes
+- **SHA-256:** `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283`
 - **Parent:** `Gallery-v99.html`, SHA-256 `34719245efcf1b128b7ec44df4eaffc876b3ce894a043ad1b1b23b58367108f4`.
 - The complete v100 HTML is **not** in GitHub. Attempt to commit the 6.8 MB file was blocked by the connection. A follow-up path lookup confirmed it was absent. Do not confuse these integration source files with a full-version snapshot.
 
