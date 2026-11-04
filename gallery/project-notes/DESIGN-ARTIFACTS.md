@@ -77,3 +77,14 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - Retains two-column layout with center divider, six-row scroll cap, responsive single-column layout, fading custom overlay scrollbars, search, filters, sorting, separate removal and Undo.
 - Chromium interaction tests passed at 1400, 900, 760, and 390px: no horizontal overflow or JavaScript exceptions, status controls maintain pixel position after toggling, panel node identity persists, scroll position remains stable, correct one/two-column responsive behavior. Also tested switching a season between Completed and In Progress without collapsing the panel.
 - Do not assume visually approved until the user reviews it.
+
+## Gallery v100 — approved integration of Watch History Experiment 03 (2026-11-04)
+
+- The user approved integrating the Experiment 03 Watch History UI into a new **Gallery-v100.html** based on v99, plus correcting the player page's persistent scrollbar.
+- The full **Gallery-v100.html** is preserved in personal Library at `/Gallery Backups/2026-11-04/Gallery-v100.html`; size **6,812,616 bytes**, SHA-256 `fa3af3d595d98bb9a3f3003c7dc61cbdfc3d2602116e51fb31e01c2fd78fe1c2`.
+- Full v100 GitHub upload was unsuccessful and path verified absent. Reconstructible JS, CSS, build script and [README](../releases/v100-integration/README.md) are committed in GitHub under `gallery/releases/v100-integration/` and duplicated in Library under `/Gallery Backups/2026-11-04/v100-source/`.
+- Implemented: Recently Watched strip and View History tile on Discover; full Watch History integrated into Gallery header/navigation/search, episode status interaction without panel flashing or moving checkbox, two-column layout with center divider and scroll cap, searchable viewing years, history status filtering, chronological sorting, pending removals and session-long Undo.
+- Player-page `scrollbar-gutter:stable` removed; native permanent scrollbar hidden and existing window-level overlay scrollbar used (fades on inactivity). Verified in Chromium for active scrolling/fade and no width shift.
+- Chromium verified viewports: History **1400/900/760/390 px**; player **1400/900/500 px**. No JavaScript page errors. Other v99 behaviors were preserved by modifying the checked v99 snapshot rather than remaking the UI.
+- Prototype caveats: initial Watch History fixture rows are **simulated**, video provider sources are not connected, and actual provider playback / macOS app packaging have not been implemented. Local-video playback integration in this HTML can record positions on the device only.
+- User has authorized **v100 creation**, not retroactive rewriting of v99 or automatic approval of any future v101 design changes.
