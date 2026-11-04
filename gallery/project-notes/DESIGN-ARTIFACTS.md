@@ -88,3 +88,11 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - Chromium verified viewports: History **1400/900/760/390 px**; player **1400/900/500 px**. No JavaScript page errors. Other v99 behaviors were preserved by modifying the checked v99 snapshot rather than remaking the UI.
 - Prototype caveats: initial Watch History fixture rows are **simulated**, video provider sources are not connected, and actual provider playback / macOS app packaging have not been implemented. Local-video playback integration in this HTML can record positions on the device only.
 - User has authorized **v100 creation**, not retroactive rewriting of v99 or automatic approval of any future v101 design changes.
+
+## Recently Watched Animation Lab 01 — timing and easing comparison (2026-11-05)
+
+- Full standalone HTML: [Gallery-Recently-Watched-Animation-Lab-01.html](../design-experiments/recently-watched/Gallery-Recently-Watched-Animation-Lab-01.html) (verified against persistent Library source).
+- Backup: `/Gallery Backups/Design Experiments/2026-11-05/Gallery-Recently-Watched-Animation-Lab-01.html` (21,938 bytes).
+- **Status:** user requested comparative animation experiment. Four presets: original v101 (320/320ms, no intent delay); Balanced (460/330ms, 85ms intent); Soft Glide (550/375ms, 100ms intent); Gentle Spring (490/335ms, 85ms intent), plus custom duration/intent sliders and easing choices. User has **not selected/approved a winner**.
+- CSS-only placeholder covers (no image generation); cover dimensions 66×96px, emerging info panel 84px high vertically centered, adjacent items and equal-size View History tile move aside without scroll/pagination. Transitions interrupt rather than queue; per-preset Sweep demo tests rapid switching. Keyboard focus and reduced-motion rules included.
+- Validated with Chromium at 1440/900/560/390/320 widths, zero JS errors/overflow, steady cover position, 84px panel height, History tile stays in bounds, sweep actions complete, and custom slider updates work. Gallery v101 untouched.
