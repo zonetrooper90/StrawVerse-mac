@@ -50,3 +50,13 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - Contains: full season-level list, short/long expandable episode management (100-episode test season), two custom fading draggable scrollbar overlays (main page and inner episode lists) matching Gallery v99 behavior, sort/status filters, historical year/title search priority, separate-season completed status, explicit Remove and session-long Undo, and representative Library/Discover routing notices.
 - Browser checks (Chromium): long-list capped at 252px with all 100 rows available; hidden native scrollbar and fading overlay; manual status toggles; sorting; date-search grouping with deduplication; filters; removal/Undo; reset on navigation; 390px width without horizontal overflow; no JavaScript page errors.
 - Scope: illustrative offline demo data only; does **not** modify Gallery v99 or implement real playback-history persistence.
+
+## Watch History layout experiment 02 — two-column episode list (2026-11-04)
+
+- File: [Gallery-Watch-History-Layout-Experiment-02.html](../design-experiments/watch-history/Gallery-Watch-History-Layout-Experiment-02.html)
+- Status: **awaiting user visual review**; standalone experiment only, not integrated into Gallery v99.
+- Exact HTML also saved to ChatGPT Library at `/Gallery Backups/Design Experiments/2026-11-04/Gallery-Watch-History-Layout-Experiment-02.html`.
+- Source file size: **38,815 bytes**
+- SHA-256: `01d6d8d983c95f1aff0c6b39e74be41af512c78de7274ba69ad8a9f98fb7046a`
+- Differences from Experiment 01: two equal-width, unboxed episode columns with episode numbers flowing left-to-right across rows; subtle central divider with padding, constrained to the episode list; paired rows share the same 252px (six-row) scrolling region; responsive one-column fallback under 821px; scroll-to-latest now calculates a row index from the actual column count. Original disappearing overlay scrollbar, playback progress markings, interactive status corrections, Undo, search, sorting, and filters stay intact.
+- Checks: Node syntax validation; Chromium at widths 1400, 900, 760 and 390px with no JavaScript errors or horizontal overflow; two-column vs one-column threshold; center-divider visibility; 100 episodes reachable; 12-episode list shows without an inner scrollbar on desktop; thumb appears while scrolling and fades away; episode status toggles, removal/Undo, sorting and filters work.
