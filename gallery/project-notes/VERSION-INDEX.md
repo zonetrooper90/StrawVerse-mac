@@ -8,7 +8,7 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 | `Gallery-v97.html` | 6763831 | `b948e845bb7d4f23119cd62f21481b4f046c27e64ea98b8c1bf657463ab094f7` |
 | `Gallery-v98.html` | 6773168 | `7e5238b8e27072242eb7cf0911dcdf88864de00d9bbaced4ee3a8178178f470c` |
 | `Gallery-v99.html` | 6776286 | `34719245efcf1b128b7ec44df4eaffc876b3ce894a043ad1b1b23b58367108f4` |
-| `Gallery-v100.html` | 6812616 | `fa3af3d595d98bb9a3f3003c7dc61cbdfc3d2602116e51fb31e01c2fd78fe1c2` |
+| `Gallery-v100.html` | 6812924 | `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283` |
 
 ## Existing verified recovery archive
 
@@ -29,8 +29,8 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 ## v100 — Watch History integration (2026-11-04)
 
 - Latest complete standalone Gallery HTML milestone: **`Gallery-v100.html`**.
-- Preserved as complete **6,812,616-byte** snapshot in persistent ChatGPT Library: `/Gallery Backups/2026-11-04/Gallery-v100.html`. This was uploaded and the Library metadata size was verified.
-- SHA-256 of complete local HTML: `fa3af3d595d98bb9a3f3003c7dc61cbdfc3d2602116e51fb31e01c2fd78fe1c2`.
+- Preserved as complete **6,812,924-byte** snapshot in persistent ChatGPT Library: `/Gallery Backups/2026-11-04/Gallery-v100.html`. This was uploaded and the Library metadata size was verified.
+- SHA-256 of complete local HTML: `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283`.
 - Based on the byte-verified Gallery v99 snapshot. Integrates approved Watch History Experiment 03 (Discover Recently Watched, season-level list, expandable 2-column episode management with non-moving controls, bounded disappearing scrollbars, search, status filters, chronological sort, per-visit reset, dedicated removal and session-long Undo). Player workspace's native persistent scrollbar / stable gutter removed; shares Gallery's original transient overlay scrollbar.
 - Tested in Chromium at 1400, 900, 760, and 390px for history interactions, search, Undo, navigation, responsive layout and non-flashing status changes; player tested at 1400, 900, and 500px with its overlay fading correctly and no reserved scrollbar gutter; no JavaScript page errors.
 - Data scope: initial records are **sample fixtures** for design evaluation; local-video playback in the HTML demo can update local history records, but provider streams and production persistence/integration remain unavailable in this browser prototype. Do not claim this is a fully working native Mac release.
