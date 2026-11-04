@@ -43,7 +43,9 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 
 
 - Full-history rows remain ordered by their most recent viewing activity. Keep older season entries when the viewer progresses to another season.
-- **Full Watch History view: chronological list of entries, not a poster grid.** A list intentionally distinguishes History from the cover-driven Discover and Library views and provides space for episode progress, last-watched times and other useful context. Exact row fields and grouping are still **UNDECIDED**; don't treat the illustrative layout as finalized.
+- **Full Watch History view: chronological list of entries, not a poster grid.** A list intentionally distinguishes History from the cover-driven Discover and Library views.
+- **History row details (agreed):** for an **In Progress** season, show the anime/season's source title, latest played episode and resume position, episode completion count (e.g. 8 of 12 episodes Watched), and last-watched timestamp. For a **Completed** season, show the title, a clear Completed status and last-watched timestamp; **do not repeat the total/count (e.g. 12 of 12)**, and omit the resume position as unnecessary completed-season clutter.
+- The precise visual sizing and spacing of the rows remain **UNDECIDED**, and illustrative examples are not approved HTML mockups.
 - The Discover Recently Watched area still uses the previously agreed compact portrait-cover strip; the list decision applies to the **dedicated full Watch History page only**.
 
 ## Current HTML status
