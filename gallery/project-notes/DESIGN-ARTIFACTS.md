@@ -81,7 +81,7 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 ## Gallery v100 — approved integration of Watch History Experiment 03 (2026-11-04)
 
 - The user approved integrating the Experiment 03 Watch History UI into a new **Gallery-v100.html** based on v99, plus correcting the player page's persistent scrollbar.
-- The full **Gallery-v100.html** is preserved in personal Library at `/Gallery Backups/2026-11-04/Gallery-v100.html`; size **6,812,616 bytes**, SHA-256 `fa3af3d595d98bb9a3f3003c7dc61cbdfc3d2602116e51fb31e01c2fd78fe1c2`.
+- The full **Gallery-v100.html** is preserved in personal Library at `/Gallery Backups/2026-11-04/Gallery-v100.html`; size **6,812,924 bytes**, SHA-256 `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283`.
 - Full v100 GitHub upload was unsuccessful and path verified absent. Reconstructible JS, CSS, build script and [README](../releases/v100-integration/README.md) are committed in GitHub under `gallery/releases/v100-integration/` and duplicated in Library under `/Gallery Backups/2026-11-04/v100-source/`.
 - Implemented: Recently Watched strip and View History tile on Discover; full Watch History integrated into Gallery header/navigation/search, episode status interaction without panel flashing or moving checkbox, two-column layout with center divider and scroll cap, searchable viewing years, history status filtering, chronological sorting, pending removals and session-long Undo.
 - Player-page `scrollbar-gutter:stable` removed; native permanent scrollbar hidden and existing window-level overlay scrollbar used (fades on inactivity). Verified in Chromium for active scrolling/fade and no width shift.
