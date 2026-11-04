@@ -1,8 +1,9 @@
 from pathlib import Path
 import re, hashlib
-src=Path('/mnt/data/Gallery-v99.html').read_text()
-css=Path('/mnt/data/_gallery_v100_styles.css').read_text()
-js=Path('/mnt/data/_gallery_v100_history.js').read_text()
+ROOT=Path(__file__).resolve().parent
+src=(ROOT/'Gallery-v99.html').read_text()
+css=(ROOT/'_gallery_v100_styles.css').read_text()
+js=(ROOT/'_gallery_v100_history.js').read_text()
 s=src
 
 def replace_exact(old,new,expect=1):
@@ -48,7 +49,7 @@ replace_exact("body.player-view .workspace{padding:5px 13px 15px;scrollbar-gutte
               "body.player-view .workspace{padding:5px 13px 15px;scrollbar-gutter:auto}")
 # Switch demo brand version title label, but leave app version unchanged (v100 is HTML prototype milestone).
 assert len(s)-len(src)<100000
-out=Path('/mnt/data/Gallery-v100.html');out.write_text(s)
+out=ROOT/'Gallery-v100.html';out.write_text(s)
 print('v99 bytes',len(src.encode()),'v100 bytes',out.stat().st_size,'delta',out.stat().st_size-len(src.encode()))
 print('sha256:',hashlib.sha256(out.read_bytes()).hexdigest())
 print('v100 count',s.count('Gallery v100'),'history samples',s.count('whRecords'),'favicon etc preserved')
