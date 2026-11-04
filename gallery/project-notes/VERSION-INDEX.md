@@ -9,6 +9,7 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 | `Gallery-v98.html` | 6773168 | `7e5238b8e27072242eb7cf0911dcdf88864de00d9bbaced4ee3a8178178f470c` |
 | `Gallery-v99.html` | 6776286 | `34719245efcf1b128b7ec44df4eaffc876b3ce894a043ad1b1b23b58367108f4` |
 | `Gallery-v100.html` | 6812924 | `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283` |
+| `Gallery-v101.html` | 6815378 | `a49f991b6db185cf90774a446eb45904ba14b2ece2d3c7eec424749a866c2048` |
 
 ## Existing verified recovery archive
 
@@ -37,3 +38,12 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 - **The full 6.8 MB v100 HTML is not committed to GitHub**: direct GitHub content upload was attempted but failed, and a missing-path check verified it was not created.
 - Verified smaller source integration files are committed on `gallery/design-checkpoints` under `gallery/releases/v100-integration/`: `_gallery_v100_history.js`, `_gallery_v100_styles.css`, `_build_gallery_v100.py`. Together with the verified Library v99 HTML they reproduce v100.
 - `Gallery-HTML-Backup-2026-11-04.zip` predates v100 and still contains v96–v99, **not v100**.
+
+## v101 — Recently Watched preview slide-out (2026-11-04)
+
+- Complete browser HTML prototype for **user visual review**: `Gallery-v101.html` at `/Gallery Backups/2026-11-04/Gallery-v101.html` in persistent ChatGPT Library. Full file **6,815,378 bytes**, SHA-256 `a49f991b6db185cf90774a446eb45904ba14b2ece2d3c7eec424749a866c2048`.
+- Based on the current verified v100 baseline (6,812,924 bytes, SHA-256 `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283`), retaining its Library/Discover Watch History navigation correction and player fixes.
+- Replaces only the Discover Recently Watched preview: fixed portrait cover, shorter panel slides from behind it, neighbors move to make room, View History tile has same dimensions and follows last visible cover.
+- Chromium checks at seven window widths and keyboard focus pass, including no horizontal clipping and persistent existing History interactions. Awaiting user visual acceptance; v100 remains previously approved baseline.
+- Verified reproducible [v100→v101 patch](../releases/v101-integration/Gallery-v100-to-v101.patch) and [README](../releases/v101-integration/README.md) in GitHub `gallery/design-checkpoints/gallery/releases/v101-integration/`.
+- **The complete 6.8 MB v101 HTML is not committed to GitHub.** Full v100 and v101 snapshots are preserved in Library; GitHub holds the reconstruction patch, not the full file.
