@@ -62,7 +62,8 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 - Keep the same newest/oldest control when using status filters or search. Reversing direction must not change the underlying episode/season history.
 - Manual corrections to Watched/Unwatched flags do **not** change the last-watched timestamp or move a season in the sort order; actual viewing activity does.
 - When searching for a viewing year, preserve the previously agreed search-match priority (date matches before title matches for standalone years), and use chronological order within the relevant matches.
-- The specific persistence/reset behavior of status filters and sort direction between visits is not yet finalized.
+- **Status filter reset (agreed):** leaving and reopening Watch History resets the status filter to **All**; do not persist an In Progress / Completed selection across visits. Search state should also clear when leaving the Watch History view to follow Gallery's tab-scoped search behavior.
+- **Sort-direction persistence remains undecided:** the user explicitly agreed to reset filters, not necessarily the Newest First / Oldest First sort direction. The default remains Newest First.
 
 ## Current HTML status
 - v96 A28: main Settings/subtitle preview reference.
