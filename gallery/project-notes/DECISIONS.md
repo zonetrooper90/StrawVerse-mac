@@ -48,6 +48,14 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 - The precise visual sizing and spacing of the rows remain **UNDECIDED**, and illustrative examples are not approved HTML mockups.
 - The Discover Recently Watched area still uses the previously agreed compact portrait-cover strip; the list decision applies to the **dedicated full Watch History page only**.
 
+## AGREED: Watch History search behavior
+- Reuse Gallery's existing integrated search behavior, scoped to Watch History when viewing that page.
+- Match history entries by **anime/season title** and **viewing date** (year, month and supported relative dates); a year refers to **when the user watched it**, not the anime's original release year.
+- Preserve enough historical viewing-date information that a season watched in 2025 can still be found by a 2025 search after being rewatched in 2026; do not rely only on the latest-watched timestamp.
+- A standalone four-digit year query (e.g. `2025`) prioritizes **watched-in-that-year** results, then title matches containing the year. Title-like phrases containing a year (e.g. `Anime 2025`) prioritize title matches.
+- Never exclude a valid match merely because it has lower priority. Group or clearly identify matches by reason, and show an entry only once if it matches both title and viewing year.
+- This is an agreed *search ranking and coverage rule*; exact search-results presentation still requires design review before implementation.
+
 ## Current HTML status
 - v96 A28: main Settings/subtitle preview reference.
 - v97: Settings integration.
