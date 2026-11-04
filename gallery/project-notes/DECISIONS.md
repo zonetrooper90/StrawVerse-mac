@@ -32,7 +32,8 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 - Replace Continue Watching Discover area with **Recently Watched**: portrait anime covers, reveal title/latest episode on hover, contained within existing card bounds.
 - Show only the newest covers that fit without scrolling/pagination; fixed View History shortcut at the end.
 - One history entry per anime, newest actual playback/resume first. New/replayed items move left; older items may leave the Discover preview but remain in complete history.
-- Detailed full Watch History layout remains **UNDECIDED**, do not invent it.
+- **Full Watch History view: chronological list of entries, not a poster grid.** A list intentionally distinguishes History from the cover-driven Discover and Library views and provides space for episode progress, last-watched times and other useful context. Exact row fields and grouping are still **UNDECIDED**; don't treat the illustrative layout as finalized.
+- The Discover Recently Watched area still uses the previously agreed compact portrait-cover strip; the list decision applies to the **dedicated full Watch History page only**.
 
 ## Current HTML status
 - v96 A28: main Settings/subtitle preview reference.
