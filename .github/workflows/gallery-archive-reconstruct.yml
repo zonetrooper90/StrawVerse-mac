@@ -1,0 +1,33 @@
+name: Restore Gallery HTML archive
+on:
+  push:
+    branches:
+      - gallery/development-archive
+    paths:
+      - 'gallery/archive/manifest.json'
+      - 'gallery/archive/chunks/**'
+      - 'gallery/archive/assemble.py'
+      - '.github/workflows/gallery-archive-reconstruct.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gallery/development-archive
+          persist-credentials: true
+      - name: Verify and restore Gallery HTML
+        run: python3 gallery/archive/assemble.py
+      - name: Commit verified complete HTML files
+        run: |
+          git add gallery/archive/html/
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Restore complete verified Gallery HTML snapshots"
+            git push origin HEAD:gallery/development-archive
+          fi
