@@ -12,14 +12,15 @@
 
 ## Recover full HTML
 - **Full file:** persistent ChatGPT Library at `/Gallery Backups/2026-11-04/Gallery-v101.html`
+- **Source base:** the most recent approved v100 file includes the season's Library/Discover routing correction, which v101 preserves.
 - **Source base:** `/Gallery Backups/2026-11-04/Gallery-v100.html` (approved baseline, unchanged)
 - **Patch:** [Gallery-v100-to-v101.patch](Gallery-v100-to-v101.patch) stored in this repository
 - To reconstruct from v100 and the patch:
   ```bash
   patch -o Gallery-v101.html Gallery-v100.html Gallery-v100-to-v101.patch
   ```
-- Full file size: **6,815,070 bytes**
-- Full file SHA-256: `d55345e62f4999fe9b4fe28589c786be70b10932a4dc58c6eb86e70d8646d959`
+- Full file size: **6,815,378 bytes**
+- Full file SHA-256: `a49f991b6db185cf90774a446eb45904ba14b2ece2d3c7eec424749a866c2048`
 - The patch was applied to a copy of the exact v100 file, and the reconstructed v101 HTML was byte-for-byte identical to the output.
 
 ## Browser checks
