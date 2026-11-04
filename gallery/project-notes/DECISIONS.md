@@ -31,7 +31,9 @@ Last reviewed: 2026-11-04. Label each new entry **AGREED**, **PROPOSED**, or **U
 ## AGREED: Recently Watched / Watch History (not yet implemented in v99)
 - Replace Continue Watching Discover area with **Recently Watched**: portrait anime covers, reveal title/latest episode on hover, contained within existing card bounds.
 - Show only the newest covers that fit without scrolling/pagination; fixed View History shortcut at the end.
-- One history entry per anime, newest actual playback/resume first. New/replayed items move left; older items may leave the Discover preview but remain in complete history.
+- **Discover Recently Watched preview:** one cover per anime, ordered by most recent playback/resume. New/replayed anime move left; older anime may leave the Discover preview but remain in the full history.
+- **Full Watch History:** one row per **anime season**, rather than one row per episode or one row for all seasons combined. Separate seasons of the same anime get separate entries. Each row summarizes where the viewer reached within that season (latest reached episode and playback position/progress), without displaying a separate chronological row for every episode.
+- Full-history rows remain ordered by their most recent viewing activity. Keep older season entries when the viewer progresses to another season.
 - **Full Watch History view: chronological list of entries, not a poster grid.** A list intentionally distinguishes History from the cover-driven Discover and Library views and provides space for episode progress, last-watched times and other useful context. Exact row fields and grouping are still **UNDECIDED**; don't treat the illustrative layout as finalized.
 - The Discover Recently Watched area still uses the previously agreed compact portrait-cover strip; the list decision applies to the **dedicated full Watch History page only**.
 
