@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Gallery — Recently Watched Animation Lab 01</title>
+<style>
+:root{color-scheme:dark;--bg:#0d0a13;--app:#171120;--surface:#20182b;--surface-2:#251c32;--raised:#30223f;--line:rgba(198,169,237,.13);--line-strong:rgba(207,181,239,.22);--ink:#f4eef9;--muted:#aa99bd;--soft:#d7c7e4;--accent:#bd91e2;--accent-strong:#d6b7f1;--cover-w:66px;--cover-h:96px;--gap:10px;--panel-h:84px}
+*{box-sizing:border-box}
+html{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar{display:none}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse 95% 80% at 48% -10%,#2a193b 0%,transparent 65%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent-strong);outline-offset:3px}
+main{max-width:1130px;margin:0 auto;padding:37px 28px 54px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:23px}
+.brand{display:flex;gap:10px;align-items:center;font-weight:780;letter-spacing:-.025em;font-size:18px}
+.logo{width:23px;height:23px;display:grid;place-items:center;border:1px solid rgba(208,169,241,.32);border-radius:7px;color:var(--accent-strong)}
+.logo svg{width:16px;height:16px}
+.tag{display:inline-flex;align-items:center;gap:6px;background:#281e36;border:1px solid var(--line-strong);color:var(--soft);border-radius:99px;padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.01em}
+.heading{margin-bottom:27px}
+h1{font-size:29px;line-height:1.16;letter-spacing:-.045em;margin:0 0 9px;font-weight:750}
+p{margin:0;line-height:1.65;color:var(--muted)}
+.heading p{max-width:750px;font-size:13px}
+.guide{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.guide .instruction{display:inline-flex;gap:7px;align-items:center;font-size:11px;color:var(--soft)}
+.guide .number{display:grid;place-items:center;height:20px;width:20px;border-radius:50%;background:rgba(189,145,226,.12);color:var(--accent-strong);font-size:10px;font-weight:800}
+.section-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+.section-label h2{font-size:12px;letter-spacing:.075em;text-transform:uppercase;color:var(--muted);font-weight:720;margin:0}
+.section-label span{font-size:11px;color:#88799c}
+.cards{display:grid;gap:13px}
+.variant{background:var(--app);border:1px solid var(--line);border-radius:15px;padding:16px 18px 18px;min-width:0;box-shadow:0 5px 18px rgba(0,0,0,.08)}
+.variant-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:15px}
+.variant-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.variant h3{margin:0;font-size:14px;letter-spacing:-.015em}
+.variant-sub{color:var(--muted);font-size:11px;margin-top:5px}
+.micro-tag{border:1px solid var(--line-strong);padding:3px 7px;border-radius:5px;font-size:10px;color:var(--soft);font-weight:600}
+.variant-tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sweep{border:1px solid var(--line-strong);background:var(--surface-2);color:var(--soft);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:600;transition:background .15s}
+.sweep:hover{background:var(--raised)}
+.sweep:disabled{opacity:.5;cursor:default}
+.recent-panel{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px 15px 16px;min-width:0}
+.strip-title{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:750;margin-bottom:10px}
+.demo-row{--open-ms:450ms;--close-ms:330ms;--curve-open:cubic-bezier(.42,0,.2,1);--curve-close:cubic-bezier(.22,0,.25,1);--fade-ms:240ms;--fade-delay:95ms;--panel-w:188px;display:flex;align-items:center;gap:var(--gap);height:var(--cover-h);width:100%;min-width:0;overflow:hidden;isolation:isolate}
+.slot{position:relative;display:block;height:var(--cover-h);width:var(--cover-w);flex:0 0 var(--cover-w);min-width:0;overflow:hidden;isolation:isolate;transition:flex-basis var(--close-ms) var(--curve-close)}
+.slot.is-active{flex-basis:calc(var(--cover-w) + var(--panel-w));z-index:5;transition:flex-basis var(--open-ms) var(--curve-open)}
+.slot.is-hidden{display:none!important}
+.poster{position:absolute;top:0;left:0;z-index:3;width:var(--cover-w);height:var(--cover-h);border-radius:9px;border:1px solid rgba(236,207,255,.18);background:var(--poster-gradient);overflow:hidden;text-align:left;padding:0;color:white;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.20)}
+.poster::before{content:"";position:absolute;width:85px;height:85px;border:1px solid rgba(255,255,255,.27);border-radius:50%;top:-4px;left:-32px}
+.poster::after{content:"";position:absolute;inset:38% 0 0;background:linear-gradient(0deg,rgba(12,9,19,.79),transparent);pointer-events:none}
+.poster .poster-name{position:absolute;z-index:1;bottom:7px;left:5px;right:5px;line-height:1.22;font-size:9px;font-weight:750;text-shadow:0 2px 6px rgba(0,0,0,.7);max-height:3.6em;overflow:hidden;overflow-wrap:break-word}
+.poster:focus-visible{outline:2px solid var(--accent-strong);outline-offset:-4px}
+.detail{position:absolute;top:6px;left:var(--cover-w);z-index:1;width:var(--panel-w);height:var(--panel-h);display:flex;flex-direction:column;justify-content:center;gap:8px;padding:8px 12px 8px 13px;background:#2a2038;border:1px solid var(--line-strong);border-left:0;border-radius:0 10px 10px 0;box-shadow:4px 4px 11px rgba(0,0,0,.15);transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform var(--close-ms) var(--curve-close),opacity 130ms ease}
+.slot.is-active .detail{transform:translateX(0);opacity:1;transition:transform var(--open-ms) var(--curve-open),opacity var(--fade-ms) ease var(--fade-delay)}
+.detail strong{font-size:12px;font-weight:720;line-height:1.24;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.detail span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-tile{flex:0 0 var(--cover-w);width:var(--cover-w);height:var(--cover-h);margin:0;border-radius:9px;background:#291f37;border:1px solid var(--line-strong);color:var(--soft);display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:center;text-align:center;padding:6px 4px;font-size:10px;font-weight:710}
+.history-tile svg{width:21px;height:21px;color:var(--accent)}
+.history-tile:hover{background:#352747}
+.history-tile[aria-label]{cursor:default}
+.controls-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;color:#9585a8;font-size:10px;font-variant-numeric:tabular-nums;letter-spacing:.005em}
+.controls-meta b{font-weight:650;color:var(--soft)}
+.controls-meta .state{margin-left:auto;color:var(--accent-strong);min-width:110px;text-align:right}
+.custom-wrap{margin-top:24px;padding:19px 19px 20px;border:1px solid rgba(186,139,231,.28);background:linear-gradient(155deg,#21172f,#171120);border-radius:16px}
+.custom-top h2{margin:0;font-size:17px;letter-spacing:-.02em}
+.custom-top p{font-size:11px;margin-top:5px}
+.custom-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.control{padding:11px 12px;background:rgba(18,12,26,.5);border:1px solid var(--line);border-radius:10px}
+.control .control-label{display:flex;justify-content:space-between;gap:8px;color:var(--soft);font-size:11px;font-weight:650;margin-bottom:10px}
+.control .value{color:var(--accent-strong);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:#c297e8;cursor:pointer}
+.slider-hints{display:flex;justify-content:space-between;font-size:9px;color:#867797;margin-top:2px}
+.easing-picker{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 13px}
+.easing-picker button{font-size:11px;padding:8px 10px;border:1px solid var(--line-strong);border-radius:8px;color:var(--soft);background:#251b33}
+.easing-picker button.is-selected{color:#f3e3ff;background:#443057;border-color:rgba(195,147,232,.62)}
+.custom-wrap .recent-panel{background:#1f182b}
+.footer{border-top:1px solid var(--line);margin-top:27px;padding-top:17px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.footer p{max-width:730px;font-size:11px}
+.footer .small{font-size:10px;color:#867898}
+@media(max-width:670px){main{padding:20px 13px 35px}.top{margin-bottom:19px}.heading{margin-bottom:21px}h1{font-size:24px}.variant{padding:13px 11px 14px}.recent-panel{padding:12px 9px 13px}.variant-title{gap:7px}.variant h3{font-size:13px}.variant-header{align-items:center}.variant-sub{line-height:1.5}.controls-meta .state{margin-left:0;min-width:0;text-align:left}.controls-meta{gap:8px}.custom-wrap{padding:15px 11px}.custom-controls{grid-template-columns:1fr;gap:8px}.section-label span{display:none}.sweep{padding:6px 8px}.tag{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.slot,.slot.is-active,.detail,.slot.is-active .detail{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5zM5 9h14M10 4v16"/><path d="M14 13h2v3h-2z"/></svg></span> Gallery</div>
+    <div class="tag">Recently Watched · Motion Lab 01</div>
+  </div>
+  <header class="heading">
+    <h1>Find the right movement.</h1>
+    <p>These tests use v101's portrait-cover and slide-out-card design. Only the animation timing, easing and hover recognition change. The 66 × 96 px cover stays fixed; the 84 px information panel slides out from behind it while the neighboring covers and View History move aside.</p>
+    <div class="guide"><span class="instruction"><span class="number">1</span>Hover over different covers</span><span class="instruction"><span class="number">2</span>Sweep the cursor rapidly across them</span><span class="instruction"><span class="number">3</span>Use <b>Sweep demo</b> to compare interruptions</span></div>
+  </header>
+
+  <div class="section-label"><h2>Four animation styles</h2><span>Hover, tab through, or run the sweep demo</span></div>
+  <div id="comparison" class="cards"></div>
+
+  <section class="custom-wrap" aria-label="Custom animation timing">
+    <div class="custom-top"><h2>Fine-tune your own</h2><p>Adjust the timing below. The custom preview updates immediately, so you can compare it against the presets above.</p></div>
+    <div class="custom-controls">
+      <label class="control"><span class="control-label">Opening <span class="value" id="open-value">460 ms</span></span><input id="open-range" type="range" min="250" max="750" step="10" value="460"><span class="slider-hints"><span>Faster</span><span>Slower</span></span></label>
+      <label class="control"><span class="control-label">Closing <span class="value" id="close-value">330 ms</span></span><input id="close-range" type="range" min="180" max="650" step="10" value="330"><span class="slider-hints"><span>Faster</span><span>Slower</span></span></label>
+      <label class="control"><span class="control-label">Hover recognition <span class="value" id="delay-value">85 ms</span></span><input id="delay-range" type="range" min="0" max="220" step="5" value="85"><span class="slider-hints"><span>Instant</span><span>More deliberate</span></span></label>
+    </div>
+    <div class="easing-picker" aria-label="Choose an easing curve">
+      <button type="button" class="is-selected" data-ease="balanced" aria-pressed="true">Balanced</button>
+      <button type="button" data-ease="fluid" aria-pressed="false">Soft glide</button>
+      <button type="button" data-ease="spring" aria-pressed="false">Gentle spring</button>
+      <button type="button" data-ease="standard" aria-pressed="false">Standard ease-in-out</button>
+    </div>
+    <div id="custom-slot"></div>
+  </section>
+  <footer class="footer"><p><strong style="color:var(--soft)">A note on fast cursor movement:</strong> these animations don't queue. When you switch covers, the previous panel starts retracting immediately from its current position while the next begins opening after a brief hover-recognition delay. Nothing has to finish before another cover can respond.</p><span class="small">Standalone HTML test · Gallery v101 unchanged · No external resources</span></footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const shows = [
+    { short: 'Quints', title: 'The Quintessential Quintuplets ∬', episode: 'Episode 8 · 14:32 / 24:00', poster: 'linear-gradient(145deg,#664875,#9b72a5 55%,#382641)'},
+    { short: 'Pokémon', title: 'Pokémon — Indigo League', episode: 'Episode 75 · 10:08 / 22:00', poster: 'linear-gradient(150deg,#285c83,#4b92c5 52%,#1a3754)'},
+    { short: 'Frieren', title: "Frieren: Beyond Journey's End", episode: 'Episode 17 · 15:14 / 24:00', poster: 'linear-gradient(155deg,#346c64,#7ea9a0 55%,#2b4245)'},
+    { short: 'Delicious', title: 'Delicious in Dungeon', episode: 'Episode 10 · 09:18 / 24:00', poster: 'linear-gradient(150deg,#8a5e40,#a99a65 53%,#57432e)'},
+    { short: 'Quints', title: 'The Quintessential Quintuplets', episode: 'Completed', poster: 'linear-gradient(155deg,#70516a,#bc8ba4 60%,#674554)'},
+  ];
+  const curveNames = {
+    balanced: { open: 'cubic-bezier(.42,0,.2,1)', close: 'cubic-bezier(.22,0,.25,1)' },
+    fluid: { open: 'cubic-bezier(.35,0,.13,1)', close: 'cubic-bezier(.25,0,.22,1)' },
+    spring: { open: 'cubic-bezier(.25,.82,.22,1.06)', close: 'cubic-bezier(.25,0,.28,1)' },
+    standard: { open: 'ease-in-out', close: 'ease-in-out' },
+    reference: {open: 'cubic-bezier(.22,.75,.22,1)', close:'cubic-bezier(.22,.75,.22,1)'}
+  };
+  const presets = [
+    { id:'reference', title:'Current v101', tag:'Reference', subtitle:'The original, quick transition. Useful as a baseline.', open:320,close:320, delay:0,fade:130,fadeDelay:0,curve:'reference'},
+    { id:'balanced', title:'Balanced', tag:'Smooth & responsive', subtitle:'Gentle acceleration and slowdown, with a short intent delay.', open:460,close:330,delay:85,fade:250,fadeDelay:85,curve:'balanced'},
+    { id:'fluid', title:'Soft glide', tag:'More relaxed', subtitle:'A longer, flowing reveal that settles softly into place.', open:550,close:375,delay:100,fade:290,fadeDelay:115,curve:'fluid'},
+    { id:'spring', title:'Gentle spring', tag:'Slightly playful', subtitle:'A tiny hint of overshoot without an obvious bounce.', open:490,close:335,delay:85,fade:240,fadeDelay:90,curve:'spring'},
+  ];
+  const instances = new Map();
+
+  function buildDemo(cfg, isCustom=false) {
+    const item=document.createElement('article');
+    item.className='variant';
+    item.dataset.variant=cfg.id;
+    item.innerHTML=`
+      <header class="variant-header">
+        <div><div class="variant-title"><h3>${cfg.title}</h3><span class="micro-tag">${cfg.tag}</span></div><div class="variant-sub">${cfg.subtitle}</div></div>
+        <div class="variant-tools"><button type="button" class="sweep" aria-label="Run rapid hover sweep for ${cfg.title}">Sweep demo</button></div>
+      </header>
+      <div class="recent-panel"><div class="strip-title">Recently Watched</div>
+        <div class="demo-row" aria-label="${cfg.title} animation preview">
+          ${shows.map((show,i)=>`<div class="slot" data-index="${i}">
+            <button class="poster" type="button" style="--poster-gradient:${show.poster}" aria-label="Preview ${show.title}" title="Hover to reveal ${show.title}"><span class="poster-name">${show.short}</span></button>
+            <div class="detail" aria-hidden="true"><strong>${show.title}</strong><span>${show.episode}</span></div></div>`).join('')}
+          <button type="button" class="history-tile" aria-label="View History tile (visual demonstration only)" title="Demonstration only">${ICON}<span>View History</span></button>
+        </div>
+      </div>
+      <div class="controls-meta"><span>Open <b class="meta-open">${cfg.open} ms</b></span><span>Close <b class="meta-close">${cfg.close} ms</b></span><span>Intent <b class="meta-delay">${cfg.delay} ms</b></span><span class="state" aria-live="polite">Ready to test</span></div>`;
+    const strip=item.querySelector('.demo-row');
+    const slots=[...item.querySelectorAll('.slot')];
+    let pending=null, active=null, sweepTimeouts=[], sweeping=false, resizeObserver=null;
+    const updateStyle=()=>{
+      const curves=curveNames[cfg.curve];
+      strip.style.setProperty('--open-ms',cfg.open+'ms');strip.style.setProperty('--close-ms',cfg.close+'ms');
+      strip.style.setProperty('--curve-open',curves.open);strip.style.setProperty('--curve-close',curves.close);
+      strip.style.setProperty('--fade-ms',cfg.fade+'ms');strip.style.setProperty('--fade-delay',cfg.fadeDelay+'ms');
+      item.querySelector('.meta-open').textContent=cfg.open+' ms';
+      item.querySelector('.meta-close').textContent=cfg.close+' ms';
+      item.querySelector('.meta-delay').textContent=cfg.delay+' ms';
+    };
+    updateStyle();
+    const cancelPending=()=>{if(pending!==null){clearTimeout(pending);pending=null;}};
+    function activate(slot) {
+      cancelPending();
+      if(active===slot)return;
+      active=slot;
+      slots.forEach(el=>el.classList.toggle('is-active',el===slot));
+      item.querySelector('.state').textContent=slot?'Opening '+shows[Number(slot.dataset.index)].short:'Retracting';
+    }
+    const focusVisible=slot=>{if(sweeping)return;activate(slot);};
+    slots.forEach(slot=>{
+      const poster=slot.querySelector('.poster');
+      poster.addEventListener('pointerenter',event=>{
+        if(event.pointerType==='touch'||sweeping)return;
+        cancelPending();
+        pending=setTimeout(()=>{pending=null;activate(slot);},cfg.delay);
+      });
+      slot.addEventListener('pointerleave',event=>{
+        if(event.pointerType==='touch'||sweeping)return;
+        cancelPending();if(active===slot)activate(null);
+      });
+      poster.addEventListener('focus',()=>focusVisible(slot));
+      slot.addEventListener('focusout',event=>{if(!slot.contains(event.relatedTarget)&&active===slot&&!sweeping)activate(null);});
+      poster.addEventListener('click',event=>{
+        // The standalone test previews the motion without opening anime details.
+        if(event.detail===0)return; // keyboard focus already opens the preview
+        if(matchMedia('(pointer:coarse)').matches){activate(active===slot?null:slot);}
+      });
+    });
+    item.querySelector('.history-tile').addEventListener('click',()=>{
+      item.querySelector('.state').textContent='History tile stays last';
+      if(active)activate(null);
+    });
+    const fit=()=>{
+      const width=strip.clientWidth;if(width<1)return;
+      // Always reserve room for a fully opened info panel AND the History tile.
+      const panel=Math.min(188,Math.max(58,width-66*2-20));
+      strip.style.setProperty('--panel-w',panel+'px');
+      const max=Math.max(1,Math.floor((width-66-panel)/(66+10)));
+      slots.forEach((slot,index)=>{const hide=index>=max;slot.classList.toggle('is-hidden',hide);if(hide&&slot===active)activate(null);});
+    };
+    if('ResizeObserver'in window){resizeObserver=new ResizeObserver(fit);resizeObserver.observe(strip);}else window.addEventListener('resize',fit,{passive:true});
+    requestAnimationFrame(fit);
+    const sweepButton=item.querySelector('.sweep');
+    sweepButton.addEventListener('click',()=>{
+      if(sweeping)return;
+      sweeping=true;cancelPending();activate(null);
+      sweepButton.disabled=true;sweepButton.textContent='Sweeping…';
+      const visible=slots.filter(slot=>!slot.classList.contains('is-hidden'));
+      visible.forEach((slot,i)=>{
+        sweepTimeouts.push(setTimeout(()=>activate(slot),120+i*180));
+      });
+      sweepTimeouts.push(setTimeout(()=>{
+        activate(null);sweeping=false;sweepButton.disabled=false;sweepButton.textContent='Sweep demo';
+        item.querySelector('.state').textContent='Sweep complete';
+      },250+visible.length*180));
+    });
+    return {element:item, cfg, update:updateStyle, getActive:()=>active};
+  }
+  presets.forEach(cfg=>{
+    const d=buildDemo(cfg);document.querySelector('#comparison').append(d.element);instances.set(cfg.id,d);
+  });
+  const custom={id:'custom',title:'Your custom animation',tag:'Live settings',subtitle:'Adjust duration, hover intent, or the easing below.',open:460,close:330,delay:85,fade:250,fadeDelay:85,curve:'balanced'};
+  const customDemo=buildDemo(custom,true);
+  document.querySelector('#custom-slot').append(customDemo.element);
+  instances.set('custom',customDemo);
+  for(const [id,key,label] of [['open-range','open','open-value'],['close-range','close','close-value'],['delay-range','delay','delay-value']]){
+    document.getElementById(id).addEventListener('input',event=>{
+      custom[key]=Number(event.target.value);
+      document.getElementById(label).textContent=custom[key]+' ms';
+      if(key==='open'){custom.fade=Math.max(160,Math.round(custom.open*.55));custom.fadeDelay=Math.round(custom.open*.2);}
+      customDemo.update();
+    });
+  }
+  document.querySelectorAll('.easing-picker button').forEach(button=>{
+    button.addEventListener('click',()=>{
+      custom.curve=button.dataset.ease;
+      document.querySelectorAll('.easing-picker button').forEach(other=>{
+        const selected=other===button;other.classList.toggle('is-selected',selected);other.setAttribute('aria-pressed',String(selected));
+      });
+      customDemo.update();
+    });
+  });
+})();
+</script>
+</body>
+</html>
