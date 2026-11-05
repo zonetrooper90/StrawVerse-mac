@@ -10,6 +10,7 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 | `Gallery-v99.html` | 6776286 | `34719245efcf1b128b7ec44df4eaffc876b3ce894a043ad1b1b23b58367108f4` |
 | `Gallery-v100.html` | 6812924 | `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283` |
 | `Gallery-v101.html` | 6815378 | `a49f991b6db185cf90774a446eb45904ba14b2ece2d3c7eec424749a866c2048` |
+| `Gallery-v102.html` | 6821465 | `4c11d051ade4cc34dc558e643b71cb59198f9ece522e17139b4a8125baea29c6` |
 
 ## Existing verified recovery archive
 
@@ -47,3 +48,11 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 - Chromium checks at seven window widths and keyboard focus pass, including no horizontal clipping and persistent existing History interactions. Awaiting user visual acceptance; v100 remains previously approved baseline.
 - Verified reproducible [v100→v101 patch](../releases/v101-integration/Gallery-v100-to-v101.patch) and [README](../releases/v101-integration/README.md) in GitHub `gallery/design-checkpoints/gallery/releases/v101-integration/`.
 - **The complete 6.8 MB v101 HTML is not committed to GitHub.** Full v100 and v101 snapshots are preserved in Library; GitHub holds the reconstruction patch, not the full file.
+
+## v102 — Recently Watched Soft Glide (2026-11-05)
+
+- Complete standalone browser HTML: **`Gallery-v102.html`**, **6,821,465 bytes**, SHA-256 `4c11d051ade4cc34dc558e643b71cb59198f9ece522e17139b4a8125baea29c6`. Verified backup at `/Gallery Backups/2026-11-04/Gallery-v102.html` in persistent ChatGPT Library; v101 remains unchanged.
+- Implements approved Animation Lab 03 mechanics and user's chosen **Soft Glide** timing (550ms open, 375ms close, 100ms initial idle hover, accelerated/decelerated curves). Coordinates space transfer so View History and trailing covers don't bounce; protects target selection during retraction; removes native Recently Watched cover tooltips; retains the fixed-size cover, 84px info panel, and responsive View History tile.
+- Verified reproducible [v101→v102 patch](../releases/v102-integration/Gallery-v101-to-v102.patch) (20,624 bytes, SHA-256 `dec514beb59f58c9e330d074d98383215661406ee69c34a0801d30531b2859f8`) and [README](../releases/v102-integration/README.md) on branch `gallery/design-checkpoints`. Applying the patch to the exact Library v101 file produced a byte-for-byte match to v102.
+- Full Chromium regression across five desktop/medium widths, narrow-width smoke tests at 390 and 320px; stable tile/target while switching, accessible focus, Watch History episode toggles and navigation. No JavaScript errors found in these tests.
+- **Complete v102 HTML is stored in Library, not in GitHub**. GitHub has the exact source patch and documentation, not the 6.8MB snapshot. v102 is newly built and **awaiting user visual review** before replacing the previous approved baseline.
