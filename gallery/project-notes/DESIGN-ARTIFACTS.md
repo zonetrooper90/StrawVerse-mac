@@ -149,3 +149,13 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - Browser tested at 1440px, 900px, 390px and 320px (buttons, tabs, segmented control, themes and overflow) and tab-bar drag selection verified separately; no JavaScript errors. No screenshots/images were generated.
 - Artifact backup: `/Gallery Backups/Design Experiments/2026-11-05/Gallery-Glisse-Component-Study.html` in persistent Library, 22,747 bytes, SHA-256 `69506fd65645fc557ca7e0fe8d11f02af449f579dbea2ea706d1d157df350674`. GitHub source committed and fetched back byte-for-byte.
 - **Status: exploratory, awaiting user assessment**. Keep Gallery **v103 unchanged**. No new numbered Gallery release or actual Glisse React dependency was introduced; choose specific components and integration approach only after user review.
+
+
+### Gallery × daisyUI — Component Lab 01 (2026-11-05)
+
+- User selected daisyUI for its **themes, range of styled controls and component library**, and is open to replacing the current Gallery themes with a set specifically designed for daisyUI, but has **not authorized any replacement in the actual Gallery app**.
+- [Standalone design lab](../design-experiments/daisyui/Gallery-daisyUI-Component-Lab-01.html) with version-pinned **real daisyUI 5.7.48 component and theme CSS** from jsDelivr, no React or Tailwind browser script. Compare Gallery v103-style reference controls and daisyUI, switch seven themes (custom Gallery Violet, Night, Dim, Dracula, Abyss, Synthwave, Silk), and try a gallery-oriented component shelf. Gallery Violet can be color-edited interactively.
+- **Important limitation:** while the HTML file itself is standalone, component styling currently **requires internet access** to fetch daisyUI stylesheets. CDN is for evaluating the library, not for final macOS distribution; a real integration must bundle selected CSS locally. Browser interaction tests passed at six widths but the present network-restricted test environment did **not** allow inspecting the actual CSS rendering. Do not claim finished production compatibility or visual verification.
+- The v103-style reference is intentionally simplified, not pixel-identical or connected to the actual Gallery app.
+- Archive: persistent Library `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Component-Lab-01.html`, 40,084 bytes, SHA-256 `f4a86d2f705b75168ea0cf29d326c5a7795151ba42e17810f62a180dcff79f09`; full HTML committed and fetched back byte-for-byte on GitHub branch `gallery/design-checkpoints`. [README](../design-experiments/daisyui/README.md) captures scope and recovery.
+- **Gallery v103 unchanged and approved baseline.** No v104 built or approved. Await user assessment of the theme/control options.
