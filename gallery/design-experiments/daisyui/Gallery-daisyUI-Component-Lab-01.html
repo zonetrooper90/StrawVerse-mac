@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Gallery × daisyUI — Component Lab 01</title>
+<!-- Real, unmodified daisyUI v5.7.48 component CSS and official theme CSS.
+     The experiment runs without a JS framework or Tailwind runtime.
+     Online access is required to obtain these two stylesheets.
+     Future app integrations should bundle their selected CSS locally. -->
+<link id="daisy-components" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.7.48/daisyui.css" crossorigin="anonymous">
+<link id="daisy-themes" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.7.48/themes.css" crossorigin="anonymous">
+<style>
+:root { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; font-synthesis:none; --shell:#12101b; --shell2:#1b1725; --shell3:#242032; --shell-line:rgba(221,204,255,.13); --shell-ink:#f2edf9; --shell-muted:#a89cb7; --shell-a:#ba90e6; }
+* {box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--shell);color:var(--shell-ink);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #d2b2f2;outline-offset:3px}
+a{color:inherit}
+a:hover{color:#e4caff}
+button:disabled{cursor:not-allowed}
+.lab-shell{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
+.sidebar{background:#15121e;border-right:1px solid var(--shell-line);padding:28px 18px;display:flex;flex-direction:column;gap:26px;min-height:100vh}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 8px}
+.brandmark{width:39px;height:39px;border:1px solid #8d69be;border-radius:14px;background:linear-gradient(140deg,#b28de0,#553575 67%,#292036);display:grid;place-items:center;font-size:22px;font-weight:800;letter-spacing:-.12em;color:#fcf6ff;box-shadow:0 5px 21px #8c5abb3d}
+.brandtext strong{font-size:20px;font-weight:750;letter-spacing:-.06em;line-height:1;display:block}
+.brandtext small{display:block;color:var(--shell-muted);letter-spacing:.14em;font-size:9px;margin-top:5px;text-transform:uppercase}
+.sideblock{min-width:0}
+.side-head{color:#9587a6;font-size:10px;letter-spacing:.17em;font-weight:760;text-transform:uppercase;padding:0 12px;margin:0 0 12px}
+.theme-picks{display:grid;gap:5px}
+.theme-pick{appearance:none;display:flex;align-items:center;width:100%;gap:10px;border:1px solid transparent;border-radius:11px;padding:10px;color:#c9bdd5;background:transparent;text-align:left;transition:background .16s,border .16s;color .16s}
+.theme-pick:hover{background:#242031;color:#fff}
+.theme-pick[aria-pressed=true]{background:#33283e;border-color:#785b9a;color:#fff}
+.theme-pick .bubble{display:inline-flex;width:31px;height:31px;align-items:center;justify-content:center;border-radius:10px;border:1px solid #ffffff22;flex:none;background:var(--swatch-bg)}
+.theme-pick .bubble::before,.theme-pick .bubble::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--swatch-1);display:block}
+.theme-pick .bubble::after{background:var(--swatch-2);margin-left:-2px}
+.theme-pick .theme-label{flex:1;min-width:0}
+.theme-pick .theme-label b{font-weight:650;font-size:12px;display:block}
+.theme-pick .theme-label small{display:block;color:#ac9bbf;font-size:10px;margin-top:2px}
+.theme-pick[aria-pressed=true] .theme-label small{color:#d2bde7}
+.sidecard{padding:13px 14px;border:1px solid var(--shell-line);background:#211c2d;border-radius:13px;color:#b9afc5;font-size:11px;line-height:1.65}
+.sidecard strong{display:block;font-size:12px;color:#eee3fc;margin-bottom:4px}
+.sidefooter{margin-top:auto;color:#81778f;font-size:10px;padding:0 8px;line-height:1.65}
+.shell-main{min-width:0;padding:30px clamp(20px,4.25vw,72px) 75px}
+.meta{color:#bea2de;letter-spacing:.17em;text-transform:uppercase;font-size:10px;font-weight:750}
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;border-bottom:1px solid var(--shell-line);padding:5px 0 30px}
+.hero h1{font-size:clamp(28px,3.6vw,45px);font-weight:780;letter-spacing:-.058em;line-height:1.12;margin:13px 0 12px}
+.hero h1 span{color:#cba5ec}
+.hero p{max-width:730px;color:#b3a8c0;margin:0;font-size:13px;line-height:1.7}
+.hero-side{flex:none;text-align:right;display:grid;gap:10px;justify-items:end}
+.tag{padding:7px 10px;background:#2f233e;border:1px solid #694c8d;color:#dfc6f7;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.status{font-size:10px;color:#b5acc0;max-width:215px}
+.status[data-ok=false]{color:#f1bb99}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:31px 0 15px}
+.section-head h2{font-size:17px;letter-spacing:-.025em;margin:0;font-weight:720}
+.section-head small{color:#9a8ca9;font-size:11px}
+.compare-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}
+.compare-card{min-width:0;border:1px solid var(--shell-line);border-radius:18px;overflow:hidden}
+.compare-head{padding:15px 17px;border-bottom:1px solid var(--shell-line);background:#201a2b;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.compare-head strong{font-size:12px}
+.compare-head span{color:#ad9fbb;font-size:10px}
+.reference{background:#171221;color:#f0eafa;--r-primary:#c5a0ed;--r-panel:#2a2137;--r-edge:#3a2c4b}
+.ref-content{padding:20px 18px 24px;display:grid;gap:22px}
+.comp-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-base-content,#c4aeca);opacity:.7;margin-bottom:9px;font-weight:760}
+.ref-nav{display:inline-flex;align-self:start;border:1px solid #3e2f4e;background:#221a2c;border-radius:100px;padding:4px;gap:3px;max-width:100%}
+.ref-nav button{border:0;background:transparent;border-radius:100px;padding:9px 13px;color:#b4a6c7;font-size:12px;font-weight:700;white-space:nowrap;transition:background .22s,color .22s}
+.ref-nav button.active{background:#624877;outline:1px solid #a481c6;color:#fff}
+.ref-segment{display:inline-flex;align-self:start;gap:2px;border-radius:11px;padding:3px;background:#2a2137;border:1px solid #3a2c4b;max-width:100%}
+.ref-segment button{border:0;color:#b4a6c7;background:transparent;border-radius:8px;font-size:11px;font-weight:660;padding:8px 10px;white-space:nowrap}
+.ref-segment button.active{background:#624877;color:#fff}
+.ref-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.ref-buttons button{border:1px solid #765893;color:#faf4ff;background:#4a345f;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;min-height:36px;transition:transform .14s,filter .14s}
+.ref-buttons button:nth-child(2){background:#2a2137;border-color:#4b3a5c;color:#e5d4f4}
+.ref-buttons button:nth-child(3){background:transparent;border-color:#765893;color:#d4b0f7}
+.ref-buttons button:active{transform:scale(.96)}
+.ref-note{font-size:10px;color:#a89ab8;line-height:1.6}
+.preview{background:var(--color-base-100,#171221);color:var(--color-base-content,#fff);color-scheme:dark;transition:background-color .18s,color .18s}
+.preview[data-theme=silk]{color-scheme:light}
+/* Custom theme mapped from Gallery's original neon colors to daisyUI v5 tokens. */
+.preview[data-theme=gallery]{
+color-scheme:dark;
+--color-base-100:#171221;--color-base-200:#211a2c;--color-base-300:#2a2137;--color-base-content:#f0eafa;
+--color-primary:#bf95eb;--color-primary-content:#231034;
+--color-secondary:#83d3dc;--color-secondary-content:#052c35;
+--color-accent:#eea7c6;--color-accent-content:#351624;
+--color-neutral:#352a47;--color-neutral-content:#f1eafa;
+--color-info:#8fb8fa;--color-info-content:#0a2445;
+--color-success:#87d9b1;--color-success-content:#0c2e22;
+--color-warning:#eac776;--color-warning-content:#2f2008;
+--color-error:#f08b9a;--color-error-content:#3c111d;
+--radius-selector:1rem;--radius-field:.7rem;--radius-box:1rem;
+--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:1;--noise:0;
+}
+/* Layout deliberately uses custom CSS, not Tailwind utility classes.
+   Controls below use real .btn/.tab/.tabs/.join/.toggle/.card/etc. */
+.daisy-content{padding:20px 18px 24px;display:grid;gap:22px;min-width:0}
+.daisy-content .tabs{max-width:100%;width:max-content;min-width:0}
+.daisy-content .tab{font-size:12px;white-space:nowrap;min-width:0}
+.daisy-content .join{display:inline-flex;width:max-content;max-width:100%}
+.daisy-content .join .btn{font-size:11px;padding-inline:12px;white-space:nowrap}
+.daisy-content .btn{min-height:36px}
+.daisy-content .btn-row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.preview-feedback{border-top:1px solid color-mix(in srgb,var(--color-base-content) 11%,transparent);padding:10px 18px;display:flex;justify-content:space-between;gap:12px;color:var(--color-base-content);font-size:11px;opacity:.72}
+.lab-divider{margin:23px 0 0;border:0;border-top:1px solid var(--shell-line)}
+.preview-workspace{--thebase:var(--color-base-100);padding:25px 23px 26px;border:1px solid color-mix(in srgb,var(--color-base-content) 12%,transparent);border-radius:18px;min-width:0}
+.preview-title{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
+.preview-title h2{font-size:17px;font-weight:760;letter-spacing:-.025em;margin:0}
+.preview-title p{font-size:11px;opacity:.7;margin:3px 0 0}
+.preview-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+.shelf{min-width:0;background:var(--color-base-200);border:1px solid color-mix(in srgb,var(--color-base-content) 10%,transparent);padding:18px 16px;border-radius:14px;display:flex;flex-direction:column;gap:11px}
+.shelf h3{font-size:13px;margin:0;font-weight:740;letter-spacing:-.02em}
+.shelf .desc{font-size:10px;opacity:.63;margin:-5px 0 6px}
+.shelf .row{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.shelf .field-row{display:flex;align-items:center;gap:10px;justify-content:space-between;font-size:12px}
+.shelf label{font-size:12px}
+.shelf .input,.shelf .select,.shelf .textarea{width:100%;min-width:0}
+.shelf .textarea{height:80px}
+.shelf .small-control{font-size:11px;opacity:.76}
+.shelf .dropdown{position:relative}
+.shelf .dropdown-content{background:var(--color-base-100);color:var(--color-base-content);border:1px solid var(--color-base-300);border-radius:12px;min-width:174px;padding:8px;box-shadow:0 12px 32px #0004;z-index:20}
+.shelf .menu{list-style:none;margin:0;padding:7px}
+.shelf .menu li{list-style:none}
+.shelf .menu li button{color:inherit;text-align:left;width:100%}
+.shelf .progress{width:100%;height:8px}
+.shelf .range{width:100%}
+.shelf .badges{display:flex;flex-wrap:wrap;gap:7px}
+.shelf .alert{font-size:11px;line-height:1.45;padding:11px;border-radius:11px}
+.shelf .card{width:100%;background:var(--color-base-100)}
+.shelf .card-body{padding:14px;gap:7px}
+.shelf .card-title{font-size:13px;line-height:1.3}
+.shelf .card p{font-size:11px;opacity:.75;margin:0}
+.shelf .card-actions{justify-content:flex-end;margin-top:4px}
+.shelf .stats{max-width:100%;background:var(--color-base-100)}
+.shelf .stat{padding:13px}
+.shelf .stat-title{font-size:11px;opacity:.72}
+.shelf .stat-value{font-size:25px}
+.shelf .stat-desc{font-size:10px}
+.shelf .kbd{margin-inline:2px}
+.shelf .steps{width:100%;font-size:10px}
+.shelf .rating .mask{cursor:pointer}
+.shelf details{max-width:100%}
+.shelf .join .btn{font-size:10px;padding-inline:9px}
+.gallery-stage{padding:14px;border-radius:11px;background:linear-gradient(130deg,color-mix(in srgb,var(--color-primary) 15%,var(--color-base-100)),var(--color-base-300));border:1px solid color-mix(in srgb,var(--color-primary) 22%,transparent)}
+.gallery-stage strong{display:block;font-size:12px;margin-bottom:4px}
+.gallery-stage p{font-size:11px;opacity:.72;margin:0 0 9px}
+.swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:20px 0 7px}
+.swatch{min-width:0}
+.swatch .patch{height:35px;border-radius:9px;border:1px solid color-mix(in srgb,var(--color-base-content) 12%,transparent);background:var(--patch)}
+.swatch small{font-size:10px;display:block;margin-top:5px;text-align:center;opacity:.7;white-space:nowrap}
+.settings-bar{display:flex;align-items:center;gap:13px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.settings-bar h3{font-size:14px;margin:0}
+.settings-bar p{font-size:11px;opacity:.67;margin:3px 0 0}
+.token-editor{padding:15px 17px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;border:1px solid color-mix(in srgb,var(--color-base-content) 14%,transparent);border-radius:13px;background:var(--color-base-200)}
+.token-editor label{display:flex;align-items:center;gap:9px;font-size:11px}
+.token-editor input[type=color]{width:38px;height:30px;border-radius:7px;border:1px solid var(--color-base-300);padding:2px;background:var(--color-base-100)}
+.token-editor button{margin-left:auto}
+.token-editor[hidden]{display:none}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.note{border:1px solid var(--shell-line);border-radius:14px;padding:16px 17px;background:#1b1726}
+.note h3{font-size:12px;margin:0 0 8px}
+.note p{font-size:11px;color:#b4a9c1;line-height:1.7;margin:0}
+.note a{color:#d7b9fa}
+.code-panel{margin:15px 0 0;display:none;padding:15px 18px;border-radius:14px;border:1px solid #63457e;background:#160f1e;max-height:280px;overflow:auto;font-size:11px;color:#e8cffb;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-panel.visible{display:block}
+.toast{position:fixed;right:24px;bottom:22px;z-index:50;background:#3d2b50;color:#faf3ff;border:1px solid #9368b8;border-radius:12px;padding:12px 16px;box-shadow:0 14px 40px #0008;font-size:12px;max-width:300px;pointer-events:none;opacity:0;transform:translateY(12px);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateY(0)}
+.error-info{display:none;border-radius:12px;padding:12px 14px;background:#4b3328;color:#ffe1bc;border:1px solid #9b6f4d;font-size:12px;margin:0 0 18px}
+.error-info.visible{display:block}
+@media(max-width:1200px){.preview-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.lab-shell{grid-template-columns:220px minmax(0,1fr)}.shell-main{padding-inline:25px}}
+@media(max-width:850px){.lab-shell{display:block}.sidebar{min-height:auto;padding:16px 20px;gap:15px;border-right:0;border-bottom:1px solid var(--shell-line)}.sidebar .theme-picks{display:flex;flex-wrap:wrap;gap:7px}.side-head{padding:0}.theme-pick{width:auto;min-width:128px}.theme-pick .theme-label small{display:none}.sidecard,.sidefooter{display:none}.shell-main{padding:23px 20px 60px}.hero{padding-top:0}.compare-grid{grid-template-columns:1fr}.preview-columns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.shell-main{padding:19px 12px 45px}.sidebar{padding:16px 12px}.theme-pick{min-width:auto;padding:8px}.theme-pick .bubble{width:26px;height:26px}.theme-pick .theme-label b{font-size:10px}.theme-pick .theme-label small{display:none}.hero{display:block}.hero-side{display:flex;align-items:center;text-align:left;margin-top:15px}.hero h1{font-size:30px}.compare-head{padding:12px}.ref-content,.daisy-content{padding:16px 12px}.ref-nav button{font-size:11px;padding:8px 9px}.daisy-content .tab{font-size:11px}.daisy-content .join .btn{font-size:10px;padding-inline:10px}.preview-workspace{padding:15px 11px}.preview-columns,.notes{grid-template-columns:1fr}.shelf{padding:14px}.swatches{gap:4px}.swatch .patch{height:27px;border-radius:6px}.swatch small{font-size:9px}.preview-title{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition-duration:0.01ms!important;animation-duration:0.01ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="lab-shell">
+  <aside class="sidebar" aria-label="Component lab controls">
+    <div class="brand"><span class="brandmark" aria-hidden="true">G</span><span class="brandtext"><strong>Gallery</strong><small>Design laboratory</small></span></div>
+    <section class="sideblock" aria-labelledby="themehead">
+      <h2 class="side-head" id="themehead">Theme explorer</h2>
+      <div class="theme-picks" role="group" aria-label="daisyUI preview theme">
+        <button class="theme-pick" data-choice="gallery" aria-pressed="true" style="--swatch-bg:#211a2c;--swatch-1:#bf95eb;--swatch-2:#83d3dc"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Gallery Violet</b><small>Custom daisyUI theme</small></span></button>
+        <button class="theme-pick" data-choice="night" aria-pressed="false" style="--swatch-bg:#0f172a;--swatch-1:#38bdf8;--swatch-2:#818cf8"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Night</b><small>Deep blue</small></span></button>
+        <button class="theme-pick" data-choice="dim" aria-pressed="false" style="--swatch-bg:#2a303c;--swatch-1:#80b1d2;--swatch-2:#9ccfb5"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Dim</b><small>Quiet and balanced</small></span></button>
+        <button class="theme-pick" data-choice="dracula" aria-pressed="false" style="--swatch-bg:#282a36;--swatch-1:#bd93f9;--swatch-2:#ff79c6"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Dracula</b><small>Violet and pink</small></span></button>
+        <button class="theme-pick" data-choice="abyss" aria-pressed="false" style="--swatch-bg:#0f2423;--swatch-1:#69dab3;--swatch-2:#b8e67a"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Abyss</b><small>Deep atmospheric</small></span></button>
+        <button class="theme-pick" data-choice="synthwave" aria-pressed="false" style="--swatch-bg:#2d1b53;--swatch-1:#f471b5;--swatch-2:#69e5ec"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Synthwave</b><small>Color stress test</small></span></button>
+        <button class="theme-pick" data-choice="silk" aria-pressed="false" style="--swatch-bg:#f6f5f4;--swatch-1:#4b50da;--swatch-2:#c25b93"><span class="bubble" aria-hidden="true"></span><span class="theme-label"><b>Silk</b><small>Light alternative</small></span></button>
+      </div>
+    </section>
+    <section class="sidecard"><strong>What are we exploring?</strong>Component styling, color families, and how different controls feel together. This is a design lab—not a replacement for Gallery's existing UI.</section>
+    <div class="sidefooter">Gallery v103 is unchanged.<br>Lab 01 · 05 November 2026</div>
+  </aside>
+
+  <main class="shell-main">
+    <div class="hero"><div><div class="meta">EXPERIMENT 01 · THEME &amp; COMPONENT SYSTEM</div><h1>Gallery <span>× daisyUI</span></h1><p>Could daisyUI give Gallery a more cohesive family of controls without losing our personality? Explore the real component styles in familiar Gallery contexts. Switch themes freely; nothing here changes the application.</p></div><div class="hero-side"><span class="tag">REAL daisyUI CSS · NO REACT</span><span class="status" id="load-status" aria-live="polite">Loading daisyUI styles…</span></div></div>
+    <div class="error-info" id="style-warning" role="status">The external daisyUI stylesheets could not be loaded in this browser. This lab needs an internet connection to show the <strong>actual</strong> daisyUI components; no substitute styles are being passed off as the library.</div>
+
+    <div class="section-head"><h2>01 / The three controls we started with</h2><small>Both sides are interactive · Reference stays on Gallery Violet</small></div>
+    <section class="compare-grid" aria-label="Compare Gallery and daisyUI controls">
+      <article class="compare-card reference"><div class="compare-head"><strong>Gallery v103-inspired reference</strong><span>Reference appearance, not app code</span></div><div class="ref-content">
+        <div><div class="comp-label">Top navigation</div><div class="ref-nav" role="group" aria-label="Gallery reference navigation"><button data-ref-nav="discover" class="active" aria-pressed="true">Discover</button><button data-ref-nav="library" aria-pressed="false">Library</button><button data-ref-nav="downloads" aria-pressed="false">Downloads</button></div></div>
+        <div><div class="comp-label">Watch History filter</div><div class="ref-segment" role="group" aria-label="Gallery reference filters"><button data-ref-seg="all" class="active" aria-pressed="true">All</button><button data-ref-seg="progress" aria-pressed="false">In Progress</button><button data-ref-seg="completed" aria-pressed="false">Completed</button></div></div>
+        <div><div class="comp-label">Action buttons</div><div class="ref-buttons"><button data-lab-action="Play">Play</button><button data-lab-action="Add to Library">Add to Library</button><button data-lab-action="Details">Details</button></div></div>
+        <div class="ref-note">A simplified visual reference based on v103's Neon palette. Your actual v103 navigation and animations are not replaced or embedded here.</div>
+      </div></article>
+      <article class="compare-card preview" id="daisy-compare" data-theme="gallery"><div class="compare-head" style="background:var(--color-base-200);border-color:var(--color-base-300)"><strong>Actual daisyUI components</strong><span>Theme: <b class="theme-name">Gallery Violet</b></span></div><div class="daisy-content">
+        <div><div class="comp-label">Tabs · boxed</div><div class="tabs tabs-box" role="tablist" aria-label="daisyUI sample navigation"><button class="tab tab-active" role="tab" aria-selected="true" data-d-nav="discover">Discover</button><button class="tab" role="tab" aria-selected="false" data-d-nav="library">Library</button><button class="tab" role="tab" aria-selected="false" data-d-nav="downloads">Downloads</button></div></div>
+        <div><div class="comp-label">Joined button controls</div><div class="join" role="group" aria-label="daisyUI example history filters"><button class="btn btn-primary join-item" aria-pressed="true" data-d-seg="all">All</button><button class="btn join-item" aria-pressed="false" data-d-seg="progress">In Progress</button><button class="btn join-item" aria-pressed="false" data-d-seg="completed">Completed</button></div></div>
+        <div><div class="comp-label">Action buttons · primary, soft, outline</div><div class="btn-row"><button class="btn btn-primary" data-lab-action="Play">Play</button><button class="btn btn-secondary btn-soft" data-lab-action="Add to Library">Add to Library</button><button class="btn btn-outline btn-primary" data-lab-action="Details">Details</button></div></div>
+      </div><div class="preview-feedback"><span id="d-nav-label">Discover selected</span><span id="d-filter-label">All history</span></div></article>
+    </section>
+
+    <div class="section-head"><h2>02 / A larger component shelf</h2><small>Same theme across all components</small></div>
+    <section class="preview preview-workspace" id="daisy-workspace" data-theme="gallery" aria-label="daisyUI component gallery">
+      <div class="preview-title"><div><h2>What could be useful in Gallery?</h2><p>These are genuine daisyUI component classes, arranged in Gallery-style scenarios.</p></div><span class="badge badge-primary badge-soft">Theme: <span class="theme-name">Gallery Violet</span></span></div>
+      <div class="preview-columns">
+        <article class="shelf"><h3>Buttons</h3><p class="desc">Weight and hierarchy</p><div class="row"><button class="btn btn-primary" data-lab-action="Play episode">Play episode</button><button class="btn btn-secondary btn-soft" data-lab-action="Save anime">Save</button></div><div class="row"><button class="btn btn-accent btn-outline" data-lab-action="Add to watchlist">Add to watchlist</button><button class="btn btn-ghost" data-lab-action="More info">More info</button></div><div class="row"><button class="btn btn-error btn-soft btn-sm" data-lab-action="Remove history">Remove history</button><button class="btn btn-circle btn-outline btn-sm" aria-label="Add" data-lab-action="Add">+</button></div></article>
+        <article class="shelf"><h3>Tabs &amp; navigation</h3><p class="desc">Three native daisyUI tab styles</p><div class="tabs tabs-border" role="tablist" aria-label="Border tabs"><button role="tab" class="tab tab-active" aria-selected="true" data-grouptabs="borders">Episodes</button><button role="tab" class="tab" aria-selected="false" data-grouptabs="borders">Details</button><button role="tab" class="tab" aria-selected="false" data-grouptabs="borders">Reviews</button></div><div class="tabs tabs-lift" role="tablist" aria-label="Lifted tabs"><button role="tab" class="tab tab-active" aria-selected="true" data-grouptabs="lift">All</button><button role="tab" class="tab" aria-selected="false" data-grouptabs="lift">Watching</button><button role="tab" class="tab" aria-selected="false" data-grouptabs="lift">Done</button></div><p class="small-control">Existing Gallery navigation animations would remain a separate design decision.</p></article>
+        <article class="shelf"><h3>Settings controls</h3><p class="desc">Toggles and checkboxes</p><label class="field-row"><span>Autoplay next episode</span><input type="checkbox" class="toggle toggle-primary" id="auto-toggle" checked></label><label class="field-row"><span>Show subtitles</span><input type="checkbox" class="toggle toggle-secondary" id="sub-toggle" checked></label><label class="field-row"><span>Remember player position</span><input type="checkbox" class="checkbox checkbox-accent" id="position-toggle" checked></label><span class="small-control" id="settings-feedback">All settings here are temporary demo values.</span></article>
+        <article class="shelf"><h3>Text inputs &amp; select</h3><p class="desc">Search and preferences</p><label class="small-control" for="anime-search">Search Library</label><input id="anime-search" type="search" class="input input-bordered input-primary" placeholder="Search anime titles…"><label class="small-control" for="audio-select">Preferred audio</label><select class="select select-bordered" id="audio-select"><option>Japanese</option><option>English</option></select><div class="small-control" id="search-feedback">Try typing a title.</div></article>
+        <article class="shelf"><h3>Menus &amp; actions</h3><p class="desc">Dropdown interactions</p><details class="dropdown"><summary class="btn btn-outline btn-primary">Episode actions ▾</summary><ul class="dropdown-content menu" aria-label="Episode action menu"><li><button data-lab-action="Mark watched">Mark watched</button></li><li><button data-lab-action="Restart episode">Start over</button></li><li><button data-lab-action="Show details">Episode details</button></li></ul></details><div class="row"><span class="badge badge-primary">In Progress</span><span class="badge badge-success badge-soft">Completed</span><span class="badge badge-warning badge-outline">Unwatched</span></div></article>
+        <article class="shelf"><h3>Progress &amp; ranges</h3><p class="desc">Playback and visual adjustment</p><span class="small-control" id="range-label">Playback progress: 42%</span><input class="range range-primary range-sm" id="playback-range" type="range" min="0" max="100" value="42" aria-label="Playback progress"><progress class="progress progress-primary" id="demo-progress" value="42" max="100"></progress><span class="small-control">These are native daisyUI range and progress styles, not Gallery's custom video timeline.</span></article>
+        <article class="shelf"><h3>Episode card</h3><p class="desc">Compact information surfaces</p><div class="card card-border"><div class="card-body"><span class="badge badge-secondary badge-soft">CONTINUE WATCHING</span><h4 class="card-title">The Quintessential Quintuplets ∬</h4><p>Episode 6 · 12 minutes remaining</p><progress class="progress progress-primary" value="63" max="100" aria-label="Episode watched: 63%"></progress><div class="card-actions"><button class="btn btn-primary btn-sm" data-lab-action="Resume">Resume</button></div></div></div></article>
+        <article class="shelf"><h3>Status &amp; feedback</h3><p class="desc">Alerts and temporary states</p><div role="status" class="alert alert-info"><span>Episode added to Watch History.</span></div><div role="status" class="alert alert-warning"><span>Source temporarily unavailable.</span></div><div class="row"><span class="loading loading-spinner loading-sm" aria-label="Example loading spinner"></span><span class="small-control">Example loading state</span></div></article>
+        <article class="shelf"><h3>Progress through a season</h3><p class="desc">Steps and keyboard hints</p><ul class="steps steps-horizontal" aria-label="Season tracking steps"><li class="step step-primary">Started</li><li class="step step-primary">Watching</li><li class="step">Complete</li></ul><div class="row"><kbd class="kbd kbd-sm">⌘</kbd><kbd class="kbd kbd-sm">F</kbd><span class="small-control">Search shortcut</span></div></article>
+        <article class="shelf"><h3>Stats</h3><p class="desc">Watch History overview</p><div class="stats stats-horizontal"><div class="stat"><div class="stat-title">Episodes watched</div><div class="stat-value">148</div><div class="stat-desc">Across 18 series</div></div></div><div class="row"><span class="badge badge-secondary badge-outline">13 in progress</span></div></article>
+        <article class="shelf"><h3>Form options</h3><p class="desc">Radio and validation patterns</p><label class="field-row"><span>Newest First</span><input type="radio" class="radio radio-primary" name="sort" checked></label><label class="field-row"><span>Oldest First</span><input type="radio" class="radio radio-primary" name="sort"></label><label class="small-control" for="notes-input">Short note</label><textarea id="notes-input" class="textarea textarea-bordered" placeholder="A note about this season…"></textarea></article>
+        <article class="shelf"><h3>Anime action panel</h3><p class="desc">A possible unified control family</p><div class="gallery-stage"><strong>Ready for the next episode?</strong><p>Episode 7 · Preferred audio: Japanese</p><div class="row"><button class="btn btn-primary btn-sm" data-lab-action="Watch now">Watch now</button><button class="btn btn-secondary btn-outline btn-sm" data-lab-action="Add to queue">Queue</button></div></div><p class="small-control">A styling study only; no provider or playback code is connected.</p></article>
+      </div>
+      <div class="section-head" style="margin-top:25px"><h2 style="font-size:15px">Semantic theme colors</h2><small>Every component updates together</small></div>
+      <div class="swatches" aria-label="daisyUI color tokens"><div class="swatch"><div class="patch" style="--patch:var(--color-base-100)"></div><small>Base</small></div><div class="swatch"><div class="patch" style="--patch:var(--color-primary)"></div><small>Primary</small></div><div class="swatch"><div class="patch" style="--patch:var(--color-secondary)"></div><small>Secondary</small></div><div class="swatch"><div class="patch" style="--patch:var(--color-accent)"></div><small>Accent</small></div><div class="swatch"><div class="patch" style="--patch:var(--color-success)"></div><small>Success</small></div><div class="swatch"><div class="patch" style="--patch:var(--color-error)"></div><small>Error</small></div></div>
+      <hr style="border:0;border-top:1px solid color-mix(in srgb,var(--color-base-content) 12%,transparent);margin:23px 0">
+      <div class="settings-bar"><div><h3>Gallery Violet theme workshop</h3><p>Adjust colors to see what a Gallery-owned daisyUI theme could look like.</p></div><button class="btn btn-outline btn-sm" id="show-code">Show theme CSS</button></div>
+      <div class="token-editor" id="color-editor"><label>Primary <input type="color" id="custom-primary" value="#bf95eb"></label><label>Secondary <input type="color" id="custom-secondary" value="#83d3dc"></label><label>Accent <input type="color" id="custom-accent" value="#eea7c6"></label><button class="btn btn-sm btn-ghost" id="reset-colors">Reset colors</button></div>
+      <pre class="code-panel" id="theme-code" tabindex="0" aria-label="Current Gallery custom daisyUI theme CSS"></pre>
+    </section>
+    <div class="notes"><article class="note"><h3>Implementation scope</h3><p>The controls use the <strong>actual daisyUI 5.7.48 CSS</strong>, loaded temporarily from jsDelivr. The lab uses plain JavaScript for demo state—no React, no Tailwind JavaScript and no change to Gallery v103. An eventual application integration should compile or copy approved CSS locally and limit the included components.</p></article><article class="note"><h3>Design rule</h3><p>Nothing here is a vote to replace the whole interface. We can select individual controls and agree on one or more custom themes after visual review. Gallery's existing Recently Watched animation, player controls, navigation logic and stored theme preferences remain untouched.</p></article></div>
+    <p style="margin-top:22px;font-size:11px;color:#9186a0">Library: <a href="https://daisyui.com" target="_blank" rel="noopener noreferrer">daisyui.com</a> · <a href="https://daisyui.com/docs/themes/" target="_blank" rel="noopener noreferrer">Theme documentation</a> · <a href="https://github.com/saadeghi/daisyui" target="_blank" rel="noopener noreferrer">Source and license</a></p>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+'use strict';
+const $ = q => document.querySelector(q);
+const $$ = q => [...document.querySelectorAll(q)];
+let selectedTheme='gallery';
+const names={gallery:'Gallery Violet',night:'Night',dim:'Dim',dracula:'Dracula',abyss:'Abyss',synthwave:'Synthwave',silk:'Silk'};
+const defaults={primary:'#bf95eb',secondary:'#83d3dc',accent:'#eea7c6'};
+const custom={...defaults};
+const mapping={primary:'--color-primary',secondary:'--color-secondary',accent:'--color-accent'};
+const panels=[$('#daisy-compare'),$('#daisy-workspace')];
+function applyCustom(panel) {
+ Object.entries(mapping).forEach(([key,token])=>{
+  if(selectedTheme==='gallery') panel.style.setProperty(token,custom[key]);
+  else panel.style.removeProperty(token);
+ });
+}
+function updateTheme(next) {
+ if(!names[next]) return;
+ selectedTheme=next;
+ panels.forEach(panel=>{panel.setAttribute('data-theme',next);applyCustom(panel)});
+ $$('.theme-pick').forEach(button=>button.setAttribute('aria-pressed', String(button.dataset.choice===next)));
+ $$('.theme-name').forEach(el=>{el.textContent=names[next]});
+ $('#color-editor').hidden=next!=='gallery';
+ if($('#theme-code').classList.contains('visible')) renderCode();
+}
+$$('.theme-pick').forEach(button=>button.addEventListener('click',()=>updateTheme(button.dataset.choice)));
+function exclusive(button,selector,activeClass,attribute,selectedValue) {
+ const group=button.closest(selector);if(!group) return;
+ group.querySelectorAll('[data-ref-nav],[data-ref-seg],[data-d-nav],[data-d-seg],[data-grouptabs]').forEach(x=>{
+  const on=x===button;
+  x.classList.toggle(activeClass,on);
+  if(attribute)x.setAttribute(attribute,String(on));
+ });
+}
+$$('[data-ref-nav]').forEach(b=>b.addEventListener('click',()=>exclusive(b,'.ref-nav','active','aria-pressed')));
+$$('[data-ref-seg]').forEach(b=>b.addEventListener('click',()=>exclusive(b,'.ref-segment','active','aria-pressed')));
+$$('[data-d-nav]').forEach(b=>b.addEventListener('click',()=>{exclusive(b,'.tabs','tab-active','aria-selected');$('#d-nav-label').textContent=b.textContent.trim()+' selected'}));
+$$('[data-d-seg]').forEach(b=>b.addEventListener('click',()=>{
+ const group=b.closest('.join');group.querySelectorAll('button').forEach(x=>{
+  const selected=x===b;x.classList.toggle('btn-primary',selected);x.setAttribute('aria-pressed',String(selected))});
+ $('#d-filter-label').textContent=b.textContent.trim()+' history';
+}));
+$$('[data-grouptabs]').forEach(b=>b.addEventListener('click',()=>exclusive(b,'.tabs','tab-active','aria-selected')));
+let toastTimer=0;
+function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
+$$('[data-lab-action]').forEach(b=>b.addEventListener('click',()=>{
+ const action=b.dataset.labAction;
+ toast('Demo action: '+action);
+ const details=b.closest('details');if(details)details.open=false;
+}));
+$$('#auto-toggle,#sub-toggle,#position-toggle').forEach(b=>b.addEventListener('change',()=>{
+ $('#settings-feedback').textContent=`Autoplay ${$('#auto-toggle').checked?'on':'off'} · Subtitles ${$('#sub-toggle').checked?'on':'off'} · Resume ${$('#position-toggle').checked?'on':'off'} (demo only)`;
+}));
+$('#anime-search').addEventListener('input',e=>{
+ $('#search-feedback').textContent=e.target.value ? `Demo query: “${e.target.value}”` : 'Try typing a title.';
+});
+$('#playback-range').addEventListener('input',e=>{
+ $('#demo-progress').value=e.target.value;
+ $('#range-label').textContent=`Playback progress: ${e.target.value}%`;
+});
+Object.keys(mapping).forEach(key=>{
+ $('#custom-'+key).addEventListener('input',e=>{
+  custom[key]=e.target.value;
+  panels.forEach(applyCustom);
+  if($('#theme-code').classList.contains('visible'))renderCode();
+ });
+});
+$('#reset-colors').addEventListener('click',()=>{
+ Object.assign(custom,defaults);
+ Object.keys(mapping).forEach(key=>$('#custom-'+key).value=custom[key]);
+ panels.forEach(applyCustom);
+ if($('#theme-code').classList.contains('visible'))renderCode();
+ toast('Gallery Violet colors restored');
+});
+function renderCode(){
+ const base="[data-theme=\"gallery\"] {\n  color-scheme: dark;\n  --color-base-100:#171221;\n  --color-base-200:#211a2c;\n  --color-base-300:#2a2137;\n  --color-base-content:#f0eafa;\n  --color-primary:$primary;\n  --color-primary-content:#231034;\n  --color-secondary:$secondary;\n  --color-secondary-content:#052c35;\n  --color-accent:$accent;\n  --color-accent-content:#351624;\n  --radius-selector:1rem;\n  --radius-field:.7rem;\n  --radius-box:1rem;\n}";
+ const lines=base.split('\n').filter(Boolean);
+ const rule={primary:custom.primary,secondary:custom.secondary,accent:custom.accent};
+ const code=lines.map(line=>line.replace(/\$primary/g,rule.primary).replace(/\$secondary/g,rule.secondary).replace(/\$accent/g,rule.accent)).join('\n');
+ $('#theme-code').textContent=code;
+}
+$('#show-code').addEventListener('click',()=>{
+ const code=$('#theme-code');const show=!code.classList.contains('visible');
+ code.classList.toggle('visible',show);
+ $('#show-code').textContent=show?'Hide theme CSS':'Show theme CSS';
+ if(show){renderCode();code.scrollIntoView({block:'nearest',behavior:'smooth'})}
+});
+const loaded=new Set(),failed=new Set();
+const themeProbe=document.createElement('span');
+themeProbe.dataset.theme='night';
+themeProbe.setAttribute('aria-hidden','true');
+themeProbe.style.cssText='position:absolute;visibility:hidden;pointer-events:none';
+document.body.appendChild(themeProbe);
+function check(){
+ const button=$('#daisy-compare .btn-primary');
+ // Verify styles by their computed properties. Some browsers create a
+ // CSSStyleSheet object even for a stylesheet whose network request failed.
+ const hasComponents=getComputedStyle(button).display==='inline-flex';
+ const hasThemes=getComputedStyle(themeProbe).getPropertyValue('--color-base-100').trim()!=='';
+ const good=hasComponents && hasThemes;
+ const status=$('#load-status');
+ if(good){status.textContent='daisyUI v5.7.48 CSS loaded';status.dataset.ok='true';$('#style-warning').classList.remove('visible')}
+ else if(failed.size || document.readyState==='complete') {status.textContent='Could not load daisyUI CSS';status.dataset.ok='false';$('#style-warning').classList.add('visible')}
+ else{status.textContent='Loading real daisyUI CSS…';status.dataset.ok='pending'}
+}
+['daisy-components','daisy-themes'].forEach(id=>{
+ const el=$('#'+id);
+ el.addEventListener('load',()=>{loaded.add(id);check()});
+ el.addEventListener('error',()=>{failed.add(id);check()});
+});
+window.addEventListener('load',check);
+check();
+updateTheme('gallery');
+})();
+</script>
+</body></html>
