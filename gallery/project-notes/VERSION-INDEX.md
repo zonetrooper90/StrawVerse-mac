@@ -11,6 +11,7 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 | `Gallery-v100.html` | 6812924 | `0aac13b097dc0a10b19699704687c09ffc5f3fe9407f757e3695ea45b57fe283` |
 | `Gallery-v101.html` | 6815378 | `a49f991b6db185cf90774a446eb45904ba14b2ece2d3c7eec424749a866c2048` |
 | `Gallery-v102.html` | 6821465 | `4c11d051ade4cc34dc558e643b71cb59198f9ece522e17139b4a8125baea29c6` |
+| `Gallery-v103.html` | 6821581 | `8af8456d73ea216b355622d144024c31bd6cdb149f14627abb4006b3f001e3d1` |
 
 ## Existing verified recovery archive
 
@@ -56,3 +57,11 @@ Snapshot inventory verified locally on **2026-11-04**. These hashes identify **a
 - Verified reproducible [v101→v102 patch](../releases/v102-integration/Gallery-v101-to-v102.patch) (20,624 bytes, SHA-256 `dec514beb59f58c9e330d074d98383215661406ee69c34a0801d30531b2859f8`) and [README](../releases/v102-integration/README.md) on branch `gallery/design-checkpoints`. Applying the patch to the exact Library v101 file produced a byte-for-byte match to v102.
 - Full Chromium regression across five desktop/medium widths, narrow-width smoke tests at 390 and 320px; stable tile/target while switching, accessible focus, Watch History episode toggles and navigation. No JavaScript errors found in these tests.
 - **Complete v102 HTML is stored in Library, not in GitHub**. GitHub has the exact source patch and documentation, not the 6.8MB snapshot. v102 is newly built and **awaiting user visual review** before replacing the previous approved baseline.
+
+## v103 — Recently Watched navigation highlight synchronization (2026-11-05)
+
+- **Complete HTML:** `Gallery-v103.html`, **6,821,581 bytes**, SHA-256 `8af8456d73ea216b355622d144024c31bd6cdb149f14627abb4006b3f001e3d1`. Persistent Library backup: `/Gallery Backups/2026-11-04/Gallery-v103.html`; v102 remains unchanged.
+- Fixes stale Discover/Library nav pill after selecting a Recently Watched cover to open an anime's details page. `whOpenTitle(r)` now calls `updateTabIndicator()` after rendering the destination; same underlying animated pill mechanism as normal tab selection. Updates v103 title and sample-data notice only otherwise.
+- Exact [v102→v103 patch](../releases/v103-integration/Gallery-v102-to-v103.patch) (4,110 bytes; SHA-256 `a9f843c5b82174b6659446faa9e450e9493356fedaeeae9b581f14bf072cda6f`) and [README](../releases/v103-integration/README.md) committed to GitHub, with patch backup in Library at `/Gallery Backups/2026-11-04/v103-source/Gallery-v102-to-v103.patch`. Reconstructed output from the stored v102 was **byte-for-byte identical**.
+- Chromium A/B test confirmed the bug in v102 and fix in v103. Both Library and Discover destination cases passed at 1440, 900 and 390px with no JS errors.
+- **GitHub contains patch and documentation, not the full 6.8MB v103 HTML.** The full file is in Library; v103 awaits user approval.
