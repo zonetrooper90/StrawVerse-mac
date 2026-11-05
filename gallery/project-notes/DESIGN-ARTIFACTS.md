@@ -131,4 +131,11 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - User confirms Gallery v102 visual experience looks good, but clicking a **Recently Watched** cover for an anime already in **Library** correctly navigates to its details while the selected top navigation indicator stays on the previous tab until the user moves their cursor over the top navigation.
 - **Cause verified in v102 HTML:** the preview click delegates to `whEnter(); whOpenTitle(r)`. `whOpenTitle` selects `r.library ? 'library' : 'discover'`, updates `state.view` and calls `updateActiveTab(targetView)`, then `showDetail(r.galleryId)` and possibly `render()`. Unlike the ordinary `setView(view)` navigation path, it **does not call `updateTabIndicator()`**, which controls the animated top-nav pill's target/position. Pointer-enter/move on the nav then calls `updateTabIndicator()`, explaining the late visual correction.
 - **Proposed narrowly scoped correction (NOT YET IMPLEMENTED):** synchronize the nav pill immediately with the newly selected view in `whOpenTitle`, using the existing indicator update path, without requiring a pointer event. Verify the analogous Discover route, keyboard focus, no misplaced animation/label, and that the Recently Watched Soft Glide mechanics are untouched.
-- No numbered new version approved by this issue report; **v102 remains unchanged** pending discussion/authorization.
+- **Superseded by v103:** user authorized the fix, which was implemented and verified in the new v103 HTML; v102 itself remains unchanged.
+
+
+### v103: stale nav pill correction implemented and tested (2026-11-05)
+
+- User explicitly approved the isolated fix, and v103 now calls `updateTabIndicator()` after `whOpenTitle` has rendered the destination anime detail; the top selected tab and pill move together without moving the pointer.
+- A/B reproduction: v102 opening a Library anime via Recently Watched left the pill on Discover; v103 targeted Library immediately. Also verified the reverse Discover route from Watch History at three viewport widths.
+- The full v103 HTML is in persistent Library and the exact reproducible [v102→v103 patch](../releases/v103-integration/Gallery-v102-to-v103.patch) on GitHub. v102 is untouched. This is a verified fix in an HTML prototype, not yet a packaged native app.
