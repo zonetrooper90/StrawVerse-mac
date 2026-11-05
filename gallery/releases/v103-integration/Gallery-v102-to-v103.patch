@@ -1,0 +1,27 @@
+--- Gallery-v102.html
++++ Gallery-v103.html
+@@ -1,5 +1,5 @@
+ <!doctype html>
+-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery v102 — Recently Watched Soft Glide</title><style>
++<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery v103 — Watch History navigation fix</title><style>
+ :root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
+ *{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
+ body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
+@@ -3488,7 +3488,7 @@
+  ${removed.length?`<aside class="wh-undo" aria-label="Pending removals"><div class="wh-undo-top"><div><strong>${removed.length} ${removed.length===1?'season':'seasons'} removed from view</strong><div class="wh-undo-hint">Undo is available until you leave Watch History.</div></div><button type="button" class="btn small" data-wh-undo-all>Undo all</button></div><div class="wh-undo-items">${removed.map(r=>`<div class="wh-undo-item"><span>${escapeHTML(r.title)}</span><button type="button" data-wh-undo="${escapeHTML(r.id)}" aria-label="Undo removal of ${escapeHTML(r.title)}">Undo</button></div>`).join('')}</div></aside>`:''}
+  <div class="wh-result-count">${total} ${total===1?'season':'seasons'} ${whSearch?'matching your search':'in this view'}</div>
+  ${total?groups.map(g=>`${g.label?`<div class="wh-match-heading">${escapeHTML(g.label)}</div>`:''}<div class="wh-list">${g.items.map(whRowMarkup).join('')}</div>`).join(''):`<div class="wh-empty">Nothing to show. ${whSearch?'Try a different title or viewing date.':'Try another filter, or undo a removal.'}</div>`}
+- <div class="wh-prototype-note">Gallery v102 design preview: the initial history entries and covers are sample data for testing the UI. Actual source streaming isn't yet connected in this HTML prototype. When a supported local video plays, this preview can record its progress on this device.</div>
++ <div class="wh-prototype-note">Gallery v103 design preview: the initial history entries and covers are sample data for testing the UI. Actual source streaming isn't yet connected in this HTML prototype. When a supported local video plays, this preview can record its progress on this device.</div>
+  </section>`;
+ }
+ function whAttachInner(area,overlay){
+@@ -3548,6 +3548,8 @@
+  whExit({renderAfter:false});state.view=targetView;updateActiveTab(targetView);showDetail(r.galleryId);state.detailReturnScroll=tabPages[targetView].scrollTop;
+  const x=demo.find(x=>x.id===r.galleryId);const index=getSeasons(x).findIndex(s=>s.id===r.installmentId);
+  if(index>=0){state.detailSeason=index;state.detailRelated=null;render();}
++ // Match normal tab navigation: move the pill immediately even when no cursor event fires.
++ updateTabIndicator();
+ }
+ /* All page actions live in one delegated listener; episode toggles don't rebuild their list. */
+ screen.addEventListener('click',event=>{
