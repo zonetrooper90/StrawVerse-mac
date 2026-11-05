@@ -34,3 +34,16 @@
 2. Agree whether to keep current Gallery top-nav animation and only update surfaces, or adopt a daisyUI tab style.
 3. Choose Gallery-owned daisyUI-compatible theme palette(s), including accessible contrast and light mode if desired.
 4. Test a **local bundled CSS** build in the actual macOS WebKit target before considering an approved new numbered Gallery version.
+
+
+## Component Lab 02 — offline exporter and diagnostic fix (2026-11-05)
+
+[Gallery-daisyUI-Component-Lab-02.html](Gallery-daisyUI-Component-Lab-02.html) — **49,466 bytes**, SHA-256 `4005cefb79022083154a551c3decf3f323d9f3ef91aa24e298d8ca6c0ffd7119`.
+
+- User reported **"Could not load daisyUI CSS"** when using Lab 01 locally in Microsoft Edge on a work PC despite successfully opening both CDN stylesheet URLs in Edge. Source review showed the original computed-style check could incorrectly mark styles as missing. Do **not** treat the warning as evidence that the work firewall blocks jsDelivr.
+- Lab 02 retains the same seven theme choices, Gallery Violet color editor, reference controls and daisyUI component examples.
+- Uses **original compiled daisyUI v5.7.48 CSS** from the pinned jsDelivr CDN, with cdnjs/UNPKG fallback. CSS is captured as text, validated with source markers and embedded into `<style>` tags; external `<link>` tags are removed on successful capture. No visual approximations. On browsers that allow the stylesheet to render but block JavaScript from reading it, the diagnostics distinguish "stylesheet displayed" from "CSS captured and ready to export".
+- **One-time bootstrap requirement:** due to network restrictions in the authoring environment, the downloadable Lab 02 starter HTML itself still needs online access *once* to retrieve actual CSS; it is **not already fully offline**. Clicking **Save offline HTML** in the starter creates `Gallery-daisyUI-Component-Lab-02-Offline.html` with the **actual complete component and theme CSS embedded**, no external `<link>` dependencies, and a daisyUI MIT copyright/license notice. The generated offline copy checks for embedded CSS and skips all CDN requests on subsequent openings. A local file-picker fallback imports two original `.css` files when browser cross-origin `fetch` fails.
+- Browser **test simulation** with deterministic, stand-in CSS responses (not the real CDN CSS, which could not be fetched here) verified CSS acquisition, progress status, seven-theme interaction, creating the offline file, reopening it with all network blocked (zero external requests), reexport and narrow-width layout; no JavaScript errors. A blocked-fetch simulation verified accurate error messaging and manual CSS file import/export. **The actual daisyUI v5.7.48 remote CSS fetch and visual rendering require testing on the user's PC.** Never claim the test fixture itself is the real daisyUI CSS.
+- Artifact backups: full Lab 02 HTML committed and byte-verified in GitHub on `gallery/design-checkpoints`, and archived in persistent Library `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Component-Lab-02.html`.
+- The lab is a **design experiment only**, and Gallery v103 remains unchanged. No replacement themes or app integration have been approved.
