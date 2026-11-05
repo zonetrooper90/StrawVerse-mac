@@ -7,11 +7,10 @@
  :root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
  *{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
  body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
-@@ -2667,6 +2667,68 @@
-    never a native persistent scrollbar or reserved right-hand gutter. */
+@@ -2668,6 +2668,68 @@
  body.player-view .workspace{scrollbar-gutter:auto!important;scrollbar-width:none!important;-ms-overflow-style:none!important}
  body.player-view .workspace::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
-+
+ 
 +
 +
 +/* Gallery × daisyUI — Full-App Preview 02.
@@ -73,9 +72,10 @@
 +  --radius-field:.625rem;--radius-selector:.625rem;--radius-box:.9375rem;
 +  --size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;
 +}
- 
++
  </style></head><body data-theme="neon">
  <div class="app" aria-label="Gallery for macOS preview">
+   <header class="top">
 @@ -6460,4 +6522,163 @@
  });
  for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.getElementById('settings').innerHTML=icon('settings',23);document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML=icon('close',15);searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});render();setupDesktopSettings();setupTabHover();updateTabIndicator();requestAnimationFrame(()=>document.querySelector('.tab-indicator')?.classList.add('is-ready'));window.addEventListener('resize',updateTabIndicator);
@@ -240,3 +240,4 @@
 +})();
 +
  </script></body></html>
+\ No newline at end of file
