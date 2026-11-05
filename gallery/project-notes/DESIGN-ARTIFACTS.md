@@ -139,3 +139,13 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - User explicitly approved the isolated fix, and v103 now calls `updateTabIndicator()` after `whOpenTitle` has rendered the destination anime detail; the top selected tab and pill move together without moving the pointer.
 - A/B reproduction: v102 opening a Library anime via Recently Watched left the pill on Discover; v103 targeted Library immediately. Also verified the reverse Discover route from Watch History at three viewport widths.
 - The full v103 HTML is in persistent Library and the exact reproducible [v102→v103 patch](../releases/v103-integration/Gallery-v102-to-v103.patch) on GitHub. v102 is untouched. This is a verified fix in an HTML prototype, not yet a packaged native app.
+
+
+### Gallery × Glisse — three-component study (2026-11-05)
+
+- User wants to explore **selected Glisse enhancements** without a general Liquid Glass makeover, initially **Top Bar** (Glisse actually calls it `Tab Bar`), **Segmented Control**, and **Button**.
+- [Standalone three-component comparison](../design-experiments/glisse/Gallery-Glisse-Component-Study.html) built using Gallery v103 colors and representative controls. Left: Gallery v103-styled controls; right: self-contained, animated **Glisse-inspired approximations**. It is **not an actual Glisse React integration**, does not implement the library's full optical refraction, and cannot establish real-WebKit performance or fidelity. The official live examples remain at `https://glisse.kelvinzhang.ca/`.
+- Interactions: three-tab Discover/Library/Downloads navigation, Watch History All/In Progress/Completed segmented selection, primary/secondary/icon buttons; optional Gallery Neon/Midnight/Paper theme switching. The right side supports spring-lens selection, press-and-drag selection, elastic press feedback and frosted appearance. JavaScript remains self-contained without external dependencies.
+- Browser tested at 1440px, 900px, 390px and 320px (buttons, tabs, segmented control, themes and overflow) and tab-bar drag selection verified separately; no JavaScript errors. No screenshots/images were generated.
+- Artifact backup: `/Gallery Backups/Design Experiments/2026-11-05/Gallery-Glisse-Component-Study.html` in persistent Library, 22,747 bytes, SHA-256 `69506fd65645fc557ca7e0fe8d11f02af449f579dbea2ea706d1d157df350674`. GitHub source committed and fetched back byte-for-byte.
+- **Status: exploratory, awaiting user assessment**. Keep Gallery **v103 unchanged**. No new numbered Gallery release or actual Glisse React dependency was introduced; choose specific components and integration approach only after user review.
