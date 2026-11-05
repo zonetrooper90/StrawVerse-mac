@@ -1,0 +1,242 @@
+--- Gallery-v103.html
++++ Gallery-daisyUI-Full-App-Preview-02.html
+@@ -1,5 +1,5 @@
+ <!doctype html>
+-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery v103 — Watch History navigation fix</title><style>
++<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery × daisyUI — Full-App Preview 02 · v103 layout preserved</title><style>
+ :root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
+ *{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
+ body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
+@@ -2667,6 +2667,68 @@
+    never a native persistent scrollbar or reserved right-hand gutter. */
+ body.player-view .workspace{scrollbar-gutter:auto!important;scrollbar-width:none!important;-ms-overflow-style:none!important}
+ body.player-view .workspace::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
++
++
++
++/* Gallery × daisyUI — Full-App Preview 02.
++   Theme tokens from official daisyUI v5.7.48 MIT-licensed sources, copyright 2020 Pouya Saadeghi.
++   Gallery itself retains all original v103 component/layout/animation rules.
++   Actual daisyUI component CSS is loaded ONLY inside the Settings showcase ShadowRoot.
++   Source: https://github.com/saadeghi/daisyui/tree/v5.7.48/packages/daisyui/src/themes */
++body.gd2-themed[data-theme="gallery-violet"]{color-scheme:dark;--color-base-100:#211a2c;--color-base-200:#282137;--color-base-300:#362a47;--color-base-content:#f0eafa;--color-primary:#c5a0ed;--color-primary-content:#1c1327;--color-secondary:#83cbd6;--color-secondary-content:#13282c;--color-accent:#e7a3c9;--color-accent-content:#271623;--color-neutral:#3a3049;--color-neutral-content:#ebe4f5;--color-info:#78bae2;--color-info-content:#182633;--color-success:#8cddaf;--color-success-content:#133021;--color-warning:#f4cb85;--color-warning-content:#382815;--color-error:#eb899a;--color-error-content:#351421;--radius-selector:1rem;--radius-field:.7rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:1;--noise:0;}
++body.gd2-themed[data-theme="night"]{color-scheme:dark;--color-base-100:oklch(20.768% .039 265.754);--color-base-200:oklch(19.314% .037 265.754);--color-base-300:oklch(17.86% .034 265.754);--color-base-content:oklch(84.153% .007 265.754);--color-primary:oklch(75.351% .138 232.661);--color-primary-content:oklch(15.07% .027 232.661);--color-secondary:oklch(68.011% .158 276.934);--color-secondary-content:oklch(13.602% .031 276.934);--color-accent:oklch(72.36% .176 350.048);--color-accent-content:oklch(14.472% .035 350.048);--color-neutral:oklch(27.949% .036 260.03);--color-neutral-content:oklch(85.589% .007 260.03);--color-info:oklch(68.455% .148 237.251);--color-info-content:oklch(0% 0 0);--color-success:oklch(78.452% .132 181.911);--color-success-content:oklch(15.69% .026 181.911);--color-warning:oklch(83.242% .139 82.95);--color-warning-content:oklch(16.648% .027 82.95);--color-error:oklch(71.785% .17 13.118);--color-error-content:oklch(14.357% .034 13.118);--radius-selector:1rem;--radius-field:.5rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;}
++body.gd2-themed[data-theme="dim"]{color-scheme:dark;--color-base-100:oklch(30.857% .023 264.149);--color-base-200:oklch(28.036% .019 264.182);--color-base-300:oklch(26.346% .018 262.177);--color-base-content:oklch(82.901% .031 222.959);--color-primary:oklch(86.133% .141 139.549);--color-primary-content:oklch(17.226% .028 139.549);--color-secondary:oklch(73.375% .165 35.353);--color-secondary-content:oklch(14.675% .033 35.353);--color-accent:oklch(74.229% .133 311.379);--color-accent-content:oklch(14.845% .026 311.379);--color-neutral:oklch(24.731% .02 264.094);--color-neutral-content:oklch(82.901% .031 222.959);--color-info:oklch(86.078% .142 206.182);--color-info-content:oklch(17.215% .028 206.182);--color-success:oklch(86.171% .142 166.534);--color-success-content:oklch(17.234% .028 166.534);--color-warning:oklch(86.163% .142 94.818);--color-warning-content:oklch(17.232% .028 94.818);--color-error:oklch(82.418% .099 33.756);--color-error-content:oklch(16.483% .019 33.756);--radius-selector:1rem;--radius-field:.5rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;}
++body.gd2-themed[data-theme="dracula"]{color-scheme:dark;--color-base-100:oklch(28.822% .022 277.508);--color-base-200:oklch(26.805% .020 277.508);--color-base-300:oklch(24.787% .019 277.508);--color-base-content:oklch(97.747% .007 106.545);--color-primary:oklch(75.461% .183 346.812);--color-primary-content:oklch(15.092% .036 346.812);--color-secondary:oklch(74.202% .148 301.883);--color-secondary-content:oklch(14.84% .029 301.883);--color-accent:oklch(83.392% .124 66.558);--color-accent-content:oklch(16.678% .024 66.558);--color-neutral:oklch(39.445% .032 275.524);--color-neutral-content:oklch(87.889% .006 275.524);--color-info:oklch(88.263% .093 212.846);--color-info-content:oklch(17.652% .018 212.846);--color-success:oklch(87.099% .219 148.024);--color-success-content:oklch(17.419% .043 148.024);--color-warning:oklch(95.533% .134 112.757);--color-warning-content:oklch(19.106% .026 112.757);--color-error:oklch(68.22% .206 24.43);--color-error-content:oklch(13.644% .041 24.43);--radius-selector:1rem;--radius-field:.5rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;}
++body.gd2-themed[data-theme="abyss"]{color-scheme:dark;--color-base-100:oklch(20% .08 209);--color-base-200:oklch(15% .08 209);--color-base-300:oklch(10% .08 209);--color-base-content:oklch(90% .076 70.697);--color-primary:oklch(92% .2653 125);--color-primary-content:oklch(50% .2653 125);--color-secondary:oklch(83.27% .0764 298.3);--color-secondary-content:oklch(43.27% .0764 298.3);--color-accent:oklch(43% 0 0);--color-accent-content:oklch(98% 0 0);--color-neutral:oklch(30% .08 209);--color-neutral-content:oklch(90% .076 70.697);--color-info:oklch(74% .16 232.661);--color-info-content:oklch(29% .066 243.157);--color-success:oklch(79% .209 151.711);--color-success-content:oklch(26% .065 152.934);--color-warning:oklch(84.8% .1962 84.62);--color-warning-content:oklch(44.8% .1962 84.62);--color-error:oklch(65% .1985 24.22);--color-error-content:oklch(27% .1985 24.22);--radius-selector:2rem;--radius-field:.25rem;--radius-box:.5rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:1;--noise:0;}
++body.gd2-themed[data-theme="neutral-dark"]{color-scheme:dark;--color-base-100:#202124;--color-base-200:#292a2d;--color-base-300:#35363a;--color-base-content:#f1f1f1;--color-primary:#dedede;--color-primary-content:#1d1d1d;--color-secondary:#ababab;--color-secondary-content:#151515;--color-accent:#c8c8c8;--color-accent-content:#151515;--color-neutral:#4a4a4a;--color-neutral-content:#fafafa;--color-info:#b6b6b6;--color-info-content:#111;--color-success:#c8c8c8;--color-success-content:#111;--color-warning:#d8d8d8;--color-warning-content:#111;--color-error:#a8a8a8;--color-error-content:#111;--radius-selector:1rem;--radius-field:.5rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;}
++body.gd2-themed[data-theme="silk"]{color-scheme:light;--color-base-100:oklch(97% .0035 67.78);--color-base-200:oklch(95% .0081 61.42);--color-base-300:oklch(90% .0081 61.42);--color-base-content:oklch(40% .0081 61.42);--color-primary:oklch(23.27% .0249 284.3);--color-primary-content:oklch(94.22% .2505 117.44);--color-secondary:oklch(23.27% .0249 284.3);--color-secondary-content:oklch(73.92% .2135 50.94);--color-accent:oklch(23.27% .0249 284.3);--color-accent-content:oklch(88.92% .2061 189.9);--color-neutral:oklch(20% 0 0);--color-neutral-content:oklch(80% .0081 61.42);--color-info:oklch(80.39% .1148 241.68);--color-info-content:oklch(30.39% .1148 241.68);--color-success:oklch(83.92% .0901 136.87);--color-success-content:oklch(23.92% .0901 136.87);--color-warning:oklch(83.92% .1085 80);--color-warning-content:oklch(43.92% .1085 80);--color-error:oklch(75.1% .1814 22.37);--color-error-content:oklch(35.1% .1814 22.37);--radius-selector:2rem;--radius-field:.5rem;--radius-box:1rem;--size-selector:.25rem;--size-field:.25rem;--border:2px;--depth:1;--noise:0;}
++
++body.gd2-themed {
++  --window:var(--color-base-100);
++  --surface:var(--color-base-200);
++  --raised:var(--color-base-300);
++  --hover:color-mix(in oklab,var(--color-base-300) 78%,var(--color-primary) 22%);
++  --line:color-mix(in oklab,var(--color-base-content) 16%,transparent);
++  --ink:var(--color-base-content);
++  --muted:color-mix(in oklab,var(--color-base-content) 67%,var(--color-base-100));
++  --accent:var(--color-primary);
++  --accent-ink:var(--color-primary-content);
++  --tab:color-mix(in oklab,var(--color-primary) 21%,var(--color-base-200));
++  --strong:color-mix(in oklab,var(--color-primary) 15%,var(--color-base-200));
++  --glow:color-mix(in oklab,var(--color-primary) 14%,transparent);
++  --shadow:color-mix(in oklab,#000 33%,transparent);
++  --desktop:color-mix(in oklab,var(--color-base-300) 68%,#070709);
++  --player-remaining:color-mix(in oklab,var(--color-base-content) 28%,transparent);
++}
++/* Only corner radii can change, and only when explicitly enabled. v103 element
++   box sizes, position, layout, display, padding, margin and animation stay intact. */
++body.gd2-themed[data-gd2-shapes="on"] .tabs {border-radius:var(--radius-box)}
++body.gd2-themed[data-gd2-shapes="on"] .tabs > .tab {border-radius:var(--radius-field)}
++body.gd2-themed[data-gd2-shapes="on"] .tabs > .tab-indicator {border-radius:var(--radius-selector)}
++body.gd2-themed[data-gd2-shapes="on"] :is(.btn,.iconbtn,.settings-back,.settings-section-button,.filterpill,.tagchip,.page-filter-button) {border-radius:var(--radius-field)}
++body.gd2-themed[data-gd2-shapes="on"] :is(.settings-card,.settings-side,.collection-panel,.continue,.download-row,.history-panel,.settings-panel,.dialog) {border-radius:var(--radius-box)}
++/* The original Gallery theme tiles remain functional and unchanged. */
++#gd2-demo-mount[hidden] {display:none!important}
++#gd2-demo-mount:not([hidden]) {display:block;min-width:0}
++#settings-theme-card {position:relative}
++#gd2-example-toggle {position:absolute;top:13px;right:14px;background:var(--raised);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:11px;font-weight:600;line-height:1.2;padding:7px 9px;cursor:pointer}
++#gd2-example-toggle:hover {background:var(--hover)}
++#gd2-example-toggle:focus-visible {outline:2px solid var(--accent);outline-offset:3px}
++#gd2-component-style-status {margin-top:12px;font-size:11px;line-height:1.5;color:var(--muted)}
++/* The experimental palette switcher is an independent, floating ShadowRoot and
++   therefore has zero influence on v103 header/Settings document flow. */
++#gd2-controls-host {position:fixed;right:15px;bottom:14px;z-index:2147483000;max-width:calc(100vw - 30px)}
++body.player-view #gd2-controls-host {display:none}
++@media(max-width:520px){#gd2-controls-host{right:9px;bottom:9px;max-width:calc(100vw - 18px)}}
++/* Preserve usable original palette for vendor controls when viewing v103 themes. */
++body:not(.gd2-themed) #gd2-demo-mount {
++  --color-base-100:var(--window);--color-base-200:var(--surface);--color-base-300:var(--raised);
++  --color-base-content:var(--ink);--color-primary:var(--accent);--color-primary-content:var(--accent-ink);
++  --color-secondary:var(--accent);--color-secondary-content:var(--accent-ink);
++  --color-accent:var(--accent);--color-accent-content:var(--accent-ink);
++  --radius-field:.625rem;--radius-selector:.625rem;--radius-box:.9375rem;
++  --size-selector:.25rem;--size-field:.25rem;--border:1px;--depth:0;--noise:0;
++}
+ 
+ </style></head><body data-theme="neon">
+ <div class="app" aria-label="Gallery for macOS preview">
+@@ -6460,4 +6522,163 @@
+ });
+ for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.getElementById('settings').innerHTML=icon('settings',23);document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML=icon('close',15);searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});render();setupDesktopSettings();setupTabHover();updateTabIndicator();requestAnimationFrame(()=>document.querySelector('.tab-indicator')?.classList.add('is-ready'));window.addEventListener('resize',updateTabIndicator);
+ window.addEventListener('resize',()=>tabPages.library?.querySelector('.tagbar')?.galleryRefresh?.(true));
++</script>
++<script>
++
++/* Gallery × daisyUI Preview 02 controller. It does not alter native Gallery
++   navigation handlers, Settings event listeners, persistence, or watch history. */
++(function(){
++  'use strict';
++  const nativeThemes=['neon','midnight','paper'];
++  const daisyThemes=['gallery-violet','night','dim','dracula','abyss','neutral-dark','silk'];
++  const themeNames={neon:'Original · Neon Reel',midnight:'Original · Midnight Cinema',paper:'Original · Paper Lantern',
++    'gallery-violet':'daisyUI · Gallery Violet',night:'daisyUI · Night',dim:'daisyUI · Dim',dracula:'daisyUI · Dracula',
++    abyss:'daisyUI · Abyss','neutral-dark':'daisyUI · Neutral Dark',silk:'daisyUI · Silk'};
++  const container=document.createElement('div');
++  container.id='gd2-controls-host';
++  document.body.appendChild(container);
++  const ui=container.attachShadow({mode:'open'});
++  ui.innerHTML=`<style>
++:host{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--panel:#1c1d22;--panel-raised:#292a30;--text:#f3f3f6;--muted:#bfc1cb;--line:#565964;--accent:#bca2db;display:block;color:var(--text);font-size:12px}
++*,*::before,*::after{box-sizing:border-box}
++button,select,input{font:inherit}
++.launch{border:1px solid #8c819c;background:var(--panel);color:var(--text);border-radius:999px;min-height:35px;padding:7px 13px;font-weight:680;box-shadow:0 9px 32px #0008;cursor:pointer;display:flex;gap:9px;align-items:center;justify-content:center;margin-left:auto}
++.launch:hover{background:var(--panel-raised)}
++.launch:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #d7baf9;outline-offset:3px}
++.pip{width:9px;height:9px;border-radius:50%;background:#a9cdce;box-shadow:0 0 0 2px #a9cdce44}
++.panel{position:absolute;bottom:44px;right:0;width:min(336px,calc(100vw - 20px));border:1px solid var(--line);border-radius:16px;padding:17px;background:var(--panel);box-shadow:0 17px 50px #000b;color:var(--text)}
++.panel[hidden]{display:none}
++.heading{display:flex;justify-content:space-between;gap:12px;align-items:center}
++.heading strong{font-size:14px}
++.close{background:transparent;border:1px solid #777985;color:var(--text);width:28px;height:28px;border-radius:9px;cursor:pointer}
++.note{margin:9px 0 17px;line-height:1.5;color:var(--muted)}
++.field{display:flex;flex-direction:column;gap:7px;margin:0 0 15px}
++.field b{font-size:11px;color:#e7e5ed}
++select{width:100%;background:var(--panel-raised);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:9px 10px;cursor:pointer}
++.check{display:flex;gap:9px;align-items:center;margin:12px 0;line-height:1.35;color:var(--text);cursor:pointer}
++.check input{width:16px;height:16px;accent-color:#c8a3ec}
++.small{font-size:11px;line-height:1.55;color:var(--muted);margin:12px 0 0}
++.rule{border:0;border-top:1px solid var(--line);margin:15px 0}
++.status{border-radius:9px;background:var(--panel-raised);padding:9px 10px;color:#d9d4e0;line-height:1.4;font-size:11px}
++.chip{display:inline-block;border:1px solid #565964;border-radius:999px;padding:3px 8px;margin-top:8px;color:#e7e5ed;font-size:10px}
++@media(max-width:430px){.panel{padding:13px;border-radius:13px}}
++</style>
++<button class="launch" type="button" id="open" aria-expanded="false" aria-controls="panel"><span class="pip"></span><span>daisyUI · Preview 02</span><span aria-hidden="true">⚙</span></button>
++<aside class="panel" id="panel" hidden aria-label="Gallery design preview controls">
++  <div class="heading"><strong>Design preview · v103 layout</strong><button type="button" class="close" id="close" aria-label="Close design controls">×</button></div>
++  <p class="note">Compare styles on the real Gallery layout. This floating panel never shifts the header, navigation or Settings.</p>
++  <label class="field"><b>Interface palette</b><select id="theme" aria-label="Interface palette">
++    <optgroup label="Original Gallery v103"><option value="neon">Neon Reel</option><option value="midnight">Midnight Cinema</option><option value="paper">Paper Lantern</option></optgroup>
++    <optgroup label="daisyUI-inspired palettes"><option value="gallery-violet">Gallery Violet</option><option value="night">Night</option><option value="dim">Dim</option><option value="dracula">Dracula</option><option value="abyss">Abyss</option><option value="neutral-dark">Neutral Dark</option><option value="silk">Silk</option></optgroup>
++  </select></label>
++  <label class="check"><input id="shapes" type="checkbox">Show theme corner shapes on Gallery controls</label>
++  <div class="status" id="status" role="status">The original v103 layout is preserved.</div>
++  <p class="small">The original Appearance theme tiles still work. To inspect genuine daisyUI component CSS, open <b>Settings → Appearance → Theme</b> and select <b>Components</b>.</p>
++  <hr class="rule"><span class="chip">Experiment only · v103 untouched</span>
++</aside>`;
++  const $=id=>ui.getElementById(id);
++  const trigger=$('open'),panel=$('panel'),picker=$('theme'),shapes=$('shapes'),status=$('status');
++  function togglePanel(force){const opened=typeof force==='boolean'?force:panel.hidden;panel.hidden=!opened;trigger.setAttribute('aria-expanded',String(opened)); if(opened)picker.focus();else trigger.focus()}
++  trigger.addEventListener('click',()=>togglePanel());
++  $('close').addEventListener('click',()=>togglePanel(false));
++  ui.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){e.stopPropagation();togglePanel(false)}});
++  document.addEventListener('pointerdown',e=>{if(!panel.hidden&&!e.composedPath().includes(container)) {panel.hidden=true;trigger.setAttribute('aria-expanded','false')}});
++  function activeTheme(value){
++    if(!Object.prototype.hasOwnProperty.call(themeNames,value))return;
++    state.theme=value; // In-memory demo only; no desktop settings write.
++    document.body.dataset.theme=value;
++    document.body.classList.toggle('gd2-themed',daisyThemes.includes(value));
++    picker.value=value;
++    refreshNativeTiles();
++    status.textContent=daisyThemes.includes(value)
++      ?'Official daisyUI theme colors · Gallery v103 spacing and sizes'
++      :'Original Gallery v103 color theme · unchanged layout';
++  }
++  function refreshNativeTiles(){for(const tile of document.querySelectorAll('#settings-page [data-theme-button]'))tile.setAttribute('aria-pressed',String(tile.dataset.themeButton===document.body.dataset.theme))}
++  picker.addEventListener('change',()=>activeTheme(picker.value));
++  shapes.addEventListener('change',()=>document.body.dataset.gd2Shapes=shapes.checked?'on':'off');
++  document.body.dataset.gd2Shapes='off';
++  // When a native Gallery Appearance theme tile changes the theme, sync this
++  // preview picker without modifying Gallery's existing click handler.
++  const observer=new MutationObserver(records=>{
++    if(records.some(r=>r.attributeName==='data-theme')){
++      const value=document.body.dataset.theme;
++      if(themeNames[value]){
++        document.body.classList.toggle('gd2-themed',daisyThemes.includes(value));
++        picker.value=value;
++        status.textContent=daisyThemes.includes(value)
++          ?'Official daisyUI theme colors · Gallery v103 spacing and sizes'
++          :'Original Gallery v103 color theme · unchanged layout';
++      }
++    }
++  });
++  observer.observe(document.body,{attributes:true,attributeFilter:['data-theme']});
++  // The initial palette is intentionally an experimental theme, but switching
++  // back to "Original · Neon Reel" is one click; no Gallery state is persisted.
++  activeTheme('gallery-violet');
++
++  const settings=document.getElementById('settings-page');
++  function setupDemo(){
++    const themeCard=settings?.querySelector('#settings-theme-card');
++    if(!themeCard || settings.querySelector('#gd2-demo-mount'))return;
++    const mount=document.createElement('section');mount.id='gd2-demo-mount';mount.className='settings-card';mount.hidden=true;
++    const reveal=document.createElement('button');reveal.type='button';reveal.id='gd2-example-toggle';reveal.textContent='Components ◇';reveal.setAttribute('aria-expanded','false');reveal.setAttribute('aria-controls','gd2-demo-mount');
++    reveal.addEventListener('click',()=>{mount.hidden=!mount.hidden;reveal.setAttribute('aria-expanded',String(!mount.hidden));reveal.textContent=mount.hidden?'Components ◇':'Hide components ×';});
++    themeCard.appendChild(reveal);
++    mount.innerHTML='<div class="settings-card-title">daisyUI · Isolated component showcase</div><p class="settings-card-note">These are actual daisyUI controls, loaded inside a Shadow DOM so their CSS cannot change Gallery\'s navigation or button alignment.</p><div id="gd2-demo-shadow-mount"></div><p id="gd2-component-style-status" role="status">Loading original daisyUI component CSS…</p>';
++    themeCard.insertAdjacentElement('afterend',mount);
++    const root=mount.querySelector('#gd2-demo-shadow-mount').attachShadow({mode:'open'});
++    // Neither this CSS nor the official vendor stylesheet can affect nodes
++    // outside this ShadowRoot; this is the style-isolation guarantee.
++    root.innerHTML=`<link id="daisy-link" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.7.48/daisyui.css">
++<style>
++:host{display:block;color:var(--color-base-content,var(--ink));font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
++*,*::before,*::after{box-sizing:border-box}
++.showcase{display:grid;gap:15px;padding-top:18px;min-width:0}
++.row{display:flex;flex-wrap:wrap;align-items:center;gap:9px;min-width:0}
++.row > :is(input,select){max-width:100%}
++.group{display:grid;gap:7px;min-width:0}
++.group .hint{font-size:11px;opacity:.75}
++.demo-note{font-size:11px;line-height:1.45;opacity:.78}
++.tabs{max-width:100%}
++</style>
++<div class="showcase">
++  <div class="group"><span class="hint">Actual daisyUI buttons</span>
++    <div class="row"><button class="btn btn-primary" type="button" data-action="Play">Play episode</button><button class="btn btn-secondary btn-soft" type="button" data-action="Save">Save</button><button class="btn btn-outline btn-accent" type="button" data-action="Queue">Add to queue</button></div>
++  </div>
++  <div class="group"><span class="hint">Actual daisyUI boxed tabs</span>
++    <div class="tabs tabs-box" role="tablist" aria-label="daisyUI sample tabs"><button class="tab tab-active" type="button" role="tab" aria-selected="true">Episodes</button><button class="tab" type="button" role="tab" aria-selected="false">Details</button><button class="tab" type="button" role="tab" aria-selected="false">Sources</button></div>
++  </div>
++  <div class="group"><span class="hint">Actual daisyUI switch, checkbox and badge</span><div class="row"><label style="display:inline-flex;gap:8px;align-items:center"><input class="toggle toggle-primary" type="checkbox" checked> Autoplay</label><label style="display:inline-flex;gap:8px;align-items:center"><input class="checkbox checkbox-secondary" type="checkbox" checked> Subtitles</label><span class="badge badge-primary">Watching</span></div></div>
++  <div class="group"><span class="hint">Actual daisyUI field and selection</span><div class="row"><input class="input input-bordered" type="text" placeholder="Search titles" aria-label="Demo title search"><select class="select select-bordered" aria-label="Demo source"><option>Preferred source</option><option>Other source</option></select></div></div>
++  <div class="demo-note" id="demo-feedback" aria-live="polite">Demo controls only; Gallery playback and preferences are unaffected.</div>
++</div>`;
++    const vend=root.getElementById('daisy-link');
++    const report=mount.querySelector('#gd2-component-style-status');
++    vend.addEventListener('load',()=>{
++      // The genuine <link> load event confirms stylesheet delivery.
++      // Do not claim a network error based on computed-style heuristics.
++      report.textContent='Original daisyUI CSS loaded inside the isolated showcase.';
++      report.dataset.loaded='true';
++    });
++    vend.addEventListener('error',()=>{
++      if(vend.dataset.fallback==='yes'){
++        report.textContent='The daisyUI stylesheet could not load in this browser. Palette preview still works; component examples need the CSS.';
++        report.dataset.loaded='false';return;
++      }
++      vend.dataset.fallback='yes';
++      vend.href='https://unpkg.com/daisyui@5.7.48/daisyui.css';
++      report.textContent='Trying alternate daisyUI stylesheet host…';
++    });
++    root.querySelectorAll('.tabs .tab').forEach(tab=>tab.addEventListener('click',()=>{
++      root.querySelectorAll('.tabs .tab').forEach(t=>{let active=t===tab;t.classList.toggle('tab-active',active);t.setAttribute('aria-selected',String(active))});
++    }));
++    root.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>root.getElementById('demo-feedback').textContent=btn.dataset.action+' selected in the preview (no Gallery action).'));
++    refreshNativeTiles();
++  }
++  const settingsObserver=new MutationObserver(()=>setupDemo());
++  if(settings)settingsObserver.observe(settings,{subtree:true,childList:true});
++  setupDemo();
++})();
++
+ </script></body></html>
