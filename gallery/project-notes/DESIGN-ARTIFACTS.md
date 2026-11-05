@@ -159,3 +159,12 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - The v103-style reference is intentionally simplified, not pixel-identical or connected to the actual Gallery app.
 - Archive: persistent Library `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Component-Lab-01.html`, 40,084 bytes, SHA-256 `f4a86d2f705b75168ea0cf29d326c5a7795151ba42e17810f62a180dcff79f09`; full HTML committed and fetched back byte-for-byte on GitHub branch `gallery/design-checkpoints`. [README](../design-experiments/daisyui/README.md) captures scope and recovery.
 - **Gallery v103 unchanged and approved baseline.** No v104 built or approved. Await user assessment of the theme/control options.
+
+
+### Gallery × daisyUI — Component Lab 02 (2026-11-05)
+
+- User reported Lab 01 stylesheet error in **Microsoft Edge opening a downloaded local HTML** on a work PC. They verified both pinned CDN CSS URLs directly open and display CSS. The original Lab 01's computed-style check could report a false failure, so merely showing the warning does not establish that the network is blocked.
+- [Lab 02](../design-experiments/daisyui/Gallery-daisyUI-Component-Lab-02.html) replaces false computed-style detection with clearer sheet/fetch diagnostics, adds a **Save offline HTML** exporter and an optional local CSS-file importer. The exporter stores the **actual fetched daisyUI v5.7.48 component/theme CSS** verbatim inside the downloaded `Gallery-daisyUI-Component-Lab-02-Offline.html`, with no external CSS requests on later opens. The Lab 02 starter itself still needs a one-time network connection or manual file import to capture the real stylesheets.
+- Browser tests simulated both successful CSS delivery and complete network failure: online bootstrap → offline export → offline reopen produced **zero network requests** and no JavaScript errors, with themes and responsive layout intact; manual import fallback also passed. Real CDN visual rendering remains to be confirmed on user's machine; tests did **not** use actual remote CSS.
+- Backed up Library `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Component-Lab-02.html` (49,466 bytes; SHA-256 `4005cefb79022083154a551c3decf3f323d9f3ef91aa24e298d8ca6c0ffd7119`). Full GitHub source byte-for-byte verified. [Lab notes](../design-experiments/daisyui/README.md).
+- **Gallery v103 is unchanged**; user has not yet selected replacement daisyUI components or themes.
