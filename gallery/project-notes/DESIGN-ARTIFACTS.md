@@ -168,3 +168,11 @@ Whenever the user approves a sketch, design experiment, animation, or relevant s
 - Browser tests simulated both successful CSS delivery and complete network failure: online bootstrap → offline export → offline reopen produced **zero network requests** and no JavaScript errors, with themes and responsive layout intact; manual import fallback also passed. Real CDN visual rendering remains to be confirmed on user's machine; tests did **not** use actual remote CSS.
 - Backed up Library `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Component-Lab-02.html` (49,466 bytes; SHA-256 `4005cefb79022083154a551c3decf3f323d9f3ef91aa24e298d8ca6c0ffd7119`). Full GitHub source byte-for-byte verified. [Lab notes](../design-experiments/daisyui/README.md).
 - **Gallery v103 is unchanged**; user has not yet selected replacement daisyUI components or themes.
+
+
+### Gallery × daisyUI — Neutral Component Lab 03 (2026-11-05)
+
+- User requested a **completely neutral theme** for judging daisyUI components, without approving a permanent theme change. This experiment builds on Lab 02 rather than integrating anything into Gallery.
+- Full HTML: [Neutral Component Lab 03](../design-experiments/daisyui/Gallery-daisyUI-Neutral-Component-Lab-03.html). Default Neutral Dark, alternate Neutral Light. Both use all-grayscale daisyUI-compatible custom tokens and the same geometric/radius/depth values, so differences in shapes do not confound the light/dark color comparison. Surrounding lab and Gallery-style comparison surface also neutralized. Previous seven themes retained.
+- Same actual v5.7.48 vendor CSS loader + offline export from Lab 02; starter is not fully offline until vendor CSS is captured and embedded. The test environment could not fetch the CDN, so visual rendering with actual daisyUI CSS still awaits user review. Tested five widths for neutral tokens, theme switch, interaction, editor isolation, and no overflow/JS errors.
+- Library backup `/Gallery Backups/Design Experiments/2026-11-05/Gallery-daisyUI-Neutral-Component-Lab-03.html` (**54,738 bytes**, SHA-256 `da8541926be0f257f6ecc87edb50f86e1cc2fa47b44d2363be136d1291409e87`). Full HTML committed to GitHub and fetched back byte-for-byte; see [experiment README](../design-experiments/daisyui/README.md). Gallery **v103 remains unchanged**.
