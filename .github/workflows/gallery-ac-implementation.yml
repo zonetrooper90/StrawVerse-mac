@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   implement-test-stage-and-commit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - name: Check out dedicated Gallery development branch
