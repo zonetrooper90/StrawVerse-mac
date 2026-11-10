@@ -1,0 +1,112 @@
+name: Gallery synchronized fade and navigation repair
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-coordinated-fades'
+    paths:
+      - '.github/workflows/gallery-coordinated-fades.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gallery-coordinated-fades-run
+  cancel-in-progress: false
+
+jobs:
+  implement-test-stage-and-commit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out dedicated Gallery development branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Preflight - restore and SHA-verify authoritative GitHub checkpoint
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-Verified-Baseline.html"
+      - name: Apply scoped fix without changing the working Player transition
+        run: |
+          python3 gallery/tools/integrate-coordinated-fades.py \
+            --input "$RUNNER_TEMP/Gallery-Verified-Baseline.html" \
+            --output "$RUNNER_TEMP/Gallery-Soft-Futuristic-Coordinated-Fades.html"
+          python3 - <<'PY'
+          import hashlib, os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'Gallery-Soft-Futuristic-Coordinated-Fades.html'
+          data=path.read_bytes()
+          actual=hashlib.sha256(data).hexdigest()
+          expected='0f5312429cde4d7740d56b7f863d09e31a8ee024cb3978715c65d1cb0138e74c'
+          assert actual==expected,(actual,expected)
+          assert len(data)==6946249,len(data)
+          print('Locally tested target HTML exactly reproduced:',actual,len(data))
+          PY
+      - name: Install Chromium and Playwright
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Run existing Gallery page/navigation regression suite
+        run: |
+          python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-Coordinated-Fades.html"
+      - name: Run visual-midpoint and Recently Watched browser regression matrix
+        run: |
+          python3 gallery/tests/test_coordinated_fades.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-Coordinated-Fades.html"
+      - name: Document authorized change and stage immutable checkpoint
+        run: |
+          cat >> gallery/APPROVED-DECISIONS.md <<'EOF'
+
+          ## 2026-11-10 — coordinated fade and Recently Watched navigation repair, for testing
+
+          The user demonstrated layout jumps and incorrect destinations in the sequential-fade trial, identified **Anime Details ↔ Player** as the *only* satisfactory transition, and explicitly approved the corrective implementation. Preserve the existing Anime ↔ Player snapshot transition untouched. All other secondary/Settings routes now use coordinated 150ms fade-out, a real DOM/header/nav/layout switch **only after opacity reaches zero**, then a 150ms fade-in. Fade the main tabs and header divider alongside page content, keeping Gallery branding stationary; do not disturb primary-tab horizontal sliding. Respect reduced-motion preference and preserve Watch History state.
+
+          In Discover's Recently Watched strip, anime covers open their linked detail pages **directly** and Back returns to Discover. Only links opened *from the full Watch History page* may return to Watch History; preserve season context where available. Unlinked sample cards use a local explanatory dialog rather than a false route.
+
+          This is a **development HTML delivered for user testing, not yet user-visually approved**. New immutable checkpoint: gallery/checkpoints/2026-11-10-coordinated-fade-route-fixes. Both the established route matrix and new DOM-midpoint/layout-state browser tests must pass. The preceding A+C and sequential-fade checkpoints remain immutable.
+          EOF
+          python3 gallery/tools/stage-checkpoint.py \
+            --input "$RUNNER_TEMP/Gallery-Soft-Futuristic-Coordinated-Fades.html" \
+            --id 2026-11-10-coordinated-fade-route-fixes \
+            --status delivered-for-user-testing
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path=Path('gallery/checkpoints/current.json')
+          obj=json.loads(path.read_text())
+          obj['note']='Immutable commit for user testing. Canonical preflight and new/old browser regression tests passed; pending user visual confirmation, HTML only.'
+          path.write_text(json.dumps(obj,indent=2)+'\n')
+          PY
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          mkdir -p gallery/deliverables
+          test ! -e gallery/deliverables/Gallery-Soft-Futuristic-Coordinated-Fades.html
+          cp "$RUNNER_TEMP/Gallery-Soft-Futuristic-Coordinated-Fades.html" gallery/deliverables/Gallery-Soft-Futuristic-Coordinated-Fades.html
+          python3 - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=json.loads(Path('gallery/checkpoints/current.json').read_text())
+          d=Path('gallery/deliverables/Gallery-Soft-Futuristic-Coordinated-Fades.html').read_bytes()
+          assert p['sha256']==hashlib.sha256(d).hexdigest()
+          assert p['bytes']==len(d)
+          print('Download verified:',p['sha256'],p['bytes'])
+          PY
+      - name: Commit, push and verify canonical checkpoint
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-coordinated-fade-route-fixes/ gallery/deliverables/Gallery-Soft-Futuristic-Coordinated-Fades.html
+          git diff --cached --check -- gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-coordinated-fade-route-fixes/
+          git commit -m "fix(gallery): synchronize navigation fades and restore Recently Watched provenance" -m "Strict 150+150ms DOM-midpoint swaps; preserve working Anime-Player view transition. Browser route and layout tests passed. New immutable checkpoint."
+          git push origin "HEAD:refs/heads/gallery/working-2026-11-10-coordinated-fades"
+          test "$(git ls-remote origin refs/heads/gallery/working-2026-11-10-coordinated-fades | cut -f1)" = "$(git rev-parse HEAD)"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          git rev-parse HEAD
+      - name: Publish checksum-verified downloadable HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-Coordinated-Fades-HTML
+          path: gallery/deliverables/Gallery-Soft-Futuristic-Coordinated-Fades.html
+          retention-days: 90
+          if-no-files-found: error
