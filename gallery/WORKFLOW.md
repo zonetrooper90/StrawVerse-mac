@@ -4,7 +4,7 @@
 
 ## Mandatory preflight: **before editing**
 
-1. Check out the dedicated Gallery development branch, currently `gallery/working-2026-11-10-sequential-fade`. Never edit `main` or a stable Mac build branch to experiment.
+1. Check out the dedicated Gallery development branch, currently `gallery/working-2026-11-10-coordinated-fades`. Never edit `main` or a stable Mac build branch to experiment.
 2. Read `AGENTS.md`, this file, `gallery/PROJECT-CONTINUITY.md`, and `gallery/APPROVED-DECISIONS.md`.
 3. Reconstruct the exact current source from the repository, using `python gallery/tools/restore-checkpoint.py --output Gallery-current.html`; confirm that the SHA-256 shown agrees with `gallery/checkpoints/current.json`.
 4. If a separate local/downloaded HTML file is proposed as the new base, compare it to the verified GitHub checkpoint and account for **every** difference. Never silently substitute an older standalone HTML file.
@@ -41,4 +41,4 @@ For every completed Gallery HTML build, UI experiment, or updated prototype deli
 
 ## Current checkpoint
 
-`gallery/checkpoints/current.json` points to the latest immutable Gallery HTML checkpoint on this development branch (150ms + 150ms sequential fade, 2026-11-10). This is a **development checkpoint pending user visual confirmation**, not a new approved numbered release or proof of native app integration.
+`gallery/checkpoints/current.json` points to the latest immutable Gallery HTML checkpoint on this development branch (coordinated 150ms+150ms fade and navigation fix, 2026-11-10). This is a **development checkpoint pending user visual confirmation**, not a new approved numbered release or proof of native app integration.

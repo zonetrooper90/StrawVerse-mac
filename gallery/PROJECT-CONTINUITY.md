@@ -1,6 +1,6 @@
 # Gallery development continuity
 
-Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/development-archive`. Active checkpoint/work branch: `gallery/working-2026-11-10-sequential-fade`.
+Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/development-archive`. Active checkpoint/work branch: `gallery/working-2026-11-10-coordinated-fades`.
 
 1. Every explicitly **approved** design or behavior decision must be recorded in `gallery/APPROVED-DECISIONS.md` on GitHub, clearly separated from proposed ideas and open questions.
 2. Every approved new numbered Gallery HTML build must be committed as a **complete, exact, immutable, SHA-256-verified** snapshot (direct HTML or a byte-exact reconstructible archive). New checkpoints live under `gallery/checkpoints/` with an updated `gallery/checkpoints/current.json`; never overwrite an earlier version. Archive experiments separately.
@@ -12,4 +12,4 @@ Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/developmen
 8. This is a per-session working rule, **not a background automation**. GitHub commits must be performed and verified during a conversation while the connection is available.
 9. **Mandatory user download:** after GitHub checkpoint verification, provide the actual SHA-256-verified HTML as a downloadable ChatGPT attachment (ZIP optional). Raw GitHub code links are not a substitute. If attachment verification fails, disclose incomplete delivery; see `gallery/WORKFLOW.md`.
 
-Old HTML history: `Gallery-v96.html`, `Gallery-v97.html`, `Gallery-v98.html`, `Gallery-v99.html`, plus standalone experiments. The 2026-11-10 Settings Transition Fix HTML is saved as an immutable, reconstructible checkpoint pending user validation. Follow `gallery/WORKFLOW.md` on every future build.
+Old HTML history: `Gallery-v96.html`, `Gallery-v97.html`, `Gallery-v98.html`, `Gallery-v99.html`, plus standalone experiments. The 2026-11-10 synchronized-fade/navigation-repair HTML is the latest immutable, reconstructible checkpoint, delivered for user visual testing. Earlier sequential-fade and A+C snapshots remain available.  Follow `gallery/WORKFLOW.md` on every future build.

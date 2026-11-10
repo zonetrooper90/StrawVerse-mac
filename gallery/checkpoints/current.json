@@ -4,5 +4,5 @@
   "bytes": 6946304,
   "source_name": "Gallery-Soft-Futuristic-Coordinated-Fades.html",
   "status": "delivered-for-user-testing",
-  "note": "Immutable commit for user testing. Canonical preflight and new/old browser regression tests passed; pending user visual confirmation, HTML only."
+  "note": "Checkpoint committed for user visual testing: source restored and verified, 55 existing route checks and 319 midpoint/navigation tests passed. HTML prototype only; pending visual approval."
 }
