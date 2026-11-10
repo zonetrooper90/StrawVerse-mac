@@ -29,30 +29,26 @@ jobs:
           from pathlib import Path
           html=Path(os.environ['SOURCE_FILE']).read_text(encoding='utf-8')
           tokens=[
-              'galleryStageTransition',
-              'function transitionGallery',
-              'surface-enter',
-              'gallery-about',
-              'settings-transition',
-              'startViewTransition',
-              'prefers-reduced-motion',
-              'screen.dataset.surfaceKey',
-              'function setView',
-              'function openSettings',
-              'function closeSettings',
-              'function openDetail',
-              'function showPlayer',
-              'transition: transform',
-              'gallery-stage',
+              ('body.settings-view',6,900,1400),
+              ('#settings-page',6,900,1500),
+              ('returning-to-gallery',6,800,1450),
+              ('settingsClosing',5,500,900),
+              ('function showSettings()',1,500,5100),
+              ('function closeSettings',1,450,5400),
+              ('function hideSettings',1,400,5100),
+              ('function setSettingsSection',1,300,2500),
+              ('function transitionGalleryStage',1,300,2400),
+              ('transitionGalleryStage(',14,350,560),
+              ('gallery-stage',5,200,500),
           ]
-          for token in tokens:
-              print('\n====== TOKEN:',repr(token),'======')
+          for token,limit,before,after in tokens:
+              print('\\n====== TOKEN:',repr(token),'======')
               start=0;count=0
-              while count<5:
+              while count<limit:
                   n=html.find(token,start)
                   if n<0:break
-                  print('\n-- offset',n,'--')
-                  print(html[max(0,n-900):min(len(html),n+1550)])
+                  print('\\n-- offset',n,'--')
+                  print(html[max(0,n-before):min(len(html),n+after)])
                   start=n+len(token);count+=1
               print('Matches sampled:',count)
           PY
