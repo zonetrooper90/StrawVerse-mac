@@ -162,7 +162,7 @@ function galleryOpenSettingsNow(){""",
 }
 """
     html = html[:start] + new_close + html[end:]
-    for marker in ("function showSettings(afterOpen=null)", "function galleryOpenSettingsNow()", "function closeSettings()", "case 'downloads'", "gallery-stage-leave .45s"):
+    for marker in ("function showSettings(afterOpen=null)", "function galleryOpenSettingsNow()", "function closeSettings()", "animateTabTrack(", "gallery-stage-leave .45s"):
         if marker not in html:
             raise ValueError("Final Gallery feature missing: " + marker)
     return html
