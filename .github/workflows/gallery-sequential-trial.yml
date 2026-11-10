@@ -1,0 +1,192 @@
+name: Gallery strict sequential fade trial and checkpoint
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-sequential-fade'
+    paths:
+      - '.github/workflows/gallery-sequential-trial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  implement-and-checkpoint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out dedicated Gallery development branch
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore and checksum-verify latest committed HTML checkpoint
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-Verified-Baseline.html"
+      - name: Implement strict non-overlapping 150ms plus 150ms fade
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'Gallery-Verified-Baseline.html'
+          raw=path.read_bytes()
+          expected='0a31de142b1de4451de2709160860bae3aa66e33a8d2dce5a219d1e2e8355443'
+          assert hashlib.sha256(raw).hexdigest()==expected,'Unsafe unknown Gallery baseline'
+          s=raw.decode('utf-8')
+          a=s.index('/* A+C: approved 450ms')
+          b=s.index('@keyframes gallery-about-forward',a)
+          new_css='''/* Sequential fade: outgoing stage 150ms, incoming stage 150ms afterwards.
+             No ghosting, depth scaling, or overlap. The common Gallery header/background
+             are live, not root-transition captures; primary tab sliding stays untouched. */
+          :root{view-transition-name:none}
+          @keyframes gallery-stage-fade-out{from{opacity:1}to{opacity:0}}
+          @keyframes gallery-stage-fade-in{from{opacity:0}to{opacity:1}}
+          ::view-transition-image-pair(gallery-stage){isolation:isolate}
+          ::view-transition-old(gallery-stage){animation:gallery-stage-fade-out .15s ease-in both}
+          ::view-transition-new(gallery-stage){animation:gallery-stage-fade-in .15s ease-out .15s both}
+          ::view-transition-group(gallery-stage){animation:none}
+          '''
+          # Remove YAML indentation in CSS while retaining the exact audited result.
+          import textwrap
+          new_css=textwrap.dedent(new_css)
+          s=s[:a]+new_css+s[b:]
+          def once(old,new):
+              global s
+              assert s.count(old)==1, 'Patch anchor mismatch: '+old[:80]
+              s=s.replace(old,new,1)
+          once('let galleryStageFallback=null;\nlet galleryStageMutating=false;',
+               'let galleryStageMutating=false;')
+          once(""" if(galleryStageTransition){galleryStageTransition.skipTransition();galleryStageTransition=null;}
+           galleryStageFallback?.cancel();galleryStageFallback=null;
+           clearGallerySurfaceEntrance();
+           if(galleryReducedMotion.matches){mutator();return;}
+           if(!document.startViewTransition){
+            mutator();
+            galleryStageFallback=workspace.animate(
+             [{opacity:.94,transform:'scale(1.008)'},{opacity:1,transform:'scale(1)'}],
+             {duration:450,easing:'cubic-bezier(.22,.68,.17,1)'});
+            galleryStageFallback.finished.finally(()=>{galleryStageFallback=null;}).catch(()=>{});
+            return;
+           }
+           workspace.style.viewTransitionName='gallery-stage';""".replace('           ',' '),
+           """ if(galleryStageTransition){galleryStageTransition.skipTransition();galleryStageTransition=null;}
+           clearGallerySurfaceEntrance();
+           // Reduced motion or browsers without the View Transitions API: switch directly.
+           // A partial fallback animation would break the strict no-overlap guarantee.
+           if(galleryReducedMotion.matches||!document.startViewTransition){mutator();return;}
+           workspace.style.viewTransitionName='gallery-stage';""".replace('           ',' '))
+          assert 'galleryStageFallback' not in s
+          assert 'gallery-stage-leave' not in s
+          out=s.encode('utf-8')
+          expected_out='5b81d793f474fcf94bc1cd719f8a848cad66e63129b937fbd20450aa5c2d094f'
+          actual=hashlib.sha256(out).hexdigest()
+          assert actual==expected_out,'Unexpected output checksum: '+actual
+          dest=Path(os.environ['RUNNER_TEMP'])/'Gallery-Soft-Futuristic-Sequential-Fade.html'
+          dest.write_bytes(out)
+          print('Patch verified:',actual,len(out),'bytes')
+          PY
+      - name: Set up browser tests
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Run complete Gallery page-transition route matrix
+        run: python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-Sequential-Fade.html"
+      - name: Verify no overlapping opacity or UA geometric movement
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          import os
+          source=(Path(os.environ['RUNNER_TEMP'])/'Gallery-Soft-Futuristic-Sequential-Fade.html').read_text()
+          assert ':root{view-transition-name:none}' in source
+          assert '::view-transition-group(gallery-stage){animation:none}' in source
+          assert '::view-transition-new(gallery-stage){animation:gallery-stage-fade-in .15s ease-out .15s both}' in source
+          assert 'gallery-stage-leave' not in source
+          with sync_playwright() as p:
+              b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+              for width,height,reduced in [(1440,900,'no-preference'),(620,750,'no-preference'),(1440,900,'reduce')]:
+                  page=b.new_page(viewport={'width':width,'height':height},reduced_motion=reduced)
+                  errors=[]
+                  page.on('pageerror',lambda e:errors.append(str(e)))
+                  page.set_content(source,wait_until='load')
+                  page.wait_for_timeout(200)
+                  page.locator('[data-detail]').first.click()
+                  if reduced=='reduce':
+                      page.wait_for_timeout(80)
+                      assert not page.evaluate('!!galleryStageTransition')
+                  else:
+                      page.wait_for_function("()=>document.getAnimations().some(a=>a.animationName==='gallery-stage-fade-out')",timeout=8000)
+                      result=page.evaluate("""()=>{
+                        const a=document.getAnimations().filter(x=>['gallery-stage-fade-out','gallery-stage-fade-in'].includes(x.animationName));
+                        for(const x of a)x.pause();
+                        const op=()=>[parseFloat(getComputedStyle(document.documentElement,'::view-transition-old(gallery-stage)').opacity),parseFloat(getComputedStyle(document.documentElement,'::view-transition-new(gallery-stage)').opacity)];
+                        for(const x of a)x.currentTime=75;
+                        const first=op();
+                        for(const x of a)x.currentTime=225;
+                        const second=op();
+                        for(const x of a)x.play();
+                        return {first,second,root:getComputedStyle(document.documentElement).viewTransitionName,group:getComputedStyle(document.documentElement,'::view-transition-group(gallery-stage)').animationName};
+                      }""")
+                      print('FADE',width,result)
+                      assert result['first'][0]>0.02 and result['first'][1]<0.001
+                      assert result['second'][0]<0.001 and result['second'][1]>0.02
+                      assert result['root']=='none' and result['group']=='none'
+                      page.wait_for_timeout(380)
+                      assert not page.evaluate('!!galleryStageTransition')
+                  page.locator('#settings').click()
+                  page.wait_for_timeout(450)
+                  assert page.evaluate("document.body.classList.contains('settings-view')")
+                  page.locator('#settings-back').click()
+                  page.wait_for_timeout(450)
+                  assert not page.evaluate("document.body.classList.contains('settings-view')")
+                  assert not errors,errors
+                  page.close()
+              b.close()
+          print('PASS: opacity never overlaps, Settings round-trip and reduced-motion tests')
+          PY
+      - name: Record decision and stage immutable Gallery checkpoint
+        run: |
+          cat >> gallery/APPROVED-DECISIONS.md <<'EOF'
+
+          ## 2026-11-10 — nonoverlapping sequential fade trial
+
+          After viewing the full-app A+C screen recording, the user rejected the 450ms overlapping crossfade because it ghosted complete pages. The user approved trying a simple, strictly sequential fade: outgoing workspace opacity 1 to 0 for 150ms, page change at full transparency, then incoming workspace 0 to 1 for 150ms (300ms total). No overlap, scaling, blur or automatic view-transition group resizing. Main tab slides, shared header and background, all Gallery layouts, route state and keyboard navigation must stay as before. Reduced motion and browser fallback switch instantly.
+
+          This replaces A+C as the current **trial**, not as a user-visually accepted release. Retain the old immutable A+C checkpoint for audit. New immutable HTML checkpoint is 2026-11-10-sequential-fade-no-overlap; user approval is still pending.
+          EOF
+          python3 gallery/tools/stage-checkpoint.py \
+            --input "$RUNNER_TEMP/Gallery-Soft-Futuristic-Sequential-Fade.html" \
+            --id 2026-11-10-sequential-fade-no-overlap \
+            --status delivered-for-user-testing
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          mkdir -p gallery/deliverables
+          test ! -e gallery/deliverables/Gallery-Soft-Futuristic-Sequential-Fade.html
+          cp "$RUNNER_TEMP/Gallery-Soft-Futuristic-Sequential-Fade.html" gallery/deliverables/Gallery-Soft-Futuristic-Sequential-Fade.html
+      - name: Commit and verify remote checkpoint and complete HTML file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-sequential-fade-no-overlap/ gallery/deliverables/Gallery-Soft-Futuristic-Sequential-Fade.html
+          git diff --cached --check -- gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-sequential-fade-no-overlap/
+          git commit -m "feat(gallery): strict 150+150ms sequential fade verified checkpoint"
+          git push origin "HEAD:refs/heads/gallery/working-2026-11-10-sequential-fade"
+          test "$(git ls-remote origin refs/heads/gallery/working-2026-11-10-sequential-fade | cut -f1)" = "$(git rev-parse HEAD)"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=json.loads(Path('gallery/checkpoints/current.json').read_text())
+          raw=Path('gallery/deliverables/Gallery-Soft-Futuristic-Sequential-Fade.html').read_bytes()
+          assert len(raw)==p['bytes'] and hashlib.sha256(raw).hexdigest()==p['sha256']
+          print('GitHub-backed download bytes verified:',p['sha256'])
+          PY
+          git rev-parse HEAD
+      - name: Upload directly downloadable complete HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-Sequential-Fade-HTML
+          path: gallery/deliverables/Gallery-Soft-Futuristic-Sequential-Fade.html
+          retention-days: 90
+          if-no-files-found: error
