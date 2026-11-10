@@ -4,5 +4,5 @@
   "bytes": 6941156,
   "source_name": "Gallery-Soft-Futuristic-Sequential-Fade.html",
   "status": "delivered-for-user-testing",
-  "note": "Local staging only until GitHub commit and CI verification."
+  "note": "Committed immutable GitHub checkpoint; baseline reconstruction, no-overlap browser tests and navigation regression suite passed. Pending user visual confirmation; HTML prototype only."
 }

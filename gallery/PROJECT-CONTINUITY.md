@@ -1,6 +1,6 @@
 # Gallery development continuity
 
-Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/development-archive`. Active checkpoint/work branch: `gallery/working-2026-11-10`.
+Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/development-archive`. Active checkpoint/work branch: `gallery/working-2026-11-10-sequential-fade`.
 
 1. Every explicitly **approved** design or behavior decision must be recorded in `gallery/APPROVED-DECISIONS.md` on GitHub, clearly separated from proposed ideas and open questions.
 2. Every approved new numbered Gallery HTML build must be committed as a **complete, exact, immutable, SHA-256-verified** snapshot (direct HTML or a byte-exact reconstructible archive). New checkpoints live under `gallery/checkpoints/` with an updated `gallery/checkpoints/current.json`; never overwrite an earlier version. Archive experiments separately.
