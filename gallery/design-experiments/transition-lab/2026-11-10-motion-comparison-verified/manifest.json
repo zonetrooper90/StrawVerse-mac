@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "checkpoint": "2026-11-10-motion-comparison-verified",
+  "kind": "gallery-transition-animation-experiment",
+  "source_name": "Gallery-Transition-Motion-Lab.html",
+  "source_bytes": 33296,
+  "source_sha256": "6ce09260d9390d16736bb6f05cca970cb3bfc648ce9af3a46c2cafedf77f4d20",
+  "created_date": "2026-11-10",
+  "status": "experiment-awaiting-user-review",
+  "base_branch": "gallery/working-2026-11-10",
+  "base_commit": "d7cefb38f9cd98566f24c7566aa3c9d1b7ad0c92",
+  "base_gallery_checkpoint_sha256": "3fc012a9251d1fe77dab164831c9c65d993a3a5631d4f0302f1e9a9e2d48659b",
+  "notes": "Verified byte-exact standalone HTML experiment. The initial upload lost its final newline and was superseded. Full Gallery checkpoint remains unchanged."
+}

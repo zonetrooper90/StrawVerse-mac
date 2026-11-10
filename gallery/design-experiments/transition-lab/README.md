@@ -5,7 +5,7 @@ This directory holds separate experiments for comparing page transitions. It is 
 ## Current experiment
 
 - `current.json` identifies the latest motion-comparison experiment.
-- `2026-11-10-motion-comparison/` is immutable and contains the full self-contained HTML plus its SHA-256 `manifest.json`.
+- `2026-11-10-motion-comparison-verified/` is immutable and contains the full self-contained HTML plus its SHA-256 `manifest.json`.
 - Experiment shows four independent styles with shared navigation and timing: Gentle Crossfade, Layered Drift, Soft Depth, Soft Reveal.
 - Use `tests/test_motion_lab.py` to check animation triggering, reversible navigation, replay, focus mode, responsive layouts and reduced-motion support.
 - No external assets, internet calls or image generation. The preview uses simple CSS gradients for artwork placeholders.
@@ -13,3 +13,6 @@ This directory holds separate experiments for comparing page transitions. It is 
 ## Workflow
 
 Review styles with the user before changing Gallery. Do not change the full-app current pointer when updating a **standalone** experiment. For a new experiment, create an immutable directory, update this experiment's `current.json`, commit, and verify its checksum and CI run.
+
+## Verification note
+The initial `2026-11-10-motion-comparison/` commit was superseded immediately: the text transfer dropped one trailing newline, invalidating its exact SHA-256 manifest. It is **not** a valid experiment checkpoint. The Git history is preserved, but only the `-verified` directory named by this experiment's `current.json` is authoritative.
