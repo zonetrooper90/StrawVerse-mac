@@ -84,3 +84,11 @@ The user chose **A+C (Crossfade + Micro Depth)** after comparing the standalone 
 After viewing the full-app A+C screen recording, the user rejected the 450ms overlapping crossfade because it ghosted complete pages. The user approved trying a simple, strictly sequential fade: outgoing workspace opacity 1 to 0 for 150ms, page change at full transparency, then incoming workspace 0 to 1 for 150ms (300ms total). No overlap, scaling, blur or automatic view-transition group resizing. Main tab slides, shared header and background, all Gallery layouts, route state and keyboard navigation must stay as before. Reduced motion and browser fallback switch instantly.
 
 This replaces A+C as the current **trial**, not as a user-visually accepted release. Retain the old immutable A+C checkpoint for audit. New immutable HTML checkpoint is 2026-11-10-sequential-fade-no-overlap; user approval is still pending.
+
+## 2026-11-10 — coordinated fade and Recently Watched navigation repair, for testing
+
+The user demonstrated layout jumps and incorrect destinations in the sequential-fade trial, identified **Anime Details ↔ Player** as the *only* satisfactory transition, and explicitly approved the corrective implementation. Preserve the existing Anime ↔ Player snapshot transition untouched. All other secondary/Settings routes now use coordinated 150ms fade-out, a real DOM/header/nav/layout switch **only after opacity reaches zero**, then a 150ms fade-in. Fade the main tabs and header divider alongside page content, keeping Gallery branding stationary; do not disturb primary-tab horizontal sliding. Respect reduced-motion preference and preserve Watch History state.
+
+In Discover's Recently Watched strip, anime covers open their linked detail pages **directly** and Back returns to Discover. Only links opened *from the full Watch History page* may return to Watch History; preserve season context where available. Unlinked sample cards use a local explanatory dialog rather than a false route.
+
+This is a **development HTML delivered for user testing, not yet user-visually approved**. New immutable checkpoint: gallery/checkpoints/2026-11-10-coordinated-fade-route-fixes. Both the established route matrix and new DOM-midpoint/layout-state browser tests must pass. The preceding A+C and sequential-fade checkpoints remain immutable.

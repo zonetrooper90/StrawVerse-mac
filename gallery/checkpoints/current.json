@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-sequential-fade-no-overlap",
-  "sha256": "5b81d793f474fcf94bc1cd719f8a848cad66e63129b937fbd20450aa5c2d094f",
-  "bytes": 6941156,
-  "source_name": "Gallery-Soft-Futuristic-Sequential-Fade.html",
+  "folder": "2026-11-10-coordinated-fade-route-fixes",
+  "sha256": "1d83bea4249345198d91730524fda609edb1d9734196bd274225a6a5f67c9a4c",
+  "bytes": 6946304,
+  "source_name": "Gallery-Soft-Futuristic-Coordinated-Fades.html",
   "status": "delivered-for-user-testing",
-  "note": "Committed immutable GitHub checkpoint; baseline reconstruction, no-overlap browser tests and navigation regression suite passed. Pending user visual confirmation; HTML prototype only."
+  "note": "Immutable commit for user testing. Canonical preflight and new/old browser regression tests passed; pending user visual confirmation, HTML only."
 }
