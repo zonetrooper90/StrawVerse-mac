@@ -5,8 +5,7 @@ on:
     branches:
       - 'gallery/working-*'
     paths:
-      - 'gallery/checkpoints/**'
-      - 'gallery/tools/restore-checkpoint.py'
+      - 'gallery/**'
       - '.github/workflows/gallery-checkpoint-integrity.yml'
   workflow_dispatch:
 
