@@ -51,4 +51,14 @@ jobs:
                   print(html[max(0,n-before):min(len(html),n+after)])
                   start=n+len(token);count+=1
               print('Matches sampled:',count)
+          print('\\n====== CALL SITES FOR showSettings / closeSettings / setSettingsSection ======')
+          import re
+          for call in ('showSettings(', 'closeSettings(', 'setSettingsSection('):
+              hits=[m.start() for m in re.finditer(re.escape(call),html)]
+              print('CALL',call,'COUNT',len(hits))
+              for n in hits[:20]:
+                  print('OFFSET',n,'CONTEXT',repr(html[max(0,n-150):n+220]))
+          print('\\n====== WORKSPACE SETTINGS ELEMENT TREE ======')
+          for key in ('id="workspace"','id="settings-page"','id="tab-pages-viewport"','id="screen"'):
+              n=html.find(key);print(key,'OFFSET',n,repr(html[max(0,n-200):n+500]))
           PY
