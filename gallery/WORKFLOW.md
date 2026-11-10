@@ -13,8 +13,8 @@
 ## Mandatory postflight: **for each approved change**
 
 1. Follow the user's approval rule: discuss changes before generating a new *numbered* build; do not generate/edit images without explicit prior approval.
-2. Keep earlier checkpoints immutable. Save the new, complete HTML as a new uniquely named checkpoint. Never replace or rewrite the old checkpoint/chunks.
-3. Update `gallery/checkpoints/current.json` **in the same commit** to point to that new checkpoint. Record SHA-256, exact byte length, source name, and a truthful review status (`delivered`, `user-approved`, etc.).
+2. Keep earlier checkpoints immutable. To stage a new full HTML, run `python3 gallery/tools/stage-checkpoint.py --input <tested>.html --id YYYY-MM-DD-slug --status delivered-for-user-testing` (or `user-approved` only after the user verifies it). This creates a new exact archive and verifies its bytes locally. Never replace older chunks.
+3. Commit the newly staged `gallery/checkpoints/current.json` **in the same commit** as the new archive. The staging script sets the SHA-256, byte count and review status automatically. The staging script does **not** push or commit anything itself.
 4. Update `gallery/APPROVED-DECISIONS.md` if a design/behavior decision has been explicitly approved, and document meaningful code changes in the commit message.
 5. Run the restoration integrity script and relevant UI/behavior tests. Require the GitHub Actions integrity workflow to pass. Never treat an HTML prototype as proof of native playback integration.
 6. Commit the approved build to the development branch, then verify the remote branch head, checkpoint pointer, hashes, and CI status. Only **after** verification, link the new HTML to the user and report the commit.
