@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-page-transition-route-fixes",
-  "sha256": "3fc012a9251d1fe77dab164831c9c65d993a3a5631d4f0302f1e9a9e2d48659b",
-  "bytes": 6942169,
-  "source_name": "Gallery-Soft-Futuristic-Transition-Routes-Fixed.html",
+  "folder": "2026-11-10-ac-secondary-transition-integration",
+  "sha256": "c18bcbd905a19e5ad4b96434f6c9a73dffbe7bb54023f1c7dba3602dff5d29c0",
+  "bytes": 6942183,
+  "source_name": "Gallery-Soft-Futuristic-AC-Transitions.html",
   "status": "delivered-for-user-testing",
-  "note": "Route transition fixes tested in Chromium; pending user review. HTML prototype, not native app integration."
+  "note": "Local staging only until GitHub commit and CI verification."
 }
