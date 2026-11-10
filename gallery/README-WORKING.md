@@ -1,21 +1,25 @@
-# Gallery — GitHub working checkpoint
+# Gallery — clean development workspace
 
-This branch is a protected-by-workflow **development workspace** for Gallery. It is separate from `main`, `feature/native-macos-*`, and the original `gallery/development-archive`.
+Active branch: `gallery/development-clean`.
+Previous verified branch `gallery/working-2026-11-10-coordinated-fades` and all original history are preserved.
 
-The canonical **current prototype** is the checkpoint referenced by [`gallery/checkpoints/current.json`](gallery/checkpoints/current.json).
+- Edit **`gallery/Gallery-current.html`** after verifying it against `gallery/checkpoints/current.json`.
+- Keep a NEW immutable checkpoint for each completed HTML change; old checkpoint folders are never edited.
+- Use the read-only GitHub Actions checks for source integrity and browser regressions.
+- Keep downloadable HTML delivery and exact GitHub commit provenance.
 
-Restore it from this checkout:
-
-```sh
-python3 gallery/tools/restore-checkpoint.py --output Gallery-current.html
-```
-
-Validate the committed archive without extracting an output:
+To verify this working checkout:
 
 ```sh
 python3 gallery/tools/restore-checkpoint.py --verify-only
+python3 - <<'PY'
+from pathlib import Path
+import hashlib, json
+p=json.loads(Path('gallery/checkpoints/current.json').read_text())
+b=Path('gallery/Gallery-current.html').read_bytes()
+assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256']
+print('Current HTML matches immutable checkpoint:',p['sha256'])
+PY
 ```
 
-The archive is gzip-compressed, base64-encoded and split into parts solely to transfer the exact, self-contained HTML reliably. Each part and the original HTML have independent SHA-256 hashes in the manifest. This is an **archived design/prototype build**; it is not yet merged into native Gallery runtime sources. Before new changes, **restore this exact baseline**, change it, test it, and commit a new immutable checkpoint plus an updated current pointer.
-
-Mandatory process: [`gallery/WORKFLOW.md`](gallery/WORKFLOW.md).
+The compressed chunks under `gallery/checkpoints/` are retained for immutable backups and recovery; they are not the editing source. The standalone deliverable under `gallery/deliverables/` is a historical snapshot, not the current editing path. See `gallery/WORKFLOW.md`.

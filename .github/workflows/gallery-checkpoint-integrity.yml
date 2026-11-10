@@ -3,7 +3,7 @@ name: Gallery checkpoint integrity
 on:
   push:
     branches:
-      - 'gallery/working-*'
+      - 'gallery/development-clean'
     paths:
       - 'gallery/**'
       - '.github/workflows/gallery-checkpoint-integrity.yml'
@@ -23,9 +23,19 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify exact checkpoint bytes and feature markers
-        run: python3 gallery/tools/restore-checkpoint.py --verify-only
-      - name: Restore HTML as additional smoke test
+      - name: Verify current HTML exactly matches immutable checkpoint
         run: |
-          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-current.html"
-          test -s "$RUNNER_TEMP/Gallery-current.html"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          p=json.loads(Path('gallery/checkpoints/current.json').read_text())
+          html=Path('gallery/Gallery-current.html').read_bytes()
+          assert len(html)==p['bytes'], 'Current HTML size differs from pointer'
+          assert hashlib.sha256(html).hexdigest()==p['sha256'], 'Current HTML differs from immutable checkpoint'
+          print('Working HTML matches verified immutable archive:',p['sha256'],len(html))
+          PY
+      - name: Restore immutable backup as recovery smoke test
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-recovered.html"
+          cmp gallery/Gallery-current.html "$RUNNER_TEMP/Gallery-recovered.html"
