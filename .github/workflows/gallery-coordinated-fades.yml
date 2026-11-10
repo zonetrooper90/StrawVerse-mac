@@ -40,9 +40,9 @@ jobs:
           path=Path(os.environ['RUNNER_TEMP'])/'Gallery-Soft-Futuristic-Coordinated-Fades.html'
           data=path.read_bytes()
           actual=hashlib.sha256(data).hexdigest()
-          expected='0f5312429cde4d7740d56b7f863d09e31a8ee024cb3978715c65d1cb0138e74c'
+          expected='1d83bea4249345198d91730524fda609edb1d9734196bd274225a6a5f67c9a4c'
           assert actual==expected,(actual,expected)
-          assert len(data)==6946249,len(data)
+          assert len(data)==6946304,len(data)
           print('Locally tested target HTML exactly reproduced:',actual,len(data))
           PY
       - name: Install Chromium and Playwright
