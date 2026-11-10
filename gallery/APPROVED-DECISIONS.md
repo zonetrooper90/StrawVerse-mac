@@ -92,3 +92,9 @@ The user demonstrated layout jumps and incorrect destinations in the sequential-
 In Discover's Recently Watched strip, anime covers open their linked detail pages **directly** and Back returns to Discover. Only links opened *from the full Watch History page* may return to Watch History; preserve season context where available. Unlinked sample cards use a local explanatory dialog rather than a false route.
 
 This is a **development HTML delivered for user testing, not yet user-visually approved**. New immutable checkpoint: gallery/checkpoints/2026-11-10-coordinated-fade-route-fixes. Both the established route matrix and new DOM-midpoint/layout-state browser tests must pass. The preceding A+C and sequential-fade checkpoints remain immutable.
+
+## 2026-11-10 — coordinated fades visually accepted
+
+The user tested the latest **Coordinated Fades** full Gallery HTML and reported that the behavior looks better, with no remaining transition issues observed. They explicitly chose to **keep this implementation**. Treat the coordinated 150ms outgoing / 150ms incoming no-overlap secondary-page and Settings transitions, together with the preserved Anime Details ↔ Player transition and Discover/Library/Downloads primary slides, as the **current accepted HTML motion baseline**. Keep navigation provenance, stationary branding, synchronized nav/divider fades, Watch History state and reduced-motion support unchanged. Do not reopen or retune transition timing unless new issues arise or the user requests it.
+
+This is user visual acceptance of the existing immutable checkpoint `2026-11-10-coordinated-fade-route-fixes` (SHA-256 `1d83bea4249345198d91730524fda609edb1d9734196bd274225a6a5f67c9a4c`), **not** a new numbered build or proof of native macOS implementation. The existing archive, checkpoint pointer and HTML bytes remain unchanged.
