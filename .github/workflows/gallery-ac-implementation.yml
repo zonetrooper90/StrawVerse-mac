@@ -41,7 +41,7 @@ jobs:
       - name: Run Gallery navigation and Watch History regression matrix
         run: |
           python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
-      - name: Verify A+C, Settings navigation and reduced motion
+      - name: Verify A+C, Settings navigation, asynchronous source deep link and reduced motion
         run: |
           python3 gallery/tests/test_ac_motion.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
       - name: Stage immutable checkpoint and verify restored integrity
