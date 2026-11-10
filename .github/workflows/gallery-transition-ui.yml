@@ -1,0 +1,36 @@
+name: Gallery page-transition regression
+
+on:
+  push:
+    branches:
+      - 'gallery/working-*'
+    paths:
+      - 'gallery/checkpoints/**'
+      - 'gallery/tests/**'
+      - 'gallery/tools/**'
+      - '.github/workflows/gallery-transition-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-routes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out Gallery development branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium test runner
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Restore and verify current Gallery HTML
+        run: python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-current.html"
+      - name: Test page navigation, Settings, Watch History and reduced motion
+        run: python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-current.html"

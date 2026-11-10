@@ -65,3 +65,7 @@ The historical v99 notes above are not the current design. **Source of truth:** 
 - **Player control polish:** Rewind/Play-Pause/Forward symmetrical and optically balanced; preserve the continuous icon morph and keep the Play triangle free of the internal seam.
 - The Settings transition adjustment addresses the blank-on-open and flash-on-return animation regressions, but is **awaiting user confirmation**. Do not mark as approved without that confirmation.
 - **GitHub workflow:** all future changed builds must be verified, committed, and linked to their GitHub checkpoint before delivery; see \`gallery/WORKFLOW.md\`. Main/native branches stay untouched.
+
+## 2026-11-10 — transition regression fixes, delivered for testing
+
+The user explicitly authorized repair of all gaps found by the 2026-11-10 transition audit. The new HTML checkpoint implements secondary-page entrances/exits (without replacing the approved main-tab slide), consistent revisits to the same Anime page, correct return to Watch History from Settings/linked Anime, animated nested About pages, and motion-preference cleanup. Preserve navigation provenance, History filters/expanded rows/scroll, the existing header geometry, and reduced-motion behavior. These fixes are **delivered for user testing, not yet visually confirmed**. Refer to `gallery/audits/2026-11-10-transition-fix-results.md` and the automated `gallery/tests/test_transitions.py` route matrix before further changes.
