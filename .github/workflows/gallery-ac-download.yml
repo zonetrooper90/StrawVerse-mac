@@ -1,0 +1,40 @@
+name: Gallery A+C downloadable HTML artifact
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-ac-micro-depth'
+    paths:
+      - '.github/workflows/gallery-ac-download.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-html:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out authoritative Gallery checkpoint
+        uses: actions/checkout@v4
+      - name: Checkpoint integrity
+        run: python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Verify downloadable HTML has exact committed checksum
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          ptr=json.loads(Path('gallery/checkpoints/current.json').read_text())
+          path=Path('gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html')
+          raw=path.read_bytes()
+          assert ptr['sha256']==hashlib.sha256(raw).hexdigest(), 'File differs from current checkpoint hash'
+          assert ptr['bytes']==len(raw), 'File differs from current checkpoint byte count'
+          print('Verified downloadable HTML',ptr['sha256'],len(raw))
+          PY
+      - name: Publish one-click downloadable ZIP containing the complete HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-AC-Micro-Depth-HTML
+          path: gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html
+          retention-days: 90
+          if-no-files-found: error
