@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-ac-crossfade-micro-depth",
-  "sha256": "0a31de142b1de4451de2709160860bae3aa66e33a8d2dce5a219d1e2e8355443",
-  "bytes": 6941554,
-  "source_name": "Gallery-Soft-Futuristic-AC-Micro-Depth.html",
+  "folder": "2026-11-10-sequential-fade-no-overlap",
+  "sha256": "5b81d793f474fcf94bc1cd719f8a848cad66e63129b937fbd20450aa5c2d094f",
+  "bytes": 6941156,
+  "source_name": "Gallery-Soft-Futuristic-Sequential-Fade.html",
   "status": "delivered-for-user-testing",
-  "note": "Committed immutable GitHub checkpoint; baseline, reconstructed SHA-256 and browser routes verified. Pending user visual confirmation; HTML prototype only."
+  "note": "Local staging only until GitHub commit and CI verification."
 }

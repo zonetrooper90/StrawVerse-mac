@@ -78,3 +78,9 @@ The user chose **A+C (Crossfade + Micro Depth)** after comparing the standalone 
 - Preserve Back navigation, Watch History filters and scroll position, Settings history/provenance and the existing shared header geometry. Reduced-motion preference disables the A+C capture.
 - The new checkpoint is `gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/`, SHA-256 `0a31de142b1de4451de2709160860bae3aa66e33a8d2dce5a219d1e2e8355443`, based strictly on the previously verified Gallery full-app checkpoint. Automated browser tests have passed, but visual user acceptance is still outstanding. No native macOS build was changed.
 - See `gallery/audits/2026-11-10-ac-micro-depth-results.md` and `gallery/tests/test_ac_motion.py`.
+
+## 2026-11-10 — nonoverlapping sequential fade trial
+
+After viewing the full-app A+C screen recording, the user rejected the 450ms overlapping crossfade because it ghosted complete pages. The user approved trying a simple, strictly sequential fade: outgoing workspace opacity 1 to 0 for 150ms, page change at full transparency, then incoming workspace 0 to 1 for 150ms (300ms total). No overlap, scaling, blur or automatic view-transition group resizing. Main tab slides, shared header and background, all Gallery layouts, route state and keyboard navigation must stay as before. Reduced motion and browser fallback switch instantly.
+
+This replaces A+C as the current **trial**, not as a user-visually accepted release. Retain the old immutable A+C checkpoint for audit. New immutable HTML checkpoint is 2026-11-10-sequential-fade-no-overlap; user approval is still pending.
