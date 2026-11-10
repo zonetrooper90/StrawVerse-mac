@@ -1,0 +1,24 @@
+name: Gallery A+C secondary transitions build
+on:
+  push:
+    branches:
+      - 'gallery/working-ac-secondary-2026-11-10'
+    paths:
+      - 'gallery/tools/ac-transition-integration.py'
+      - '.github/workflows/gallery-ac-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-then-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore and checksum-verify authoritative full Gallery checkpoint
+        run: python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-before.html"
+      - name: Inspect existing Gallery navigation and animation hooks
+        run: python3 gallery/tools/ac-transition-integration.py "$RUNNER_TEMP/Gallery-before.html"
