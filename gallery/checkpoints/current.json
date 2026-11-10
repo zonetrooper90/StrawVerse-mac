@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-page-transition-route-fixes",
-  "sha256": "3fc012a9251d1fe77dab164831c9c65d993a3a5631d4f0302f1e9a9e2d48659b",
-  "bytes": 6942169,
-  "source_name": "Gallery-Soft-Futuristic-Transition-Routes-Fixed.html",
+  "folder": "2026-11-10-ac-crossfade-micro-depth",
+  "sha256": "0a31de142b1de4451de2709160860bae3aa66e33a8d2dce5a219d1e2e8355443",
+  "bytes": 6941554,
+  "source_name": "Gallery-Soft-Futuristic-AC-Micro-Depth.html",
   "status": "delivered-for-user-testing",
-  "note": "Route transition fixes tested in Chromium; pending user review. HTML prototype, not native app integration."
+  "note": "Local staging only until GitHub commit and CI verification."
 }
