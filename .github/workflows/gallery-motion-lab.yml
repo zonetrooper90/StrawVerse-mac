@@ -1,0 +1,47 @@
+name: Gallery motion lab experiment
+
+on:
+  push:
+    branches:
+      - 'gallery/experiment-*'
+    paths:
+      - 'gallery/design-experiments/transition-lab/**'
+      - '.github/workflows/gallery-motion-lab.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  experiment-integrity-and-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm full Gallery checkpoint baseline is unmodified and valid
+        run: python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Validate standalone experiment's immutable SHA-256 checkpoint
+        run: |
+          python3 - <<'PYCODE'
+          import json,hashlib,pathlib
+          root=pathlib.Path('gallery/design-experiments/transition-lab')
+          current=json.loads((root/'current.json').read_text())
+          folder=root/current['folder']
+          manifest=json.loads((folder/'manifest.json').read_text())
+          data=(folder/manifest['source_name']).read_bytes()
+          actual=hashlib.sha256(data).hexdigest()
+          assert len(data)==manifest['source_bytes']==current['bytes']
+          assert actual==manifest['source_sha256']==current['sha256'],(actual,manifest['source_sha256'])
+          for token in (b'Gentle Crossfade',b'Layered Drift',b'Soft Depth',b'Soft Reveal',b'prefers-reduced-motion'):
+              assert token in data,token
+          print('Motion Lab checkpoint verified:',actual, 'bytes:',len(data))
+          PYCODE
+      - name: Install Playwright and Chromium
+        run: |
+          python3 -m pip install playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Exercise four animation styles and navigation
+        run: python3 gallery/design-experiments/transition-lab/tests/test_motion_lab.py
