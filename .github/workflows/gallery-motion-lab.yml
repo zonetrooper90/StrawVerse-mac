@@ -35,7 +35,7 @@ jobs:
           actual=hashlib.sha256(data).hexdigest()
           assert len(data)==manifest['source_bytes']==current['bytes']
           assert actual==manifest['source_sha256']==current['sha256'],(actual,manifest['source_sha256'])
-          for token in (b'Gentle Crossfade',b'Layered Drift',b'Soft Depth',b'Soft Reveal',b'prefers-reduced-motion'):
+          for token in (b'Gentle Crossfade',b'Layered Drift',b'Soft Depth',b'Soft Reveal',b'Crossfade + Micro Depth',b'prefers-reduced-motion'):
               assert token in data,token
           print('Motion Lab checkpoint verified:',actual, 'bytes:',len(data))
           PYCODE
@@ -43,5 +43,5 @@ jobs:
         run: |
           python3 -m pip install playwright
           python3 -m playwright install --with-deps chromium
-      - name: Exercise four animation styles and navigation
+      - name: Exercise five animation styles and navigation
         run: python3 gallery/design-experiments/transition-lab/tests/test_motion_lab.py

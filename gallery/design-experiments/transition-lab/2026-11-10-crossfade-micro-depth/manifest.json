@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "checkpoint": "2026-11-10-crossfade-micro-depth",
+  "kind": "gallery-transition-animation-experiment",
+  "source_name": "Gallery-Transition-Motion-Lab-Hybrid.html",
+  "source_bytes": 35033,
+  "source_sha256": "119f3df38b666b850e2fb2cc2b5004223085f409b081dc4f92b5c906ddf9ae90",
+  "created_date": "2026-11-10",
+  "status": "experiment-awaiting-user-review",
+  "based_on_experiment": "2026-11-10-motion-comparison-verified",
+  "base_gallery_checkpoint_sha256": "3fc012a9251d1fe77dab164831c9c65d993a3a5631d4f0302f1e9a9e2d48659b",
+  "notes": "A+C has A's overlapping dissolve and only 0.6–0.8% scale; A–D preserved. Full Gallery checkpoint unchanged."
+}

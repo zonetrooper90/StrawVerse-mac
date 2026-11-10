@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-motion-comparison-verified",
-  "sha256": "6ce09260d9390d16736bb6f05cca970cb3bfc648ce9af3a46c2cafedf77f4d20",
-  "bytes": 33296,
-  "source_name": "Gallery-Transition-Motion-Lab.html",
+  "folder": "2026-11-10-crossfade-micro-depth",
+  "sha256": "119f3df38b666b850e2fb2cc2b5004223085f409b081dc4f92b5c906ddf9ae90",
+  "bytes": 35033,
+  "source_name": "Gallery-Transition-Motion-Lab-Hybrid.html",
   "status": "experiment-awaiting-user-review",
-  "note": "Byte-exact standalone transition experiment. First upload was superseded due to a final-newline transport error. Full Gallery checkpoint remains unchanged."
+  "note": "A+C hybrid experiment with A–D available for comparison; full Gallery current pointer remains unchanged."
 }

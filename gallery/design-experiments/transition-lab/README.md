@@ -5,8 +5,9 @@ This directory holds separate experiments for comparing page transitions. It is 
 ## Current experiment
 
 - `current.json` identifies the latest motion-comparison experiment.
-- `2026-11-10-motion-comparison-verified/` is immutable and contains the full self-contained HTML plus its SHA-256 `manifest.json`.
-- Experiment shows four independent styles with shared navigation and timing: Gentle Crossfade, Layered Drift, Soft Depth, Soft Reveal.
+- `2026-11-10-crossfade-micro-depth/` is the latest immutable lab featuring A+C Crossfade + Micro Depth alongside the original A–D comparisons.
+- `2026-11-10-motion-comparison-verified/` remains immutable and retains the original four-way comparison.
+- Current experiment shows five styles with shared navigation and timing: Crossfade + Micro Depth, Gentle Crossfade, Layered Drift, Soft Depth, Soft Reveal.
 - Use `tests/test_motion_lab.py` to check animation triggering, reversible navigation, replay, focus mode, responsive layouts and reduced-motion support.
 - No external assets, internet calls or image generation. The preview uses simple CSS gradients for artwork placeholders.
 

@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Gallery — Page Transition Motion Lab</title>
+<style>
+:root{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  font-synthesis:none;
+  --bg:#0e111b;--panel:#171c2a;--panel-2:#1d2434;--edge:#2b3549;
+  --ink:#eff3fa;--muted:#9eaac0;--soft:#c3cde1;--accent:#a7c5df;--accent-strong:#85b6d8;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{color:var(--ink);background:radial-gradient(ellipse 72% 50% at 50% -10%,#26384e 0%,rgba(27,38,55,.5) 36%,transparent 83%),var(--bg);}
+button,input,select{font:inherit} button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid #bedff2;outline-offset:3px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.lab{width:min(1490px,calc(100% - 48px));margin:0 auto;padding:44px 0 74px}
+.lab-top{display:flex;justify-content:space-between;align-items:center;gap:25px;margin-bottom:28px}
+.heading .kicker{text-transform:uppercase;letter-spacing:.18em;font-weight:750;font-size:11px;color:#9cc5dd;margin:0 0 10px}
+h1{font-size:clamp(26px,3.1vw,43px);letter-spacing:-.045em;line-height:1.08;margin:0 0 12px;font-weight:735}
+.heading p{max-width:680px;color:var(--muted);font-size:14.5px;line-height:1.65;margin:0}
+.lab-mark{flex:none;width:67px;height:67px;border-radius:21px;border:1px solid #415269;background:linear-gradient(135deg,#273f55,#202838);display:grid;place-items:center;color:#b6dcf2;box-shadow:inset 0 1px 0 #ffffff14}
+.lab-mark svg{width:37px;height:37px}
+.toolbar{border:1px solid var(--edge);background:linear-gradient(180deg,rgba(32,41,57,.97),rgba(24,31,45,.97));border-radius:21px;padding:20px 22px;box-shadow:0 16px 40px #07090d30;margin-bottom:25px}
+.toolbar-top,.toolbar-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toolbar-top{margin-bottom:17px}
+.control-label{display:block;color:var(--muted);font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.13em;margin-bottom:9px}
+.route-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 14px;border-radius:11px;border:1px solid #3a4860;background:#253146;color:#d9e5f3;font-weight:650;font-size:13px;transition:border-color .15s,background .15s,transform .15s}
+.action:hover:not(:disabled){border-color:#7393aa;background:#33465d}
+.action:active{transform:scale(.985)}
+.action.active{background:#496a82;border-color:#729bb5;color:#fff}
+.action.subtle{background:#1c2535;color:#bdcde0;border-color:#37455a}
+.action.prominent{background:#b5d5e8;color:#122539;border-color:#badff1}
+.action.prominent:hover{background:#d1e7f2}
+.action svg{height:15px;width:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.play-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.duration-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.duration-text{color:#eaf1fb;font-variant-numeric:tabular-nums;font-weight:700;min-width:58px;text-align:right}
+input[type=range]{width:155px;accent-color:#a7cfe7;cursor:pointer}
+.status{display:flex;align-items:center;gap:9px;color:#aebace;font-size:12px;flex-wrap:wrap}
+.status .dot{width:7px;height:7px;background:#8cc9c0;border-radius:50%;box-shadow:0 0 0 4px #8cc9c020}
+.status strong{color:#e6edf7;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.demo-card{min-width:0;background:linear-gradient(170deg,#1d2432,#171d29);border:1px solid #354055;border-radius:20px;overflow:hidden;box-shadow:0 15px 34px #080b1040}
+.demo-card[data-style="hybrid"]{grid-column:1/-1;justify-self:center;width:calc(50% - 10px);border-color:#83a8c5;box-shadow:0 15px 34px #080b1040,0 0 0 1px #779cb240}
+.demo-card[data-style="hybrid"] .letter{background:#365c77;border-color:#85b3ce}
+.focus .demo-card[data-style="hybrid"]{width:100%}
+@media(max-width:1000px){.demo-card[data-style="hybrid"]{width:100%}}
+.demo-head{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 19px 15px}
+.demo-header-copy{min-width:0}
+.demo-name{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.letter{width:26px;height:26px;display:grid;place-items:center;border:1px solid #607b98;background:#2b455c;color:#dcf0ff;font-weight:800;border-radius:9px;font-size:13px;flex:none}
+.demo-name h2{font-size:16px;line-height:1.25;margin:0;letter-spacing:-.018em;font-weight:720}
+.demo-head p{color:#a8b5c9;font-size:12px;line-height:1.5;margin:0}
+.demo-head .action{min-height:34px;padding:7px 11px;white-space:nowrap;font-size:12px}
+.window{margin:0 12px 12px;background:#131d29;border:1px solid #3c4e64;border-radius:14px;overflow:hidden;box-shadow:0 12px 28px #080c1440;isolation:isolate}
+.window-header{height:48px;background:#1a2938;border-bottom:1px solid #33485b;display:flex;justify-content:space-between;gap:12px;padding:0 14px;align-items:center;position:relative;z-index:5}
+.window-brand{font-size:14px;display:flex;align-items:center;gap:8px;font-weight:760;letter-spacing:-.025em;white-space:nowrap}
+.window-brand .diamond{width:19px;height:19px;border:2px solid #a2d1e8;border-radius:6px;transform:rotate(45deg);display:grid;place-items:center}
+.window-brand .diamond:after{content:"";width:5px;height:5px;background:#a2d1e8;border-radius:2px}
+.window-brand .tiny{font-weight:560;font-size:10px;color:#8facc0;border:1px solid #3d5368;padding:4px 7px;border-radius:99px;margin-left:2px}
+.window-nav{display:flex;gap:5px;align-items:center}
+.window-nav button{border:0;background:transparent;color:#a0b2c5;font-size:11px;padding:8px 11px;border-radius:8px;font-weight:650;white-space:nowrap}
+.window-nav button:hover{background:#ffffff13;color:#eef5fc}
+.window-nav button.selected{background:#365067;color:#eff9ff}
+.window-nav .gear{font-size:17px;padding:6px 8px;line-height:1}
+.viewport{height:300px;position:relative;isolation:isolate;overflow:hidden;contain:paint;background:#131d29}
+.scene{position:absolute;inset:0;background:#131d29;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;will-change:opacity,transform,clip-path;backface-visibility:hidden}
+.scene::-webkit-scrollbar{display:none}
+.scene-inner{padding:20px 21px 32px;min-height:100%;}
+.scene-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+.scene-heading{font-size:23px;line-height:1.1;font-weight:770;letter-spacing:-.04em;margin:0}
+.scene-sub{font-size:11px;line-height:1.5;color:#9eafc2;margin:7px 0 0}
+.scene-eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:9px;font-weight:800;color:#99c9e2;margin:0 0 7px}
+.scene-button{font-weight:700;font-size:11px;color:#d2e8f9;border:1px solid #3d586f;background:#2b4357;border-radius:9px;padding:9px 11px;white-space:nowrap}
+.scene-button:hover{background:#405c71}
+.scene-button.filled{background:#a8cfe5;color:#182c3c;border-color:transparent}
+.scene-button.ghost{color:#a4c5de;background:transparent;border-color:transparent}
+.scene-panel{border:1px solid #32485d;border-radius:13px;background:#1c2b3a;padding:16px;margin-top:13px}
+.scene-panel.subtle{background:#172633}
+.panel-title{font-size:13px;font-weight:750;margin:0 0 7px}
+.panel-desc{font-size:10px;color:#91a7b8;margin:0;line-height:1.5}
+.scene-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.cover{aspect-ratio:5/4;border-radius:10px;position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:flex-end;padding:12px;border:1px solid #ffffff1c;color:#fff;text-align:left;width:100%;cursor:pointer}
+.cover:before{content:"";position:absolute;width:90px;height:90px;border:1px solid #ffffff40;left:35%;top:-35%;border-radius:50%;z-index:-1}
+.cover:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#04070b9f,transparent 65%);z-index:-1}
+.cover span{font-size:11px;font-weight:720;line-height:1.25;text-shadow:0 1px 8px #000b}
+.cover.one{background:linear-gradient(155deg,#598cb5,#3d536b 50%,#b59cc2)}
+.cover.two{background:linear-gradient(135deg,#537c7c,#7a9a8d 48%,#b5b08f)}
+.cover.three{background:linear-gradient(140deg,#b2789f,#784e7c 54%,#4e456b)}
+.feature-strip{border:1px solid #39516a;border-radius:12px;background:radial-gradient(circle at 90% 10%,#6485a440,transparent 55%),#25374a;display:flex;gap:12px;align-items:center;padding:13px;margin:13px 0}
+.feature-art{width:44px;height:57px;border-radius:8px;background:radial-gradient(circle at 50% 28%,#d2eef45c,transparent 40%),linear-gradient(150deg,#4f7499,#4f4f80);flex:none}
+.feature-title{font-weight:760;font-size:12px}
+.feature-meta{font-size:10px;color:#c5d1e1;margin-top:5px}
+.microbar{height:4px;border-radius:99px;background:#384b62;margin-top:10px;overflow:hidden}
+.microbar:after{content:"";display:block;width:59%;height:100%;background:#a5d0e4;border-radius:99px}
+.library-list{display:flex;flex-direction:column;gap:10px;margin-top:15px}
+.library-row{border:1px solid #34495e;background:#1d2b3a;border-radius:12px;padding:10px;display:flex;gap:12px;align-items:center;color:inherit;text-align:left;width:100%}
+.library-row:hover{background:#284052}
+.library-thumb{width:45px;height:58px;border-radius:7px;flex:none;background:linear-gradient(140deg,#63858c,#8ca5a3)}
+.library-row:nth-child(2) .library-thumb{background:linear-gradient(140deg,#917dbe,#6585a3)}
+.library-row:nth-child(3) .library-thumb{background:linear-gradient(140deg,#aa7b99,#8e6677)}
+.library-name{font-size:12px;font-weight:730}
+.library-meta{font-size:10px;color:#98adbf;margin-top:5px}
+.hero{border-radius:14px;min-height:125px;background:radial-gradient(ellipse at 72% 32%,#e1ece450,transparent 25%),radial-gradient(ellipse at 38% 90%,#73b5ab88,transparent 43%),linear-gradient(130deg,#476d82,#304259 55%,#776b86);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:16px;box-shadow:inset 0 -25px 60px #0c152448}
+.hero:before{content:"";position:absolute;width:140px;height:140px;border-radius:50%;border:1px solid #ffffff30;right:10%;top:-45%}
+.hero-title{font-size:19px;font-weight:790;line-height:1.15;letter-spacing:-.03em;text-shadow:0 2px 12px #08111b8f;position:relative;z-index:1}
+.mini-tags{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.mini-tags span{border:1px solid #42586b;color:#b6cada;padding:5px 8px;border-radius:99px;font-size:10px}
+.episode-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #34475a}
+.episode-row:last-child{border-bottom:0}
+.episode-num{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#30465b;font-size:10px;font-weight:750;color:#c5dfef}
+.episode-name{font-size:11px;font-weight:670}
+.episode-meta{font-size:10px;color:#95aabd;margin-top:3px}
+.episode-play{margin-left:auto;border:0;background:#38576a;color:#ebf7ff;border-radius:8px;padding:7px 10px;font-weight:700;font-size:10px}
+.setting-layout{display:grid;grid-template-columns:98px minmax(0,1fr);gap:13px;margin-top:13px}
+.setting-menu{display:flex;flex-direction:column;gap:5px}
+.setting-menu div{font-size:10px;padding:9px;border-radius:8px;color:#93aabd}
+.setting-menu div.on{background:#334d65;color:#edf7ff;font-weight:710}
+.settings-panel{background:#1a2a3a;border:1px solid #334c61;padding:12px 14px;border-radius:12px;min-width:0}
+.setting-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #304457;padding:12px 0;gap:9px}
+.setting-row:first-of-type{margin-top:8px}
+.setting-label{font-size:11px;font-weight:700}
+.setting-desc{font-size:9px;color:#94a9bd;margin-top:5px;line-height:1.45}
+.toggle{width:30px;height:17px;border-radius:99px;background:#587f91;border:1px solid #8dc9df;position:relative;flex:none}
+.toggle:after{content:"";height:11px;width:11px;border-radius:50%;background:#e3f8ff;position:absolute;right:2px;top:2px}
+.setting-palette{display:flex;gap:6px;margin-top:10px}
+.setting-palette span{height:24px;flex:1;border-radius:7px;border:1px solid #ffffff21}
+.setting-palette span:nth-child(1){background:#93c0d8}.setting-palette span:nth-child(2){background:#7aa48e}.setting-palette span:nth-child(3){background:#c9d9e7}.setting-palette span:nth-child(4){background:#ac87bf}
+.demo-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 17px 15px;color:#98a8bd;font-size:11px}
+.demo-footer strong{font-variant-numeric:tabular-nums;color:#e0eaf5}
+.demo-footer .tag{border:1px solid #3b4b60;border-radius:99px;padding:5px 9px;font-size:10px}
+.overview-note{color:#a5b2c3;font-size:12px;line-height:1.6;margin:23px 2px 0}
+.overview-note strong{color:#dceaf8}
+.focus .grid{grid-template-columns:1fr;max-width:1050px;margin:auto}
+.focus .demo-card:not(.focused){display:none}
+.focus .demo-card.focused{border-color:#83a8c5}
+.focus .demo-card.focused .viewport{height:min(57vh,620px);min-height:420px}
+.focus .demo-card.focused .window-header{height:57px;padding:0 26px}
+.focus .demo-card.focused .scene-inner{padding:31px 34px 46px}
+.focus .demo-card.focused .scene-heading{font-size:31px}
+.focus .demo-card.focused .scene-sub{font-size:13px}
+.focus .demo-card.focused .scene-columns{gap:15px}
+.focus .demo-card.focused .cover{aspect-ratio:2/1}
+.focus .demo-card.focused .hero{min-height:180px}
+.focus .demo-card.focused .hero-title{font-size:27px}
+.focus .demo-card.focused .setting-layout{grid-template-columns:160px 1fr}
+.focus .demo-card.focused .setting-menu div{font-size:12px}
+.focus .demo-card.focused .setting-row{padding:19px 0}
+.focus .demo-card.focused .demo-head p{font-size:13px}
+@media(max-width:1000px){.lab{width:min(740px,calc(100% - 28px));padding-top:28px}.grid{grid-template-columns:1fr}.viewport{height:330px}}
+@media(max-width:530px){.lab-top{align-items:flex-start}.lab-mark{display:none}.toolbar{padding:17px}.action{padding:9px 10px;font-size:12px}.demo-head{padding:15px}.demo-head p{font-size:11px}.scene-inner{padding:16px}.scene-heading{font-size:20px}.window-nav button{padding:7px;font-size:10px}.window-brand .tiny{display:none}.scene-columns{gap:6px}.cover{padding:7px}.cover span{font-size:10px}.window{margin:0 8px 8px}.viewport{height:290px}.focus .demo-card.focused .viewport{min-height:390px}.focus .demo-card.focused .scene-inner{padding:19px}.focus .demo-card.focused .setting-layout{grid-template-columns:95px 1fr}.focus .demo-card.focused .cover{aspect-ratio:4/3}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="lab" id="lab">
+  <div class="lab-top">
+    <div class="heading">
+      <p class="kicker">Gallery / Design experiments</p>
+      <h1>Page transition motion lab</h1>
+      <p>Five directions, including a new A + C blend. The same pages, the same timing, and a stationary Gallery header. Compare the effects side by side or focus on one at full size.</p>
+    </div>
+    <div class="lab-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M20 4 36 20 20 36 4 20 20 4Z"/><path d="M20 12 28 20 20 28 12 20 20 12Z"/><path d="M20 4v8m0 16v8M4 20h8m16 0h8"/></svg></div>
+  </div>
+  <section class="toolbar" aria-label="Comparison controls">
+    <div class="toolbar-top">
+      <div>
+        <label class="control-label">Navigate all previews</label>
+        <nav class="route-buttons" aria-label="Sample Gallery pages">
+          <button class="action active" data-page="discover" aria-pressed="true">Discover</button>
+          <button class="action" data-page="library" aria-pressed="false">Library</button>
+          <button class="action" data-page="anime" aria-pressed="false">Anime</button>
+          <button class="action" data-page="settings" aria-pressed="false">Settings</button>
+          <button class="action subtle" id="back" aria-label="Back to previous sample page" disabled><svg viewBox="0 0 24 24"><path d="M15 18 9 12l6-6"/></svg> Back</button>
+        </nav>
+      </div>
+      <div class="play-controls">
+        <button class="action prominent" id="replay" title="Replay the most recent page change"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 1-2.4-5.7M20 4v6h-6"/></svg> Replay</button>
+        <button class="action subtle" id="tour"><svg viewBox="0 0 24 24"><path d="m7 5 12 7-12 7z"/></svg><span>Play tour</span></button>
+      </div>
+    </div>
+    <div class="toolbar-bottom">
+      <div class="duration-wrap">
+        <label for="duration" class="control-label" style="margin:0">Transition duration</label>
+        <input id="duration" type="range" min="250" max="750" value="450" step="25" aria-label="Animation duration">
+        <output id="duration-value" for="duration" class="duration-text">450 ms</output>
+      </div>
+      <div class="status" aria-live="polite"><span class="dot"></span><span id="status-copy"><strong>Discover</strong> · choose Anime or Settings to compare</span></div>
+    </div>
+  </section>
+  <section class="grid" id="grid" aria-label="Five transition comparisons">
+    <article class="demo-card" data-style="hybrid">
+      <div class="demo-head"><div class="demo-header-copy"><div class="demo-name"><span class="letter">A+C</span><h2>Crossfade + Micro Depth</h2></div><p>A's overlapping dissolve, with only a whisper of C's depth (0.6–0.8% scale).</p></div><button class="action subtle focus-button" data-focus="hybrid">Focus <span aria-hidden="true">↗</span></button></div>
+      <div class="window"><div class="window-header"><div class="window-brand"><span class="diamond" aria-hidden="true"></span> Gallery <span class="tiny">motion study</span></div><nav class="window-nav" aria-label="Preview shortcuts"><button data-page="discover">Discover</button><button data-page="library">Library</button><button class="gear" data-page="settings" aria-label="Preview Settings">⚙</button></nav></div><div class="viewport" aria-label="A and C hybrid sample"></div></div>
+      <div class="demo-footer"><span>A's opacity timing + 0.6–0.8% depth</span><span class="tag">New / Balanced</span></div>
+    </article>
+    <article class="demo-card" data-style="fade">
+      <div class="demo-head"><div class="demo-header-copy"><div class="demo-name"><span class="letter">A</span><h2>Gentle Crossfade</h2></div><p>A longer, overlapping dissolve. No movement or scaling.</p></div><button class="action subtle focus-button" data-focus="fade">Focus <span aria-hidden="true">↗</span></button></div>
+      <div class="window"><div class="window-header"><div class="window-brand"><span class="diamond" aria-hidden="true"></span> Gallery <span class="tiny">motion study</span></div><nav class="window-nav" aria-label="Preview shortcuts"><button data-page="discover">Discover</button><button data-page="library">Library</button><button class="gear" data-page="settings" aria-label="Preview Settings">⚙</button></nav></div><div class="viewport" aria-label="Gentle crossfade sample"></div></div>
+      <div class="demo-footer"><span>Opacity only</span><span class="tag">Quiet / Minimal</span></div>
+    </article>
+    <article class="demo-card" data-style="drift">
+      <div class="demo-head"><div class="demo-header-copy"><div class="demo-name"><span class="letter">B</span><h2>Layered Drift</h2></div><p>Two overlapping layers moving gently in opposite directions.</p></div><button class="action subtle focus-button" data-focus="drift">Focus <span aria-hidden="true">↗</span></button></div>
+      <div class="window"><div class="window-header"><div class="window-brand"><span class="diamond" aria-hidden="true"></span> Gallery <span class="tiny">motion study</span></div><nav class="window-nav" aria-label="Preview shortcuts"><button data-page="discover">Discover</button><button data-page="library">Library</button><button class="gear" data-page="settings" aria-label="Preview Settings">⚙</button></nav></div><div class="viewport" aria-label="Layered drift sample"></div></div>
+      <div class="demo-footer"><span>Opacity + horizontal position</span><span class="tag">Fluid / Directional</span></div>
+    </article>
+    <article class="demo-card" data-style="depth">
+      <div class="demo-head"><div class="demo-header-copy"><div class="demo-name"><span class="letter">C</span><h2>Soft Depth</h2></div><p>Old content recedes while the next page settles forward.</p></div><button class="action subtle focus-button" data-focus="depth">Focus <span aria-hidden="true">↗</span></button></div>
+      <div class="window"><div class="window-header"><div class="window-brand"><span class="diamond" aria-hidden="true"></span> Gallery <span class="tiny">motion study</span></div><nav class="window-nav" aria-label="Preview shortcuts"><button data-page="discover">Discover</button><button data-page="library">Library</button><button class="gear" data-page="settings" aria-label="Preview Settings">⚙</button></nav></div><div class="viewport" aria-label="Soft depth sample"></div></div>
+      <div class="demo-footer"><span>Opacity + subtle scale</span><span class="tag">Soft / Spatial</span></div>
+    </article>
+    <article class="demo-card" data-style="reveal">
+      <div class="demo-head"><div class="demo-header-copy"><div class="demo-name"><span class="letter">D</span><h2>Soft Reveal</h2></div><p>The next page is uncovered over the current one, without sliding it away.</p></div><button class="action subtle focus-button" data-focus="reveal">Focus <span aria-hidden="true">↗</span></button></div>
+      <div class="window"><div class="window-header"><div class="window-brand"><span class="diamond" aria-hidden="true"></span> Gallery <span class="tiny">motion study</span></div><nav class="window-nav" aria-label="Preview shortcuts"><button data-page="discover">Discover</button><button data-page="library">Library</button><button class="gear" data-page="settings" aria-label="Preview Settings">⚙</button></nav></div><div class="viewport" aria-label="Soft reveal sample"></div></div>
+      <div class="demo-footer"><span>Directional mask + light fade</span><span class="tag">Deliberate / Distinct</span></div>
+    </article>
+  </section>
+  <p class="overview-note"><strong>How to compare:</strong> Start with <strong>Discover → Anime</strong>, then <strong>Anime → Settings</strong>, and press <strong>Back</strong> to judge the reverse direction. Adjust the duration or use <strong>Replay</strong> without resetting the pages. This is an isolated motion experiment, not a replacement Gallery build. A system preference for reduced motion skips the effects.</p>
+</main>
+<script>
+'use strict';
+const views=['discover','library','anime','settings'];
+const labels={discover:'Discover',library:'Library',anime:'Anime details',settings:'Settings'};
+const cards=[...document.querySelectorAll('.demo-card')];
+const durationInput=document.querySelector('#duration');
+const durationValue=document.querySelector('#duration-value');
+const statusCopy=document.querySelector('#status-copy');
+const lab=document.querySelector('#lab');
+const backButton=document.querySelector('#back');
+const tourButton=document.querySelector('#tour');
+const prefersReduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+let current='discover',trail=[],lastRoute=null,activeToken=0,tourTimer=null,tourStep=0;
+const tourSequence=['anime','settings','anime','discover','library','anime','library','discover'];
+const sceneTemplates={
+ discover:()=>`<div class="scene-inner">
+  <div class="scene-top"><div><p class="scene-eyebrow">Explore</p><h3 class="scene-heading">Discover</h3><p class="scene-sub">Find your next story.</p></div><button class="scene-button" data-page="anime">Featured anime ↗</button></div>
+  <div class="feature-strip"><div class="feature-art"></div><div style="flex:1"><div class="feature-title">Continue watching</div><div class="feature-meta">Frieren · Season 1, Episode 12</div><div class="microbar"></div></div></div>
+  <div class="scene-top" style="margin:17px 0 5px"><div><p class="panel-title">Trending right now</p><p class="panel-desc">Explore a few favourites</p></div><span style="color:#9db5cc;font-size:10px">View all</span></div>
+  <div class="scene-columns"><button class="cover one" data-page="anime"><span>Frieren</span></button><button class="cover two" data-page="anime"><span>Ancient Forest</span></button><button class="cover three" data-page="anime"><span>Violet Sky</span></button></div>
+  <div class="scene-panel subtle"><p class="panel-title">Your next adventure</p><p class="panel-desc">An anime collection chosen just for you.</p></div>
+ </div>`,
+ library:()=>`<div class="scene-inner">
+  <div class="scene-top"><div><p class="scene-eyebrow">Your collection</p><h3 class="scene-heading">Library</h3><p class="scene-sub">All your stories in one place.</p></div><button class="scene-button" data-page="anime">Open anime ↗</button></div>
+  <div class="scene-panel"><p class="panel-title">Saved series <span style="color:#94b4c7;font-weight:550">· 12</span></p><p class="panel-desc">Continue where you left off</p>
+    <div class="library-list"><button class="library-row" data-page="anime"><div class="library-thumb"></div><div><div class="library-name">Frieren: Beyond Journey's End</div><div class="library-meta">Watching · 12 of 28 episodes</div></div></button>
+    <button class="library-row" data-page="anime"><div class="library-thumb"></div><div><div class="library-name">Violet Evergarden</div><div class="library-meta">Completed · 13 episodes</div></div></button>
+    <button class="library-row" data-page="anime"><div class="library-thumb"></div><div><div class="library-name">Your Name</div><div class="library-meta">Plan to watch · Movie</div></div></button></div>
+  </div>
+ </div>`,
+ anime:()=>`<div class="scene-inner">
+   <div class="scene-top" style="margin-bottom:12px"><div><p class="scene-eyebrow">Series details</p><h3 class="scene-heading">Anime</h3></div><button class="scene-button ghost" data-action="back">← Back</button></div>
+   <div class="hero"><div class="hero-title">Frieren: Beyond<br>Journey's End</div></div>
+   <div class="mini-tags"><span>2023</span><span>Fantasy</span><span>Adventure</span><span>28 episodes</span></div>
+   <div class="scene-top" style="margin:17px 0 10px"><div><p class="panel-title" style="margin:0">Episodes</p><p class="panel-desc">Season 1</p></div><button class="scene-button filled">▶ &nbsp;Play</button></div>
+   <div class="scene-panel subtle" style="margin-top:0;padding:7px 13px"><div class="episode-row"><span class="episode-num">12</span><div><div class="episode-name">A Real Hero</div><div class="episode-meta">24 min · Sub</div></div><button class="episode-play">▶</button></div><div class="episode-row"><span class="episode-num">13</span><div><div class="episode-name">Aversion to One's Own Kind</div><div class="episode-meta">24 min · Sub</div></div><button class="episode-play">▶</button></div></div>
+ </div>`,
+ settings:()=>`<div class="scene-inner">
+  <div class="scene-top"><div><p class="scene-eyebrow">Personalization</p><h3 class="scene-heading">Settings</h3><p class="scene-sub">Make Gallery feel like yours.</p></div><button class="scene-button ghost" data-action="back">← Back</button></div>
+  <div class="setting-layout"><div class="setting-menu"><div class="on">Appearance</div><div>Playback</div><div>Subtitles</div><div>Downloads</div><div>About</div></div><div class="settings-panel">
+  <p class="panel-title">Appearance</p><p class="panel-desc">Choose how Gallery looks.</p>
+  <div class="setting-row"><div><div class="setting-label">Theme</div><div class="setting-desc">Ocean</div></div><span style="font-size:10px;color:#c5ddec">Change ▾</span></div>
+  <div class="setting-row"><div><div class="setting-label">Accent colors</div><div class="setting-desc">Soft Futuristic palettes</div></div></div>
+  <div class="setting-palette"><span></span><span></span><span></span><span></span></div>
+  <div class="setting-row"><div><div class="setting-label">Smooth animations</div><div class="setting-desc">Gentle interface transitions</div></div><span class="toggle"></span></div>
+ </div></div>
+ </div>`
+};
+function createScene(view){const div=document.createElement('section');div.className='scene';div.dataset.scene=view;div.setAttribute('aria-label',labels[view]);div.innerHTML=sceneTemplates[view]();return div;}
+function setup(){for(const card of cards){const stage=card.querySelector('.viewport');stage.append(createScene(current));card._stage=stage;card._animations=[];}updateUI();}
+function duration(){return Number(durationInput.value)}
+function makeFrames(kind,isBack){
+ const sign=isBack?-1:1;
+ const x=n=>`translate3d(${n*sign}px,0,0)`;
+ switch(kind){
+  case 'fade':return {
+    out:[{opacity:1,offset:0},{opacity:.83,offset:.48},{opacity:.05,offset:1}],
+    in:[{opacity:.05,offset:0},{opacity:.60,offset:.48},{opacity:1,offset:1}]};
+  case 'hybrid':return {
+     out:[{opacity:1,transform:'scale(1)',offset:0},{opacity:.83,transform:'scale(.998)',offset:.48},{opacity:.05,transform:'scale(.994)',offset:1}],
+     in:[{opacity:.05,transform:'scale(1.008)',offset:0},{opacity:.60,transform:'scale(1.004)',offset:.48},{opacity:1,transform:'scale(1)',offset:1}]};
+  case 'drift':return {
+    out:[{opacity:1,transform:x(0)},{opacity:.16,transform:x(-29)}],
+    in:[{opacity:.24,transform:x(32)},{opacity:1,transform:x(0)}]};
+  case 'depth':return {
+    out:[{opacity:1,transform:'scale(1)'},{opacity:.25,transform:'scale(.972)'}],
+    in:[{opacity:.12,transform:'scale(1.032)'},{opacity:1,transform:'scale(1)'}]};
+  case 'reveal':return {
+    out:[{opacity:1},{opacity:.88}],
+    in:[{opacity:.9,clipPath:isBack?'inset(0 100% 0 0 round 0px)':'inset(0 0 0 100% round 0px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 0px)'}]};
+ }
+}
+function cleanPanel(card){
+ for(const a of (card._animations||[])){try{a.finish();}catch(_){}try{a.cancel();}catch(_){}}
+ card._animations=[];
+ const children=[...card._stage.querySelectorAll('.scene')];
+ for(const node of children.slice(0,-1))node.remove();
+ const live=card._stage.lastElementChild;
+ if(live){live.style.zIndex='';live.style.pointerEvents='';live.style.transform='';live.style.opacity='';live.style.clipPath='';live.style.willChange='opacity,transform,clip-path';}
+}
+function transitionCard(card,from,to,isBack,token,replay=false){
+ cleanPanel(card);
+ let old=card._stage.lastElementChild;
+ if(replay){old?.remove();old=createScene(from);card._stage.append(old);}
+ const next=createScene(to);
+ next.style.zIndex='2';next.style.pointerEvents='none';
+ if(old){old.style.zIndex='1';old.style.pointerEvents='none';}
+ card._stage.append(next);
+ if(prefersReduce.matches||!Element.prototype.animate){old?.remove();next.style.pointerEvents='';return Promise.resolve();}
+ const fx=makeFrames(card.dataset.style,isBack);
+ const easingIn='cubic-bezier(.22,.68,.17,1)';
+ const easingOut='cubic-bezier(.38,0,.62,1)';
+ const opts={duration:duration(),fill:'both'};
+ const animations=[];
+ if(old)animations.push(old.animate(fx.out,{...opts,easing:easingOut}));
+ animations.push(next.animate(fx.in,{...opts,easing:easingIn}));
+ card._animations=animations;
+ return Promise.all(animations.map(a=>a.finished.catch(()=>null))).then(()=>{
+  if(token!==activeToken)return;
+  for(const a of animations){try{a.cancel()}catch(_){}}
+  old?.remove();next.style.zIndex='';next.style.pointerEvents='';next.style.opacity='';next.style.transform='';next.style.clipPath='';
+  card._animations=[];
+ });
+}
+function change(to,{back=false,replay=false,automatic=false}={}){
+ if(!views.includes(to))return;
+ if(!replay&&to===current)return;
+ if(!automatic)stopTour();
+ const from=replay?(lastRoute?.from||'discover'):current;
+ if(!replay){
+   if(back){/* history already popped by goBack() */}
+   else trail.push(current);
+   current=to;
+   lastRoute={from,to,back};
+ }
+ const backwards=replay?(lastRoute?.back||false):back;
+ const token=++activeToken;
+ for(const card of cards)transitionCard(card,from,to,backwards,token,replay);
+ updateUI();
+ statusCopy.innerHTML=`<strong>${labels[from]} → ${labels[to]}</strong> · ${duration()} ms${backwards?' · Back':''}`;
+}
+function updateUI(){
+ for(const btn of document.querySelectorAll('[data-page]')){
+   let pressed=btn.dataset.page===current;
+   btn.classList.toggle('active',btn.closest('.toolbar')!==null&&pressed);
+   if(btn.closest('.toolbar'))btn.setAttribute('aria-pressed',String(pressed));
+ }
+ backButton.disabled=trail.length===0;
+ for(const card of cards){for(const b of card.querySelectorAll('.window-nav [data-page]'))b.classList.toggle('selected',b.dataset.page===current);}
+ durationValue.textContent=`${duration()} ms`;
+}
+function goBack(){if(!trail.length)return;const to=trail.pop();change(to,{back:true});}
+function focus(kind){const target=cards.find(x=>x.dataset.style===kind);if(!target)return;const was=target.classList.contains('focused')&&lab.classList.contains('focus');lab.classList.toggle('focus',!was);for(const card of cards){card.classList.toggle('focused',card===target&&!was);const b=card.querySelector('.focus-button');b.textContent=card===target&&!was?'All styles ↙':'Focus ↗';}}
+function replay(){if(!lastRoute){change('anime');return;}change(lastRoute.to,{replay:true});}
+function stopTour(){if(tourTimer!==null){clearTimeout(tourTimer);tourTimer=null;}tourButton.querySelector('span').textContent='Play tour';tourButton.setAttribute('aria-pressed','false');}
+function playTour(){if(tourTimer!==null){stopTour();return;}tourStep=0;tourButton.querySelector('span').textContent='Stop tour';tourButton.setAttribute('aria-pressed','true');const step=()=>{if(tourTimer===null)return;const to=tourSequence[tourStep++%tourSequence.length];if(to!==current)change(to,{automatic:true});tourTimer=setTimeout(step,duration()+950);};tourTimer=setTimeout(step,60);}
+document.addEventListener('click',ev=>{
+ const f=ev.target.closest('[data-focus]');if(f){focus(f.dataset.focus);return;}
+ const b=ev.target.closest('[data-action="back"]');if(b){goBack();return;}
+ const p=ev.target.closest('[data-page]');if(p){change(p.dataset.page);return;}
+});
+durationInput.addEventListener('input',()=>{durationValue.textContent=`${duration()} ms`;});
+backButton.addEventListener('click',goBack);
+document.querySelector('#replay').addEventListener('click',replay);
+tourButton.addEventListener('click',playTour);
+prefersReduce.addEventListener?.('change',()=>{for(const card of cards)cleanPanel(card);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&lab.classList.contains('focus')){const c=cards.find(x=>x.classList.contains('focused'));if(c)focus(c.dataset.style);}});
+setup();
+</script>
+</body>
+</html>
