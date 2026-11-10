@@ -87,7 +87,9 @@ with sync_playwright() as p:
         page.wait_for_timeout(550)
         rec("Anime returns to Discover", status()["detail"] is None and status()["view"] == "discover")
         page.evaluate("openSourceManagerFromDiscover()")
-        page.wait_for_timeout(130)
+        # The View Transitions callback runs after Chromium captures the outgoing
+        # page. Wait on the actual destination, not an arbitrary frame budget.
+        page.wait_for_function("document.body.classList.contains('settings-view') && settingsLastSection==='sources'", timeout=7000)
         rec("Sources deep link survives asynchronous capture", status()["settings"] and status()["section"] == "sources", status())
         page.wait_for_timeout(550)
         page.locator('#settings-back').click()
