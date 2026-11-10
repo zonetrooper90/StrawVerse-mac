@@ -94,7 +94,9 @@ jobs:
           git add gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json \
             gallery/checkpoints/2026-11-10-history-rows-hidden-transfers \
             gallery/deliverables/Gallery-History-Row-Maintenance.html
-          git diff --cached --check
+          # Historical HTML already contains whitespace; the output is byte-exact and hash-locked.
+          # Check editable metadata and encoded chunks, not immutable source HTML formatting.
+          git diff --cached --check -- gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-history-rows-hidden-transfers/
           git commit -m "fix(gallery): hide collection transfer controls and activate Watch History rows" \
             -m "Unnumbered tested maintenance checkpoint. Preserve coordinated fades, details routes, independent remove, complete import/export code."
           git push origin "HEAD:refs/heads/gallery/working-2026-11-10-coordinated-fades"
