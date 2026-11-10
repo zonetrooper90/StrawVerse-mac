@@ -6,6 +6,7 @@ on:
     paths:
       - 'gallery/tools/ac-transition-integration.py'
       - 'gallery/tests/test_ac_transitions.py'
+      - 'gallery/tests/test_transitions.py'
       - '.github/workflows/gallery-ac-build.yml'
   workflow_dispatch:
 permissions:

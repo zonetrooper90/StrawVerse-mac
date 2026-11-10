@@ -24,7 +24,7 @@ with sync_playwright() as p:
   page.wait_for_timeout(350)
   print('\n======',width,reduced,'======')
   def stat():return page.evaluate('''() => ({detail:state.detailId,returnHistory:state.detailReturnHistory,wh:whOpen,view:state.view,screen:!screen.hidden,settings:document.body.classList.contains('settings-view'),key:screen.dataset.surfaceKey,animations:document.getAnimations().map(a=>a.animationName||'WAAPI'),historyFilter:whFilter,expanded:[...whExpanded],transition:!!galleryStageTransition})''')
-  def wait():page.wait_for_timeout(320)
+  def wait():page.wait_for_timeout(560)  # A+C coordinated page fade is 450 ms; allow transition completion.
   # tabs
   for name in ['library','downloads','discover']:
    page.locator('.tab[data-view="'+name+'"]').click();wait()
