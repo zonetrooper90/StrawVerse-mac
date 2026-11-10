@@ -1,0 +1,66 @@
+name: Gallery A+C implementation and checkpoint
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-ac-micro-depth'
+    paths:
+      - '.github/workflows/gallery-ac-implementation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gallery-ac-checkpoint-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  implement-test-stage-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out dedicated Gallery development branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify canonical GitHub checkpoint before editing
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-Verified-Baseline.html"
+      - name: Apply scoped A+C motion patch to verified baseline
+        run: |
+          python3 gallery/tools/integrate-ac-micro-depth.py \
+            --input "$RUNNER_TEMP/Gallery-Verified-Baseline.html" \
+            --output "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
+      - name: Install Chromium and Playwright
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Run Gallery navigation and Watch History regression matrix
+        run: |
+          python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
+      - name: Verify A+C, Settings navigation and reduced motion
+        run: |
+          python3 gallery/tests/test_ac_motion.py "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
+      - name: Stage immutable checkpoint and verify restored integrity
+        run: |
+          python3 gallery/tools/stage-checkpoint.py \
+            --input "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html" \
+            --id 2026-11-10-ac-crossfade-micro-depth \
+            --status delivered-for-user-testing
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          sha256sum "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html"
+          mkdir -p gallery/deliverables
+          test ! -e gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html
+          cp "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Micro-Depth.html" gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html
+      - name: Commit verified checkpoint and complete downloadable HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/ gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html
+          git diff --cached --check
+          git commit -m "feat(gallery): A+C crossfade and micro-depth integration checkpoint" -m "From checksum-verified 2026-11-10 transition-route baseline. Preserves main tabs, shared header, Watch History and player behavior. Route matrix and A+C tests passed before staging."
+          git push origin "HEAD:refs/heads/gallery/working-2026-11-10-ac-micro-depth"
+          git rev-parse HEAD
