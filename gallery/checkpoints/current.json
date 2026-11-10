@@ -1,0 +1,9 @@
+{
+  "folder": "2026-11-10-settings-transition-fix",
+  "sha256": "4480f964efe6e6117daeb1edd29447e1689772b7d64ab17364755dd807df5118",
+  "bytes": 6937266,
+  "source_name": "Gallery-Soft-Futuristic-Settings-Transition-Fix.html",
+  "status": "delivered-for-user-testing",
+  "date": "2026-11-10",
+  "note": "Latest handed-off complete HTML prototype; not yet user-verified for Settings transition fix and not merged into native runtime."
+}

@@ -1,0 +1,32 @@
+name: Gallery checkpoint integrity
+
+on:
+  push:
+    branches:
+      - 'gallery/working-*'
+    paths:
+      - 'gallery/checkpoints/**'
+      - 'gallery/tools/restore-checkpoint.py'
+      - '.github/workflows/gallery-checkpoint-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out committed Gallery source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact checkpoint bytes and feature markers
+        run: python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Restore HTML as additional smoke test
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-current.html"
+          test -s "$RUNNER_TEMP/Gallery-current.html"

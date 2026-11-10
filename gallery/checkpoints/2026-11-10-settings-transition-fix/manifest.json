@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "checkpoint": "2026-11-10-settings-transition-fix",
+  "source_name": "Gallery-Soft-Futuristic-Settings-Transition-Fix.html",
+  "output_filename": "Gallery-current.html",
+  "source_bytes": 6937266,
+  "source_sha256": "4480f964efe6e6117daeb1edd29447e1689772b7d64ab17364755dd807df5118",
+  "compression": "gzip (mtime=0) + base64",
+  "compressed_bytes": 4934029,
+  "compressed_sha256": "196d65ab0a4ce39727d1224c6ca3b29a1818315701b1dad8b5e4e0df4d3b0dad",
+  "encoded_chars": 6578708,
+  "parts": [
+    {
+      "file": "parts/part-001.b64",
+      "encoded_chars": 245760,
+      "sha256": "b52b9f390b61c73e9392da1f19a4e396a98a2980c05371d2c4569c21ae99e270"
+    },
+    {
+      "file": "parts/part-002.b64",
+      "encoded_chars": 245760,
+      "sha256": "cf5cc63e9e7a5e3edfb191419ce1710a71f8de01b821a48cebd11d3a97bcb3ae"
+    },
+    {
+      "file": "parts/part-003.b64",
+      "encoded_chars": 245760,
+      "sha256": "4b3f1048313ba1275aa3c97f466ab8b509d76cbbaa3eb4eedeb51c74a3b7b6ce"
+    },
+    {
+      "file": "parts/part-004.b64",
+      "encoded_chars": 245760,
+      "sha256": "87a32516091b20bf02b2fb9f61a546db5f3f1e7dfb80d347727b1a07c88edca8"
+    },
+    {
+      "file": "parts/part-005.b64",
+      "encoded_chars": 245760,
+      "sha256": "f59e45fbebd52e7d1f8ae2c967b3c8c2df3c59d0f1cb14c8539711a99e163f44"
+    },
+    {
+      "file": "parts/part-006.b64",
+      "encoded_chars": 245760,
+      "sha256": "418e131b3ed32e2f923af7a17845cbb7e22e3e76bc5878703481896923263986"
+    },
+    {
+      "file": "parts/part-007.b64",
+      "encoded_chars": 245760,
+      "sha256": "b295e4aa44bb890dbf877a6a0c9253f3ab3a1bca43617d51db0af8a23d2db02b"
+    },
+    {
+      "file": "parts/part-008.b64",
+      "encoded_chars": 245760,
+      "sha256": "3c4db83661cb55d573380b1d14ae086c60f9dcebd4e00fe7e395cf486422090b"
+    },
+    {
+      "file": "parts/part-009.b64",
+      "encoded_chars": 245760,
+      "sha256": "6cfb35581628f225e055c3eb5bc3ef89fa5d773281a3375b909d2e82ae3e99c4"
+    },
+    {
+      "file": "parts/part-010.b64",
+      "encoded_chars": 245760,
+      "sha256": "ba9dd06f34e3ea78e7f2d823af86587776c1351825425393570d651a44a5a142"
+    },
+    {
+      "file": "parts/part-011.b64",
+      "encoded_chars": 245760,
+      "sha256": "c7110a4c42414dd747152e405c8c97313bab3442815a67e184c838e2e436631f"
+    },
+    {
+      "file": "parts/part-012.b64",
+      "encoded_chars": 245760,
+      "sha256": "25ec246f657a76139b47feb8918e067d7b64d6e75799914f8b09ae7d8b569f7d"
+    },
+    {
+      "file": "parts/part-013.b64",
+      "encoded_chars": 245760,
+      "sha256": "c9077b0a309a056f09f5e27ddb9c9643b430c03c59b00a82052a89d03b457171"
+    },
+    {
+      "file": "parts/part-014.b64",
+      "encoded_chars": 245760,
+      "sha256": "a7aaee231f4029625525a23f51f25f6d4bfbfa8fe7f031701fc49739b2b62a30"
+    },
+    {
+      "file": "parts/part-015.b64",
+      "encoded_chars": 245760,
+      "sha256": "226708085b1d3f754a7e1c6c85cee2f40b036ca3b4807f19a9da2146b0cc89aa"
+    },
+    {
+      "file": "parts/part-016.b64",
+      "encoded_chars": 245760,
+      "sha256": "6d2115adeff978ebc2ed9cd323b167d88a897d330c7ed9ee79089013960766b3"
+    },
+    {
+      "file": "parts/part-017.b64",
+      "encoded_chars": 245760,
+      "sha256": "938dc432506c5138f8821cf28df6df912d4049b53d58760133655bae2353b53a"
+    },
+    {
+      "file": "parts/part-018.b64",
+      "encoded_chars": 245760,
+      "sha256": "cad033fbcdc605cb9a5afc8d2f3beaae84638f329b0bb2cb7ab365de2ff8981e"
+    },
+    {
+      "file": "parts/part-019.b64",
+      "encoded_chars": 245760,
+      "sha256": "c98972d637e68b86db1e495a09a1fbb81af73fd4ee719c985aa000b2f76b55ac"
+    },
+    {
+      "file": "parts/part-020.b64",
+      "encoded_chars": 245760,
+      "sha256": "430c17855696f35edabaf93aa0863fbc333d53eabbfd15788224297ca30dbe3c"
+    },
+    {
+      "file": "parts/part-021.b64",
+      "encoded_chars": 245760,
+      "sha256": "d1497203f9884a58da4658436a065fac72c7e0c254032cb88dfd7ff61d0d839a"
+    },
+    {
+      "file": "parts/part-022.b64",
+      "encoded_chars": 245760,
+      "sha256": "de149f580aecccbac2bc1470ade40041a74f31aafad1e5b982214678fc681ae9"
+    },
+    {
+      "file": "parts/part-023.b64",
+      "encoded_chars": 245760,
+      "sha256": "cbd720808e28e328b3ff8e11a0b87d48c9b1c03696b1e8a8a49ed2d56cbc76ce"
+    },
+    {
+      "file": "parts/part-024.b64",
+      "encoded_chars": 245760,
+      "sha256": "7595b80153cae537cd252c56a8581ab2b5bd31648bf0c9da4b79892d5bdb193c"
+    },
+    {
+      "file": "parts/part-025.b64",
+      "encoded_chars": 245760,
+      "sha256": "25181d2a822ce1dd5338e7a0742848146ab2476703e0d94b50a699122415ae49"
+    },
+    {
+      "file": "parts/part-026.b64",
+      "encoded_chars": 245760,
+      "sha256": "dd94ae1b6886642ec7806a0bfd87f96e7ee91d248694fa053d08a2955dfcb3d6"
+    },
+    {
+      "file": "parts/part-027.b64",
+      "encoded_chars": 188948,
+      "sha256": "672f528a8ac753cb7bcbb448fac02d631a5b0fb747b29dd9d867c729ed901374"
+    }
+  ],
+  "provenance": "Last generated Gallery HTML from 2026-11-10 Settings Transition Fix (source verified in current session)",
+  "status": "development checkpoint; not production integration"
+}

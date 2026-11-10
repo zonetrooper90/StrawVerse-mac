@@ -50,3 +50,18 @@ Last updated: 2026-11-04. This document records settled decisions; experiments a
 - The HTML builds are development artifacts, not proof that native macOS playback features are complete.
 
 See `gallery/PROJECT-CONTINUITY.md` for backup/approval workflow and `gallery/archive/README.md` for file hashes and paths.
+
+## 2026-11-10 — current prototype decisions and delivery state
+
+The historical v99 notes above are not the current design. **Source of truth:** the SHA-256-verified checkpoint named by \`gallery/checkpoints/current.json\`; it is the complete latest handed-off Settings Transition Fix HTML, **delivered for user testing, not yet user-verified**, and not proof of native Gallery runtime integration.
+
+- Soft Futuristic design direction with six retained color themes; keep themes and pre-approved layout/style consistent unless user authorizes changes.
+- The shared top Gallery header uses the same width and spacing on primary/secondary pages. Main navigation tabs are visible only on Discover, Library and Downloads. Hide tabs on Anime details, Watch History, Player and Settings while keeping the Gallery brand/header. Back buttons return to the correct prior destination.
+- **Page headers:** Copy the structural header band, spacing and divider geometry from Library/Downloads. Titles are **optically** centered; Back/action buttons stay **mathematically** centered independently. Do not make per-page conflicting offset guesses.
+- **Watch History:** full-width layout (same available content width as Settings), stable episode lists, expandable rows and filters. Title-left, Back-to-Discover-right header using the shared geometry.
+- **Player:** anime title + Back to episodes in its simplified header. Do not repeat season/episode number or audio-language metadata there. Under player show **Episode X** then **Season Y**, not Episode X of Y.
+- **Previous and Next episode navigation:** context-aware labels, equal/fixed button dimensions with reserved invisible slots so the center Episode/Season label never shifts. Crossing into an identified next/previous season is explicit manual navigation to that season's first/final episode. Movies/specials only if explicitly ordered; never guess.
+- **Autoplay:** the 20-second Play Next countdown continues only within the same season. It never starts the next season or a movie automatically; at the season finale the Play Next countdown is suppressed even when more content exists.
+- **Player control polish:** Rewind/Play-Pause/Forward symmetrical and optically balanced; preserve the continuous icon morph and keep the Play triangle free of the internal seam.
+- The Settings transition adjustment addresses the blank-on-open and flash-on-return animation regressions, but is **awaiting user confirmation**. Do not mark as approved without that confirmation.
+- **GitHub workflow:** all future changed builds must be verified, committed, and linked to their GitHub checkpoint before delivery; see \`gallery/WORKFLOW.md\`. Main/native branches stay untouched.
