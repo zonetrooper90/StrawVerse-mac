@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-10-coordinated-fade-route-fixes",
-  "sha256": "1d83bea4249345198d91730524fda609edb1d9734196bd274225a6a5f67c9a4c",
-  "bytes": 6946304,
-  "source_name": "Gallery-Soft-Futuristic-Coordinated-Fades.html",
+  "folder": "2026-11-10-history-rows-hidden-transfers",
+  "sha256": "ca85c7184dc5feb958677fce208c6e6d48b19c1e97a2a9cdc3d8bf74bcebb530",
+  "bytes": 6948256,
+  "source_name": "Gallery-History-Row-Maintenance.html",
   "status": "delivered-for-user-testing",
-  "note": "Checkpoint committed for user visual testing: source restored and verified, 55 existing route checks and 319 midpoint/navigation tests passed. HTML prototype only; pending visual approval."
+  "note": "Unnumbered maintenance: Import/Export UI hidden; Download-style Watch History row targets; browser/route regressions verified. Pending user visual confirmation."
 }
