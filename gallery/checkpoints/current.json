@@ -4,5 +4,5 @@
   "bytes": 6941554,
   "source_name": "Gallery-Soft-Futuristic-AC-Micro-Depth.html",
   "status": "delivered-for-user-testing",
-  "note": "Local staging only until GitHub commit and CI verification."
+  "note": "Committed immutable GitHub checkpoint; baseline, reconstructed SHA-256 and browser routes verified. Pending user visual confirmation; HTML prototype only."
 }

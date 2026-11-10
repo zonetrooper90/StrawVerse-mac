@@ -53,7 +53,7 @@ See `gallery/PROJECT-CONTINUITY.md` for backup/approval workflow and `gallery/ar
 
 ## 2026-11-10 — current prototype decisions and delivery state
 
-The historical v99 notes above are not the current design. **Source of truth:** the SHA-256-verified checkpoint named by \`gallery/checkpoints/current.json\`; it is the complete latest handed-off Settings Transition Fix HTML, **delivered for user testing, not yet user-verified**, and not proof of native Gallery runtime integration.
+The historical v99 notes above are not the current design. **Source of truth:** the SHA-256-verified checkpoint named by \`gallery/checkpoints/current.json\`; each new checkpoint is **delivered for user testing unless explicitly user-approved**, and an HTML prototype is not proof of native Gallery runtime integration.
 
 - Soft Futuristic design direction with six retained color themes; keep themes and pre-approved layout/style consistent unless user authorizes changes.
 - The shared top Gallery header uses the same width and spacing on primary/secondary pages. Main navigation tabs are visible only on Discover, Library and Downloads. Hide tabs on Anime details, Watch History, Player and Settings while keeping the Gallery brand/header. Back buttons return to the correct prior destination.
@@ -69,3 +69,12 @@ The historical v99 notes above are not the current design. **Source of truth:** 
 ## 2026-11-10 — transition regression fixes, delivered for testing
 
 The user explicitly authorized repair of all gaps found by the 2026-11-10 transition audit. The new HTML checkpoint implements secondary-page entrances/exits (without replacing the approved main-tab slide), consistent revisits to the same Anime page, correct return to Watch History from Settings/linked Anime, animated nested About pages, and motion-preference cleanup. Preserve navigation provenance, History filters/expanded rows/scroll, the existing header geometry, and reduced-motion behavior. These fixes are **delivered for user testing, not yet visually confirmed**. Refer to `gallery/audits/2026-11-10-transition-fix-results.md` and the automated `gallery/tests/test_transitions.py` route matrix before further changes.
+## 2026-11-10 — A+C page motion selected and implemented for testing
+
+The user chose **A+C (Crossfade + Micro Depth)** after comparing the standalone transition experiments and explicitly authorized integration into the full Gallery development HTML. The design choice is **approved**, while the integrated HTML checkpoint remains **delivered for user testing**, not yet user-visually approved.
+
+- Secondary page routes (Anime details, Watch History and Player) and entry/return from Settings use the same overlapping 450 ms A+C crossfade. Opacity eases together while the old page scales 1 → .994 and the arriving page scales 1.008 → 1 (under one percent depth).
+- The shared Gallery header and background remain stationary; the original Discover / Library / Downloads horizontal tab-slide behavior remains unchanged.
+- Preserve Back navigation, Watch History filters and scroll position, Settings history/provenance and the existing shared header geometry. Reduced-motion preference disables the A+C capture.
+- The new checkpoint is `gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/`, SHA-256 `0a31de142b1de4451de2709160860bae3aa66e33a8d2dce5a219d1e2e8355443`, based strictly on the previously verified Gallery full-app checkpoint. Automated browser tests have passed, but visual user acceptance is still outstanding. No native macOS build was changed.
+- See `gallery/audits/2026-11-10-ac-micro-depth-results.md` and `gallery/tests/test_ac_motion.py`.
