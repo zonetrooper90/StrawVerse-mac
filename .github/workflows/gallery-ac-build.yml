@@ -5,20 +5,65 @@ on:
       - 'gallery/working-ac-secondary-2026-11-10'
     paths:
       - 'gallery/tools/ac-transition-integration.py'
+      - 'gallery/tests/test_ac_transitions.py'
       - '.github/workflows/gallery-ac-build.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
-  inspect-then-build:
+  build-verify-and-checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Restore and checksum-verify authoritative full Gallery checkpoint
+      - name: Restore and SHA-256 verify latest authoritative Gallery baseline
         run: python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-before.html"
-      - name: Inspect existing Gallery navigation and animation hooks
-        run: python3 gallery/tools/ac-transition-integration.py "$RUNNER_TEMP/Gallery-before.html"
+      - name: Integrate A+C without altering routes or main-tab slide
+        run: |
+          python3 gallery/tools/ac-transition-integration.py --input "$RUNNER_TEMP/Gallery-before.html" --output "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Transitions.html"
+      - name: Stage immutable complete Gallery checkpoint and verify exact reconstruction
+        run: |
+          python3 gallery/tools/stage-checkpoint.py --input "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Transitions.html" --id 2026-11-10-ac-secondary-transition-integration --status delivered-for-user-testing
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-verification.html"
+          cmp "$RUNNER_TEMP/Gallery-Soft-Futuristic-AC-Transitions.html" "$RUNNER_TEMP/Gallery-verification.html"
+      - name: Validate Playwright browser test environment
+        run: |
+          python3 -m pip install 'playwright==1.57.0'
+          python3 -m playwright install --with-deps chromium
+      - name: Run existing Gallery navigation and reduced-motion regression suite
+        run: python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-verification.html"
+      - name: Test A+C timing, page routes, and preserved Settings behavior
+        run: python3 gallery/tests/test_ac_transitions.py "$RUNNER_TEMP/Gallery-verification.html"
+      - name: Record approved A+C design without labeling an untested implementation approved
+        run: |
+          cat >> gallery/APPROVED-DECISIONS.md <<'EOF'
+
+          ## 2026-11-10 — A+C transition direction approved
+
+          The user selected A+C Crossfade + Micro Depth following standalone comparison. Coordinated secondary-page View Transitions use a 450 ms overlapping crossfade with outgoing 0.6% scale-down and incoming 0.8% scale-up; keep the header/background stationary and the established main-tab slide unchanged. Settings opening/closing retains its tested 280 ms sequence with the same subtle scale vocabulary to avoid blank/flash regressions. The integrated HTML checkpoint remains **delivered for user visual testing**, not a user-verified native integration.
+          EOF
+      - name: Commit full immutable checkpoint and pointer together on dedicated development branch
+        run: |
+          git config user.name 'gallery-checkpoint-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-ac-secondary-transition-integration gallery/APPROVED-DECISIONS.md
+          git commit -m "feat(gallery): integrate approved A+C secondary transitions with verified checkpoint"
+          git push origin "HEAD:refs/heads/gallery/working-ac-secondary-2026-11-10"
+      - name: Verify remote SHA and local checkpoint integrity after push
+        run: |
+          LOCAL_SHA="$(git rev-parse HEAD)"
+          REMOTE_SHA="$(git ls-remote origin refs/heads/gallery/working-ac-secondary-2026-11-10 | cut -f1)"
+          test "$LOCAL_SHA" = "$REMOTE_SHA"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          echo "VERIFIED_GITHUB_COMMIT=$LOCAL_SHA"
+          echo "VERIFIED_CHECKPOINT_SHA256=$(python3 -c 'import json;print(json.load(open("gallery/checkpoints/current.json"))["sha256"])')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-AC-Secondary-Transitions
+          path: ${{ runner.temp }}/Gallery-Soft-Futuristic-AC-Transitions.html
+          if-no-files-found: error
