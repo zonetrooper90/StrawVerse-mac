@@ -60,6 +60,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/ gallery/deliverables/Gallery-Soft-Futuristic-AC-Micro-Depth.html
-          # The verified pre-existing HTML contains one legacy whitespace-only line.\n          # Check new checkpoint metadata without rewriting the protected source bytes.\n          git diff --cached --check -- gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/\n          git commit -m "feat(gallery): A+C crossfade and micro-depth integration checkpoint" -m "From checksum-verified 2026-11-10 transition-route baseline. Preserves main tabs, shared header, Watch History and player behavior. Route matrix and A+C tests passed before staging."
+          # The verified pre-existing HTML contains one legacy whitespace-only line.
+          # Check new checkpoint metadata without rewriting the protected source bytes.
+          git diff --cached --check -- gallery/checkpoints/current.json gallery/checkpoints/2026-11-10-ac-crossfade-micro-depth/
+          git commit -m "feat(gallery): A+C crossfade and micro-depth integration checkpoint" -m "From checksum-verified 2026-11-10 transition-route baseline. Preserves main tabs, shared header, Watch History and player behavior. Route matrix and A+C tests passed before staging."
+          test "$(git rev-parse HEAD)" != "${{ github.sha }}" # fail if checkpoint commit was skipped
           git push origin "HEAD:refs/heads/gallery/working-2026-11-10-ac-micro-depth"
+          test "$(git ls-remote origin refs/heads/gallery/working-2026-11-10-ac-micro-depth | cut -f1)" = "$(git rev-parse HEAD)" # verify remote ref
           git rev-parse HEAD
