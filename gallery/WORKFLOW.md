@@ -4,7 +4,7 @@
 
 ## Mandatory preflight: **before editing**
 
-1. Check out the dedicated Gallery development branch, currently `gallery/working-2026-11-10`. Never edit `main` or a stable Mac build branch to experiment.
+1. Check out the dedicated Gallery development branch, currently `gallery/working-2026-11-10-ac-micro-depth`. Never edit `main` or a stable Mac build branch to experiment.
 2. Read `AGENTS.md`, this file, `gallery/PROJECT-CONTINUITY.md`, and `gallery/APPROVED-DECISIONS.md`.
 3. Reconstruct the exact current source from the repository, using `python gallery/tools/restore-checkpoint.py --output Gallery-current.html`; confirm that the SHA-256 shown agrees with `gallery/checkpoints/current.json`.
 4. If a separate local/downloaded HTML file is proposed as the new base, compare it to the verified GitHub checkpoint and account for **every** difference. Never silently substitute an older standalone HTML file.
@@ -20,6 +20,16 @@
 6. Commit the approved build to the development branch, then verify the remote branch head, checkpoint pointer, hashes, and CI status. Only **after** verification, link the new HTML to the user and report the commit.
 7. If upload or CI verification fails, explicitly report **not backed up**, retain a downloadable local artifact, and do not advance the canonical GitHub pointer.
 
+## Mandatory downloadable Gallery file delivery
+
+For every completed Gallery HTML build, UI experiment, or updated prototype delivered for user testing:
+
+1. **Provide a real ChatGPT download attachment for the complete `.html` file** and a clickable, verified `sandbox:/mnt/data/...` link in the final answer. A ZIP containing the same HTML may be included as an alternative; the direct HTML is preferred.
+2. Verify that the exact attachment exists in the current container/session and that its SHA-256 and byte count match the committed, checksum-verified GitHub checkpoint. Never reuse an unverified sandbox path, older downloaded HTML, or chat attachment as a development baseline.
+3. **GitHub raw-file links, blob/source-code viewers, GitHub commit URLs, and GitHub Actions artifact pages are not substitutes for a downloadable ChatGPT attachment.** Keep the GitHub commit link separately for provenance.
+4. The commit, immutable checkpoint/pointer, integrity verification, and required CI checks must all succeed **before** the new HTML is handed off. If creating or verifying the attachment fails, state clearly that the user has **not** received the required download; never mark delivery as complete or invent a link.
+5. Documentation-only changes do not create a new numbered Gallery build or require a new HTML checkpoint. They still require a verified GitHub commit on the dedicated development branch.
+
 ## Safety and retention
 
 - No force pushes, branch rewrites, or overwriting previous checkpoints.
@@ -31,4 +41,4 @@
 
 ## Current checkpoint
 
-`gallery/checkpoints/current.json` points to the last handed-off HTML (Settings Transition Fix, 2026-11-10). This is a **development checkpoint pending user visual confirmation**, not a new approved numbered release or proof of native app integration.
+`gallery/checkpoints/current.json` points to the latest immutable Gallery HTML checkpoint on this development branch (A+C Crossfade + Micro Depth, 2026-11-10). This is a **development checkpoint pending user visual confirmation**, not a new approved numbered release or proof of native app integration.

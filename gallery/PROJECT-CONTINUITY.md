@@ -10,5 +10,6 @@ Approved 2026-11-04; revised 2026-11-10. Historical archive: `gallery/developmen
 6. No image generation or image editing without the user's **explicit prior approval**. For UI changes, use actual HTML/CSS rather than generating visual stand-ins.
 7. Protect stable versions and experiments. Do not overwrite `main`, native Mac build branches, or earlier HTML versions. Keep Apple Silicon-only Mac build compatibility and StrawVerse source/repository compatibility.
 8. This is a per-session working rule, **not a background automation**. GitHub commits must be performed and verified during a conversation while the connection is available.
+9. **Mandatory user download:** after GitHub checkpoint verification, provide the actual SHA-256-verified HTML as a downloadable ChatGPT attachment (ZIP optional). Raw GitHub code links are not a substitute. If attachment verification fails, disclose incomplete delivery; see `gallery/WORKFLOW.md`.
 
 Old HTML history: `Gallery-v96.html`, `Gallery-v97.html`, `Gallery-v98.html`, `Gallery-v99.html`, plus standalone experiments. The 2026-11-10 Settings Transition Fix HTML is saved as an immutable, reconstructible checkpoint pending user validation. Follow `gallery/WORKFLOW.md` on every future build.
