@@ -24,7 +24,12 @@ with sync_playwright() as p:
   page.wait_for_timeout(350)
   print('\n======',width,reduced,'======')
   def stat():return page.evaluate('''() => ({detail:state.detailId,returnHistory:state.detailReturnHistory,wh:whOpen,view:state.view,screen:!screen.hidden,settings:document.body.classList.contains('settings-view'),key:screen.dataset.surfaceKey,animations:document.getAnimations().map(a=>a.animationName||'WAAPI'),historyFilter:whFilter,expanded:[...whExpanded],transition:!!galleryStageTransition})''')
-  def wait():page.wait_for_timeout(320)
+  def wait():
+   # A 300ms CSS/WAAPI duration is not a reliable 320ms wall-clock guarantee.
+   # Await the actual route animation completion before clicking an element
+   # on the newly visible page; this is what an ordinary user experiences.
+   page.wait_for_timeout(320)
+   page.wait_for_function("() => !galleryStageTransition && (typeof galleryStageFadeInProgress === 'undefined' || !galleryStageFadeInProgress)",timeout=5000)
   # tabs
   for name in ['library','downloads','discover']:
    page.locator('.tab[data-view="'+name+'"]').click();wait()
