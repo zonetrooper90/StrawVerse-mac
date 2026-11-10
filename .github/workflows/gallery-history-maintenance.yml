@@ -1,0 +1,109 @@
+name: Gallery history rows and hidden transfer UI
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-coordinated-fades'
+    paths:
+      - '.github/workflows/gallery-history-maintenance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gallery-history-maintenance
+  cancel-in-progress: false
+
+jobs:
+  implement-test-and-checkpoint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out dedicated Gallery development branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify authoritative current checkpoint and reconstruct HTML
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-Verified-Baseline.html"
+      - name: Apply only the two user-approved maintenance changes
+        run: |
+          python3 gallery/tools/maintenance-history-rows.py \
+            --input "$RUNNER_TEMP/Gallery-Verified-Baseline.html" \
+            --output "$RUNNER_TEMP/Gallery-History-Row-Maintenance.html"
+          python3 - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          raw=(Path(os.environ['RUNNER_TEMP'])/'Gallery-History-Row-Maintenance.html').read_bytes()
+          actual=hashlib.sha256(raw).hexdigest()
+          expected='ca85c7184dc5feb958677fce208c6e6d48b19c1e97a2a9cdc3d8bf74bcebb530'
+          assert actual==expected,(actual,expected)
+          assert len(raw)==6948256,len(raw)
+          print('Exact locally tested HTML reproduced:',actual,len(raw))
+          PY
+      - name: Set up Playwright Chromium
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Run existing route and coordinated fade regression suites
+        run: |
+          python3 gallery/tests/test_transitions.py "$RUNNER_TEMP/Gallery-History-Row-Maintenance.html"
+          python3 gallery/tests/test_coordinated_fades.py "$RUNNER_TEMP/Gallery-History-Row-Maintenance.html"
+      - name: Test Watch History clicks, keyboard, independent buttons, hidden transfer controls
+        run: |
+          python3 gallery/tests/test_history_row_maintenance.py "$RUNNER_TEMP/Gallery-History-Row-Maintenance.html"
+      - name: Stage immutable checkpoint, document decision and verify exact bytes
+        run: |
+          cat >> gallery/APPROVED-DECISIONS.md <<'EOF'
+
+          ## 2026-11-10 — Library transfer UI hidden; Watch History row parity with Downloads
+
+          User approved hiding the unfinished collection Import and Share/Export UI while preserving all implementation code for later redesign. Library's New Tag action remains; no transfer affordances or obsolete transfer help text are shown. A single disabled feature flag can restore them.
+          User also approved applying Downloads' full-row interaction design to Watch History: tapping/clicking the season summary background expands/collapses episodes, while its cover and title still open anime details and Remove is independent. Each episode row is an accessible full-width button for toggling watched status, with no episode-list rebuild or scroll jump. Keyboard focus is accent-visible; hover uses existing theme colors. Preserve all six themes, coordinated navigation fades, playback, provenance, filtering, undo and reduced-motion support.
+          This unnumbered maintenance checkpoint is delivered for user visual testing, not native app integration.
+          EOF
+          python3 gallery/tools/stage-checkpoint.py \
+            --input "$RUNNER_TEMP/Gallery-History-Row-Maintenance.html" \
+            --id 2026-11-10-history-rows-hidden-transfers \
+            --status delivered-for-user-testing
+          python3 - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          ptr=Path('gallery/checkpoints/current.json')
+          data=json.loads(ptr.read_text())
+          data['note']='Unnumbered maintenance: Import/Export UI hidden; Download-style Watch History row targets; browser/route regressions verified. Pending user visual confirmation.'
+          ptr.write_text(json.dumps(data,indent=2)+'\n')
+          source=Path(os.environ['RUNNER_TEMP'])/'Gallery-History-Row-Maintenance.html'
+          target=Path('gallery/deliverables/Gallery-History-Row-Maintenance.html')
+          assert not target.exists(), 'Do not overwrite an older delivered HTML'
+          target.parent.mkdir(parents=True,exist_ok=True)
+          target.write_bytes(source.read_bytes())
+          raw=target.read_bytes()
+          assert len(raw)==data['bytes']
+          assert hashlib.sha256(raw).hexdigest()==data['sha256']
+          print('Handoff source and checkpoint agree:',data['sha256'],len(raw))
+          PY
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Commit and push immutable snapshot on development branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gallery/APPROVED-DECISIONS.md gallery/checkpoints/current.json \
+            gallery/checkpoints/2026-11-10-history-rows-hidden-transfers \
+            gallery/deliverables/Gallery-History-Row-Maintenance.html
+          git diff --cached --check
+          git commit -m "fix(gallery): hide collection transfer controls and activate Watch History rows" \
+            -m "Unnumbered tested maintenance checkpoint. Preserve coordinated fades, details routes, independent remove, complete import/export code."
+          git push origin "HEAD:refs/heads/gallery/working-2026-11-10-coordinated-fades"
+          test "$(git ls-remote origin refs/heads/gallery/working-2026-11-10-coordinated-fades | cut -f1)" = "$(git rev-parse HEAD)"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Publish complete HTML for verified direct download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gallery-History-Row-Maintenance-HTML
+          path: gallery/deliverables/Gallery-History-Row-Maintenance.html
+          retention-days: 90
+          if-no-files-found: error
