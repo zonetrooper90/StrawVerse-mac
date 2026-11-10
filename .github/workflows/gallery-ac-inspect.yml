@@ -1,0 +1,58 @@
+name: Gallery A+C integration preflight
+on:
+  push:
+    branches:
+      - 'gallery/working-2026-11-10-ac-micro-depth'
+    paths:
+      - '.github/workflows/gallery-ac-inspect.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checksum-verify GitHub Gallery baseline before modification
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/restore-checkpoint.py --output "$RUNNER_TEMP/Gallery-current.html"
+      - name: Inspect exact baseline transitions without modifying app
+        env:
+          SOURCE_FILE: ${{ runner.temp }}/Gallery-current.html
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          html=Path(os.environ['SOURCE_FILE']).read_text(encoding='utf-8')
+          tokens=[
+              'galleryStageTransition',
+              'function transitionGallery',
+              'surface-enter',
+              'gallery-about',
+              'settings-transition',
+              'startViewTransition',
+              'prefers-reduced-motion',
+              'screen.dataset.surfaceKey',
+              'function setView',
+              'function openSettings',
+              'function closeSettings',
+              'function openDetail',
+              'function showPlayer',
+              'transition: transform',
+              'gallery-stage',
+          ]
+          for token in tokens:
+              print('\n====== TOKEN:',repr(token),'======')
+              start=0;count=0
+              while count<5:
+                  n=html.find(token,start)
+                  if n<0:break
+                  print('\n-- offset',n,'--')
+                  print(html[max(0,n-900):min(len(html),n+1550)])
+                  start=n+len(token);count+=1
+              print('Matches sampled:',count)
+          PY
