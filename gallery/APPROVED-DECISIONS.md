@@ -108,3 +108,9 @@ This unnumbered maintenance checkpoint is delivered for user visual testing, not
 ## 2026-11-11 — Watch History animated expansion correction, for user testing
 
 After testing the previous maintenance build, the user reported that Watch History expanded and collapsed instantly despite Downloads using a smooth transition. User approved correcting that mismatch without a numbered build. Watch History now uses Downloads' 280ms reversible grid-height animation and matching chevron transition; panels remain in the DOM, so clicking to expand/collapse does not rebuild the entire page or reset episode and scroll state. Closed panels are inert and inaccessible to keyboard navigation. Respect Reduce Motion (instant), preserve existing click targets, filtering, undo, all six themes, and approved navigation fades. This behavior is in checkpoint `2026-11-11-history-smooth-expand`, pending user visual review. No native app runtime was changed.
+
+## 2026-11-11 — Watch History expansion visually approved
+
+The user tested the complete Gallery HTML in a browser and explicitly approved the Watch History expand/collapse behavior. The first expansion initially appeared to stutter once, but later expansions were smooth; after reopening the file, the **first** expansion was smooth too. Treat the existing **280 ms reversible Downloads-style expansion and collapse**, chevron rotation, retained episode panels and Reduce Motion behavior as **approved and locked**. No further animation changes or speculative performance fixes are requested.
+
+This approval applies to the existing immutable checkpoint `2026-11-11-history-smooth-expand` (SHA-256 `c850b767a00c1749d56d52468e23c01d31afd27edc225f74b3ec9440b1db1717`). The full HTML bytes are unchanged. This is visual approval of the prototype behavior, **not** a new HTML version or proof of native macOS integration.

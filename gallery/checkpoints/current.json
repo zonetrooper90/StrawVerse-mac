@@ -3,6 +3,6 @@
   "sha256": "c850b767a00c1749d56d52468e23c01d31afd27edc225f74b3ec9440b1db1717",
   "bytes": 6950393,
   "source_name": "Gallery-current.html",
-  "status": "delivered-for-user-testing",
-  "note": "Unnumbered correction: Watch History uses Downloads-style reversible 280ms expansion and collapse. Awaiting user visual review."
+  "status": "user-approved",
+  "note": "User visually approved Watch History Downloads-style reversible 280ms expand/collapse. First expansion was smooth after reopening; HTML and immutable checkpoint unchanged."
 }
