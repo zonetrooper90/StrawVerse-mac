@@ -26,7 +26,7 @@ one("#wh-root .wh-episodes{padding-left:14px}","#wh-root .wh-episodes-content{pa
 one("@media(prefers-reduced-motion:reduce){#wh-root .wh-episodes{animation:none}#wh-root .wh-inner-overlay{transition:none}}","@media(prefers-reduced-motion:reduce){#wh-root .wh-episodes,#wh-root .wh-expand .icon,#wh-root .wh-episodes-inner,#wh-root .wh-inner-overlay{transition:none!important}}")
 start=s.index("function whRowMarkup(r){")
 end=s.index("\nfunction whPageMarkup(){",start)
-s=s[:start]+"""function whRowMarkup(r){const open=whExpanded.has(r.id);return \`<section class="wh-season \${open?'is-expanded':''}" data-wh-row="\${escapeHTML(r.id)}" aria-label="\${escapeHTML(r.title)}">\${whSummaryMarkup(r)}<div class="wh-episodes"><div class="wh-episodes-inner" \${open?'':'inert aria-hidden="true"'}><div class="wh-episodes-content"><div class="wh-episode-head"><strong>Episodes</strong><span>\${whCount(r)} / \${r.episodes.length} watched</span></div><div class="wh-episode-shell" data-wh-shell="\${escapeHTML(r.id)}"><div class="wh-episode-scroll" role="region" tabindex="0" aria-label="Scrollable episodes for \${escapeHTML(r.title)}">\${r.episodes.map(ep=>whEpisodeMarkup(r,ep)).join('')}</div><div class="wh-inner-overlay" aria-hidden="true"><div class="wh-inner-thumb"></div></div></div><p class="wh-episode-hint">Mark or unmark individual episodes here. Saved playback position is kept separately.</p></div></div></div></section>\`;}"""+s[end:]
+s=s[:start]+"""function whRowMarkup(r){const open=whExpanded.has(r.id);return `<section class="wh-season ${open?'is-expanded':''}" data-wh-row="${escapeHTML(r.id)}" aria-label="${escapeHTML(r.title)}">${whSummaryMarkup(r)}<div class="wh-episodes"><div class="wh-episodes-inner" ${open?'':'inert aria-hidden="true"'}><div class="wh-episodes-content"><div class="wh-episode-head"><strong>Episodes</strong><span>${whCount(r)} / ${r.episodes.length} watched</span></div><div class="wh-episode-shell" data-wh-shell="${escapeHTML(r.id)}"><div class="wh-episode-scroll" role="region" tabindex="0" aria-label="Scrollable episodes for ${escapeHTML(r.title)}">${r.episodes.map(ep=>whEpisodeMarkup(r,ep)).join('')}</div><div class="wh-inner-overlay" aria-hidden="true"><div class="wh-inner-thumb"></div></div></div><p class="wh-episode-hint">Mark or unmark individual episodes here. Saved playback position is kept separately.</p></div></div></div></section>`;}"""+s[end:]
 toggler="""/* Expand/collapse in place so DOM, scroll position and animated height remain stable. */
 function whToggleRow(id){
  const row=[...screen.querySelectorAll('[data-wh-row]')].find(el=>el.dataset.whRow===id);
@@ -37,7 +37,7 @@ function whToggleRow(id){
  const hit=row.querySelector('.wh-summary-hit');
  const record=whRecords.find(r=>r.id===id);
  hit.setAttribute('aria-expanded',String(opening));
- hit.setAttribute('aria-label',\`\${opening?'Collapse':'Expand'} episodes for \${record?.title||''}\`);
+ hit.setAttribute('aria-label',`${opening?'Collapse':'Expand'} episodes for ${record?.title||''}`);
  hit.title=opening?'Collapse episodes':'View episodes';
  const inner=row.querySelector('.wh-episodes-inner');
  inner.inert=!opening;

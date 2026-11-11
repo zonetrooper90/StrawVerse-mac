@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git diff --name-only --diff-filter=A "${{ github.event.before }}" "${{ github.sha }}" -- gallery/changes/pending/ > "$RUNNER_TEMP/requests.txt"
+          git diff --name-only --diff-filter=AM "${{ github.event.before }}" "${{ github.sha }}" -- gallery/changes/pending/ > "$RUNNER_TEMP/requests.txt"
           test "$(grep -Ec '^gallery/changes/pending/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+\.py$' "$RUNNER_TEMP/requests.txt")" -eq 1
           test "$(wc -l < "$RUNNER_TEMP/requests.txt")" -eq 1
           CHANGE="$(cat "$RUNNER_TEMP/requests.txt")"
