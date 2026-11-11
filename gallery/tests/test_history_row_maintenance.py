@@ -47,11 +47,16 @@ with sync_playwright() as pw:
     episode=first.locator('.wh-episode-row').first
     assert episode.count()==1 and episode.get_attribute('role') is None
     before=episode.get_attribute('aria-pressed')
+    next_status={'false':'mixed','mixed':'true','true':'false'}
+    assert before in next_status,('Episode three-state baseline',before)
     episode.locator('.wh-episode-number').click()
-    assert episode.get_attribute('aria-pressed')!=before
+    assert episode.get_attribute('aria-pressed')==next_status[before]
     episode.focus()
     episode.press('Space')
+    assert episode.get_attribute('aria-pressed')==next_status[next_status[before]]
+    episode.click()
     assert episode.get_attribute('aria-pressed')==before
+    assert first.locator('.wh-episodes').count()==1
     first.locator('.wh-summary-hit').click()
     page.wait_for_timeout(330)
     assert first.locator('.wh-episodes').evaluate('(el)=>el.getBoundingClientRect().height')==0
@@ -107,30 +112,15 @@ with sync_playwright() as pw:
     dl=page.locator('.sf-dl-card').first
     dl.locator('[data-download-toggle]').click()
     page.wait_for_timeout(330)
-    # Downloads deliberately retains its original scroll containment.
-    # Wheel motion should scroll within its episode viewport without chaining
-    # to the parent when the episode viewport reaches the bottom.
+    # Shared native scroll behavior, including Downloads' approved two-way handoff.
     dl_inner=dl.locator('.sf-dl-viewport')
     dl_outer=page.locator('.tab-page[data-tab-page="downloads"]')
-    assert dl_inner.evaluate('(e)=>getComputedStyle(e).overscrollBehaviorY')=='contain'
-    dl_inner.scroll_into_view_if_needed()
-    assert dl_inner.evaluate('(e)=>e.scrollHeight-e.clientHeight')>0
-    dl_inner.evaluate('(e)=>e.scrollTop=0')
-    rect=dl_inner.bounding_box()
-    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
-    page.mouse.wheel(0,110)
-    page.wait_for_timeout(180)
-    assert dl_inner.evaluate('(e)=>e.scrollTop')>30,'Downloads inner scrolling stopped working'
-    dl_inner.evaluate('(e)=>e.scrollTop=e.scrollHeight')
-    dl_outer.evaluate('(e)=>e.scrollTop=100')
-    dl_inner.scroll_into_view_if_needed()
-    before_dl=dl_outer.evaluate('(e)=>e.scrollTop')
-    rect=dl_inner.bounding_box()
-    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
-    page.mouse.wheel(0,110)
-    page.wait_for_timeout(180)
-    after_dl=dl_outer.evaluate('(e)=>e.scrollTop')
-    assert abs(after_dl-before_dl)<3,('Downloads original scroll containment',before_dl,after_dl)
+    assert dl_inner.get_attribute('class').split().count('gallery-episode-scroll')==1
+    assert_episode_scroll_chains(dl_inner,dl_outer,'Downloads')
+    def scroll_policy(el):
+        return el.evaluate('(e)=>{const s=getComputedStyle(e);return [s.overflowY,s.overflowX,s.overscrollBehaviorY,s.overscrollBehaviorX]}')
+    downloads_policy=scroll_policy(dl_inner)
+    assert downloads_policy==['auto','hidden','auto','contain'],downloads_policy
     page.locator('[data-view="discover"]').first.click()
     page.wait_for_timeout(400)
     page.locator('#wh-view-history').click()
@@ -139,6 +129,23 @@ with sync_playwright() as pw:
     history.locator('[data-wh-expand]').click()
     page.wait_for_timeout(330)
     assert_episode_scroll_chains(history.locator('.wh-episode-scroll'),page.locator('.workspace'),'Watch History')
+    assert history.locator('.wh-episode-scroll').get_attribute('class').split().count('gallery-episode-scroll')==1
+    assert scroll_policy(history.locator('.wh-episode-scroll'))==downloads_policy,'Both lists must share native scrolling'
+    episode76=history.locator('[data-wh-episode="pkm:76"]')
+    assert episode76.count()==1 and episode76.get_attribute('aria-pressed')=='false'
+    original_seconds=page.evaluate('whRecords.find(r=>r.id==="pkm").episodes.find(e=>e.n===76).progressSeconds')
+    episode76.click()
+    assert episode76.get_attribute('aria-pressed')=='mixed' and episode76.locator('.wh-episode-label').inner_text()=='Partially watched'
+    episode76.click()
+    assert episode76.get_attribute('aria-pressed')=='true' and episode76.locator('.wh-episode-label').inner_text()=='Watched'
+    episode76.click()
+    assert episode76.get_attribute('aria-pressed')=='false' and episode76.locator('.wh-episode-label').inner_text()=='Not watched'
+    assert page.evaluate('whRecords.find(r=>r.id==="pkm").episodes.find(e=>e.n===76).progressSeconds')==original_seconds
+    episode76.click()
+    assert episode76.get_attribute('aria-pressed')=='mixed'
+    page.evaluate('whRender()')
+    assert page.locator('[data-wh-row="pkm"] [data-wh-episode="pkm:76"]').get_attribute('aria-pressed')=='mixed','Partial status must survive a re-render'
+
     # Native wheel must not double-scroll when the episode scrollbar is visible.
     inner=history.locator('.wh-episode-scroll')
     outer=page.locator('.workspace')

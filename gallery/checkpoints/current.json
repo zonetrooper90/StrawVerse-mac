@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-11-downloads-containment-restore",
-  "sha256": "4f5d93335155cd56a47248fd19866d5f1ad69ce7a7435ca287ff8606651a9987",
-  "bytes": 6950513,
+  "folder": "2026-11-11-shared-native-scroll-three-state",
+  "sha256": "7f9922d18f2ddd8b61035f5d2a524d3482fa3df5ea84045cf75be12c004eff45",
+  "bytes": 6951729,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

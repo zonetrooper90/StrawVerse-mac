@@ -2583,7 +2583,7 @@ body.settings-view .workspace.settings-mode{overscroll-behavior:contain}
 #wh-root .wh-episode-head strong{font-size:12px;color:var(--ink)}
 #wh-root .wh-episode-shell{position:relative}
 #wh-root .wh-episode-shell:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--line) 82%,var(--accent));z-index:1;pointer-events:none}
-#wh-root .wh-episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;max-height:252px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:contain;overscroll-behavior-y:auto;scrollbar-gutter:auto;scrollbar-width:none;-ms-overflow-style:none}
+#wh-root .wh-episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;max-height:252px;scrollbar-gutter:auto;scrollbar-width:none;-ms-overflow-style:none}
 #wh-root .wh-episode-scroll::-webkit-scrollbar{display:none;width:0;height:0}
 #wh-root .wh-episode{min-width:0;height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 62%,transparent)}
 #wh-root .wh-episode:nth-child(odd){padding-right:22px}
@@ -3320,11 +3320,19 @@ body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner {
 }
 body[data-theme] .sf-dl-list .sf-dl-viewport {
   max-height:384px;
-  overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior:contain;
   background:transparent;
   scrollbar-width:thin;
   scrollbar-color:color-mix(in srgb,var(--muted) 42%,transparent) transparent;
+}
+/* Shared native episode scrolling policy: Downloads + Watch History use the
+   same vertical handoff, without intercepting wheel/trackpad events. Each
+   page retains its own viewport dimensions, layout and scrollbar visuals. */
+body[data-theme] .sf-dl-list .gallery-episode-scroll,
+#wh-root .gallery-episode-scroll{
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
 }
 body[data-theme] .sf-dl-viewport::-webkit-scrollbar{width:7px}
 body[data-theme] .sf-dl-viewport::-webkit-scrollbar-track{background:transparent}
@@ -4796,7 +4804,13 @@ let whRecords=whLoadRecords();let whOpen=false,whFilter='all',whSort='newest',wh
 let whSuspended=null,whParentView='discover';
 let whInnerScrollers=new Map();
 function whSave(){try{localStorage.setItem(whStorageKey,JSON.stringify(whRecords));}catch{/* Private/browser file preview may forbid storage */}}
-function whCount(r){return r.episodes.reduce((n,e)=>n+(e.watched?1:0),0)}
+/* Manual watched-state changes are an override, not a fake playback event:
+   preserve saved duration/position separately from the status indicator. */
+function whEpisodeStatus(ep){return ['never','partial','watched'].includes(ep.manualStatus)?ep.manualStatus:ep.watched?'watched':ep.started?'partial':'never';}
+function whEpisodeNextStatus(ep){const status=whEpisodeStatus(ep);return status==='never'?'partial':status==='partial'?'watched':'never';}
+function whEpisodeStatusLabel(status){return status==='watched'?'Watched':status==='partial'?'Partially watched':'Not watched';}
+function whEpisodePress(status){return status==='watched'?'true':status==='partial'?'mixed':'false';}
+function whCount(r){return r.episodes.reduce((n,e)=>n+(whEpisodeStatus(e)==='watched'?1:0),0)}
 function whCompleted(r){return r.episodes.length>0&&whCount(r)===r.episodes.length}
 function whFormatDate(date){const d=new Date(date+'T12:00:00');return Number.isNaN(d.getTime())?date:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 function whFmt(sec){const n=Math.max(0,Math.floor(Number(sec)||0));return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;}
@@ -4977,9 +4991,8 @@ function whPreviewMarkup(){
  <button class="wh-recent-view" type="button" id="wh-view-history">${whSmallIcon('history')}<span>View History</span></button></div></section></div></div>`;
 }
 function whEpisodeMarkup(r,ep){
- const status=ep.watched?'is-watched':ep.started?'is-partial':'is-never';
- const label=ep.watched?'Watched':ep.started?'Partially watched':'Not watched';
- return `<button type="button" class="wh-episode wh-episode-row" data-wh-episode="${escapeHTML(r.id)}:${ep.n}" aria-pressed="${ep.watched}" title="${ep.watched?'Unmark as Watched':'Mark as Watched'}"><span class="wh-episode-main"><span class="wh-episode-number">Episode ${ep.n}</span>${ep.started&&!ep.watched?`<span class="wh-episode-position">${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}</span>`:''}</span><span class="wh-episode-toggle"><span class="wh-status-icon ${status}">${ep.watched?whSmallIcon('check'):''}</span><span class="wh-episode-label">${label}</span></span></button>`;
+ const status=whEpisodeStatus(ep),label=whEpisodeStatusLabel(status),next=whEpisodeStatusLabel(whEpisodeNextStatus(ep));
+ return `<button type="button" class="wh-episode wh-episode-row" data-wh-episode="${escapeHTML(r.id)}:${ep.n}" aria-pressed="${whEpisodePress(status)}" aria-label="Episode ${ep.n}: ${label}. Next: ${next}" title="${label} — click to mark ${next}"><span class="wh-episode-main"><span class="wh-episode-number">Episode ${ep.n}</span>${status==='partial'&&ep.started&&ep.progressSeconds>0?`<span class="wh-episode-position">${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}</span>`:''}</span><span class="wh-episode-toggle"><span class="wh-status-icon is-${status}">${status==='watched'?whSmallIcon('check'):''}</span><span class="wh-episode-label">${label}</span></span></button>`;
 }
 function whSummaryMarkup(r){
  const watched=whCount(r),total=r.episodes.length,complete=whCompleted(r),open=whExpanded.has(r.id),pct=total?watched/total*100:0;
@@ -4993,7 +5006,7 @@ function whSummaryMarkup(r){
  <div class="wh-actions"><span class="wh-action wh-expand" aria-hidden="true">${whSmallIcon('chevron')}</span><button class="wh-action wh-trash" type="button" data-wh-remove="${escapeHTML(r.id)}" aria-label="Remove ${escapeHTML(r.title)} from history" title="Remove from history">${whSmallIcon('trash')}</button></div>
  </div>`;
 }
-function whRowMarkup(r){const open=whExpanded.has(r.id);return `<section class="wh-season ${open?'is-expanded':''}" data-wh-row="${escapeHTML(r.id)}" aria-label="${escapeHTML(r.title)}">${whSummaryMarkup(r)}<div class="wh-episodes"><div class="wh-episodes-inner" ${open?'':'inert aria-hidden="true"'}><div class="wh-episodes-content"><div class="wh-episode-head"><strong>Episodes</strong><span>${whCount(r)} / ${r.episodes.length} watched</span></div><div class="wh-episode-shell" data-wh-shell="${escapeHTML(r.id)}"><div class="wh-episode-scroll" role="region" tabindex="0" aria-label="Scrollable episodes for ${escapeHTML(r.title)}">${r.episodes.map(ep=>whEpisodeMarkup(r,ep)).join('')}</div><div class="wh-inner-overlay" aria-hidden="true"><div class="wh-inner-thumb"></div></div></div><p class="wh-episode-hint">Mark or unmark individual episodes here. Saved playback position is kept separately.</p></div></div></div></section>`;}
+function whRowMarkup(r){const open=whExpanded.has(r.id);return `<section class="wh-season ${open?'is-expanded':''}" data-wh-row="${escapeHTML(r.id)}" aria-label="${escapeHTML(r.title)}">${whSummaryMarkup(r)}<div class="wh-episodes"><div class="wh-episodes-inner" ${open?'':'inert aria-hidden="true"'}><div class="wh-episodes-content"><div class="wh-episode-head"><strong>Episodes</strong><span>${whCount(r)} / ${r.episodes.length} watched</span></div><div class="wh-episode-shell" data-wh-shell="${escapeHTML(r.id)}"><div class="wh-episode-scroll gallery-episode-scroll" role="region" tabindex="0" aria-label="Scrollable episodes for ${escapeHTML(r.title)}">${r.episodes.map(ep=>whEpisodeMarkup(r,ep)).join('')}</div><div class="wh-inner-overlay" aria-hidden="true"><div class="wh-inner-thumb"></div></div></div><p class="wh-episode-hint">Click an episode to cycle Not Watched, Partially Watched, and Watched. Saved playback position is kept separately.</p></div></div></div></section>`;}
 function whPageMarkup(){
  const groups=whGroups(),total=groups.reduce((n,g)=>n+g.items.length,0),removed=whRecords.filter(r=>whPending.has(r.id));
  return `<section id="wh-root" aria-label="Watch History">
@@ -5072,13 +5085,12 @@ function whRender({keepScroll=true}={}){
  requestAnimationFrame(updateTabScrollOverlay);
 }
 function whUpdateEpisodeInPlace(button,r,ep){
- const status=ep.watched?'is-watched':ep.started?'is-partial':'is-never';
- const label=ep.watched?'Watched':ep.started?'Partially watched':'Not watched';
- button.setAttribute('aria-pressed',String(ep.watched));button.title=ep.watched?'Unmark as Watched':'Mark as Watched';
- const mark=button.querySelector('.wh-status-icon');mark.className='wh-status-icon '+status;mark.innerHTML=ep.watched?whSmallIcon('check'):'';
+ const status=whEpisodeStatus(ep),label=whEpisodeStatusLabel(status),next=whEpisodeStatusLabel(whEpisodeNextStatus(ep));
+ button.setAttribute('aria-pressed',whEpisodePress(status));button.setAttribute('aria-label',`Episode ${ep.n}: ${label}. Next: ${next}`);button.title=`${label} — click to mark ${next}`;
+ const mark=button.querySelector('.wh-status-icon');mark.className='wh-status-icon is-'+status;mark.innerHTML=status==='watched'?whSmallIcon('check'):'';
  button.querySelector('.wh-episode-label').textContent=label;
  const main=button.closest('.wh-episode').querySelector('.wh-episode-main');let position=main.querySelector('.wh-episode-position');
- if(ep.started&&!ep.watched){if(!position){position=document.createElement('span');position.className='wh-episode-position';main.append(position)}position.textContent=`${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}`;}else position?.remove();
+ if(status==='partial'&&ep.started&&ep.progressSeconds>0){if(!position){position=document.createElement('span');position.className='wh-episode-position';main.append(position)}position.textContent=`${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}`;}else position?.remove();
  const row=button.closest('.wh-season');const replacement=document.createElement('template');replacement.innerHTML=whSummaryMarkup(r);row.querySelector('.wh-summary').replaceWith(replacement.content.firstElementChild);
  row.querySelector('.wh-episode-head span').textContent=`${whCount(r)} / ${r.episodes.length} watched`;
  // No rebuild of episode panel; its scrollbar, selected control and scroll position stay stationary.
@@ -5141,7 +5153,7 @@ screen.addEventListener('click',event=>{
  if(b.dataset.whUndo){whPending.delete(b.dataset.whUndo);whRender();return;}
  if(b.hasAttribute('data-wh-undo-all')){whPending.clear();whRender();return;}
  if(b.dataset.whOpen){const record=whRecords.find(r=>r.id===b.dataset.whOpen);if(record)whOpenTitle(record);return;}
- if(b.dataset.whEpisode){const divider=b.dataset.whEpisode.lastIndexOf(':'),id=b.dataset.whEpisode.slice(0,divider),n=Number(b.dataset.whEpisode.slice(divider+1));const r=whRecords.find(r=>r.id===id),ep=r?.episodes.find(ep=>ep.n===n);if(!ep)return;ep.watched=!ep.watched;whUpdateEpisodeInPlace(b,r,ep);whSave();return;}
+ if(b.dataset.whEpisode){const divider=b.dataset.whEpisode.lastIndexOf(':'),id=b.dataset.whEpisode.slice(0,divider),n=Number(b.dataset.whEpisode.slice(divider+1));const r=whRecords.find(r=>r.id===id),ep=r?.episodes.find(ep=>ep.n===n);if(!ep)return;ep.manualStatus=whEpisodeNextStatus(ep);whUpdateEpisodeInPlace(b,r,ep);whSave();return;}
 });
 /* Playback tracking is limited to a user-opened local video in the HTML preview.
  * An episode becomes Watched only by continuous active playback crossing into
@@ -5157,7 +5169,7 @@ function whRecordLocalPlayback(video,markWatched=false){
   whRecords.unshift(rec);
  }
  const n=state.playback.episode;let ep=rec.episodes.find(e=>e.n===n);if(!ep){ep={n,watched:false,started:false,progressSeconds:0,duration:Math.floor(video.duration)};rec.episodes.push(ep);rec.episodes.sort((a,b)=>a.n-b.n);}
- ep.started=true;ep.duration=Math.floor(video.duration);ep.progressSeconds=Math.floor(video.currentTime);if(markWatched)ep.watched=true;
+ delete ep.manualStatus;ep.started=true;ep.duration=Math.floor(video.duration);ep.progressSeconds=Math.floor(video.currentTime);if(markWatched)ep.watched=true;
  rec.latestEpisode=n;
  const now=new Date(),day=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
  rec.last=day;if(!rec.dates.includes(day))rec.dates.push(day);
@@ -5471,7 +5483,7 @@ function downloads(){
     </button></div>
     <div class="download-group-body sf-dl-body" id="${bodyId}"><div class="download-group-body-inner sf-dl-body-inner" ${expanded?'':'inert aria-hidden="true"'}>
       ${matched.length===allEntries.length?'':`<p class="download-matched-count">Showing ${matched.length} of ${allEntries.length} notifications</p>`}
-      <div class="sf-dl-viewport" data-scroll-group="${escapeHTML(id)}" role="region" tabindex="0" aria-label="Episodes of ${escapeHTML(anime.name)}">${episodes}</div>
+      <div class="sf-dl-viewport gallery-episode-scroll" data-scroll-group="${escapeHTML(id)}" role="region" tabindex="0" aria-label="Episodes of ${escapeHTML(anime.name)}">${episodes}</div>
       <p class="sf-dl-action-hint" aria-hidden="true">${downloadActionIcon('dismiss')} Hover over an episode to reveal Dismiss or Cancel. Tab to the action to use it with a keyboard.</p>
     </div></div></section>`;
  }).filter(Boolean).join('');
