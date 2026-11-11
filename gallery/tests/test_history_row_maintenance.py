@@ -107,7 +107,30 @@ with sync_playwright() as pw:
     dl=page.locator('.sf-dl-card').first
     dl.locator('[data-download-toggle]').click()
     page.wait_for_timeout(330)
-    assert_episode_scroll_chains(dl.locator('.sf-dl-viewport'),page.locator('.tab-page[data-tab-page="downloads"]'),'Downloads')
+    # Downloads deliberately retains its original scroll containment.
+    # Wheel motion should scroll within its episode viewport without chaining
+    # to the parent when the episode viewport reaches the bottom.
+    dl_inner=dl.locator('.sf-dl-viewport')
+    dl_outer=page.locator('.tab-page[data-tab-page="downloads"]')
+    assert dl_inner.evaluate('(e)=>getComputedStyle(e).overscrollBehaviorY')=='contain'
+    dl_inner.scroll_into_view_if_needed()
+    assert dl_inner.evaluate('(e)=>e.scrollHeight-e.clientHeight')>0
+    dl_inner.evaluate('(e)=>e.scrollTop=0')
+    rect=dl_inner.bounding_box()
+    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+    page.mouse.wheel(0,110)
+    page.wait_for_timeout(180)
+    assert dl_inner.evaluate('(e)=>e.scrollTop')>30,'Downloads inner scrolling stopped working'
+    dl_inner.evaluate('(e)=>e.scrollTop=e.scrollHeight')
+    dl_outer.evaluate('(e)=>e.scrollTop=100')
+    dl_inner.scroll_into_view_if_needed()
+    before_dl=dl_outer.evaluate('(e)=>e.scrollTop')
+    rect=dl_inner.bounding_box()
+    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+    page.mouse.wheel(0,110)
+    page.wait_for_timeout(180)
+    after_dl=dl_outer.evaluate('(e)=>e.scrollTop')
+    assert abs(after_dl-before_dl)<3,('Downloads original scroll containment',before_dl,after_dl)
     page.locator('[data-view="discover"]').first.click()
     page.wait_for_timeout(400)
     page.locator('#wh-view-history').click()
