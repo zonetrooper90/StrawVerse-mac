@@ -116,6 +116,35 @@ with sync_playwright() as pw:
     history.locator('[data-wh-expand]').click()
     page.wait_for_timeout(330)
     assert_episode_scroll_chains(history.locator('.wh-episode-scroll'),page.locator('.workspace'),'Watch History')
+    # Explicit boundary transfer, including a wheel tick that overshoots the end.
+    # A dispatched synthetic WheelEvent cannot scroll natively, so this proves
+    # the Watch History handler forwards unconsumed delta to its parent.
+    probes=page.evaluate("""() => {
+      const inner=document.querySelectorAll('.wh-episode-scroll')[1];
+      const outer=document.querySelector('.workspace');
+      function check(innerTop,outerTop,dy,dx=0,mode=0){
+        const max=inner.scrollHeight-inner.clientHeight;
+        inner.scrollTop=innerTop==='end'?max:innerTop;
+        outer.scrollTop=outerTop;
+        const start={inner:inner.scrollTop,outer:outer.scrollTop,max};
+        const event=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:dx,deltaY:dy,deltaMode:mode});
+        inner.dispatchEvent(event);
+        return {start,end:{inner:inner.scrollTop,outer:outer.scrollTop},prevented:event.defaultPrevented};
+      }
+      return {
+        down:check('end',100,180),
+        up:check(0,370,-160),
+        overshoot:check(inner.scrollHeight-inner.clientHeight-25,100,160),
+        inside:check(150,100,80),
+        horizontal:check('end',100,70,200)
+      };
+    }""")
+    assert probes['down']['prevented'] and abs(probes['down']['end']['outer']-280)<=2,probes
+    assert probes['up']['prevented'] and abs(probes['up']['end']['outer']-210)<=2,probes
+    assert probes['overshoot']['prevented'] and abs(probes['overshoot']['end']['outer']-235)<=2,probes
+    assert abs(probes['overshoot']['end']['inner']-probes['overshoot']['start']['max'])<=1,probes
+    assert not probes['inside']['prevented'] and probes['inside']['end']['outer']==probes['inside']['start']['outer'],probes
+    assert not probes['horizontal']['prevented'] and probes['horizontal']['end']['outer']==probes['horizontal']['start']['outer'],probes
     assert not errors,errors
     browser.close()
 print('History row and hidden transfer regression tests passed')

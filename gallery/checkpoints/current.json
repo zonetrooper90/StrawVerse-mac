@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-11-nested-scroll-chaining",
-  "sha256": "878e61a27bb36d77481ad0bc4a4fe2e2e3de2c050b1b4f97a9f48a7b63a250b5",
-  "bytes": 6950451,
+  "folder": "2026-11-11-watch-history-wheel-handoff",
+  "sha256": "3373d11f52f4f2b76be892fc891adc0597a4b41a7d5437259646182b374a333f",
+  "bytes": 6951376,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
