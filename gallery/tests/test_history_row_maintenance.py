@@ -116,35 +116,58 @@ with sync_playwright() as pw:
     history.locator('[data-wh-expand]').click()
     page.wait_for_timeout(330)
     assert_episode_scroll_chains(history.locator('.wh-episode-scroll'),page.locator('.workspace'),'Watch History')
-    # Explicit boundary transfer, including a wheel tick that overshoots the end.
-    # A dispatched synthetic WheelEvent cannot scroll natively, so this proves
-    # the Watch History handler forwards unconsumed delta to its parent.
-    probes=page.evaluate("""() => {
+    # Native wheel must not double-scroll when the episode scrollbar is visible.
+    inner=history.locator('.wh-episode-scroll')
+    outer=page.locator('.workspace')
+    inner.scroll_into_view_if_needed()
+    inner.evaluate('(e)=>e.scrollTop=e.scrollHeight')
+    outer.evaluate('(e)=>e.scrollTop=180')
+    rect=inner.bounding_box()
+    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+    page.mouse.wheel(0,80)
+    page.wait_for_timeout(120)
+    delta=outer.evaluate('(e)=>e.scrollTop')-180
+    assert 55<=delta<=105,('Native wheel double-scroll or handoff failure',delta)
+
+    # Synthetic events have no native wheel default. These prove that the
+    # fallback handles continuous noncancelable events, reversed direction,
+    # overshooting a boundary, and does not fight a real native parent scroll.
+    probes=page.evaluate("""async () => {
       const inner=document.querySelectorAll('.wh-episode-scroll')[1];
       const outer=document.querySelector('.workspace');
-      function check(innerTop,outerTop,dy,dx=0,mode=0){
+      const sleep=()=>new Promise(resolve=>setTimeout(resolve,85));
+      async function check(innerAt,outerAt,events,adjust={}){
         const max=inner.scrollHeight-inner.clientHeight;
-        inner.scrollTop=innerTop==='end'?max:innerTop;
-        outer.scrollTop=outerTop;
-        const start={inner:inner.scrollTop,outer:outer.scrollTop,max};
-        const event=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:dx,deltaY:dy,deltaMode:mode});
-        inner.dispatchEvent(event);
-        return {start,end:{inner:inner.scrollTop,outer:outer.scrollTop},prevented:event.defaultPrevented};
+        inner.scrollTop=innerAt==='end'?max:innerAt;
+        outer.scrollTop=outerAt;
+        const start={inner:inner.scrollTop,outer:outer.scrollTop};
+        const prevented=[];
+        for(const item of events){
+          const ev=new WheelEvent('wheel',{bubbles:true,cancelable:item.cancelable,deltaY:item.y,deltaX:item.x||0});
+          inner.dispatchEvent(ev);prevented.push(ev.defaultPrevented);
+        }
+        if(adjust.nativeInner)inner.scrollTop=max;
+        if(adjust.nativeOuter)outer.scrollTop+=adjust.nativeOuter;
+        await sleep();
+        return {start,end:{inner:inner.scrollTop,outer:outer.scrollTop},prevented};
       }
       return {
-        down:check('end',100,180),
-        up:check(0,370,-160),
-        overshoot:check(inner.scrollHeight-inner.clientHeight-25,100,160),
-        inside:check(150,100,80),
-        horizontal:check('end',100,70,200)
+        continuous:await check('end',150,[{y:40,cancelable:true},{y:45,cancelable:false},{y:35,cancelable:false}]),
+        upward:await check(0,330,[{y:-35,cancelable:false},{y:-55,cancelable:false}]),
+        native:await check('end',150,[{y:90,cancelable:true}],{nativeOuter:90}),
+        overshoot:await check(inner.scrollHeight-inner.clientHeight-25,150,[{y:100,cancelable:false}],{nativeInner:true}),
+        inside:await check(100,150,[{y:30,cancelable:true}]),
+        horizontal:await check('end',150,[{y:30,x:130,cancelable:false}])
       };
     }""")
-    assert probes['down']['prevented'] and abs(probes['down']['end']['outer']-280)<=2,probes
-    assert probes['up']['prevented'] and abs(probes['up']['end']['outer']-210)<=2,probes
-    assert probes['overshoot']['prevented'] and abs(probes['overshoot']['end']['outer']-235)<=2,probes
-    assert abs(probes['overshoot']['end']['inner']-probes['overshoot']['start']['max'])<=1,probes
-    assert not probes['inside']['prevented'] and probes['inside']['end']['outer']==probes['inside']['start']['outer'],probes
-    assert not probes['horizontal']['prevented'] and probes['horizontal']['end']['outer']==probes['horizontal']['start']['outer'],probes
+    assert abs(probes['continuous']['end']['outer']-270)<=2,probes
+    assert abs(probes['upward']['end']['outer']-240)<=2,probes
+    assert abs(probes['native']['end']['outer']-240)<=2,probes
+    assert abs(probes['overshoot']['end']['outer']-225)<=2,probes
+    assert abs(probes['overshoot']['end']['inner']-probes['overshoot']['start']['inner']-25)<=2,probes
+    assert probes['inside']['end']['outer']==150,probes
+    assert probes['horizontal']['end']['outer']==150,probes
+    assert all(not any(x['prevented']) for x in probes.values()),probes
     assert not errors,errors
     browser.close()
 print('History row and hidden transfer regression tests passed')

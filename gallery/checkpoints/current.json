@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-11-watch-history-wheel-handoff",
-  "sha256": "3373d11f52f4f2b76be892fc891adc0597a4b41a7d5437259646182b374a333f",
-  "bytes": 6951376,
+  "folder": "2026-11-11-watch-history-continuous-wheel",
+  "sha256": "c5e22d522b1d75840bc87f92f58e7d5d9bbef4f1125c7a26792c5d31b92a7604",
+  "bytes": 6952163,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

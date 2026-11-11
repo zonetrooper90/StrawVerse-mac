@@ -5016,28 +5016,46 @@ function whAttachInner(area,overlay){
  const intentScroll=()=>{intent=performance.now()+1400;reveal();};
  const onScroll=()=>{update();if(performance.now()<intent||dragging)reveal();};
  const onKey=e=>{if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(e.key))intentScroll();};
- /* Some wheel/trackpad gestures remain latched to the nested episode list
-    at a boundary even though CSS permits scroll chaining. Transfer only the
-    unconsumed vertical delta to Watch History's existing workspace scroller. */
+ /* Preserve native wheel/trackpad momentum while handing off at episode
+    boundaries. Never cancel the browser's wheel default; only fill missing
+    movement after it has tried to scroll the parent. This also works for
+    non-cancelable events in a continuous wheel gesture. */
+ let pendingWheel=null,pendingWheelTimer=0;
  const handoffWheel=e=>{
-  if(!e.cancelable||Math.abs(e.deltaY)<=Math.abs(e.deltaX)||currentScrollSurface()!==workspace)return;
+  if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)||currentScrollSurface()!==workspace)return;
   const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?area.clientHeight:1);
   if(!delta)return;
   const max=Math.max(0,area.scrollHeight-area.clientHeight);
   const top=Math.max(0,Math.min(max,area.scrollTop));
   const available=delta>0?max-top:top;
-  if(Math.abs(delta)<=available+.5)return;
-  e.preventDefault();
-  area.scrollTop=Math.max(0,Math.min(max,top+delta));
-  workspace.scrollTop+=delta-Math.sign(delta)*available;
-  signalUserScroll();
+  if(Math.abs(delta)<=available+.5&&!pendingWheel)return;
+  if(pendingWheel&&Math.sign(pendingWheel.delta)!==Math.sign(delta)){
+   clearTimeout(pendingWheelTimer);
+   pendingWheel=null;
+  }
+  if(!pendingWheel){
+   pendingWheel={delta:0,inner:area.scrollTop,outer:workspace.scrollTop};
+   pendingWheelTimer=setTimeout(()=>{
+    const wheel=pendingWheel;pendingWheel=null;pendingWheelTimer=0;
+    if(!wheel||!area.isConnected||currentScrollSurface()!==workspace)return;
+    const outerMoved=workspace.scrollTop-wheel.outer;
+    if(outerMoved*wheel.delta>.5)return; // browser handled chaining natively
+    const innerMoved=area.scrollTop-wheel.inner;
+    const leftover=wheel.delta-innerMoved;
+    if(leftover*wheel.delta>.5){
+     workspace.scrollTop+=leftover;
+     signalUserScroll();
+    }
+   },36);
+  }
+  pendingWheel.delta+=delta;
  };
  const down=e=>{if(e.button!==0||!update())return;e.preventDefault();dragging=true;dragY=e.clientY;dragTop=area.scrollTop;overlay.classList.add('is-dragging','is-visible');clearTimeout(timer);thumb.setPointerCapture(e.pointerId);};
  const move=e=>{if(!dragging)return;const distance=overlay.clientHeight-thumb.getBoundingClientRect().height,max=area.scrollHeight-area.clientHeight;if(distance>0)area.scrollTop=dragTop+(e.clientY-dragY)*max/distance;reveal();};
  const up=()=>{if(!dragging)return;dragging=false;overlay.classList.remove('is-dragging');reveal();};
  area.addEventListener('wheel',intentScroll,{passive:true});area.addEventListener('wheel',handoffWheel,{passive:false});area.addEventListener('touchmove',intentScroll,{passive:true});area.addEventListener('scroll',onScroll,{passive:true});area.addEventListener('keydown',onKey);
  thumb.addEventListener('pointerdown',down);thumb.addEventListener('pointermove',move);thumb.addEventListener('pointerup',up);thumb.addEventListener('pointercancel',up);thumb.addEventListener('lostpointercapture',up);
- return {area,update,destroy(){clearTimeout(timer);area.removeEventListener('wheel',intentScroll);area.removeEventListener('wheel',handoffWheel);area.removeEventListener('touchmove',intentScroll);area.removeEventListener('scroll',onScroll);area.removeEventListener('keydown',onKey);thumb.removeEventListener('pointerdown',down);thumb.removeEventListener('pointermove',move);thumb.removeEventListener('pointerup',up);thumb.removeEventListener('pointercancel',up);thumb.removeEventListener('lostpointercapture',up);}};
+ return {area,update,destroy(){clearTimeout(timer);if(pendingWheelTimer)clearTimeout(pendingWheelTimer);pendingWheel=null;area.removeEventListener('wheel',intentScroll);area.removeEventListener('wheel',handoffWheel);area.removeEventListener('touchmove',intentScroll);area.removeEventListener('scroll',onScroll);area.removeEventListener('keydown',onKey);thumb.removeEventListener('pointerdown',down);thumb.removeEventListener('pointermove',move);thumb.removeEventListener('pointerup',up);thumb.removeEventListener('pointercancel',up);thumb.removeEventListener('lostpointercapture',up);}};
 }
 function whDestroyInner(){for(const scroller of whInnerScrollers.values())scroller.destroy();whInnerScrollers.clear();}
 /* Expand/collapse in place so DOM, scroll position and animated height remain stable. */
