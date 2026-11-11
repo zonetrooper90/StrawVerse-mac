@@ -129,45 +129,42 @@ with sync_playwright() as pw:
     delta=outer.evaluate('(e)=>e.scrollTop')-180
     assert 55<=delta<=105,('Native wheel double-scroll or handoff failure',delta)
 
-    # Synthetic events have no native wheel default. These prove that the
-    # fallback handles continuous noncancelable events, reversed direction,
-    # overshooting a boundary, and does not fight a real native parent scroll.
-    probes=page.evaluate("""async () => {
-      const inner=document.querySelectorAll('.wh-episode-scroll')[1];
-      const outer=document.querySelector('.workspace');
-      const sleep=()=>new Promise(resolve=>setTimeout(resolve,85));
-      async function check(innerAt,outerAt,events,adjust={}){
-        const max=inner.scrollHeight-inner.clientHeight;
-        inner.scrollTop=innerAt==='end'?max:innerAt;
-        outer.scrollTop=outerAt;
-        const start={inner:inner.scrollTop,outer:outer.scrollTop};
-        const prevented=[];
-        for(const item of events){
-          const ev=new WheelEvent('wheel',{bubbles:true,cancelable:item.cancelable,deltaY:item.y,deltaX:item.x||0});
-          inner.dispatchEvent(ev);prevented.push(ev.defaultPrevented);
-        }
-        if(adjust.nativeInner)inner.scrollTop=max;
-        if(adjust.nativeOuter)outer.scrollTop+=adjust.nativeOuter;
-        await sleep();
-        return {start,end:{inner:inner.scrollTop,outer:outer.scrollTop},prevented};
-      }
-      return {
-        continuous:await check('end',150,[{y:40,cancelable:true},{y:45,cancelable:false},{y:35,cancelable:false}]),
-        upward:await check(0,330,[{y:-35,cancelable:false},{y:-55,cancelable:false}]),
-        native:await check('end',150,[{y:90,cancelable:true}],{nativeOuter:90}),
-        overshoot:await check(inner.scrollHeight-inner.clientHeight-25,150,[{y:100,cancelable:false}],{nativeInner:true}),
-        inside:await check(100,150,[{y:30,cancelable:true}]),
-        horizontal:await check('end',150,[{y:30,x:130,cancelable:false}])
-      };
-    }""")
-    assert abs(probes['continuous']['end']['outer']-270)<=2,probes
-    assert abs(probes['upward']['end']['outer']-240)<=2,probes
-    assert abs(probes['native']['end']['outer']-240)<=2,probes
-    assert abs(probes['overshoot']['end']['outer']-225)<=2,probes
-    assert abs(probes['overshoot']['end']['inner']-probes['overshoot']['start']['inner']-25)<=2,probes
-    assert probes['inside']['end']['outer']==150,probes
-    assert probes['horizontal']['end']['outer']==150,probes
-    assert all(not any(x['prevented']) for x in probes.values()),probes
+    # A native scrolling architecture must not inject delayed scrollTop writes.
+    assert 'handoffWheel' not in source and 'pendingWheelTimer' not in source
+    assert history.evaluate('(e)=>getComputedStyle(e).overflowY')=='clip'
+    assert history.locator('.wh-episodes-inner').evaluate('(e)=>getComputedStyle(e).overflowY')=='clip'
+    assert inner.evaluate('(e)=>getComputedStyle(e).overscrollBehaviorY')=='auto'
+
+    # Multiple wheel events in one gesture must chain continuously, without
+    # a pause for the episode's fading overlay scrollbar or any double-scroll.
+    for direction in (1,-1):
+        inner.evaluate('(e,d)=>e.scrollTop=d>0?e.scrollHeight:0',direction)
+        outer.evaluate('(e,d)=>e.scrollTop=d>0?180:460',direction)
+        inner.scroll_into_view_if_needed()
+        before=outer.evaluate('(e)=>e.scrollTop')
+        rect=inner.bounding_box()
+        page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+        for _ in range(4):
+            page.mouse.wheel(0,direction*70)
+            page.wait_for_timeout(18)
+        page.wait_for_timeout(130)
+        travelled=outer.evaluate('(e)=>e.scrollTop')-before
+        assert abs(travelled-direction*280)<20,('Native continuous wheel',direction,travelled)
+
+    # A wheel tick that finishes the last bit of inner scrolling may be
+    # consumed by the inner viewport. The next tick must chain immediately
+    # without an application-specific handoff timer.
+    inner.evaluate('(e)=>e.scrollTop=e.scrollHeight-e.clientHeight-25')
+    outer.evaluate('(e)=>e.scrollTop=500')
+    inner.scroll_into_view_if_needed()
+    before=outer.evaluate('(e)=>e.scrollTop')
+    rect=inner.bounding_box()
+    page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+    page.mouse.wheel(0,150)
+    page.wait_for_timeout(24)
+    page.mouse.wheel(0,70)
+    page.wait_for_timeout(135)
+    assert outer.evaluate('(e)=>e.scrollTop')>before+50,'No native chain after episode-list boundary'
     assert not errors,errors
     browser.close()
 print('History row and hidden transfer regression tests passed')

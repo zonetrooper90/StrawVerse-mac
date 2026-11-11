@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-11-watch-history-continuous-wheel",
-  "sha256": "c5e22d522b1d75840bc87f92f58e7d5d9bbef4f1125c7a26792c5d31b92a7604",
-  "bytes": 6952163,
+  "folder": "2026-11-11-native-watch-history-scroll",
+  "sha256": "6e1d57fc6a3e956adc032c57bdbf656d0a283e2db79779c3f07c2258c6f6b909",
+  "bytes": 6950542,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
