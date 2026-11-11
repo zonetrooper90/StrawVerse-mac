@@ -43,3 +43,4 @@ jobs:
           python3 gallery/tests/test_transitions.py gallery/Gallery-current.html
           python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
+          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-current.html
