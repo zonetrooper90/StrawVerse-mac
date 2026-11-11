@@ -30,12 +30,20 @@ with sync_playwright() as pw:
     assert page.locator('#wh-root').count()==1
     first=page.locator('.wh-season').first
     assert first.locator('.wh-summary-hit').count()==1
-    assert first.locator('.wh-episodes').count()==0
+    assert first.locator('.wh-episodes').count()==1
+    assert first.locator('.wh-episodes-inner').get_attribute('inert') is not None
+    page.evaluate('window.__historyPanel=document.querySelector(".wh-season .wh-episodes")')
     first.locator('.wh-summary-hit').click(position={'x':180,'y':50})
     page.wait_for_timeout(140)
     first=page.locator('.wh-season').first
     assert first.locator('.wh-episodes').count()==1
     assert first.locator('.wh-summary-hit').get_attribute('aria-expanded')=='true'
+    assert first.locator('.wh-episodes-inner').get_attribute('inert') is None
+    assert page.evaluate('window.__historyPanel===document.querySelector(".wh-season .wh-episodes")')
+    opening_height=first.locator('.wh-episodes').evaluate('(el)=>el.getBoundingClientRect().height')
+    page.wait_for_timeout(210)
+    full_height=first.locator('.wh-episodes').evaluate('(el)=>el.getBoundingClientRect().height')
+    assert 0 < opening_height < full_height, (opening_height,full_height)
     episode=first.locator('.wh-episode-row').first
     assert episode.count()==1 and episode.get_attribute('role') is None
     before=episode.get_attribute('aria-pressed')
@@ -44,6 +52,13 @@ with sync_playwright() as pw:
     episode.focus()
     episode.press('Space')
     assert episode.get_attribute('aria-pressed')==before
+    first.locator('.wh-summary-hit').click()
+    page.wait_for_timeout(330)
+    assert first.locator('.wh-episodes').evaluate('(el)=>el.getBoundingClientRect().height')==0
+    assert first.locator('.wh-episodes-inner').get_attribute('inert') is not None
+    first.locator('.wh-summary-hit').click()
+    page.wait_for_timeout(330)
+    assert page.evaluate('window.__historyPanel===document.querySelector(".wh-season .wh-episodes")')
     assert first.locator('.wh-anime-title').count()==1
     first.locator('.wh-anime-title').click()
     page.wait_for_timeout(470)
