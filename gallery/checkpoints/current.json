@@ -1,8 +1,8 @@
 {
-  "folder": "2026-11-11-history-smooth-expand",
-  "sha256": "c850b767a00c1749d56d52468e23c01d31afd27edc225f74b3ec9440b1db1717",
-  "bytes": 6950393,
+  "folder": "2026-11-11-nested-scroll-chaining",
+  "sha256": "878e61a27bb36d77481ad0bc4a4fe2e2e3de2c050b1b4f97a9f48a7b63a250b5",
+  "bytes": 6950451,
   "source_name": "Gallery-current.html",
-  "status": "user-approved",
-  "note": "User visually approved Watch History Downloads-style reversible 280ms expand/collapse. First expansion was smooth after reopening; HTML and immutable checkpoint unchanged."
+  "status": "delivered-for-user-testing",
+  "note": "Local staging only until GitHub commit and CI verification."
 }

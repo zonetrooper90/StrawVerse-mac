@@ -77,6 +77,45 @@ with sync_playwright() as pw:
     page.locator('[data-view="downloads"]').first.click()
     page.wait_for_timeout(500)
     assert page.locator('[data-download-toggle]').count()>0
+    # Wheel/trackpad input at an episode boundary must scroll the parent page.
+    page.set_viewport_size({'width':1100,'height':750})
+    def assert_episode_scroll_chains(inner,outer,label):
+        assert inner.evaluate('(e)=>getComputedStyle(e).overscrollBehaviorY')=='auto',label
+        inner.scroll_into_view_if_needed()
+        assert inner.evaluate('(e)=>e.scrollHeight-e.clientHeight')>0,label
+        assert outer.evaluate('(e)=>e.scrollHeight-e.clientHeight')>180,label
+        inner.evaluate('(e)=>e.scrollTop=e.scrollHeight')
+        outer.evaluate('(e)=>e.scrollTop=0')
+        inner.scroll_into_view_if_needed()
+        before=outer.evaluate('(e)=>e.scrollTop')
+        rect=inner.bounding_box()
+        page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+        page.mouse.wheel(0,180)
+        page.wait_for_timeout(250)
+        after=outer.evaluate('(e)=>e.scrollTop')
+        assert after>before+20,(label,'down',before,after)
+        inner.evaluate('(e)=>e.scrollTop=0')
+        outer.evaluate('(e)=>e.scrollTop=90')
+        inner.scroll_into_view_if_needed()
+        before=outer.evaluate('(e)=>e.scrollTop')
+        rect=inner.bounding_box()
+        page.mouse.move(rect['x']+rect['width']/2,rect['y']+rect['height']/2)
+        page.mouse.wheel(0,-120)
+        page.wait_for_timeout(250)
+        after=outer.evaluate('(e)=>e.scrollTop')
+        assert after<before-20,(label,'up',before,after)
+    dl=page.locator('.sf-dl-card').first
+    dl.locator('[data-download-toggle]').click()
+    page.wait_for_timeout(330)
+    assert_episode_scroll_chains(dl.locator('.sf-dl-viewport'),page.locator('.tab-page[data-tab-page="downloads"]'),'Downloads')
+    page.locator('[data-view="discover"]').first.click()
+    page.wait_for_timeout(400)
+    page.locator('#wh-view-history').click()
+    page.wait_for_timeout(400)
+    history=page.locator('.wh-season').nth(1)
+    history.locator('[data-wh-expand]').click()
+    page.wait_for_timeout(330)
+    assert_episode_scroll_chains(history.locator('.wh-episode-scroll'),page.locator('.workspace'),'Watch History')
     assert not errors,errors
     browser.close()
 print('History row and hidden transfer regression tests passed')

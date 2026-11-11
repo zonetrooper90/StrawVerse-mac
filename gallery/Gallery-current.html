@@ -2583,7 +2583,7 @@ body.settings-view .workspace.settings-mode{overscroll-behavior:contain}
 #wh-root .wh-episode-head strong{font-size:12px;color:var(--ink)}
 #wh-root .wh-episode-shell{position:relative}
 #wh-root .wh-episode-shell:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--line) 82%,var(--accent));z-index:1;pointer-events:none}
-#wh-root .wh-episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;max-height:252px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:auto;scrollbar-width:none;-ms-overflow-style:none}
+#wh-root .wh-episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;max-height:252px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:contain;overscroll-behavior-y:auto;scrollbar-gutter:auto;scrollbar-width:none;-ms-overflow-style:none}
 #wh-root .wh-episode-scroll::-webkit-scrollbar{display:none;width:0;height:0}
 #wh-root .wh-episode{min-width:0;height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 62%,transparent)}
 #wh-root .wh-episode:nth-child(odd){padding-right:22px}
@@ -3321,7 +3321,7 @@ body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner {
 body[data-theme] .sf-dl-list .sf-dl-viewport {
   max-height:384px;
   overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior:contain;
+  overscroll-behavior-x:contain;overscroll-behavior-y:auto;
   background:transparent;
   scrollbar-width:thin;
   scrollbar-color:color-mix(in srgb,var(--muted) 42%,transparent) transparent;
