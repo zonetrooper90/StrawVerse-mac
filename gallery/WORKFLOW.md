@@ -33,3 +33,7 @@ Documentation, workflows and test-runner changes require a GitHub commit and pas
 ## Historical source
 
 All old compressed checkpoints remain available. `gallery/tools/restore-checkpoint.py` is the recovery/verification path, while `gallery/Gallery-current.html` is the everyday editing baseline. Their hashes must match. The current HTML is a prototype, not proof of native player integration. User visual approval is separate from automated tests.
+
+## Controlled publishing when GitHub HTML exceeds connector upload limits
+
+The optional generic `.github/workflows/gallery-controlled-publish.yml` runs when a newly approved, narrowly scoped change script is committed under `gallery/changes/pending/`. It reads the GitHub working HTML, checks the current immutable baseline, applies a checksum-guarded patch, runs browser regressions, stages a new immutable archive, and commits the HTML, checkpoint and pointer together. This avoids transferring a multi-megabyte source file through an API that rejects large requests. The publisher explicitly dispatches both read-only verification workflows after pushing because GitHub's own workflow token does not trigger push-based workflows. Never treat the publisher's test pass as a substitute for both completed remote read-only checks. If any publishing step fails, inspect the branch head and current pointer before retrying. This is a generic publishing path, not a feature-specific workflow.

@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: gallery-approved-publish
@@ -76,3 +77,9 @@ jobs:
           git diff --cached --check -- 'gallery/tests/test_history_row_maintenance.py'
           git commit -m "fix(gallery): smooth Watch History expand and collapse"
           git push origin HEAD:gallery/development-clean
+      - name: Trigger independent read-only post-commit verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run gallery-checkpoint-integrity.yml --ref gallery/development-clean
+          gh workflow run gallery-transition-ui.yml --ref gallery/development-clean

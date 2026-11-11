@@ -4,5 +4,5 @@
   "bytes": 6950393,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
-  "note": "Local staging only until GitHub commit and CI verification."
+  "note": "Unnumbered correction: Watch History uses Downloads-style reversible 280ms expansion and collapse. Awaiting user visual review."
 }
