@@ -44,7 +44,7 @@ assert s.count(old)==1, "STOP: episode regression anchor changed"
 s=s.replace(old,new)
 start="    # Downloads deliberately retains its original scroll containment."
 end='    page.locator(\'[data-view="discover"]\').first.click()'
-assert s.count(start)==1 and s.count(end)==1, "STOP: Downloads regression anchors changed"
+assert s.count(start)==1 and s.find(end,s.index(start))!=-1, "STOP: Downloads regression anchors changed"
 a=s.index(start);b=s.index(end,a)
 new="""    # Shared native scroll behavior, including Downloads' approved two-way handoff.
     dl_inner=dl.locator('.sf-dl-viewport')
