@@ -1,0 +1,78 @@
+name: Gallery controlled checkpoint publisher
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/changes/pending/*.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gallery-approved-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact change request commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Validate exactly one newly approved change request
+        id: change
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only --diff-filter=A "${{ github.event.before }}" "${{ github.sha }}" -- gallery/changes/pending/ > "$RUNNER_TEMP/requests.txt"
+          test "$(grep -Ec '^gallery/changes/pending/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+\.py$' "$RUNNER_TEMP/requests.txt")" -eq 1
+          test "$(wc -l < "$RUNNER_TEMP/requests.txt")" -eq 1
+          CHANGE="$(cat "$RUNNER_TEMP/requests.txt")"
+          test -f "$CHANGE"
+          echo "script=$CHANGE" >> "$GITHUB_OUTPUT"
+          echo "id=$(basename "$CHANGE" .py)" >> "$GITHUB_OUTPUT"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify authoritative HTML and immutable archive before modification
+        run: |
+          set -euo pipefail
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=json.loads(Path('gallery/checkpoints/current.json').read_text())
+          b=Path('gallery/Gallery-current.html').read_bytes()
+          assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256']
+          PY
+      - name: Apply exact approved patch to GitHub working HTML
+        run: python3 "${{ steps.change.outputs.script }}"
+      - name: Install browser regression dependencies
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Run Watch History, navigation and motion regressions
+        run: |
+          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
+          python3 gallery/tests/test_transitions.py gallery/Gallery-current.html
+          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
+      - name: Create new immutable checkpoint and update pointer
+        run: |
+          python3 gallery/tools/stage-checkpoint.py --input gallery/Gallery-current.html --id "${{ steps.change.outputs.id }}" --status delivered-for-user-testing
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+      - name: Commit canonical HTML, test and checkpoint together
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gallery/Gallery-current.html gallery/tests/test_history_row_maintenance.py gallery/checkpoints/current.json "gallery/checkpoints/${{ steps.change.outputs.id }}/"
+          git diff --cached --check -- 'gallery/tests/test_history_row_maintenance.py'
+          git commit -m "fix(gallery): smooth Watch History expand and collapse"
+          git push origin HEAD:gallery/development-clean
