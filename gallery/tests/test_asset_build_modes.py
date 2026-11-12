@@ -147,5 +147,92 @@ with sync_playwright() as pw:
                 assert not errors, errors
                 page.close()
                 print(filename, reduced, width, "passed", flush=True)
+    # Compare the exact archived pre-cleanup baseline to this specific maintenance build.
+    # Other future builds keep the regular functional tests without comparing to a stale visual baseline.
+    import hashlib, base64, gzip, json, runpy
+    if hashlib.sha256((root / "Gallery-current.html").read_bytes()).hexdigest() == "062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae":
+        old_dir = root / "checkpoints/2026-11-12-adaptive-subtitle-preview-controls"
+        manifest = json.loads((old_dir / "manifest.json").read_text())
+        chunks = []
+        for part in manifest["parts"]:
+            data = (old_dir / part["file"]).read_bytes()
+            assert len(data) == part["encoded_chars"] and hashlib.sha256(data).hexdigest() == part["sha256"]
+            chunks.append(data)
+        compressed = base64.b64decode(b"".join(chunks), validate=True)
+        assert len(compressed) == manifest["compressed_bytes"] and hashlib.sha256(compressed).hexdigest() == manifest["compressed_sha256"]
+        old_full = gzip.decompress(compressed)
+        assert len(old_full) == 6917688 and hashlib.sha256(old_full).hexdigest() == "6dbb668ae63dea26bd1ed03c70db20596c2b96f85a6466c428fdc3b9741aba55"
+        builder = runpy.run_path(str(root / "tools/build-gallery.py"))
+        old_light = old_full
+        for name in ("day", "night"):
+            asset = (root / "assets/subtitle-preview" / f"shrine-{name}.png").read_bytes()
+            old_light = builder["replace_once"](old_light, b"data:image/png;base64," + base64.b64encode(asset), builder["COLORS"][name])
+        for old, new in builder["LIGHT_PATCHES"]:
+            old_light = builder["replace_once"](old_light, old, new)
+        assert hashlib.sha256(old_light).hexdigest() == "51c12e00ff5e2b7f2b92c625a1076b22c58d5c708bd4770d0ba8ba444a9580e4"
+        themes = ("ocean", "twilight", "ember", "slate", "glacier", "verdant")
+
+        def theme_snapshots(page, selector):
+            result = {}
+            for theme in themes:
+                # Sample the exact supported CSS theme scope, independently of timing in navigation.
+                page.evaluate("(t) => {state.theme=t;document.body.dataset.theme=t}", theme)
+                result[theme] = page.evaluate("""(selector) => {
+                    const props=['display','visibility','color','backgroundColor','backgroundImage','borderColor','borderRadius','boxShadow','fontSize','fontWeight','width','height','padding','margin','gap','scrollbarColor','scrollbarWidth','colorScheme','animationName','animationDuration','transitionDuration'];
+                    const vars=['--window','--surface','--raised','--hover','--line','--ink','--muted','--accent','--accent-ink','--tab','--strong','--player-remaining','--nav-bg','--nav-active-a','--nav-active-b'];
+                    const body=getComputedStyle(document.body);
+                    const nodes=[...document.querySelectorAll(selector)];
+                    if(!nodes.length)throw Error('Missing comparison nodes: '+selector);
+                    return {vars:vars.map(v=>body.getPropertyValue(v)),nodes:nodes.map(e=>{
+                        const c=getComputedStyle(e);
+                        const pseudo=['::before','::after','::-webkit-scrollbar','::-webkit-scrollbar-track','::-webkit-scrollbar-thumb'].map(p=>{
+                            const x=getComputedStyle(e,p);
+                            return [x.color,x.backgroundColor,x.backgroundImage,x.borderColor,x.borderRadius,x.width];
+                        });
+                        return [e.tagName,e.id,props.map(p=>c[p]),pseudo];
+                    })};
+                }""", selector)
+            return result
+
+        def cleanup_snapshot(source, width):
+            page = browser.new_page(viewport={"width":width,"height":950}, reduced_motion="reduce")
+            errors = []
+            page.on("pageerror", lambda e: errors.append(str(e)))
+            try:
+                page.set_content(source.decode("utf-8"), wait_until="domcontentloaded")
+                page.wait_for_timeout(240)
+                page.mouse.move(0,0)
+                nav = theme_snapshots(page, "body,.app,.tabs,.tabs>.tab")
+                page.locator("[data-detail]").first.click()
+                page.wait_for_timeout(350)
+                page.locator('.detail-actions [data-episode-action="watch"]').first.click()
+                page.wait_for_selector("#player-area")
+                page.wait_for_timeout(180)
+                page.mouse.move(0,0)
+                player = theme_snapshots(page, "#player-area,#player-area .player-icon,#player-area .player-main-action,#player-area input")
+                page.evaluate("setView('discover')")
+                page.wait_for_function("() => !state.playback && !galleryStageTransition")
+                page.locator("#settings").click()
+                page.wait_for_function('() => document.body.classList.contains("settings-view") && !galleryStageTransition && !gallerySettingsOpening')
+                page.locator('[data-settings-section="playback"]').click()
+                page.locator('[data-playback-tab="subtitles"]').click()
+                page.evaluate("showExpandedSubtitlePreview()")
+                page.wait_for_selector("#subtitle-expanded-stage")
+                page.wait_for_timeout(180)
+                page.mouse.move(0,0)
+                dialog = theme_snapshots(page, ".dialog,.dialog-scroll,.dialog-head,.dialog-head button,#subtitle-expanded-stage")
+                assert not errors, errors
+                return {"navigation":nav,"player":player,"dialog":dialog}
+            finally:
+                page.close()
+
+        for filename, old in (("Gallery-current.html", old_full), ("Gallery-development.html", old_light)):
+            new = (root / filename).read_bytes()
+            for width in (1600,700):
+                before, after = cleanup_snapshot(old,width), cleanup_snapshot(new,width)
+                for surface in before:
+                    for theme in themes:
+                        assert before[surface][theme] == after[surface][theme], (filename,width,surface,theme)
+                print(filename, width, "all six themes: exact sampled computed styles match baseline (navigation, Player, expanded dialog)", flush=True)
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")

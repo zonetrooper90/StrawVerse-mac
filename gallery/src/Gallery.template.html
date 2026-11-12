@@ -2,9 +2,6 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src file: blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>Gallery — Soft Futuristic — Secondary Page Navigation</title><style>
 :root {font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; font-size:14px; font-synthesis:none}
 *{box-sizing:border-box}html,body{height:100%;margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.5;cursor:not-allowed}
-body[data-theme="neon"]{--window:#171221;--surface:#211a2c;--raised:#2a2137;--hover:#372a47;--line:#3a2c4b;--ink:#f0eafa;--muted:#b4a6c7;--accent:#c5a0ed;--accent-ink:#fdf9ff;--tab:#624877;--strong:#4a345f;--glow:rgba(174,131,230,.20);--shadow:rgba(11,8,17,.55);--desktop:#0c0911}
-body[data-theme="midnight"]{--window:#111922;--surface:#192631;--raised:#243442;--hover:#2c4350;--line:#334c5b;--ink:#e8f0f3;--muted:#a1b5c1;--accent:#92cbc7;--accent-ink:#f8ffff;--tab:#385e68;--strong:#2b4b54;--glow:rgba(98,179,185,.15);--shadow:rgba(9,16,23,.58);--desktop:#081016}
-body[data-theme="paper"]{--window:#f7f2eb;--surface:#f0e8df;--raised:#e8ddd2;--hover:#e0d1c3;--line:#d8c6ba;--ink:#3f3838;--muted:#7a6a68;--accent:#995e63;--accent-ink:#fff;--tab:#c68f8d;--strong:#dbc0b5;--glow:rgba(180,117,109,.11);--shadow:rgba(61,41,36,.14);--desktop:#e2d6cc}
 body{background:var(--desktop);color:var(--ink);padding:20px;transition:background .18s,color .18s}.app{width:min(1400px,100%);height:calc(100vh - 40px);min-height:580px;margin:auto;background:var(--window);border:1px solid var(--line);border-radius:22px;box-shadow:0 28px 65px var(--shadow);display:flex;flex-direction:column;overflow:hidden}
 .top{z-index:5;flex:none;background:var(--window);border-bottom:1px solid var(--line);padding:22px 28px 19px}.brand-row{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:13px;min-width:0}.brandmark{color:var(--accent);display:grid;place-items:center;width:28px;height:28px}.brandname{font-size:21px;letter-spacing:-.03em;font-weight:680;white-space:nowrap}.subtitle{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 9px;margin-left:8px}.toolbar{display:flex;align-items:center;gap:8px}.iconbtn{border:0;background:transparent;color:var(--muted);border-radius:10px;width:38px;height:38px;display:grid;place-items:center}.iconbtn:hover{color:var(--ink);background:var(--hover)}.icon{display:inline-block;vertical-align:middle;flex:none}
 .tabs{width:100%;background:var(--raised);border-radius:17px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px}.tab{display:flex;align-items:center;justify-content:center;gap:10px;border:0;background:transparent;color:var(--muted);border-radius:12px;padding:13px 16px;font-weight:590;font-size:15px;transition:background .16s,color .16s}.tab:hover{background:var(--hover);color:var(--ink)}.tab.active{background:var(--tab);color:var(--accent-ink);box-shadow:0 1px 3px rgba(0,0,0,.09)}.tab svg{opacity:.9}
@@ -387,10 +384,6 @@ body.desktop-build input,body.desktop-build textarea{-webkit-user-select:text;us
 @media(max-width:440px){.player-volume{display:none}.player-controls .controls-left{gap:0}.player-controls .controls-right{gap:0}.player-progress-row{gap:8px}.player-time{font-size:10px}.player-empty-inner strong{font-size:14px}.player-empty-inner p{font-size:11px}.player-no-media{padding-bottom:85px}}
 
 /* Accent and remaining timeline segments inherit the current theme. */
-body[data-theme="neon"]{--player-remaining:rgba(174,153,192,.40)}
-body[data-theme="midnight"]{--player-remaining:rgba(104,141,160,.47)}
-body[data-theme="paper"]{--player-remaining:rgba(205,161,150,.55)}
-body[data-theme="paper"] .player-main-action,body[data-theme="paper"] .player-icon[aria-pressed="true"]{background:#995e63}
 .player-no-media[hidden]{display:none!important}
 
 /* On narrow windows, keep the empty-state explanation clear of the controls. */
@@ -523,37 +516,7 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 
 /* v16 — Paper Lantern contrast and Settings scrollbar polish.
    Deliberately isolated to the light theme: all v15 motion and Downloads states remain unchanged. */
-body[data-theme="paper"] .tabs>.tab {
-  color:#5e4846; /* darker inactive tab labels/icons against the warm tab strip */
-}
-body[data-theme="paper"] .tabs>.tab.active {
-  color:#502936!important; /* selected dark berry: readable on pill AND on background */
-}
-body[data-theme="paper"] .tabs>.tab:hover,
-body[data-theme="paper"] .tabs>.tab.active:hover,
-body[data-theme="paper"] .tabs>.tab:focus-visible,
-body[data-theme="paper"] .tabs>.tab.active:focus-visible {
-  color:#392b34!important; /* >=4.5:1 contrast against the moving rosy pill */
-}
 /* Use a warm, light-colored scrollbar inside Paper Lantern dialogs. */
-body[data-theme="paper"] .dialog-scroll {
-  color-scheme:light;
-  scrollbar-width:thin; /* Firefox, recent Chromium */
-  scrollbar-color:#ad9084 #f1e8df;
-}
-body[data-theme="paper"] .dialog-scroll::-webkit-scrollbar { width:11px; }
-body[data-theme="paper"] .dialog-scroll::-webkit-scrollbar-track {
-  background:#f1e8df;
-  border-radius:999px;
-}
-body[data-theme="paper"] .dialog-scroll::-webkit-scrollbar-thumb {
-  background:#ad9084;
-  border:2px solid #f1e8df;
-  border-radius:999px;
-}
-body[data-theme="paper"] .dialog-scroll::-webkit-scrollbar-thumb:hover {
-  background:#92736c;
-}
 
 /* v17 — The dialog owns the rounded silhouette; a separately scrolling content
    region keeps the native scrollbar inset from ALL four rounded corners.
@@ -1077,7 +1040,6 @@ body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
    two surfaces cannot overlap here, neither side of the swap may start/end
    transparent: that created a blank frame. Keep the subtle motion and very
    light opacity easing, but never expose an empty workspace. */
-@keyframes settings-enter{from{opacity:.97;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* v70: Opening and closing Settings both take 280ms.
    Closing uses two 140ms halves (Settings out, Gallery in), not the
    previous 220ms + 240ms double-duration animation. */

@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-adaptive-subtitle-preview-controls",
-  "sha256": "6dbb668ae63dea26bd1ed03c70db20596c2b96f85a6466c428fdc3b9741aba55",
-  "bytes": 6917688,
+  "folder": "2026-11-12-retired-theme-css",
+  "sha256": "062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae",
+  "bytes": 6915281,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
