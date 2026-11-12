@@ -57,7 +57,7 @@ presetTests=''' for effect,key,values in [("outline","outline",[1,3,5,6]),("shad
    check(page.locator('[data-effect-strength="'+preset+'"]').get_attribute("aria-pressed")=="true","Selected intensity "+effect+"/"+preset)
 '''
 t=t.replace(anchor2,presetTests+anchor2)
-anchor3=' check(page.locator('[data-subtitle-size="normal"]').get_attribute("aria-pressed")=="true" and page.locator("#subtitle-font").input_value()=="system","Subtitle reset")'
+anchor3=""" check(page.locator('[data-subtitle-size="normal"]').get_attribute("aria-pressed")=="true" and page.locator("#subtitle-font").input_value()=="system","Subtitle reset")"""
 assert t.count(anchor3)==1,"STOP: subtitle reset result assertion changed"
 t=t.replace(anchor3,anchor3+'\n check(page.evaluate("subtitlePrefs.color")=="#f8f8f8" and page.evaluate("subtitlePrefs.outlinePreset")=="normal","Reset restores white and medium intensity")')
 anchor4='  visible=page.locator("#subtitle-preview-stage").is_visible()'
