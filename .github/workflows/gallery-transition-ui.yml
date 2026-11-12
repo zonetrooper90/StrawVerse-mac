@@ -15,7 +15,7 @@ permissions:
 jobs:
   browser-routes:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out Gallery development branch
         uses: actions/checkout@v4
@@ -44,3 +44,11 @@ jobs:
           python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
           python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-current.html
+      - name: Test lightweight development build and both subtitle preview modes
+        run: |
+          python3 gallery/tools/build-gallery.py --check
+          python3 gallery/tests/test_transitions.py gallery/Gallery-development.html
+          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-development.html
+          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-development.html
+          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-development.html
+          python3 gallery/tests/test_asset_build_modes.py

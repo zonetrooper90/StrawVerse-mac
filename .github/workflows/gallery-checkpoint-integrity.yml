@@ -41,3 +41,5 @@ jobs:
           cmp gallery/Gallery-current.html "$RUNNER_TEMP/Gallery-recovered.html"
       - name: Dry-run complete HTML editing and immutable checkpoint creation
         run: python3 gallery/tests/test_checkpoint_roundtrip.py
+      - name: Verify deterministic Gallery asset build modes
+        run: python3 gallery/tools/build-gallery.py --check
