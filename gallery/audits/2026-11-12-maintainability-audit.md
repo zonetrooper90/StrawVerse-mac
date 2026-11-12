@@ -87,3 +87,60 @@ Publisher 43326934443 stopped before publishing. Existing application suites pas
 
 ### C3 implementation verified
 Build `c0b7196e137ba84f4f1f7d95d8006e480bc02a67`, checkpoint `2026-11-13-exact-duplicate-css-retry`, SHA-256 `7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e`, 6,914,516 bytes. Corrected publisher 43327920026 and independent integrity/browser runs 43328612508/43328616836 passed. Exactly 14 earlier duplicate rules removed, 765 bytes including whitespace; all later copies retained. Exact computed-style fixture comparisons passed across six themes, 14 widths, both motion preferences and settled hover on 14 elements. Both HTML modes passed existing application tests, original PNGs unchanged. User visual testing pending. C4 read-only audit next; no C4 removal approved.
+
+
+## C4 review and approved C4a scope — 2026-11-13
+Baseline `9c3b4ae98d3e763fb8457934d0a6c0a2c5b649f6` / `2026-11-13-exact-duplicate-css-retry`. Static scan found 116 rules exclusively dependent on 45 absent class tokens (48 old Downloads, four superseded sf-dl controls, 64 Anime detail including two hover/not rules whose absent class is outside :not), plus one shared connected-season-card branch; retain inline-installment-card transition. No constructed retired prefixes found in non-CSS source. Active download-group, download-group-toggle, download-group-body, download-group-body-inner, download-group-chevron, download-episode, and sf-dl-* current markup remain. C4a alone approved. Exact removed selector list:
+- 12: `.download-row`
+- 12: `.download-title`
+- 12: `.download-progress`
+- 12: `.download-progress .player-watched`
+- 12: `.download-progress .player-remaining`
+- 14: `.download-progress-line`
+- 15: `.download-progress-line .download-progress`
+- 16: `.download-percent`
+- 17: `.download-row[data-completed="true"] .download-percent`
+- 21: `.download-percent`
+- 22: `.download-percent.is-hidden`
+- 23: `.download-row .download-status`
+- 28: `.download-percent` (@media(prefers-reduced-motion:reduce))
+- 32: `.download-row` (@media(max-width:430px))
+- 32: `.download-row>.btn` (@media(max-width:430px))
+- 60: `.download-row:first-child`
+- 514: `.download-progress .player-watched` (@media(prefers-reduced-motion:reduce))
+- 861: `.download-group-art`
+- 862: `.download-group-content`
+- 863: `.download-group-title`
+- 864: `.download-group-summary`
+- 867: `.download-group .download-progress-line`
+- 868: `.download-group .download-progress`
+- 869: `.download-group-dismiss-wrap`
+- 876: `.download-episode-main`
+- 877: `.download-episode-name`
+- 878: `.download-episode-meta`
+- 879: `.download-episode-status[data-status="Completed"]`
+- 880: `.download-episode-status[data-status="Failed"]`
+- 881: `.download-episode .download-progress-line`
+- 882: `.download-episode-actions`
+- 883: `.download-episode-actions`
+- 897: `.download-group-art` (@media(max-width:650px))
+- 897: `.download-group-dismiss-wrap` (@media(max-width:650px))
+- 897: `.download-group-title` (@media(max-width:650px))
+- 897: `.download-group-summary` (@media(max-width:650px))
+- 898: `.download-group-dismiss-wrap` (@media(max-width:460px))
+- 908: `.download-action-btn.download-action-retry`
+- 910: `.download-episode-actions`
+- 913: `.download-group-dismiss-wrap` (@media(max-width:460px))
+- 987: `.download-search-info`
+- 2568: `body[data-theme] .download-groups .download-group-art`
+- 2572: `body[data-theme] .download-groups .download-group-title`
+- 2573: `body[data-theme] .download-groups .download-group-summary`
+- 2574: `body[data-theme] .download-groups .download-group .download-progress-line`
+- 2577: `body[data-theme] .download-groups .download-episode-status[data-status="Completed"]`
+- 2578: `body[data-theme] .download-groups .download-percent`
+- 2591: `body[data-theme] .download-groups .download-group-art` (@media(max-width:750px))
+- 2710: `body[data-theme] .sf-dl-dismiss-wrap`
+- 2711: `body[data-theme] .sf-dl-dismiss-wrap .download-action-btn`
+- 2728: `body[data-theme] .sf-dl-episode-control .sf-dl-mini-action`
+- 2761: `body[data-theme] .sf-dl-episode-control .sf-dl-mini-action` (@media(max-width:450px))
+Test plan: archived before/after actual Downloads styles and geometry in both builds; 1600/700/420px reduced and 700px normal motion; six themes, expansion, scroll, progress and action lifecycle. Keep C4b and all JS unchanged. Static evidence is not exhaustive proof; publisher must pass both verification checks before delivery.

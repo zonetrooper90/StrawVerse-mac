@@ -200,3 +200,7 @@ User approved removing exactly 15 CSS rules exclusively scoped to the retired Ne
 
 ## 2026-11-13 — Exact duplicate CSS cleanup (C3)
 User approved removal of the 14 earlier identical rules after individual source-order review. Preserve the later copy of each in its original position and conditional context; no bulk removal of non-identical selectors. Keep all six themes, responsive breakpoints, navigation and motion, markup, JavaScript, assets and source authority unchanged. Compare the exact prior stylesheet and candidate stylesheet across six themes, 14 viewport widths, normal and reduced motion and hover, and retain existing both-mode UI tests. No numbered release or native changes. C4 remains read-only until specific cleanup approval.
+
+
+## 2026-11-13 — C4a retired Downloads CSS
+User approved the first C4 maintenance patch: remove exactly 52 rules scoped to 20 retired Downloads class names (48 old rules, four superseded Soft Futuristic rules). Preserve all current markup and JS, shared expansion and scroll classes, existing progress and action states, responsive geometry, six themes, motion, assets, native app and source authority. Compare actual Downloads rendering and behavior against the verified prior checkpoint in both build modes. No numbered release. C4b Anime detail CSS remains a separate proposal.
