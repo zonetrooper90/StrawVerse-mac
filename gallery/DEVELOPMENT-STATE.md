@@ -19,11 +19,13 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 - Maintainability audit C1: remove retired subtitle-layout selector branches only, preserving the active shared subtitle preview rules and current responsive layouts. The patch removes 262 full rules plus one retired branch from a shared rule; existing browser regression includes before/after subtitle layout comparison. No artwork or native application changes.
 
 ## Current infrastructure task
-- User approved switching to GitHub file-page permalinks, recording this handoff, and updating the repository workflow rules. This documentation-only change leaves the working HTML and checkpoint pointer untouched. Inspect the actual documentation commit and its CI runs to establish completion; this file alone does not claim the new documentation CI passed.
-- ChatGPT project instructions must be kept consistent with `AGENTS.md` and `gallery/WORKFLOW.md`; project settings may require manual editing by the user.
+- GitHub permalink delivery and recoverable handoff completed at documentation commit `238b2c624b2cd9b33c35f7aba68a861f2857cb3e`. Both read-only checks passed: [integrity](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43226076109) and [browser](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43226076367). Integrity logs confirm canonical HTML and restored archive match the current pointer's SHA-256 and 6,916,467 bytes.
+- User approved a fresh ChatGPT project and staged modularization investigation to reduce large-file handling and historical context. Unknown Error root cause remains unconfirmed. Keep old ChatGPT project as archive; new project setup is a manual user action.
+- Approved sequence: verify baseline (done), establish fresh project, audit HTML structure/assets/dependencies, propose deterministic build system, then extract modules incrementally with tests. First modular build should reproduce the existing HTML byte-for-byte where feasible. Do not change canonical HTML, checkpoint format, source authority or approved behavior until a specific architecture/migration is agreed. Keep standalone HTML delivery.
+- No new HTML checkpoint, numbered version, image changes or publisher request is authorized by this handoff alone.
 
 ## Pending / next step
-- No additional HTML change is authorized by the infrastructure task.
+- Next: in the fresh project, perform a read-only structural/size audit and propose the smallest reversible extraction. Keep the existing C1 cleanup visual test pending.
 - User can download and visually test the existing C1 cleanup build before further changes.
 - Suggested next maintenance task: review audit C2 (retired theme-only CSS), then C3 (duplicate cascade/keyframe candidates), one narrow approved scope at a time. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
 - After the agreed code cleanup, separately discuss/approve direct background dithering integration (Light preferred trial, Fine alternative). Keep all six themes and the stationary backdrop.
