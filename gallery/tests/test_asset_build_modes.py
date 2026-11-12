@@ -13,9 +13,12 @@ with sync_playwright() as pw:
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.set_content((root / filename).read_text(encoding="utf-8"), wait_until="domcontentloaded")
+        page.wait_for_timeout(240)
         page.locator("#settings").click()
         page.wait_for_function('() => document.body.classList.contains("settings-view") && !galleryStageTransition && !gallerySettingsOpening', timeout=6000)
+        page.wait_for_timeout(260)
         page.locator('[data-settings-section="playback"]').click()
+        page.wait_for_function("() => settingsLastSection === 'playback' && !document.querySelector('[data-settings-panel=playback]').hidden")
         page.locator('[data-playback-tab="subtitles"]').click()
         page.wait_for_selector("#subtitle-preview-stage")
         page.evaluate("showExpandedSubtitlePreview()")
