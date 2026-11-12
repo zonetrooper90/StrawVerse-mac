@@ -60,3 +60,22 @@ Reviewed active commit `4589c3602cc204fedb145055c3be6cf4a542d07a`, immutable che
 
 ## C2 and C3 keyframe — implementation verified
 Build `bac24f367ff7ad087b03ed674269b00feafed8db`, checkpoint `2026-11-12-retired-theme-css`, SHA-256 `062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae`, 6,915,281 bytes. Removed exactly 15 retired-theme CSS rules and the unreferenced settings-enter keyframe, 2,407 bytes in each build. Publisher run 43322672385 and independent integrity/browser runs 43323510875/43323514826 passed. Exact sampled computed styles matched prior immutable checkpoint in navigation, Player and expanded dialog across all six themes, two widths and both build modes. Original asset hashes unchanged. User visual acceptance pending; no additional duplicate-rule removal authorized.
+
+
+## C3 duplicate cascade review — 2026-11-13
+Baseline `2026-11-12-retired-theme-css` at `55a5b9566cf144f88de861e725ebe80ad6dedf27`; 2,215 ordinary rules, 14 exact duplicate groups (715 characters of qualified-rule text). Same selector/declaration list/conditional context, same stylesheet, no cascade layers/scope or CSSOM manipulation. The later rule always matches wherever the earlier copy matches and takes precedence; retain later position, including after intervening responsive rules. Specific reviewed earlier lines and rules:
+- 31: `.collection-panel{padding:14px}`
+- 148: `.detail-hero{grid-template-columns:95px minmax(0,1fr);gap:10px}`
+- 171: `.episode-copy{min-width:0}`
+- 762: `.episode-toolbar .episode-heading h2{font-size:21px;line-height:1.2;margin:0}`
+- 766: `.episode-availability .availability-label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}`
+- 771: `@media(prefers-reduced-motion:reduce){.episode-availability .episode-shown{transition:none}}`
+- 1008: `.settings-back:hover{color:var(--ink);background:var(--hover)}`
+- 1054: `.settings-page-head h1{font-size:25px}`
+- 1054: `.settings-back span{display:none}`
+- 1326: `.about-identity-copy{min-width:0}`
+- 1421: `.settings-font-top{flex:none}`
+- 1684: `#playback-subtitles-pane{container-type:inline-size}`
+- 2760: `body[data-theme] .sf-dl-episode-status{grid-area:status}`
+- 2761: `body[data-theme] .sf-dl-episode-track{grid-area:track}`
+User approved the narrow removal; no reordering of any retained rules. New computed-style fixture comparisons use the verified archived stylesheet against candidate at 1600, 761/760, 751/750, 571/570, 531/530, 441/440, 371/370 and 340px; six themes, normal/reduced motion, hover. Both builds share the same CSS; existing real UI regressions continue on both builds. Test fixture is targeted evidence, not exhaustive real UI visual equivalence. C4 next read-only audit.

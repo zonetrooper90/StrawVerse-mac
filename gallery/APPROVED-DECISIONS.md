@@ -196,3 +196,7 @@ The user visually approved the full build at commit `145f98e396f9b74d33cba6a636b
 
 ## 2026-11-12 — C2 retired theme CSS and C3 unused keyframe cleanup
 User approved removing exactly 15 CSS rules exclusively scoped to the retired Neon Reel, Midnight Cinema and Paper Lantern theme IDs (neon/midnight/paper), plus the single unreferenced settings-enter keyframe. Keep all six active themes, current theme validation/fallback, search keywords, other animation keyframes, duplicate selectors, JavaScript, HTML markup, original artwork and approved UI intact. Compare current theme computed styles in both builds against the verified prior checkpoint and retain existing regressions. No numbered release, native changes or source-authority change. Publisher notification improvement is deferred at user's request; C3 duplicate-rule cleanup and dithering require separate approval.
+
+
+## 2026-11-13 — Exact duplicate CSS cleanup (C3)
+User approved removal of the 14 earlier identical rules after individual source-order review. Preserve the later copy of each in its original position and conditional context; no bulk removal of non-identical selectors. Keep all six themes, responsive breakpoints, navigation and motion, markup, JavaScript, assets and source authority unchanged. Compare the exact prior stylesheet and candidate stylesheet across six themes, 14 viewport widths, normal and reduced motion and hover, and retain existing both-mode UI tests. No numbered release or native changes. C4 remains read-only until specific cleanup approval.
