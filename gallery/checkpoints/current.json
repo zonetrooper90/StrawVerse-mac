@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-subtitle-white-four-levels",
-  "sha256": "6d1aad0729347ff2f2078d35e931872e3eaf3f57924091203e4d777962be2c7c",
-  "bytes": 6951780,
+  "folder": "2026-11-12-subtitle-simple-intensity-custom-palette",
+  "sha256": "8cd1f045580b32d98d5d70e2da6e0a9f2dcac744c7a011f2ff850d1a6ddc45fb",
+  "bytes": 6952404,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

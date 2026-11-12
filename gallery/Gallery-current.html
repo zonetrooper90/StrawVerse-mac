@@ -3478,7 +3478,7 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-size-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sf-subtitle-current{font-size:10px;color:var(--muted);font-weight:620}
 .sf-subtitle-five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-.sf-subtitle-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.sf-subtitle-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .sf-subtitle-colors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .sf-subtitle-styles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .sf-subtitle-choice{display:flex;align-items:center;justify-content:center;min-width:0;min-height:35px;gap:5px;padding:5px 5px;border:1px solid var(--line);border-radius:9px;background:#ffffff08;color:var(--muted);font:inherit;font-size:11px;font-weight:620;line-height:1.2;text-align:center;cursor:pointer}
@@ -3486,6 +3486,9 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-choice[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,var(--surface));box-shadow:inset 0 0 0 .5px var(--accent)}
 .sf-subtitle-choice:disabled{opacity:.46;cursor:not-allowed}
 .sf-subtitle-swatch{display:block;flex:none;width:14px;height:14px;border-radius:5px;border:1px solid #ffffff30;box-shadow:0 1px 3px #0003;background:var(--swatch)}
+.sf-subtitle-custom-indicator{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px}
+.sf-subtitle-custom-indicator [hidden]{display:none!important}
+.sf-subtitle-custom-indicator .icon{width:14px;height:14px}
 .sf-subtitle-effects{min-width:0}
 .sf-subtitle-effects.is-disabled{opacity:.47}
 .sf-subtitle-effect-heading{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:6px}
@@ -3494,7 +3497,7 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-effect-color:not(:disabled):hover{background:var(--hover)}
 .sf-subtitle-effect-color:disabled{cursor:not-allowed}
 .sf-subtitle-effect-color .sf-subtitle-swatch{width:14px;height:14px}
-.sf-subtitle-four .sf-subtitle-choice{min-height:30px;font-size:10px;padding:4px 2px}
+.sf-subtitle-three .sf-subtitle-choice{min-height:30px;font-size:10px;padding:4px 2px}
 .sf-subtitle-utilities{display:flex;justify-content:flex-end;margin-top:12px}
 .sf-subtitle-utilities details{max-width:420px;border:1px solid var(--line);border-radius:10px;background:#ffffff07;padding:8px 10px;font-size:11px;color:var(--muted)}
 .sf-subtitle-utilities summary{cursor:pointer;list-style:none;font-weight:650}
@@ -3542,7 +3545,7 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 #playback-subtitles-pane .sf-subtitle-stage .subtitle-preview-caption{line-height:1.27;bottom:8%}
 #playback-subtitles-pane .sf-subtitle-controls{height:100%;border:1px solid var(--line);background:color-mix(in srgb,var(--raised) 70%,var(--surface))}
 #playback-subtitles-pane .sf-subtitle-choice{min-height:35px;height:auto;padding:5px;font-size:11px}
-#playback-subtitles-pane .sf-subtitle-four .sf-subtitle-choice{min-height:30px}
+#playback-subtitles-pane .sf-subtitle-three .sf-subtitle-choice{min-height:30px}
 #playback-subtitles-pane .sf-subtitle-font{height:36px;min-height:36px}
 #playback-subtitles-pane .sf-subtitle-swatch{border-radius:5px}
 #playback-subtitles-pane .sf-subtitle-effect-color{cursor:pointer}
@@ -6768,15 +6771,15 @@ const SUBTITLE_SIZES=Object.freeze([
 ]);
 const SUBTITLE_DEFAULTS=Object.freeze({font:'system',size:'normal',color:'#f8f8f8',colorMode:'white',customColor:'#ffffff',customColorSet:false,outline:3,outlineColor:'#08080b',shadow:3,shadowColor:'#08080b',boxOpacity:65,boxColor:'#08080b',effect:'outline',outlinePreset:'normal',shadowPreset:'normal',boxPreset:'normal',});
 const SUBTITLE_TEXT_COLOR_PRESETS=Object.freeze({white:'#f8f8f8',yellow:'#ffe066'});
-// Four intensity labels preserve existing light/normal/strong strengths, with a new Max.
+// Three intensity levels: Low and Medium unchanged, High uses the former Max.
 // The UI offers named effect presets, while the renderer still uses numbers.
 // Outline values respect the existing font-size-dependent maximum.
 const SUBTITLE_EFFECT_PRESETS=Object.freeze({
- outline:{light:1,normal:3,strong:5,max:6},
-  shadow:{light:1.5,normal:3,strong:6,max:10},
-  box:{light:35,normal:65,strong:85,max:100}
+ outline:{light:1,normal:3,strong:6},
+  shadow:{light:1.5,normal:3,strong:10},
+  box:{light:35,normal:65,strong:100}
 });
-const SUBTITLE_EFFECT_LABELS=Object.freeze(['Low','Medium','High','Max']);
+const SUBTITLE_EFFECT_LABELS=Object.freeze(['Low','Medium','High']);
 function subtitlePresetValue(effect,preset,size){
  const n=SUBTITLE_EFFECT_PRESETS[effect]?.[preset]??SUBTITLE_EFFECT_PRESETS[effect]?.normal??0;
  return effect==='outline'?Math.min(maximumSubtitleOutline(size),n):n;
@@ -6848,7 +6851,7 @@ function readSubtitlePrefs(){
   // Existing A8 slider settings are mapped to their nearest A9 named preset.
   for(const [effect,key,presetKey] of [['outline','outline','outlinePreset'],['shadow','shadow','shadowPreset'],['box','boxOpacity','boxPreset']]){
    const saved=raw[presetKey];
-   v[presetKey]=['light','normal','strong','max'].includes(saved)?saved:subtitleNearestPreset(effect,v[key],v.size);
+   v[presetKey]=saved==='max'?'strong':['light','normal','strong'].includes(saved)?saved:subtitleNearestPreset(effect,v[key],v.size);
   }
   assignSubtitlePresetNumbers(v);
   return v;
@@ -7426,14 +7429,14 @@ function subtitleAppearanceMarkup(){
       <div class="sf-subtitle-colors" role="group" aria-labelledby="subtitle-text-color-label">
        <button type="button" class="sf-subtitle-choice" data-subtitle-text-color="white" aria-label="Soft White" title="Soft White" aria-pressed="${subtitlePrefs.colorMode==='white'}"><span class="sf-subtitle-swatch subtitle-choice-swatch" style="background:#F8F8F8" aria-hidden="true"></span>White</button>
        <button type="button" class="sf-subtitle-choice" data-subtitle-text-color="yellow" aria-label="Yellow" title="Yellow" aria-pressed="${subtitlePrefs.colorMode==='yellow'}"><span class="sf-subtitle-swatch subtitle-choice-swatch" style="background:#FFE066" aria-hidden="true"></span>Yellow</button>
-       <button type="button" class="sf-subtitle-choice" data-subtitle-text-color="custom" aria-label="Custom text color" aria-pressed="${subtitlePrefs.colorMode==='custom'}"><span class="sf-subtitle-swatch subtitle-choice-swatch" id="subtitle-custom-swatch" style="background:${subtitlePrefs.customColor}" aria-hidden="true"></span>Custom</button>
+       <button type="button" class="sf-subtitle-choice" data-subtitle-text-color="custom" aria-label="Custom text color" aria-pressed="${subtitlePrefs.colorMode==='custom'}"><span class="sf-subtitle-custom-indicator" aria-hidden="true"><span id="subtitle-custom-palette" ${subtitlePrefs.customColorSet?'hidden':''}>${icon('palette',14)}</span><span class="sf-subtitle-swatch subtitle-choice-swatch" id="subtitle-custom-swatch" style="background:${subtitlePrefs.customColor}" ${subtitlePrefs.customColorSet?'':'hidden'}></span></span>Custom</button>
       </div></div>
      <div class="sf-subtitle-group" data-subtitle-group="style"><span class="sf-subtitle-label" id="subtitle-effect-label">Subtitle style</span>
       <div class="sf-subtitle-styles" role="group" aria-labelledby="subtitle-effect-label">${styles.map(([id,label])=>`<button type="button" class="sf-subtitle-choice" data-subtitle-effect="${id}" aria-pressed="${subtitlePrefs.effect===id}">${label}</button>`).join('')}</div></div>
      <div class="sf-subtitle-effects" id="subtitle-tuning-grid" data-subtitle-style="${subtitlePrefs.effect}">
       <div id="subtitle-strength-field"><div class="sf-subtitle-effect-heading"><span class="sf-subtitle-label" id="subtitle-effect-amount-label">Effect intensity</span>
        <span id="subtitle-effect-color-field"><button type="button" class="sf-subtitle-effect-color" id="subtitle-effect-color" aria-label="Edit outline color" title="Edit outline color" aria-haspopup="dialog"><span class="sf-subtitle-swatch subtitle-choice-swatch" id="subtitle-effect-color-swatch" style="background:${subtitlePrefs.outlineColor}" aria-hidden="true"></span>Color</button><output class="only-sr" id="subtitle-effect-color-value">${subtitlePrefs.outlineColor.toUpperCase()}</output></span></div>
-       <div class="sf-subtitle-four" role="group" aria-labelledby="subtitle-effect-amount-label">${['light','normal','strong','max'].map((value,i)=>`<button type="button" class="sf-subtitle-choice" data-effect-strength="${value}" aria-pressed="${activePreset?subtitlePrefs[activePreset]===value:false}">${SUBTITLE_EFFECT_LABELS[i]}</button>`).join('')}</div>
+       <div class="sf-subtitle-three" role="group" aria-labelledby="subtitle-effect-amount-label">${['light','normal','strong'].map((value,i)=>`<button type="button" class="sf-subtitle-choice" data-effect-strength="${value}" aria-pressed="${activePreset?subtitlePrefs[activePreset]===value:false}">${SUBTITLE_EFFECT_LABELS[i]}</button>`).join('')}</div>
       </div>
      </div>
     </div>
@@ -7896,7 +7899,9 @@ function updateSubtitleControls(){
   const customOutput=settingsPage.querySelector('#subtitle-custom-color-value');
   if(customOutput)customOutput.textContent=subtitlePrefs.customColor.toUpperCase();
   const customSwatch=settingsPage.querySelector('#subtitle-custom-swatch');
-  if(customSwatch)customSwatch.style.backgroundColor=subtitlePrefs.customColor;
+  if(customSwatch){customSwatch.style.backgroundColor=subtitlePrefs.customColor;customSwatch.hidden=!subtitlePrefs.customColorSet;}
+   const customPalette=settingsPage.querySelector('#subtitle-custom-palette');
+   if(customPalette)customPalette.hidden=subtitlePrefs.customColorSet;
 }
 
 function settingsMarkup(){
