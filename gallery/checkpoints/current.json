@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-11-shared-native-scroll-three-state",
-  "sha256": "7f9922d18f2ddd8b61035f5d2a524d3482fa3df5ea84045cf75be12c004eff45",
-  "bytes": 6951729,
+  "folder": "2026-11-12-subtitle-white-four-levels",
+  "sha256": "6d1aad0729347ff2f2078d35e931872e3eaf3f57924091203e4d777962be2c7c",
+  "bytes": 6951780,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

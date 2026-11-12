@@ -90,6 +90,11 @@ with sync_playwright() as pw:
  check(page.locator("#subtitle-font option").count()==3,"Three subtitle fonts")
  check(page.locator("[data-subtitle-size]").count()==5,"Five subtitle sizes")
  check(page.locator("[data-subtitle-effect]").count()==4,"Four subtitle styles")
+ check(page.locator("[data-effect-strength]").count()==4,"Four effect intensity options")
+ check(page.locator("[data-effect-strength]").all_inner_texts()==["Low","Medium","High","Max"],"Correct intensity labels")
+ check(page.evaluate("SUBTITLE_DEFAULTS.color")=="#f8f8f8","Approved default subtitle soft white")
+ check(page.evaluate("SUBTITLE_TEXT_COLOR_PRESETS.white")=="#f8f8f8","Soft White preset matches default")
+ check(page.locator('[data-subtitle-text-color="white"] .sf-subtitle-swatch').evaluate('(e)=>getComputedStyle(e).backgroundColor')=="rgb(248, 248, 248)","White color swatch matches default")
  check("The quick brown fox jumps over the lazy dog" in " ".join(page.locator("#subtitle-live-caption").inner_text().split()),"Preview sample sentence")
  check(page.locator("#subtitle-preview-stage .sf-day").count()==1 and page.locator("#subtitle-preview-stage .sf-night").count()==1,"Day/night images")
  check(page.locator("#subtitle-preview-stage").is_visible(),"Full-size subtitle preview")
@@ -98,8 +103,16 @@ with sync_playwright() as pw:
  page.locator('[data-subtitle-size="large"]').click()
  page.locator("#subtitle-font").select_option("inter")
  check(page.locator('[data-subtitle-size="large"]').get_attribute("aria-pressed")=="true" and page.locator("#subtitle-font").input_value()=="inter","Subtitle controls update")
+ for effect,key,values in [("outline","outline",[1,3,5,6]),("shadow","shadow",[1.5,3,6,10]),("box","boxOpacity",[35,65,85,100])]:
+  page.locator('[data-subtitle-effect="'+effect+'"]').click()
+  for preset,value in zip(("light","normal","strong","max"),values):
+   page.locator('[data-effect-strength="'+preset+'"]').click()
+   cap=page.evaluate("maximumSubtitleOutline(subtitlePrefs.size)") if effect=="outline" else value
+   check(page.evaluate("subtitlePrefs."+key)==min(value,cap),"Effect value "+effect+"/"+preset)
+   check(page.locator('[data-effect-strength="'+preset+'"]').get_attribute("aria-pressed")=="true","Selected intensity "+effect+"/"+preset)
  page.locator("#subtitle-reset").click()
  check(page.locator('[data-subtitle-size="normal"]').get_attribute("aria-pressed")=="true" and page.locator("#subtitle-font").input_value()=="system","Subtitle reset")
+ check(page.evaluate("subtitlePrefs.color")=="#f8f8f8" and page.evaluate("subtitlePrefs.outlinePreset")=="normal","Reset restores white and medium intensity")
  check(not errors,str(errors))
  page.close()
  for width in (1600,1280,800,440,340):
@@ -108,6 +121,11 @@ with sync_playwright() as pw:
   page.locator('[data-settings-section="playback"]').click()
   page.locator('[data-playback-tab="subtitles"]').click()
   page.wait_for_timeout(100)
+  choice_group=page.locator(".sf-subtitle-four")
+  check(choice_group.count()==1 and page.locator("[data-effect-strength]").count()==4,"Four intensity buttons at "+str(width))
+  group_rect=choice_group.bounding_box()
+  buttons=[btn.bounding_box() for btn in page.locator("[data-effect-strength]").all()]
+  check(bool(group_rect) and all(b and b["x"]>=group_rect["x"]-1 and b["x"]+b["width"]<=group_rect["x"]+group_rect["width"]+1 for b in buttons),"No intensity button overflow at "+str(width))
   visible=page.locator("#subtitle-preview-stage").is_visible()
   compact=page.locator("#subtitle-compact-preview").is_visible()
   check(visible!=compact,"Exactly one preview layout at "+str(width))
