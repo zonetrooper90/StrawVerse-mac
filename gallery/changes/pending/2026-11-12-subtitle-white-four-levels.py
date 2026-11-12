@@ -17,7 +17,7 @@ changes=[
  ('style="background:#F5F5F5" aria-hidden="true"','style="background:#F8F8F8" aria-hidden="true"'),
  ("if(previous==='#ffe066')v.colorMode='yellow';\n    else if(previous!=='#ffffff' && previous!=='#f5f5f5'){","if(previous==='#ffe066')v.colorMode='yellow';\n    else if(!['#ffffff','#f5f5f5','#f8f8f8'].includes(previous)){"),
  ("// A10 — Consistent Subtle / Normal / Strong labels under Effect intensity.","// Four intensity labels preserve existing light/normal/strong strengths, with a new Max."),
- ("outline:{light:1,normal:3,strong:5},\n shadow:{light:1.5,normal:3,strong:6},\n box:{light:35,normal:65,strong:85}","outline:{light:1,normal:3,strong:5,max:6},\n shadow:{light:1.5,normal:3,strong:6,max:10},\n box:{light:35,normal:65,strong:85,max:100}"),
+ ("outline:{light:1,normal:3,strong:5},\n shadow:{light:1.5,normal:3,strong:6},\n box:{light:35,normal:65,strong:85}","outline:{light:1,normal:3,strong:5,max:6},\n  shadow:{light:1.5,normal:3,strong:6,max:10},\n  box:{light:35,normal:65,strong:85,max:100}"),
  ("const SUBTITLE_EFFECT_LABELS=Object.freeze(['Subtle','Normal','Strong']);","const SUBTITLE_EFFECT_LABELS=Object.freeze(['Low','Medium','High','Max']);"),
  ("['light','normal','strong'].includes(saved)?saved:","['light','normal','strong','max'].includes(saved)?saved:"),
  ("${['light','normal','strong'].map((value,i)=>","${['light','normal','strong','max'].map((value,i)=>"),
