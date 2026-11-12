@@ -79,3 +79,7 @@ Baseline `2026-11-12-retired-theme-css` at `55a5b9566cf144f88de861e725ebe80ad6de
 - 2760: `body[data-theme] .sf-dl-episode-status{grid-area:status}`
 - 2761: `body[data-theme] .sf-dl-episode-track{grid-area:track}`
 User approved the narrow removal; no reordering of any retained rules. New computed-style fixture comparisons use the verified archived stylesheet against candidate at 1600, 761/760, 751/750, 571/570, 531/530, 441/440, 371/370 and 340px; six themes, normal/reduced motion, hover. Both builds share the same CSS; existing real UI regressions continue on both builds. Test fixture is targeted evidence, not exhaustive real UI visual equivalence. C4 next read-only audit.
+
+
+### C3 verification failure and correction
+Publisher 43326934443 stopped before publishing. Existing application suites passed; the new fixture comparison failed at Twilight/1600px in normal motion because Back button and label colors were sampled during different hover-exit transition phases. Prior immutable checkpoint and branch HTML still verified. Corrected fresh request retains the exact original application patch and exact comparison assertions, creates new pages per theme and waits for the actual hover state and CSS transitions on both pages before sampling; prior failed request retained unchanged. No changes to application behavior or scope.
