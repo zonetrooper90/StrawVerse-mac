@@ -13,8 +13,9 @@ def assert_scene(page, night):
         computed: getComputedStyle(s.querySelector('.subtitle-stage-night')).opacity
     }))""")
     assert layers and all(x == {"inline": expected, "computed": expected} for x in layers), layers
+    scene = "night" if night else "day"
     assert page.locator('.sf-subtitle-scene-toggle').evaluate_all(
-        "(els) => els.every(e => e.getAttribute('aria-checked') === " + repr(str(night).lower()) + ")"
+        "(els,scene) => els.every(e => e.dataset.active === scene && [...e.querySelectorAll('button')].every(b => b.getAttribute('aria-pressed') === String(b.dataset.subtitleScene === scene)))", scene
     )
 
 def open_subtitles(page, filename):
@@ -52,7 +53,11 @@ with sync_playwright() as pw:
                     assert page.locator(".sf-subtitle-full-title").inner_text() == "Subtitle preview"
                     a,b = toggle.bounding_box(), main.bounding_box()
                     assert abs(a["x"]+a["width"]-b["x"]-b["width"]) <= 2 and a["y"]+a["height"] <= b["y"]
-                    toggle.click()
+                    toggle.locator('[data-subtitle-scene="night"]').hover()
+                    assert_scene(page, False)
+                    toggle.locator('[data-subtitle-scene="day"]').click()
+                    assert_scene(page, False)
+                    toggle.locator('[data-subtitle-scene="night"]').click()
                     assert_scene(page, True)
                     page.locator("#subtitle-expand-preview").click()
                 else:
@@ -66,6 +71,13 @@ with sync_playwright() as pw:
                 assert page.locator(".subtitle-expanded-toolbar, .subtitle-expanded-help").count() == 0
                 assert page.locator(".subtitle-preview-dialog .dialog-scroll").evaluate("(e) => ['Top','Right','Bottom','Left'].every(s => getComputedStyle(e)['padding'+s] === '12px')")
                 page.wait_for_timeout(260)
+                assert scale.is_visible() == (not wide), expanded.bounding_box()
+                if wide:
+                    assert expanded.evaluate("(e) => [e.offsetWidth,e.offsetHeight]") == [1280,720]
+                    assert dialog_toggle.locator('[aria-pressed="true"]').evaluate("(e) => e === document.activeElement")
+                    page.set_viewport_size({"width": width, "height": 600})
+                    scale.wait_for(state="visible")
+                    assert expanded.evaluate("(e) => e.offsetWidth") < 1280
                 header = page.locator(".subtitle-preview-dialog .dialog-head").bounding_box()
                 a,b,c = scale.bounding_box(),dialog_toggle.bounding_box(),page.locator("#close-dialog").bounding_box()
                 assert a["x"]+a["width"] <= b["x"]+1
@@ -75,16 +87,34 @@ with sync_playwright() as pw:
                     assert b["x"]+b["width"] <= c["x"]+1
                 scale.click()
                 assert scale.inner_text() == "Fit" and scale.get_attribute("aria-pressed") == "true"
-                assert expanded.evaluate("(e) => e.offsetWidth") == 1280
+                assert expanded.evaluate("(e) => [e.offsetWidth,e.offsetHeight]") == [1280,720]
+                assert scale.is_visible()
                 scale.click()
                 assert scale.inner_text() == "100%" and scale.get_attribute("aria-pressed") == "false"
-                assert expanded.evaluate("(e) => e.offsetWidth") <= 1280
+                assert expanded.evaluate("(e) => e.offsetWidth") < 1280
                 assert page.locator("#subtitle-expanded-viewport").evaluate("(e) => e.scrollLeft") == 0
+                if wide:
+                    scale.focus()
+                    page.set_viewport_size({"width": width, "height": 950})
+                    scale.wait_for(state="hidden")
+                    assert dialog_toggle.locator('[aria-pressed="true"]').evaluate("(e) => e === document.activeElement")
                 assert_scene(page, wide)
-                dialog_toggle.press("Space")
+                other = dialog_toggle.locator('[data-subtitle-scene="' + ("day" if wide else "night") + '"]')
+                selected = dialog_toggle.locator('[data-subtitle-scene="' + ("night" if wide else "day") + '"]')
+                other.hover()
+                assert_scene(page, wide)
+                selected.click()
+                assert_scene(page, wide)
+                other.press("Space")
                 assert_scene(page, not wide)
-                dialog_toggle.click()
+                selected.click()
                 assert_scene(page, wide)
+                # The selected option owns its gradient, with identical timing to Sub/Dub.
+                page.wait_for_timeout(300)
+                assert selected.evaluate("(e) => getComputedStyle(e,'::before').opacity") == "1"
+                assert other.evaluate("(e) => getComputedStyle(e,'::before').opacity") == "0"
+                if reduced == "reduce":
+                    assert selected.evaluate("(e) => getComputedStyle(e,'::before').transitionDuration") == "0s"
                 page.emulate_media(reduced_motion="reduce" if reduced == "no-preference" else "no-preference")
                 page.wait_for_timeout(5500)
                 assert_scene(page, wide)

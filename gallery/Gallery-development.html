@@ -1636,6 +1636,7 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .subtitle-expanded-header-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
 .subtitle-expanded-header-controls #subtitle-actual-size{min-width:58px;min-height:32px;white-space:nowrap}
 .subtitle-expanded-header-controls #subtitle-actual-size[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
+.subtitle-expanded-header-controls #subtitle-actual-size[hidden]{display:none!important}
 .subtitle-expanded-viewport{
   width:100%;overflow:auto;overscroll-behavior:contain;
   border-radius:13px;scrollbar-width:thin;scrollbar-color:var(--muted) var(--surface);
@@ -2961,16 +2962,11 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-heading{display:grid;grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);align-items:center;gap:10px;margin-bottom:11px}
 .sf-subtitle-heading .sf-subtitle-reset{justify-self:end}
 .sf-subtitle-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-.sf-subtitle-scene-toggle{display:inline-grid;grid-template-columns:1fr 1fr;align-items:center;position:relative;isolation:isolate;flex:none;min-height:32px;min-width:148px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:660}
-.sf-subtitle-scene-toggle::before{content:"";position:absolute;z-index:-1;inset:3px 50% 3px 3px;border-radius:7px;background:var(--raised);border:1px solid var(--line)}
-.sf-subtitle-scene-toggle[aria-checked="true"]::before{inset:3px 3px 3px 50%}
-.sf-subtitle-scene-toggle[aria-checked="false"] .scene-day,.sf-subtitle-scene-toggle[aria-checked="true"] .scene-night{color:var(--ink)}
-.sf-subtitle-scene-toggle:hover{border-color:var(--accent)}
-.sf-subtitle-scene-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sf-subtitle-scene-toggle{flex:none;min-width:148px}
 .sf-subtitle-scene-toggle .scene-day,.sf-subtitle-scene-toggle .scene-night{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
 .sf-subtitle-scene-toggle .icon{flex:none}
 .subtitle-stage-night{transition:none!important}
-@container (max-width:1030px){.sf-subtitle-heading{display:flex;justify-content:space-between}.sf-subtitle-preview-heading .sf-subtitle-scene-toggle{display:none}}
+@container (max-width:1030px){.sf-subtitle-heading{display:flex;justify-content:space-between}.sf-subtitle-preview-heading .sf-subtitle-scene-toggle{display:none!important}}
 .sf-subtitle-heading h3{font-size:16px;font-weight:710;letter-spacing:-.025em;margin:0 0 4px}
 .sf-subtitle-heading p{font-size:11px;line-height:1.45;color:var(--muted);margin:0}
 .sf-subtitle-reset{flex:none;border:1px solid var(--line);color:var(--ink);background:var(--raised);border-radius:11px;min-height:32px;padding:7px 11px;font-size:11px;font-weight:660}
@@ -3190,7 +3186,8 @@ body[data-theme] .player-area:fullscreen{border:0;border-radius:0;box-shadow:non
 
 /* Soft Futuristic — Sub/Dub selector and informational episode indicators.
    The selected gradient is stationary and owned by its button; hover never moves it. */
-body[data-theme] .detail-audio-toggle{
+body[data-theme] .detail-audio-toggle,
+body[data-theme] .sf-subtitle-scene-toggle{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  gap:4px;padding:4px;border-radius:999px;
  background:var(--nav-bg);border:1px solid var(--nav-border);
@@ -3198,30 +3195,39 @@ body[data-theme] .detail-audio-toggle{
  overflow:visible;
 }
 body[data-theme] .detail-audio-highlight{display:none!important}
-body[data-theme] .detail-audio-toggle>button{
+body[data-theme] .detail-audio-toggle>button,
+body[data-theme] .sf-subtitle-scene-toggle>button{
  position:relative;isolation:isolate;overflow:hidden;
  border:0;border-radius:999px;min-width:0;min-height:38px;
  padding:8px 12px;color:var(--muted);background:transparent;
  font-size:13px;font-weight:700;box-shadow:none;
  transition:color .26s ease,background-color .26s ease;
 }
-body[data-theme] .detail-audio-toggle>button::before{
+body[data-theme] .detail-audio-toggle>button::before,
+body[data-theme] .sf-subtitle-scene-toggle>button::before{
  content:"";position:absolute;inset:0;z-index:-1;
  border:0;border-radius:inherit;pointer-events:none;
  background:linear-gradient(170deg,var(--nav-active-a),var(--nav-active-b));
  box-shadow:inset 0 1px 1px #fff8,0 3px 9px #0004;
  opacity:0;transition:opacity .26s ease;
 }
-body[data-theme] .detail-audio-toggle>button[aria-pressed="true"]{
+body[data-theme] .detail-audio-toggle>button[aria-pressed="true"],
+body[data-theme] .sf-subtitle-scene-toggle>button[aria-pressed="true"]{
  color:var(--nav-active-text);background:transparent;border:0;
 }
-body[data-theme] .detail-audio-toggle>button[aria-pressed="true"]::before{opacity:1}
-body[data-theme] .detail-audio-toggle>button:not([aria-pressed="true"]):hover{
+body[data-theme] .detail-audio-toggle>button[aria-pressed="true"]::before,
+body[data-theme] .sf-subtitle-scene-toggle>button[aria-pressed="true"]::before{opacity:1}
+body[data-theme] .detail-audio-toggle>button:not([aria-pressed="true"]):hover,
+body[data-theme] .sf-subtitle-scene-toggle>button:not([aria-pressed="true"]):hover{
  background:var(--nav-hover);color:var(--fg);
 }
-body[data-theme] .detail-audio-toggle>button:focus-visible{
+body[data-theme] .detail-audio-toggle>button:focus-visible,
+body[data-theme] .sf-subtitle-scene-toggle>button:focus-visible{
  outline:2px solid var(--focus);outline-offset:2px;
 }
+/* Compact variant of the same selected-gradient component. */
+body[data-theme] .sf-subtitle-scene-toggle{gap:3px;padding:3px}
+body[data-theme] .sf-subtitle-scene-toggle>button{min-height:24px;padding:4px 8px;font-size:11px}
 /* Status markers intentionally have no button surface or hover behavior. */
 body[data-theme] .episode-tools{gap:14px}
 body[data-theme] .episode-flags{
@@ -3263,7 +3269,9 @@ body[data-theme] .episode-flags .audio-flag:hover{background:transparent;box-sha
 }
 @media(prefers-reduced-motion:reduce){
  body[data-theme] .detail-audio-toggle>button,
- body[data-theme] .detail-audio-toggle>button::before{transition:none!important}
+ body[data-theme] .detail-audio-toggle>button::before,
+ body[data-theme] .sf-subtitle-scene-toggle>button,
+ body[data-theme] .sf-subtitle-scene-toggle>button::before{transition:none!important}
 }
 
 
@@ -6959,7 +6967,8 @@ function renderSubtitleStage(stage){
 // One manually selected scene is shared by both preview surfaces.
 let subtitlePreviewScene='day';
 function subtitleSceneToggle(){
- return `<button type="button" role="switch" class="sf-subtitle-scene-toggle" aria-label="Night preview" aria-checked="${subtitlePreviewScene==='night'}"><span class="scene-day" aria-hidden="true">${icon('sun',14)}Day</span><span class="scene-night" aria-hidden="true">${icon('moon',14)}Night</span></button>`;
+ const option=(scene,label,symbol)=>`<button type="button" class="scene-${scene}" data-subtitle-scene="${scene}" aria-pressed="${subtitlePreviewScene===scene}">${icon(symbol,14)}${label}</button>`;
+ return `<div class="sf-subtitle-scene-toggle" role="group" aria-label="Subtitle preview scene" data-active="${subtitlePreviewScene}">${option('day','Day','sun')}${option('night','Night','moon')}</div>`;
 }
 function subtitleStages(){
  return [settingsPage.querySelector('#subtitle-preview-stage'),modalHost.querySelector('#subtitle-expanded-stage')].filter(Boolean);
@@ -6971,19 +6980,45 @@ function applySubtitlePreviewScene(){
   if(layer)layer.style.opacity=night?'1':'0';
  }
  for(const root of [settingsPage,modalHost]){
-  for(const toggle of root.querySelectorAll('.sf-subtitle-scene-toggle'))toggle.setAttribute('aria-checked',String(night));
+  for(const toggle of root.querySelectorAll('.sf-subtitle-scene-toggle')){
+   toggle.dataset.active=subtitlePreviewScene;
+   for(const button of toggle.querySelectorAll('[data-subtitle-scene]'))
+    button.setAttribute('aria-pressed',String(button.dataset.subtitleScene===subtitlePreviewScene));
+  }
  }
 }
 function bindSubtitleSceneToggle(root){
- for(const toggle of root.querySelectorAll('.sf-subtitle-scene-toggle'))toggle.addEventListener('click',()=>{
-  subtitlePreviewScene=subtitlePreviewScene==='night'?'day':'night';
+ for(const button of root.querySelectorAll('[data-subtitle-scene]'))button.addEventListener('click',()=>{
+  const next=button.dataset.subtitleScene;
+  if(next===subtitlePreviewScene)return;
+  subtitlePreviewScene=next;
   applySubtitlePreviewScene();
+  button.focus({preventScroll:true});
  });
+}
+function updateSubtitlePreviewScaleControl(){
+ const stage=modalHost.querySelector('#subtitle-expanded-stage');
+ const viewport=modalHost.querySelector('#subtitle-expanded-viewport');
+ const actual=modalHost.querySelector('#subtitle-actual-size');
+ if(!stage||!viewport||!actual)return;
+ const manual=viewport.classList.contains('is-actual-size');
+ // Use layout dimensions, not transformed bounds during the dialog entrance.
+ // 100% is the established 1280 × 720 logical CSS-pixel stage, independent of DPR.
+ const alreadyFull=stage.offsetWidth===1280&&stage.offsetHeight===720;
+ const hide=!manual&&alreadyFull;
+ if(hide&&document.activeElement===actual)
+  modalHost.querySelector('.sf-subtitle-scene-toggle [aria-pressed="true"]')?.focus({preventScroll:true});
+ actual.hidden=hide;
+ actual.setAttribute('aria-pressed',String(manual));
+ actual.textContent=manual?'Fit':'100%';
+ actual.setAttribute('aria-label',manual?'Fit to window':'View at 100%');
+ actual.title=manual?'Fit the preview to the window':'View at 100% (1280 × 720 CSS pixels; scroll to inspect)';
 }
 function renderSubtitlePreview(){
  renderSubtitleStage(settingsPage.querySelector('#subtitle-preview-stage'));
  renderSubtitleStage(modalHost.querySelector('#subtitle-expanded-stage'));
  applySubtitlePreviewScene();
+ updateSubtitlePreviewScaleControl();
 }
 function showExpandedSubtitlePreview(){
  // Reuse Gallery's established dialog lifecycle, focus trapping and Escape key.
@@ -7003,19 +7038,15 @@ function showExpandedSubtitlePreview(){
  stage.querySelector('.subtitle-stage-night').style.backgroundColor=SHRINE_NIGHT_IMAGE;
  const viewport=dialog.querySelector('#subtitle-expanded-viewport');
  const actual=dialog.querySelector('#subtitle-actual-size');
- actual.focus({preventScroll:true});
  actual.addEventListener('click',()=>{
   const enabled=viewport.classList.toggle('is-actual-size');
-  actual.setAttribute('aria-pressed',String(enabled));
-  actual.textContent=enabled?'Fit':'100%';
-  actual.setAttribute('aria-label',enabled?'Fit to window':'View at 100%');
-  actual.title=enabled?'Fit the preview to the window':'View at 100% (1280 × 720 CSS pixels; scroll to inspect)';
   viewport.scrollLeft=enabled?(viewport.scrollWidth-viewport.clientWidth)/2:0;
   if(!enabled)viewport.scrollTop=0;
   renderSubtitlePreview();
  });
  subtitleResizeObserver?.observe(stage);
  renderSubtitlePreview();
+ (actual.hidden?dialog.querySelector('.sf-subtitle-scene-toggle [aria-pressed="true"]'):actual)?.focus({preventScroll:true});
  requestAnimationFrame(renderSubtitlePreview);
 }
 /* A12: Small, theme-aware color editor with live preview, explicit commit and
