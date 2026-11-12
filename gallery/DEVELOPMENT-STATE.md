@@ -4,15 +4,14 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 
 ## Current verified HTML build
 - Active branch: `gallery/development-clean`.
-- Checkpoint: `2026-11-12-adaptive-subtitle-preview-controls`.
-- HTML build commit: `145f98e396f9b74d33cba6a636bf942ddcf79986`.
-- SHA-256: `6dbb668ae63dea26bd1ed03c70db20596c2b96f85a6466c428fdc3b9741aba55`.
-- Bytes: 6,917,688.
-- [Full HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/145f98e396f9b74d33cba6a636bf942ddcf79986/gallery/Gallery-current.html).
-- [Lightweight HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/145f98e396f9b74d33cba6a636bf942ddcf79986/gallery/Gallery-development.html): 601,998 bytes, SHA-256 `51c12e00ff5e2b7f2b92c625a1076b22c58d5c708bd4770d0ba8ba444a9580e4`.
-- [Build commit](https://github.com/zonetrooper90/StrawVerse-mac/commit/145f98e396f9b74d33cba6a636bf942ddcf79986).
-- [Publisher passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43320550844); independent [integrity passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43321276302) and [browser regression passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43321283008) on the exact build commit. Full reconstruction and immutable archive match; original PNG hashes unchanged. Both HTMLs passed 319 navigation/motion checks, History regression, 106 Player/Settings checks and adaptive preview/segmented selector tests at 1600, 700 and 420px with and without Reduce Motion.
-- Delivery: full commit-pinned file-page link provided for visual testing; lightweight also verified automatically. User visually approved the adaptive subtitle preview controls on 2026-11-12 ("looks great.."); no native integration or numbered release.
+- Checkpoint: `2026-11-12-retired-theme-css`.
+- HTML build commit: `bac24f367ff7ad087b03ed674269b00feafed8db`.
+- SHA-256: `062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae`.
+- Bytes: 6,915,281.
+- [Full HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/bac24f367ff7ad087b03ed674269b00feafed8db/gallery/Gallery-current.html).
+- [Lightweight HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/bac24f367ff7ad087b03ed674269b00feafed8db/gallery/Gallery-development.html): 599,591 bytes, SHA-256 `62d6e61122aeeebf45c391105c0fe97cfab8424f0be4c4826085578f61ca53c7`.
+- [Publisher passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43322672385); independent [integrity passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43323510875) and [browser regression passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43323514826) on the exact build commit. Full reconstruction and immutable archive match; original PNG hashes unchanged. Both HTMLs passed 319 navigation/motion checks, History regression, 106 Player/Settings checks, adaptive preview tests, and exact sampled computed-style comparisons against the prior immutable baseline for navigation, Player and expanded dialog across six themes at 1600/700px in both modes.
+- Delivery: both commit-pinned links provided; lightweight recommended for visual testing of this maintenance change. User visual acceptance of this cleanup pending; prior subtitle preview design accepted. No native changes or numbered release.
 
 ## Last completed HTML work
 - Remove obsolete pre-release preference migrations (previous checkpoint; user approved removal, not backwards compatibility).
@@ -41,14 +40,14 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 - User approved hiding the 100% button when Fit already displays the established 1280 × 720 CSS-pixel stage; show 100% when downscaled and Fit after manual actual-size selection. Reuse the existing ResizeObserver and transfer focus to the selected scene if the focused scale button disappears. Preserve scrolling and scene state. User also requested matching the anime detail Sub/Dub control: one grouped selector, explicitly clickable Day and Night options with existing sun/moon icons, stationary selected theme gradient, separate inactive hover, 260 ms color/gradient fade (none with Reduce Motion), no sliding indicator or hover-triggered scene changes. The artwork still switches instantly and remains synchronized. Share the active CSS rules with the existing audio control, with compact subtitle dimensions only.
 - Baseline `2026-11-12-expanded-subtitle-preview-polish`, SHA-256 `9076274807010997193fd513a9253f079d142c0985c749054d6455f982a92876`. Request `gallery/changes/pending/2026-11-12-adaptive-subtitle-preview-controls.py`; canonical full, template and lightweight synchronized. No artwork changes, other UI changes, numbered release or native changes. Status: publisher and both independent checks passed on the build commit above; full delivery link provided; user visually approved the result on 2026-11-12. Do not duplicate this request.
 
-## Approved pending change — C2 retired themes and C3 unused keyframe
+## Completed HTML change — C2 retired themes and C3 unused keyframe
 - User deferred publisher notification work and approved the narrow CSS cleanup after read-only re-audit of the accepted adaptive preview checkpoint. Remove exactly 15 retired neon/midnight/paper theme rules and the unreferenced settings-enter keyframe (no other duplicate cleanup). Preserve current six themes, theme validation and Settings search keywords, all application JavaScript, markup, artwork, motion and approved functionality.
-- Baseline `2026-11-12-adaptive-subtitle-preview-controls`, SHA-256 `6dbb668ae63dea26bd1ed03c70db20596c2b96f85a6466c428fdc3b9741aba55`. Request `gallery/changes/pending/2026-11-12-retired-theme-css.py` applies exact removals and synchronizes full, template and lightweight outputs; new tests compare sampled computed styles against the reconstructed immutable baseline at 1600/700px for all six themes and both HTML modes (navigation, Player and expanded dialog). Existing tests remain intact. Status: pending publisher and both independent checks; no numbered release or native changes.
+- Baseline `2026-11-12-adaptive-subtitle-preview-controls`, SHA-256 `6dbb668ae63dea26bd1ed03c70db20596c2b96f85a6466c428fdc3b9741aba55`. Request `gallery/changes/pending/2026-11-12-retired-theme-css.py` applies exact removals and synchronizes full, template and lightweight outputs; new tests compare sampled computed styles against the reconstructed immutable baseline at 1600/700px for all six themes and both HTML modes (navigation, Player and expanded dialog). Existing tests remain intact. Status: publisher and both independent checks passed; removed 2,407 bytes from each HTML build; exact sampled styles matched baseline in all 24 theme/width/mode combinations. Delivery links provided; user visual testing pending. Do not duplicate this request. No numbered release or native changes.
 
 ## Pending / next step
-- Next: verify approved C2/C3 keyframe cleanup; then review the 14 exact duplicate groups individually. Publisher notification improvement deferred at user request. Continue structural audit and CSS/JS extraction discussion afterwards. Keep the existing C1 cleanup visual test pending.
+- Next: user visual test of C2/C3 keyframe cleanup, then read-only review of the 14 exact duplicate groups individually. Publisher notification improvement deferred at user request. Continue structural audit and CSS/JS extraction discussion afterwards. Keep the existing C1 cleanup visual test pending.
 - C1 cleanup is retained in the current build; its user visual acceptance remains pending.
-- C2/C3 keyframe cleanup approved; C3 duplicate cascade review remains unapproved for implementation. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
+- C2/C3 keyframe cleanup complete and verified; C3 duplicate cascade review remains unapproved for implementation. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
 - After the agreed code cleanup, separately discuss/approve direct background dithering integration (Light preferred trial, Fine alternative). Keep all six themes and the stationary backdrop.
 - Publisher completed successfully; no known in-flight publisher request. Inspect remote Actions and pointer after interruptions.
 
