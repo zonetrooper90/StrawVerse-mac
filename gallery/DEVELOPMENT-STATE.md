@@ -24,8 +24,12 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 - Approved sequence: verify baseline (done), establish fresh project, audit HTML structure/assets/dependencies, propose deterministic build system, then extract modules incrementally with tests. First modular build should reproduce the existing HTML byte-for-byte where feasible. Do not change canonical HTML, checkpoint format, source authority or approved behavior until a specific architecture/migration is agreed. Keep standalone HTML delivery.
 - No new HTML checkpoint, numbered version, image changes or publisher request is authorized by this handoff alone.
 
+## Approved pending milestone — asset separation
+- User approved on 2026-11-12: default lightweight development HTML without the two embedded shrine PNGs; an opt-in subtitle-preview/full HTML with original artwork; full native macOS builds will include the original assets when native integration is separately undertaken. Retain the preview layout, overlay, controls, day/night behavior and animations; use plain day/night backgrounds in the lightweight variant. No artwork generation, editing or reencoding.
+- Baseline: checkpoint `2026-11-12-retired-subtitle-layout-css`, SHA-256 `64942fe6416fcd07de902b24c46cc20414af3ff5ba48a7e67a7f5f729c8370c5`. Keep canonical full HTML and immutable checkpoint unchanged during this infrastructure milestone. Introduce deterministic source extraction/build, prove full byte-for-byte round trip, and test lightweight/full modes before delivery. Do not switch canonical source authority yet. Status: pending implementation and verification.
+
 ## Pending / next step
-- Next: in the fresh project, perform a read-only structural/size audit and propose the smallest reversible extraction. Keep the existing C1 cleanup visual test pending.
+- Next: implement the approved first asset-separation milestone; continue structural audit and CSS/JS extraction discussion afterwards. Keep the existing C1 cleanup visual test pending.
 - User can download and visually test the existing C1 cleanup build before further changes.
 - Suggested next maintenance task: review audit C2 (retired theme-only CSS), then C3 (duplicate cascade/keyframe candidates), one narrow approved scope at a time. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
 - After the agreed code cleanup, separately discuss/approve direct background dithering integration (Light preferred trial, Fine alternative). Keep all six themes and the stationary backdrop.
