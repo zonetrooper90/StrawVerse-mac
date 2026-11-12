@@ -28,7 +28,7 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 @media(prefers-reduced-motion:reduce){.download-percent{transition:none!important}}
 
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.61);display:grid;place-items:center;z-index:20;padding:20px}.dialog{width:min(530px,100%);max-height:min(680px,90vh);overflow-y:auto;border:1px solid var(--line);border-radius:20px;background:var(--window);color:var(--ink);padding:24px;box-shadow:0 25px 85px var(--shadow)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.dialog-head h2{font-size:22px}.dialog .description{line-height:1.5}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:7px;margin-top:18px}.field label,.label{font-size:12px;color:var(--muted);font-weight:650}.field input,.field select{border:1px solid var(--line);background:var(--raised);border-radius:10px;color:var(--ink);padding:12px 13px;outline-offset:2px}.option{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);padding:13px;border-radius:12px;background:var(--surface);margin-top:8px;cursor:pointer}.option input{accent-color:var(--accent);margin-top:3px}.option b{display:block;margin-bottom:3px}.option small{display:block;color:var(--muted);line-height:1.45}.theme-list{display:grid;gap:9px;margin-top:14px}.theme-tile{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;color:var(--ink)}.theme-tile[aria-pressed="true"]{border-color:var(--accent);background:var(--raised)}.swatch{width:35px;height:35px;border-radius:9px;border:1px solid rgba(255,255,255,.15)}.dialog-sample{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);margin-top:18px}.result-list{max-height:260px;overflow-y:auto;display:grid;gap:7px;margin-top:12px}.searchresult{padding:11px;text-align:left;background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}.error{color:#ff9b9b}.success{color:var(--accent)}.only-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.footer-note{color:var(--muted);font-size:11px;text-align:center;margin:32px 0 0}
-@media(max-width:1050px){.poster-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:750px){body{padding:0}.app{height:100dvh;min-height:100dvh;border-radius:0;border:none}.top{padding:17px 17px 13px}.workspace{padding:24px 17px 35px}.poster-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:17px 10px}.brandname{font-size:17px}.subtitle{display:none}.tab{font-size:12px;padding:11px 4px;gap:6px}.heading-row{align-items:flex-start}.heading-row h1{font-size:26px}.collection-panel{padding:14px}.collections-head{flex-wrap:wrap}.continue{padding:17px}.continue-icon{display:none}}
+@media(max-width:1050px){.poster-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:750px){body{padding:0}.app{height:100dvh;min-height:100dvh;border-radius:0;border:none}.top{padding:17px 17px 13px}.workspace{padding:24px 17px 35px}.poster-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:17px 10px}.brandname{font-size:17px}.subtitle{display:none}.tab{font-size:12px;padding:11px 4px;gap:6px}.heading-row{align-items:flex-start}.heading-row h1{font-size:26px}.collections-head{flex-wrap:wrap}.continue{padding:17px}.continue-icon{display:none}}
 @media(max-width:430px){.poster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tab svg{width:16px;height:16px}.tabs{gap:2px}.tab{font-size:11px}.heading-row{display:block}.heading-row .actions{margin-top:14px}.download-row{grid-template-columns:48px 1fr}.download-row>.btn{grid-column:2;justify-self:start}}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -145,7 +145,7 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .tag-picker-list{display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;margin:16px 0}.tag-picker-list label{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);cursor:pointer}.tag-picker-list input{accent-color:var(--accent);width:16px;height:16px}
 @media(max-width:850px){.detail-hero{grid-template-columns:160px minmax(0,1fr);gap:22px}.detail-cover-name{font-size:23px}.episode-item{grid-template-columns:36px minmax(125px,1fr) auto;gap:9px}.episode-flags{grid-column:2;grid-row:2}.episode-actions{grid-column:3;grid-row:1 / span 2}.episode-item{min-height:88px}.episode-no{font-size:19px}.availability{gap:11px}}
 @media(max-width:570px){.detail-hero{grid-template-columns:114px minmax(0,1fr);gap:15px;margin-bottom:23px}.detail-title{font-size:24px}.detail-cover{border-radius:10px;padding:9px}.detail-cover-name{font-size:15px}.detail-description{font-size:12px;line-height:1.5;margin-bottom:11px}.detail-kicker{font-size:9px}.detail-badges{gap:5px;margin-bottom:10px}.detail-badge{padding:5px 7px;font-size:10px}.detail-actions .btn{min-height:34px;padding:8px;font-size:11px;gap:5px}.detail-helper{font-size:10px}.availability{gap:8px}.availability .season-status{margin-left:0}.availability-label{font-size:11px}.detail-section-head h2{font-size:18px}.season-select{gap:5px}.season-select select{max-width:138px}.episode-item{padding:9px 4px;grid-template-columns:27px minmax(100px,1fr) auto}.episode-no{font-size:16px}.episode-name{font-size:12px}.episode-actions .iconbtn{width:31px;height:31px}.audio-flag{padding:5px 7px;font-size:9px}}
-@media(max-width:370px){.detail-hero{grid-template-columns:95px minmax(0,1fr);gap:10px}.detail-cover-name{font-size:13px}.detail-title{font-size:21px}.detail-badge:nth-child(3){display:none}.detail-actions{gap:5px}}
+@media(max-width:370px){.detail-cover-name{font-size:13px}.detail-title{font-size:21px}.detail-badge:nth-child(3){display:none}.detail-actions{gap:5px}}
 
 /* Shared availability indicators. */
 .preferred-badge{font-size:11px;font-weight:680;border:1px solid var(--line);padding:5px 9px;border-radius:999px;white-space:nowrap;background:var(--raised);color:var(--muted)}
@@ -168,7 +168,6 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .inline-arrow:disabled{opacity:.34;cursor:default;pointer-events:none}
 .episode-item{grid-template-columns:44px minmax(0,1fr) auto}
 .episode-tools{grid-column:3;display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
-.episode-copy{min-width:0}
 @media(max-width:850px){
  .episode-item{grid-template-columns:36px minmax(0,1fr) auto;min-height:80px}
  .episode-tools{grid-column:3;grid-row:1;flex-direction:column;align-items:flex-end;gap:7px}
@@ -759,16 +758,13 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
    Only the filter changes state; no extra movement is added. */
 .episode-toolbar{display:flex;align-items:center;gap:17px;margin:0 0 13px;min-width:0}
 .episode-toolbar .episode-heading{flex:0 0 90px;min-width:0;align-self:center;display:flex;align-items:center}
-.episode-toolbar .episode-heading h2{font-size:21px;line-height:1.2;margin:0}
 .episode-toolbar .episode-heading .season-select{display:none}
 .episode-toolbar .episode-availability{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px 7px 14px;margin:0;border-radius:12px}
 .episode-availability .episode-stats{display:flex;align-items:center;gap:15px;min-width:0;flex-wrap:wrap;row-gap:6px}
-.episode-availability .availability-label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .episode-availability .episode-shown{display:inline-flex;align-items:center;gap:13px;white-space:nowrap;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;opacity:1;transition:opacity .42s ease}
 .episode-availability .episode-shown::before{content:'';display:block;width:1px;height:15px;flex:none;background:var(--line)}
 /* Reserve the count's footprint and fade the count + its divider as one unit. */
 .episode-availability .episode-shown.is-hidden{opacity:0;pointer-events:none}
-@media(prefers-reduced-motion:reduce){.episode-availability .episode-shown{transition:none}}
 .episode-availability .episode-filter{flex:0 0 auto;margin:0;display:inline-flex;gap:2px;align-items:center;flex-wrap:nowrap;padding:3px;border-radius:9px;background:var(--window)}
 .episode-availability .episode-filter button{border:1px solid transparent;background:transparent;border-radius:7px;color:var(--muted);min-height:30px;padding:6px 10px;font-size:11px;font-weight:650;white-space:nowrap;line-height:1.1}
 .episode-availability .episode-filter button:hover:not([aria-pressed=true]){background:var(--hover);color:var(--ink)}
@@ -1005,7 +1001,6 @@ body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
 .settings-page-head h1{font-size:30px;letter-spacing:-.04em}
 .settings-page-head .description{font-size:13px;margin-top:4px}
 .settings-back{display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex:none}
-.settings-back:hover{color:var(--ink);background:var(--hover)}
 .settings-layout{display:grid;grid-template-columns:minmax(185px,222px) minmax(0,1fr);gap:32px;padding-top:28px;align-items:start}
 .settings-side{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:8px;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px}
 .settings-section-button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid transparent;border-radius:10px;padding:12px 13px;background:transparent;color:var(--muted);font-weight:600;width:100%;font-size:13px}
@@ -1051,7 +1046,7 @@ body.returning-to-gallery .tabs,
 .workspace.returning-to-gallery > #screen:not([hidden]){animation:gallery-return .14s cubic-bezier(.2,.75,.2,1) both}
 @media(prefers-reduced-motion:reduce){.settings-page.is-leaving,body.returning-to-gallery .tabs,.workspace.returning-to-gallery > #tab-pages-viewport,.workspace.returning-to-gallery > #screen{animation:none!important}}
 @media(max-width:710px){.settings-layout{grid-template-columns:1fr;gap:20px;padding-top:20px}.settings-side{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:3px}.settings-side::-webkit-scrollbar{display:none}.settings-section-button{width:auto;flex:none;padding:10px 12px;gap:7px;font-size:12px}.settings-section-button .icon{width:16px;height:16px}.settings-card{padding:17px}.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.settings-theme-tile{padding:8px}.settings-page-head{padding-top:18px}}
-@media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}.settings-page-head h1{font-size:25px}.settings-back{padding:8px}.settings-back span{display:none}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
+@media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}.settings-back{padding:8px}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
 @media(prefers-reduced-motion:reduce){.settings-page,.settings-panel{animation:none!important}.settings-layout *{scroll-behavior:auto!important}}
 
 /* v59 — Consistent Settings search: header stays stationary, sidebar remains visible. */
@@ -1323,7 +1318,6 @@ body.settings-view .workspace.settings-mode{padding:25px 28px 54px!important}
 .about-detail{width:100%;max-width:850px;margin:0}
 .about-identity{display:flex;align-items:center;gap:19px;padding:20px 22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
 .about-identity-logo{width:66px;height:66px;border-radius:17px;flex:none;display:grid;place-items:center;color:var(--accent);background:var(--raised);border:1px solid var(--line)}
-.about-identity-copy{min-width:0}
 .about-identity-copy h3{margin:0;font-size:22px;font-weight:730;letter-spacing:-.035em;line-height:1.15}
 .about-identity-description{margin:7px 0 0;color:var(--ink);font-size:12.5px;line-height:1.5}
 .about-identity-version{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
@@ -1418,7 +1412,7 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .settings-font-missing{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
 .settings-font-missing[hidden]{display:none!important}
 @media(max-width:1100px){.settings-font-list{grid-template-columns:1fr}.settings-font-tile{flex-direction:row;align-items:center;gap:16px}.settings-font-top{flex:0 0 40%;min-height:0}.settings-font-example{flex:1;min-height:86px}}
-@media(max-width:530px){.settings-font-tile{flex-direction:column;align-items:stretch;gap:9px}.settings-font-top{flex:none}.settings-font-example{min-height:92px}}
+@media(max-width:530px){.settings-font-tile{flex-direction:column;align-items:stretch;gap:9px}.settings-font-example{min-height:92px}}
 
 /* v80 — Language-aware, offline typography samples; restrained responsive controls. */
 .settings-font-language{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:15px 0 0;flex-wrap:wrap}
@@ -1681,7 +1675,6 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 
 /* If the actual settings pane cannot accommodate the two items, stack them.
    The breakpoint is based on Gallery's available content width, not the monitor. */
-#playback-subtitles-pane{container-type:inline-size}
 
 
 /* Layout Experiment A3 — ONLY change: move Text size beneath Font beside the
@@ -2757,8 +2750,6 @@ body[data-theme] .sf-dl-list .demo-download-footer{padding-top:8px}
   column-gap:8px;row-gap:6px;min-height:67px;padding:9px 0
  }
  body[data-theme] .sf-dl-episode-name{grid-area:name}
- body[data-theme] .sf-dl-episode-status{grid-area:status}
- body[data-theme] .sf-dl-episode-track{grid-area:track}
  body[data-theme] .sf-dl-episode-control{grid-area:control}
  body[data-theme] .sf-dl-episode-percent{grid-area:percent}
  body[data-theme] .sf-dl-list-heading span{display:none}

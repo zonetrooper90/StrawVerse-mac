@@ -234,5 +234,83 @@ with sync_playwright() as pw:
                     for theme in themes:
                         assert before[surface][theme] == after[surface][theme], (filename,width,surface,theme)
                 print(filename, width, "all six themes: exact sampled computed styles match baseline (navigation, Player, expanded dialog)", flush=True)
+    # C3: verify all 14 affected selectors with the actual old and new stylesheet,
+    # including exact breakpoint edges and a representative hover state.
+    if hashlib.sha256((root / "Gallery-current.html").read_bytes()).hexdigest() == "7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e":
+        old_dir = root / "checkpoints/2026-11-12-retired-theme-css"
+        manifest = json.loads((old_dir / "manifest.json").read_text())
+        chunks = []
+        for part in manifest["parts"]:
+            data = (old_dir / part["file"]).read_bytes()
+            assert len(data) == part["encoded_chars"] and hashlib.sha256(data).hexdigest() == part["sha256"]
+            chunks.append(data)
+        compressed = base64.b64decode(b"".join(chunks), validate=True)
+        assert len(compressed) == manifest["compressed_bytes"] and hashlib.sha256(compressed).hexdigest() == manifest["compressed_sha256"]
+        old_full = gzip.decompress(compressed)
+        assert len(old_full) == 6915281 and hashlib.sha256(old_full).hexdigest() == "062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae"
+        def stylesheet(raw):
+            return raw.split(b"<style>", 1)[1].split(b"</style>", 1)[0].decode("utf-8")
+        new_css = stylesheet((root / "Gallery-current.html").read_bytes())
+        assert new_css == stylesheet((root / "Gallery-development.html").read_bytes())
+        old_css = stylesheet(old_full)
+        # Isolated representative markup also covers legacy selectors not present
+        # in current screens; real UI navigation is tested by the existing suites.
+        fixture = """
+        <div class="collection-panel" data-c3="collection">Collection</div>
+        <div class="detail-hero" data-c3="hero"><div>Cover</div><div>Details</div></div>
+        <div class="episode-item"><div class="episode-copy" data-c3="episode">Episode</div></div>
+        <div class="episode-toolbar"><div class="episode-heading"><h2 data-c3="heading">Episodes</h2></div></div>
+        <div class="episode-availability"><span class="availability-label" data-c3="availability">Available</span><span class="episode-shown" data-c3="shown">1 shown</span></div>
+        <div class="settings-page-head"><h1 data-c3="settings-title">Settings</h1></div>
+        <button class="settings-back" data-c3="back" style="position:fixed;top:4px;left:4px;z-index:99999"><span data-c3="back-label">Back</span></button>
+        <div class="about-identity-copy" data-c3="identity">Gallery</div>
+        <div class="settings-font-tile"><div class="settings-font-top" data-c3="font">Font</div></div>
+        <div id="playback-subtitles-pane" data-c3="subtitles">Subtitle preview</div>
+        <div class="sf-dl-episode-row"><div class="sf-dl-episode-status" data-c3="status">Ready</div><div class="sf-dl-episode-track" data-c3="track">Progress</div></div>
+        """
+        widths = (1600, 761, 760, 751, 750, 571, 570, 531, 530, 441, 440, 371, 370, 340)
+        themes = ("ocean", "twilight", "ember", "slate", "glacier", "verdant")
+        def snap(pg):
+            return pg.evaluate("""() => {
+                const props=['paddingTop','paddingRight','paddingBottom','paddingLeft','gridTemplateColumns','rowGap','columnGap','minWidth','fontSize','lineHeight','marginTop','marginRight','marginBottom','marginLeft','display','alignItems','whiteSpace','transitionProperty','transitionDuration','transitionDelay','color','backgroundColor','flexGrow','flexShrink','flexBasis','containerType','gridArea'];
+                return [...document.querySelectorAll('[data-c3]')].map(e=>{
+                    const c=getComputedStyle(e);return [e.dataset.c3,...props.map(p=>c[p])];
+                });
+            }""")
+        def settle(pg, hovered):
+            # Force style resolution, then wait for the actual finite CSS transitions.
+            pg.evaluate("() => {for(const e of document.querySelectorAll('[data-c3]'))getComputedStyle(e).color}")
+            pg.wait_for_function("""(hovered) => {
+                const back=document.querySelector('[data-c3="back"]');
+                if(back.matches(':hover')!==hovered)return false;
+                return [...document.querySelectorAll('[data-c3]')].every(e=>e.getAnimations().every(a=>a.playState!=='running' && !a.pending));
+            }""",arg=hovered,timeout=5000)
+        for motion in ("no-preference", "reduce"):
+            for theme in themes:
+                # Fresh pages per theme avoid a previous theme's hover/transition state.
+                a=browser.new_page(viewport={"width":1600,"height":950},reduced_motion=motion)
+                b=browser.new_page(viewport={"width":1600,"height":950},reduced_motion=motion)
+                try:
+                    for pg,css in ((a,old_css),(b,new_css)):
+                        pg.mouse.move(0,0)
+                        pg.set_content('<!doctype html><html><head><style>'+css+'</style></head><body data-theme="'+theme+'">'+fixture+'</body></html>')
+                        pg.mouse.move(0,0)
+                    for width in widths:
+                        for pg in (a,b):
+                            pg.set_viewport_size({"width":width,"height":950})
+                        for pg in (a,b):
+                            settle(pg,False)
+                        before,after=snap(a),snap(b)
+                        assert len(before)==14 and before==after,(motion,theme,width,before,after)
+                    for pg in (a,b):
+                        pg.set_viewport_size({"width":440,"height":950})
+                        pg.locator('[data-c3="back"]').hover()
+                    for pg in (a,b):
+                        settle(pg,True)
+                    assert snap(a)==snap(b),(motion,theme,"hover",snap(a),snap(b))
+                finally:
+                    a.close()
+                    b.close()
+            print("C3 exact duplicate cascade comparison passed:",motion,"all six themes, 14 widths, settled hover and 14 representative elements",flush=True)
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")

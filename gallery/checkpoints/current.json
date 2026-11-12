@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-retired-theme-css",
-  "sha256": "062e6a921b2f252c069c50159f1170ce4ef172bb5bc879b2871c6d0cef0dc5ae",
-  "bytes": 6915281,
+  "folder": "2026-11-13-exact-duplicate-css-retry",
+  "sha256": "7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e",
+  "bytes": 6914516,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
