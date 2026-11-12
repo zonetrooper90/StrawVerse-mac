@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-exact-duplicate-css-retry",
-  "sha256": "7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e",
-  "bytes": 6914516,
+  "folder": "2026-11-13-retired-downloads-css",
+  "sha256": "197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f",
+  "bytes": 6910290,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

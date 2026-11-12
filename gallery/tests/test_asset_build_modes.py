@@ -312,5 +312,130 @@ with sync_playwright() as pw:
                     a.close()
                     b.close()
             print("C3 exact duplicate cascade comparison passed:",motion,"all six themes, 14 widths, settled hover and 14 representative elements",flush=True)
+    # C4a: actual Downloads markup and actions, with before/after checks against
+    # the immediately preceding immutable checkpoint. Both modes have identical CSS.
+    if hashlib.sha256((root / "Gallery-current.html").read_bytes()).hexdigest() == "197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f":
+        old_dir = root / "checkpoints/2026-11-13-exact-duplicate-css-retry"
+        manifest = json.loads((old_dir / "manifest.json").read_text())
+        chunks = []
+        for part in manifest["parts"]:
+            data = (old_dir / part["file"]).read_bytes()
+            assert len(data) == part["encoded_chars"] and hashlib.sha256(data).hexdigest() == part["sha256"]
+            chunks.append(data)
+        compressed = base64.b64decode(b"".join(chunks), validate=True)
+        assert len(compressed) == manifest["compressed_bytes"] and hashlib.sha256(compressed).hexdigest() == manifest["compressed_sha256"]
+        old_full = gzip.decompress(compressed)
+        assert len(old_full) == 6914516 and hashlib.sha256(old_full).hexdigest() == "7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e"
+        builder = runpy.run_path(str(root / "tools/build-gallery.py"))
+        old_light = old_full
+        for name in ("day", "night"):
+            asset = (root / "assets/subtitle-preview" / f"shrine-{name}.png").read_bytes()
+            old_light = builder["replace_once"](old_light, b"data:image/png;base64," + base64.b64encode(asset), builder["COLORS"][name])
+        for old, new in builder["LIGHT_PATCHES"]:
+            old_light = builder["replace_once"](old_light, old, new)
+        assert hashlib.sha256(old_light).hexdigest() == "03c415890b659408f7830733f209cfe35ccadee858cc3a546106cd907184563b"
+        retired_classes = ["download-row","download-title","download-progress","download-progress-line","download-percent","download-status","download-group-art","download-group-content","download-group-title","download-group-summary","download-group-dismiss-wrap","download-episode-main","download-episode-name","download-episode-meta","download-episode-status","download-episode-actions","download-action-retry","download-search-info","sf-dl-dismiss-wrap","sf-dl-mini-action"]
+        themes = ("ocean","twilight","ember","slate","glacier","verdant")
+        def downloads_snapshot(source, width, motion):
+            pg = browser.new_page(viewport={"width":width,"height":950},reduced_motion=motion)
+            errors = []
+            pg.on("pageerror",lambda e:errors.append(str(e)))
+            try:
+                pg.set_content(source.decode("utf-8"),wait_until="domcontentloaded")
+                pg.wait_for_timeout(240)
+                pg.locator("#nav-downloads").click()
+                pg.wait_for_function("() => state.view==='downloads' && !galleryStageTransition")
+                pg.locator('.sf-dl-card').first.wait_for()
+                pg.wait_for_timeout(650)
+                def group(anime):
+                    return pg.locator('[data-download-group="demo:'+anime+'"]')
+                def row(id):
+                    return pg.locator('[data-download-episode="'+id+'"]')
+                def click(selector):
+                    pg.locator(selector).evaluate("(e)=>e.click()")
+                def status(id, expected):
+                    assert row(id).locator(".sf-dl-episode-status").get_attribute("data-status")==expected,(id,expected)
+                def settle():
+                    pg.mouse.move(0,0)
+                    pg.evaluate("() => {for(const e of document.querySelectorAll('.sf-dl-card,.sf-dl-card *'))getComputedStyle(e).color}")
+                    pg.wait_for_function("""() => !document.getAnimations().some(a=>a.effect?.target?.closest?.('.sf-dl-card') && (a.playState==='running'||a.pending) && Number.isFinite(a.effect.getComputedTiming().endTime))""",timeout=6000)
+                def snap():
+                    settle()
+                    assert pg.locator(",".join("."+c for c in retired_classes)).count()==0
+                    return pg.evaluate("""() => {
+                        const props=['display','visibility','position','opacity','color','backgroundColor','backgroundImage','borderColor','borderRadius','boxShadow','width','height','padding','margin','gap','gridTemplateColumns','gridTemplateRows','gridArea','flexBasis','overflowX','overflowY','transitionProperty','transitionDuration','transform'];
+                        return [...document.querySelectorAll('.sf-dl-card,.sf-dl-card *,.download-filters,.download-filters *')].map(e=>{
+                            const c=getComputedStyle(e),r=e.getBoundingClientRect();
+                            return [e.tagName,e.getAttribute('class'),e.getAttribute('data-status'),e.getAttribute('aria-expanded'),e.getAttribute('aria-valuenow'),[r.x,r.y,r.width,r.height].map(x=>Math.round(x*10)/10),props.map(p=>c[p])];
+                        });
+                    }""")
+                result={}
+                assert group("quints").locator("[data-download-toggle]").get_attribute("aria-expanded")=="false"
+                result["collapsed"]=snap()
+                for anime in ("quints","02"):
+                    group(anime).locator("[data-download-toggle]").evaluate("(e)=>e.click()")
+                    assert group(anime).locator("[data-download-toggle]").get_attribute("aria-expanded")=="true"
+                    assert group(anime).locator(".download-group-body-inner").evaluate("(e)=>!e.inert")
+                for theme in themes:
+                    pg.evaluate("(t)=>{state.theme=t;document.body.dataset.theme=t}",theme)
+                    result["expanded-"+theme]=snap()
+                # Keep the active theme fixed for all subsequent functional states.
+                status("astra-02","Downloading")
+                assert row("astra-02").locator('[role="progressbar"]').get_attribute("aria-valuenow")=="55"
+                viewport=group("quints").locator(".sf-dl-viewport")
+                viewport.evaluate("(e)=>e.scrollTop=90")
+                scroll=viewport.evaluate("(e)=>e.scrollTop")
+                assert scroll>0
+                click('[data-download-pause="astra-02"]')
+                status("astra-02","Paused")
+                assert viewport.evaluate("(e)=>e.scrollTop")==scroll
+                result["paused"]=snap()
+                click('[data-download-pause="astra-02"]')
+                status("astra-02","Downloading")
+                click('[data-download-retry="astra-04"]')
+                status("astra-04","Queued")
+                assert row("astra-04").locator('[role="progressbar"]').get_attribute("aria-valuenow")=="0"
+                click('[data-download-cancel="astra-03"]')
+                pg.locator("#cancel-download-back").wait_for()
+                click("#cancel-download-back")
+                pg.wait_for_selector("#cancel-download-back",state="detached")
+                status("astra-03","Queued")
+                click('[data-download-cancel="astra-03"]')
+                click("#cancel-download-confirm")
+                pg.wait_for_selector("#cancel-download-confirm",state="detached")
+                status("astra-03","Canceled")
+                click('[data-download-dismiss="astra-01"]')
+                assert row("astra-01").count()==0
+                pg.locator("#sf-dl-undo-global button").click()
+                status("astra-01","Completed")
+                assert group("02").locator("[data-download-toggle]").get_attribute("aria-expanded")=="true"
+                result["restored"]=snap()
+                click('[data-download-filter="Completed"]')
+                assert pg.locator('.sf-dl-episode-status').evaluate_all("(els)=>els.length>0&&els.every(e=>e.dataset.status==='Completed')")
+                result["completed-filter"]=snap()
+                click('[data-download-filter="All"]')
+                click("#demo-reset-downloads")
+                assert group("quints").locator("[data-download-toggle]").get_attribute("aria-expanded")=="false"
+                group("quints").locator("[data-download-toggle]").evaluate("(e)=>e.click()")
+                click("#demo-next-download")
+                status("quints-9","Completed")
+                result["simulated"]=snap()
+                click("#dismiss-all-downloads")
+                click("#dismiss-all-confirm")
+                pg.wait_for_selector("#dismiss-all-confirm",state="detached")
+                assert pg.locator(".sf-dl-episode-status").evaluate_all("(els)=>els.length>0&&els.every(e=>!['Completed','Failed','Canceled'].includes(e.dataset.status))")
+                result["dismiss-all"]=snap()
+                assert not errors,errors
+                return result
+            finally:
+                pg.close()
+        for filename, old in (("Gallery-current.html",old_full),("Gallery-development.html",old_light)):
+            new = (root / filename).read_bytes()
+            for width,motion in ((1600,"reduce"),(700,"reduce"),(420,"reduce"),(700,"no-preference")):
+                before,after=downloads_snapshot(old,width,motion),downloads_snapshot(new,width,motion)
+                assert before.keys()==after.keys()
+                for stage in before:
+                    assert before[stage]==after[stage],(filename,width,motion,stage)
+                print("C4a Downloads equivalence passed:",filename,width,motion,"six themes, expansion, scroll, progress, pause/resume, retry, cancel, dismiss/undo, filter and reset",flush=True)
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")
