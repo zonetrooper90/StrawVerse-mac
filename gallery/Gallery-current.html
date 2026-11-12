@@ -4242,9 +4242,8 @@ const demo=[
 {id:'demo:10',name:'Skyline Letters',art:'linear-gradient(160deg,#23485b,#698b8f 50%,#b9c6ad)',episodes:12,status:'Completed',lang:'Sub',tags:['Plan to Watch'],blurb:'Two childhood friends reconnect through messages left on rooftops.'}
 ];
 function readAutoplayNextEpisode(){try{return localStorage.getItem('gallery.autoplayNextEpisode')==='on';}catch{return false;}}
-/* Initial player volume: remember changes between sessions, or use a fixed starting value.
-   The default is 70%; 0%/mute never overwrites the last audible volume.
-   All of this remains local to the HTML prototype until the native player is connected. */
+/* Initial player volume uses the Gallery default or the user's starting value.
+   The default is 70%; session volume is not a saved starting preference. */
 const GALLERY_VOLUME_STORAGE_KEY='gallery.playback.startingVolume';
 const GALLERY_INITIAL_VOLUME=70;
 function galleryVolumePercent(value,fallback=GALLERY_INITIAL_VOLUME){
@@ -4255,10 +4254,8 @@ function readGalleryVolumePreferences(){
  try{
   const saved=JSON.parse(localStorage.getItem(GALLERY_VOLUME_STORAGE_KEY)||'null');
   if(saved&&typeof saved==='object'){
-   /* Keep old fixed preferences when upgrading the experiment. Do not migrate
-      Remember last volume: there is deliberately no cross-session memory now. */
    return {
-    mode:saved.mode==='user'||saved.mode==='fixed'?'user':'gallery',
+    mode:saved.mode==='user'?'user':'gallery',
     preferred:galleryVolumePercent(saved.preferred),
     precision:saved.precision==='fine'?'fine':'steps'
    };
@@ -4296,7 +4293,7 @@ function fontPreviewMarkupTile(){
 }
 
 const supportedGalleryFonts=['system','atkinson','inter'];
-function readGalleryFont(){try{const stored=localStorage.getItem('gallery.font')||localStorage.getItem('gallery.layoutExperimentA.font');return supportedGalleryFonts.includes(stored)?stored:'system';}catch{return 'system';}}
+function readGalleryFont(){try{const stored=localStorage.getItem('gallery.font');return supportedGalleryFonts.includes(stored)?stored:'system';}catch{return 'system';}}
 state.font=readGalleryFont();
 document.body.dataset.font=state.font;
 function setGalleryFont(name){
@@ -6784,10 +6781,6 @@ function subtitlePresetValue(effect,preset,size){
  const n=SUBTITLE_EFFECT_PRESETS[effect]?.[preset]??SUBTITLE_EFFECT_PRESETS[effect]?.normal??0;
  return effect==='outline'?Math.min(maximumSubtitleOutline(size),n):n;
 }
-function subtitleNearestPreset(effect,value,size){
- const presets=Object.keys(SUBTITLE_EFFECT_PRESETS[effect]||{});
- return presets.reduce((best,id)=>Math.abs(subtitlePresetValue(effect,id,size)-value)<Math.abs(subtitlePresetValue(effect,best,size)-value)?id:best,'normal');
-}
 function assignSubtitlePresetNumbers(prefs){
  for(const [effect,key,presetKey] of [['outline','outline','outlinePreset'],['shadow','shadow','shadowPreset'],['box','boxOpacity','boxPreset']]){
   prefs[key]=subtitlePresetValue(effect,prefs[presetKey],prefs.size);
@@ -6795,11 +6788,7 @@ function assignSubtitlePresetNumbers(prefs){
 }
 
 function normalizeSubtitleSize(size){
- if(typeof size==='string' && SUBTITLE_SIZES.some(entry=>entry.id===size))return size;
- // Migrate saved v82–v92 numeric sizes to the nearest named preset.
- if(typeof size==='number' && Number.isFinite(size))
-  return SUBTITLE_SIZES.reduce((best,entry)=>Math.abs(entry.reference-size)<Math.abs(best.reference-size)?entry:best).id;
- return SUBTITLE_DEFAULTS.size;
+ return typeof size==='string' && SUBTITLE_SIZES.some(entry=>entry.id===size)?size:SUBTITLE_DEFAULTS.size;
 }
 function subtitleReferenceSize(size){
  return (SUBTITLE_SIZES.find(entry=>entry.id===size)||SUBTITLE_SIZES[2]).reference;
@@ -6810,49 +6799,20 @@ function maximumSubtitleOutline(size){return Math.min(6,Math.floor(subtitleRefer
 const SUBTITLE_FONTS=Object.freeze({system:'-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',atkinson:'"Atkinson Hyperlegible Next", -apple-system, sans-serif',inter:'Inter, -apple-system, sans-serif'});
 function readSubtitlePrefs(){
  try{
-  const raw=JSON.parse(localStorage.getItem('gallery.subtitlePreferences')||localStorage.getItem('gallery.layoutExperimentA.subtitlePreview')||'{}');
-  if(!raw||typeof raw!=='object')return {...SUBTITLE_DEFAULTS};
+  const raw=JSON.parse(localStorage.getItem('gallery.subtitlePreferences')||'{}');
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return {...SUBTITLE_DEFAULTS};
   const v={...SUBTITLE_DEFAULTS};
+  const validHex=c=>typeof c==='string' && /^#[0-9a-fA-F]{6}$/.test(c);
   if(Object.hasOwn(SUBTITLE_FONTS,raw.font))v.font=raw.font;
   v.size=normalizeSubtitleSize(raw.size);
-  for(const [key,min,max] of [['outline',0,6],['shadow',0,10]])
-   if(Number.isFinite(raw[key]))v[key]=Math.max(min,Math.min(max,Math.round(raw[key]*2)/2));
-  v.outline=Math.min(v.outline,maximumSubtitleOutline(v.size));
-  if(Number.isFinite(raw.boxOpacity))v.boxOpacity=Math.max(0,Math.min(100,Math.round(raw.boxOpacity/5)*5));
-  for(const key of ['color','outlineColor','shadowColor','boxColor'])
-   if(/^#[0-9a-fA-F]{6}$/.test(raw[key]||''))v[key]=raw[key].toLowerCase();
-   // Legacy copies stored only a hex value. Treat the former #FFFFFF default
-   // as the new Soft White preset; preserve all other user-selected colors.
-   const validHex=c=>typeof c==='string' && /^#[0-9a-fA-F]{6}$/.test(c);
-   if(['white','yellow','custom'].includes(raw.colorMode)){
-    v.colorMode=raw.colorMode;
-    if(validHex(raw.customColor))v.customColor=raw.customColor.toLowerCase();
-    else if(v.colorMode==='custom' && validHex(raw.color))v.customColor=raw.color.toLowerCase();
-   }else if(validHex(raw.color)){
-    const previous=raw.color.toLowerCase();
-    if(previous==='#ffe066')v.colorMode='yellow';
-    else if(!['#ffffff','#f5f5f5','#f8f8f8'].includes(previous)){
-     v.colorMode='custom';v.customColor=previous;
-    }
-   }
-   // Older experiments did not store whether Custom had ever been chosen.
-   // A nondefault saved swatch or a previously selected Custom mode implies yes.
-   v.customColorSet=typeof raw.customColorSet==='boolean'
-    ?raw.customColorSet
-    :(v.colorMode==='custom'||v.customColor!==SUBTITLE_DEFAULTS.customColor);
-   v.color=v.colorMode==='custom'?v.customColor:SUBTITLE_TEXT_COLOR_PRESETS[v.colorMode];
-   if(!Object.hasOwn(raw,'shadowColor'))v.shadowColor=v.outlineColor;
+  for(const key of ['outlineColor','shadowColor','boxColor','customColor'])
+   if(validHex(raw[key]))v[key]=raw[key].toLowerCase();
+  if(['white','yellow','custom'].includes(raw.colorMode))v.colorMode=raw.colorMode;
+  if(typeof raw.customColorSet==='boolean')v.customColorSet=raw.customColorSet;
+  v.color=v.colorMode==='custom'?v.customColor:SUBTITLE_TEXT_COLOR_PRESETS[v.colorMode];
   if(['outline','shadow','box','none'].includes(raw.effect))v.effect=raw.effect;
-  // Migrate the separate background selector from v95 to the unified style.
-  // When an old background was enabled, preserve that explicit choice.
-  if(['solid','translucent'].includes(raw.background) && !['box','none'].includes(raw.effect)){
-   v.effect='box';v.boxOpacity=raw.background==='solid'?100:60;
-  }
-  // Existing A8 slider settings are mapped to their nearest A9 named preset.
-  for(const [effect,key,presetKey] of [['outline','outline','outlinePreset'],['shadow','shadow','shadowPreset'],['box','boxOpacity','boxPreset']]){
-   const saved=raw[presetKey];
-   v[presetKey]=saved==='max'?'strong':['light','normal','strong'].includes(saved)?saved:subtitleNearestPreset(effect,v[key],v.size);
-  }
+  for(const key of ['outlinePreset','shadowPreset','boxPreset'])
+   if(['light','normal','strong'].includes(raw[key]))v[key]=raw[key];
   assignSubtitlePresetNumbers(v);
   return v;
  }catch{return {...SUBTITLE_DEFAULTS};}

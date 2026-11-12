@@ -162,15 +162,46 @@ with sync_playwright() as pw:
    check(page.locator("#subtitle-expanded-stage").is_visible(),"Compact preview opens at "+str(width))
   check(not errors,str(errors))
   page.close()
- # A routed in-memory page provides a real storage origin without network access.
- legacy=browser.new_page(viewport={"width":1200,"height":850})
- legacy.route("https://gallery-audit.invalid/**",lambda route:route.fulfill(status=200,content_type="text/html",body=html))
- legacy.goto("https://gallery-audit.invalid/")
- legacy.evaluate("""() => localStorage.setItem('gallery.subtitlePreferences', JSON.stringify({size:'normal',outlinePreset:'max',shadowPreset:'max',boxPreset:'max',colorMode:'custom',customColor:'#123456',customColorSet:true}))""")
- migrated=legacy.evaluate("readSubtitlePrefs()")
- check([migrated[k] for k in ("outlinePreset","shadowPreset","boxPreset")]==["strong"]*3,"Legacy Max migrates to High")
- check([migrated[k] for k in ("outline","shadow","boxOpacity")]==[5.5,10,100],"Former Max strength preserved")
- check(migrated["customColor"]=="#123456" and migrated["customColorSet"],"Saved custom color survives migration")
- legacy.close()
+ # Current preferences round-trip and invalid values fall back to defaults.
+ prefs=browser.new_page(viewport={"width":1200,"height":850})
+ prefs.route("https://gallery-audit.invalid/**",lambda route:route.fulfill(status=200,content_type="text/html",body=html))
+ prefs.goto("https://gallery-audit.invalid/")
+ prefs.evaluate("""() => {
+  Object.assign(subtitlePrefs,{font:'inter',size:'large',effect:'shadow',outlinePreset:'strong',shadowPreset:'light',boxPreset:'strong',colorMode:'custom',customColor:'#123456',customColorSet:true,outlineColor:'#abcdef',shadowColor:'#334455',boxColor:'#556677'});
+  assignSubtitlePresetNumbers(subtitlePrefs);
+  subtitlePrefs.color=subtitlePrefs.customColor;
+  persistSubtitlePrefs();
+  Object.assign(galleryVolumePreferences,{mode:'user',preferred:35,precision:'fine'});
+  saveGalleryVolumePreferences();
+  localStorage.setItem('gallery.font','inter');
+  localStorage.setItem('gallery.softFuturistic.theme','glacier');
+ }""")
+ prefs.reload()
+ saved=prefs.evaluate("subtitlePrefs")
+ check([saved[k] for k in ("font","size","effect","outlinePreset","shadowPreset","boxPreset")]==["inter","large","shadow","strong","light","strong"],"Current subtitle choices survive reload")
+ check([saved[k] for k in ("outline","shadow","boxOpacity")]==[6,1.5,100],"Current intensity values recomputed")
+ check(saved["color"]=="#123456" and saved["customColorSet"] and [saved[k] for k in ("outlineColor","shadowColor","boxColor")]==["#abcdef","#334455","#556677"],"Current subtitle colors survive reload")
+ check(prefs.evaluate("galleryVolumePreferences")=={"mode":"user","preferred":35,"precision":"fine"} and prefs.evaluate("playerSessionVolume")==35,"Current starting volume survives reload")
+ check(prefs.evaluate("state.font")=="inter" and prefs.evaluate("state.theme")=="glacier","Current font and theme survive reload")
+ prefs.evaluate("""() => {
+  localStorage.setItem('gallery.subtitlePreferences', JSON.stringify({font:'bad',size:44,effect:'bad',outlinePreset:'max',shadowPreset:'bad',boxPreset:'bad',colorMode:'bad',customColor:'invalid',customColorSet:'bad',outline:6,shadow:10,boxOpacity:100,background:'solid'}));
+  localStorage.setItem('gallery.playback.startingVolume',JSON.stringify({mode:'fixed',preferred:20,precision:'bad'}));
+  localStorage.setItem('gallery.font','bad');
+  localStorage.setItem('gallery.softFuturistic.theme','paper');
+ }""")
+ invalid=prefs.evaluate("readSubtitlePrefs()")
+ check(invalid==prefs.evaluate("SUBTITLE_DEFAULTS"),"Unsupported subtitle fields fall back to current defaults")
+ check(prefs.evaluate("readGalleryVolumePreferences().mode")=="gallery","Unsupported volume mode falls back to Gallery")
+ check(prefs.evaluate("readGalleryFont()")=="system" and prefs.evaluate("readSoftFuturisticTheme()")=="ocean","Unsupported font and theme fall back")
+ prefs.evaluate("""() => {
+  localStorage.removeItem('gallery.subtitlePreferences');
+  localStorage.removeItem('gallery.font');
+  localStorage.setItem('gallery.layoutExperimentA.subtitlePreview',JSON.stringify({size:'large'}));
+  localStorage.setItem('gallery.layoutExperimentA.font','inter');
+ }""")
+ check(prefs.evaluate("readSubtitlePrefs()")==prefs.evaluate("SUBTITLE_DEFAULTS") and prefs.evaluate("readGalleryFont()")=="system","Retired storage keys ignored")
+ prefs.evaluate("localStorage.setItem('gallery.subtitlePreferences','{invalid')")
+ check(prefs.evaluate("readSubtitlePrefs()")==prefs.evaluate("SUBTITLE_DEFAULTS"),"Malformed subtitle storage uses defaults")
+ prefs.close()
  browser.close()
 print("Player and Settings regression suite passed:",n,"checks")
