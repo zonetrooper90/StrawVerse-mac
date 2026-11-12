@@ -9,10 +9,11 @@ with sync_playwright() as pw:
     browser = pw.chromium.launch(headless=True, executable_path=os.environ.get("GALLERY_TEST_CHROMIUM") or None, args=["--no-sandbox"])
     geometries = []
     for filename, light in (("Gallery-current.html", False), ("Gallery-development.html", True)):
-        page = browser.new_page(viewport={"width": 1600, "height": 950})
+        print(f"Testing {filename}", flush=True)
+        page = browser.new_page(viewport={"width": 1600, "height": 950}, reduced_motion="no-preference")
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.set_content((root / filename).read_text(encoding="utf-8"), wait_until="domcontentloaded")
+        page.goto((root / filename).as_uri(), wait_until="load")
         page.wait_for_timeout(240)
         page.locator("#settings").click()
         page.wait_for_function('() => document.body.classList.contains("settings-view") && !galleryStageTransition && !gallerySettingsOpening', timeout=6000)
@@ -45,7 +46,20 @@ with sync_playwright() as pw:
         }""")
         assert opacities == ["0.5", "0.5"], opacities
         page.emulate_media(reduced_motion="reduce")
-        page.wait_for_function("() => subtitleStages().every(s => Number(s.querySelector('.subtitle-stage-night').style.opacity) === 0)")
+        try:
+            page.wait_for_function("() => subtitleReducedMotion.matches && subtitleStages().every(s => Number(s.querySelector('.subtitle-stage-night').style.opacity) === 0)", timeout=6000)
+        except Exception:
+            print(page.evaluate("""() => ({
+                media: subtitleReducedMotion.matches,
+                freshMedia: matchMedia('(prefers-reduced-motion: reduce)').matches,
+                hidden: document.hidden,
+                frame: subtitleCycleFrame,
+                layers: subtitleStages().map(s => ({
+                    inline: s.querySelector('.subtitle-stage-night').style.opacity,
+                    computed: getComputedStyle(s.querySelector('.subtitle-stage-night')).opacity
+                }))
+            })"""), errors, flush=True)
+            raise
         assert not errors, errors
         geometries.append(geometry)
         page.close()
