@@ -83,3 +83,7 @@ User approved the narrow removal; no reordering of any retained rules. New compu
 
 ### C3 verification failure and correction
 Publisher 43326934443 stopped before publishing. Existing application suites passed; the new fixture comparison failed at Twilight/1600px in normal motion because Back button and label colors were sampled during different hover-exit transition phases. Prior immutable checkpoint and branch HTML still verified. Corrected fresh request retains the exact original application patch and exact comparison assertions, creates new pages per theme and waits for the actual hover state and CSS transitions on both pages before sampling; prior failed request retained unchanged. No changes to application behavior or scope.
+
+
+### C3 implementation verified
+Build `c0b7196e137ba84f4f1f7d95d8006e480bc02a67`, checkpoint `2026-11-13-exact-duplicate-css-retry`, SHA-256 `7183e66611050352cb35fbc25f361f8f19f5c1821231aa72496f81181ad9749e`, 6,914,516 bytes. Corrected publisher 43327920026 and independent integrity/browser runs 43328612508/43328616836 passed. Exactly 14 earlier duplicate rules removed, 765 bytes including whitespace; all later copies retained. Exact computed-style fixture comparisons passed across six themes, 14 widths, both motion preferences and settled hover on 14 elements. Both HTML modes passed existing application tests, original PNGs unchanged. User visual testing pending. C4 read-only audit next; no C4 removal approved.
