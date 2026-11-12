@@ -64,6 +64,7 @@ jobs:
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
           python3 gallery/tests/test_transitions.py gallery/Gallery-current.html
           python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
+          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-current.html
       - name: Create new immutable checkpoint and update pointer
         run: |
           python3 gallery/tools/stage-checkpoint.py --input gallery/Gallery-current.html --id "${{ steps.change.outputs.id }}" --status delivered-for-user-testing
@@ -74,7 +75,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add gallery/Gallery-current.html gallery/tests/test_history_row_maintenance.py gallery/checkpoints/current.json "gallery/checkpoints/${{ steps.change.outputs.id }}/"
+          git add gallery/Gallery-current.html gallery/tests/test_history_row_maintenance.py gallery/tests/test_player_settings_regression.py gallery/checkpoints/current.json "gallery/checkpoints/${{ steps.change.outputs.id }}/"
           git diff --cached --check -- 'gallery/tests/test_history_row_maintenance.py'
           git commit -m "fix(gallery): apply approved Gallery HTML maintenance"
           git push origin HEAD:gallery/development-clean
