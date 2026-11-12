@@ -192,3 +192,7 @@ Hide 100% when Fit already shows the 1280 × 720 CSS-pixel preview stage, includ
 
 ## 2026-11-12 — Visual acceptance of refined subtitle preview
 The user visually approved the full build at commit `145f98e396f9b74d33cba6a636bf942ddcf79986` ("looks great.."). Preserve the current preview layout, adaptive 100% / Fit visibility, manual Day/Night selection with shared Sub/Dub styling, icons, synchronized instant scene changes and 12px expanded padding. The latest design is accepted rather than an open trial; this does not imply separate approval of unrelated cleanup, native playback integration or the proposed publisher-notification improvement. No new HTML checkpoint.
+
+
+## 2026-11-12 — C2 retired theme CSS and C3 unused keyframe cleanup
+User approved removing exactly 15 CSS rules exclusively scoped to the retired Neon Reel, Midnight Cinema and Paper Lantern theme IDs (neon/midnight/paper), plus the single unreferenced settings-enter keyframe. Keep all six active themes, current theme validation/fallback, search keywords, other animation keyframes, duplicate selectors, JavaScript, HTML markup, original artwork and approved UI intact. Compare current theme computed styles in both builds against the verified prior checkpoint and retain existing regressions. No numbered release, native changes or source-authority change. Publisher notification improvement is deferred at user's request; C3 duplicate-rule cleanup and dithering require separate approval.
