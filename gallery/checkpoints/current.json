@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-retired-subtitle-layout-css",
-  "sha256": "64942fe6416fcd07de902b24c46cc20414af3ff5ba48a7e67a7f5f729c8370c5",
-  "bytes": 6916467,
+  "folder": "2026-11-12-manual-subtitle-preview",
+  "sha256": "72345931b0931aa0f9799c3fdf0355a1347b2e4c3ec79a1a403dbfe3ebc63dda",
+  "bytes": 6916210,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

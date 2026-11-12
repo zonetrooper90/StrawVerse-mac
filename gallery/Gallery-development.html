@@ -2956,7 +2956,18 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 /* Gallery Soft Futuristic — port of accepted A28 subtitle workbench. */
 #playback-subtitles-pane{container-type:inline-size}
 .sf-subtitle-workbench{margin-bottom:16px;padding:16px 18px 14px;min-width:0}
-.sf-subtitle-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
+.sf-subtitle-heading{display:grid;grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);align-items:center;gap:10px;margin-bottom:11px}
+.sf-subtitle-heading .sf-subtitle-reset{justify-self:end}
+.sf-subtitle-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.sf-subtitle-scene-toggle{display:inline-grid;grid-template-columns:1fr 1fr;align-items:center;position:relative;isolation:isolate;flex:none;min-height:32px;min-width:112px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:660}
+.sf-subtitle-scene-toggle::before{content:"";position:absolute;z-index:-1;inset:3px 50% 3px 3px;border-radius:7px;background:var(--raised);border:1px solid var(--line)}
+.sf-subtitle-scene-toggle[aria-checked="true"]::before{inset:3px 3px 3px 50%}
+.sf-subtitle-scene-toggle[aria-checked="false"] .scene-day,.sf-subtitle-scene-toggle[aria-checked="true"] .scene-night{color:var(--ink)}
+.sf-subtitle-scene-toggle:hover{border-color:var(--accent)}
+.sf-subtitle-scene-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.subtitle-expanded-scene-heading{display:flex;justify-content:flex-end;margin:0 0 10px}
+.subtitle-stage-night{transition:none!important}
+@container (max-width:1030px){.sf-subtitle-heading{display:flex;justify-content:space-between}.sf-subtitle-preview-heading .sf-subtitle-scene-toggle{display:none}}
 .sf-subtitle-heading h3{font-size:16px;font-weight:710;letter-spacing:-.025em;margin:0 0 4px}
 .sf-subtitle-heading p{font-size:11px;line-height:1.45;color:var(--muted);margin:0}
 .sf-subtitle-reset{flex:none;border:1px solid var(--line);color:var(--ink);background:var(--raised);border-radius:11px;min-height:32px;padding:7px 11px;font-size:11px;font-weight:660}
@@ -6869,15 +6880,15 @@ function subtitleAppearanceMarkup(){
  const activePreset=({outline:'outlinePreset',shadow:'shadowPreset',box:'boxPreset'})[subtitlePrefs.effect];
  return `<section class="sf-subtitle-workbench" aria-label="Subtitle appearance and live preview">
    <div class="sf-subtitle-heading">
-    <div><h3><span class="sf-subtitle-full-title">Live subtitle preview</span><span class="sf-subtitle-compact-title">Subtitle appearance</span></h3>
-     <p><span class="sf-subtitle-full-description">Automatically cycles between the bright and dark shrine scenes.</span><span class="sf-subtitle-compact-description">Fine-tune your subtitles, then open the preview to inspect the results.</span></p>
-    </div>
+    <div class="sf-subtitle-preview-heading"><div><h3><span class="sf-subtitle-full-title">Subtitle preview</span><span class="sf-subtitle-compact-title">Subtitle appearance</span></h3>
+     <p class="sf-subtitle-compact-description">Fine-tune your subtitles, then open the preview to inspect the results.</p>
+    </div>${subtitleSceneToggle()}</div>
     <button type="button" class="sf-subtitle-reset" id="subtitle-reset">Reset to defaults</button>
    </div>
    <div class="sf-subtitle-compact-preview"><button type="button" class="sf-subtitle-compact-button" id="subtitle-compact-preview" aria-label="Preview subtitles">${icon('maximize',16)}Preview subtitles</button></div>
    <div class="sf-subtitle-main">
     <div class="sf-subtitle-video">
-     <div class="sf-subtitle-stage subtitle-stage" id="subtitle-preview-stage" data-position="bottom" aria-label="Live subtitle preview with synchronized automatic day and night solid backgrounds">
+     <div class="sf-subtitle-stage subtitle-stage" id="subtitle-preview-stage" data-position="bottom" aria-label="Subtitle preview">
       <button type="button" class="sf-subtitle-expand" id="subtitle-expand-preview" aria-label="Expand subtitle preview" title="Expand preview">${icon('maximize',17)}</button>
       <img class="sf-day subtitle-stage-image subtitle-stage-day" alt="" draggable="false"><img class="sf-night subtitle-stage-image subtitle-stage-night" alt="" draggable="false">
       <div class="sf-subtitle-shade subtitle-stage-shade" aria-hidden="true"></div><div class="sf-subtitle-caption subtitle-preview-caption" id="subtitle-live-caption" aria-live="off"></div>
@@ -6949,78 +6960,47 @@ function renderSubtitleStage(stage){
  caption.style.paintOrder='stroke fill';
  caption.style.color=subtitlePrefs.color;
 }
-/* v91 — One shared value drives both night layers on the SAME frame.
-   Unlike v90, there are no independent CSS animation objects to synchronize.
-   Keep the agreed comparison timing: 4.8s fades + 1.7s holds = 13s loop.
-   Match the comparison's actual smoothstep easing (3t² − 2t³). */
-const SUBTITLE_FADE_MS=4800;
-const SUBTITLE_HOLD_MS=1700;
-const SUBTITLE_LOOP_MS=2*(SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS);
-const subtitleReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-let subtitleCycleStartTime=null;
-let subtitleCycleFrame=null;
-function subtitleNightMix(time){
- if(subtitleReducedMotion.matches)return 0;
- if(subtitleCycleStartTime===null)subtitleCycleStartTime=time;
- const t=((time-subtitleCycleStartTime)%SUBTITLE_LOOP_MS+SUBTITLE_LOOP_MS)%SUBTITLE_LOOP_MS;
- const smooth=x=>x*x*(3-2*x);
- if(t<SUBTITLE_FADE_MS)return smooth(t/SUBTITLE_FADE_MS);
- if(t<SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS)return 1;
- if(t<2*SUBTITLE_FADE_MS+SUBTITLE_HOLD_MS)return 1-smooth((t-SUBTITLE_FADE_MS-SUBTITLE_HOLD_MS)/SUBTITLE_FADE_MS);
- return 0;
+// One manually selected scene is shared by both preview surfaces.
+let subtitlePreviewScene='day';
+function subtitleSceneToggle(){
+ return `<button type="button" role="switch" class="sf-subtitle-scene-toggle" aria-label="Night preview" aria-checked="${subtitlePreviewScene==='night'}"><span class="scene-day" aria-hidden="true">Day</span><span class="scene-night" aria-hidden="true">Night</span></button>`;
 }
 function subtitleStages(){
  return [settingsPage.querySelector('#subtitle-preview-stage'),modalHost.querySelector('#subtitle-expanded-stage')].filter(Boolean);
 }
-function subtitleCycleIsVisible(){
- return !!modalHost.querySelector('#subtitle-expanded-stage') ||
-  (document.body.classList.contains('settings-view') && !settingsClosing &&
-   settingsLastSection==='playback' && playbackTab==='subtitles');
-}
-function paintSubtitleNight(time){
- const opacity=subtitleNightMix(time).toFixed(6);
- // Paint one identical numeric value to both layers, never separate calculations.
+function applySubtitlePreviewScene(){
+ const night=subtitlePreviewScene==='night';
  for(const stage of subtitleStages()){
   const layer=stage.querySelector('.subtitle-stage-night');
-  if(layer && layer.style.opacity!==opacity)layer.style.opacity=opacity;
+  if(layer)layer.style.opacity=night?'1':'0';
+ }
+ for(const root of [settingsPage,modalHost]){
+  for(const toggle of root.querySelectorAll('.sf-subtitle-scene-toggle'))toggle.setAttribute('aria-checked',String(night));
  }
 }
-function tickSubtitleNight(time){
- subtitleCycleFrame=null;
- if(document.hidden || subtitleReducedMotion.matches || !subtitleCycleIsVisible())return;
- paintSubtitleNight(time);
- subtitleCycleFrame=requestAnimationFrame(tickSubtitleNight);
+function bindSubtitleSceneToggle(root){
+ for(const toggle of root.querySelectorAll('.sf-subtitle-scene-toggle'))toggle.addEventListener('click',()=>{
+  subtitlePreviewScene=subtitlePreviewScene==='night'?'day':'night';
+  applySubtitlePreviewScene();
+ });
 }
-function updateSharedSubtitleClock(){
- paintSubtitleNight(performance.now());
- if(subtitleCycleFrame===null && !document.hidden &&
-    !subtitleReducedMotion.matches && subtitleCycleIsVisible())
-  subtitleCycleFrame=requestAnimationFrame(tickSubtitleNight);
-}
-subtitleReducedMotion.addEventListener('change',()=>{
- if(subtitleCycleFrame!==null){cancelAnimationFrame(subtitleCycleFrame);subtitleCycleFrame=null;}
- updateSharedSubtitleClock();
-});
-document.addEventListener('visibilitychange',()=>{
- if(document.hidden && subtitleCycleFrame!==null){cancelAnimationFrame(subtitleCycleFrame);subtitleCycleFrame=null;}
- else if(!document.hidden)updateSharedSubtitleClock();
-});
 function renderSubtitlePreview(){
  renderSubtitleStage(settingsPage.querySelector('#subtitle-preview-stage'));
  renderSubtitleStage(modalHost.querySelector('#subtitle-expanded-stage'));
- updateSharedSubtitleClock();
+ applySubtitlePreviewScene();
 }
 function showExpandedSubtitlePreview(){
  // Reuse Gallery's established dialog lifecycle, focus trapping and Escape key.
- modal('Expanded subtitle preview',`<p class="subtitle-expanded-note">Inspect the subtitle effect against the same automatic day/night solid backgrounds at a larger size.</p>
+ modal('Expanded subtitle preview',`<div class="subtitle-expanded-scene-heading">${subtitleSceneToggle()}</div>
   <div class="subtitle-expanded-viewport" id="subtitle-expanded-viewport">
-   <div class="subtitle-stage" id="subtitle-expanded-stage" data-position="bottom" aria-label="Expanded live subtitle preview with automatic day and night crossfade">
+   <div class="subtitle-stage" id="subtitle-expanded-stage" data-position="bottom" aria-label="Expanded subtitle preview">
     <img class="subtitle-stage-image subtitle-stage-day" alt="" draggable="false"><img class="subtitle-stage-image subtitle-stage-night" alt="" draggable="false"><div class="subtitle-stage-shade" aria-hidden="true"></div><div class="subtitle-preview-caption" aria-live="off"></div>
    </div>
   </div>
   <div class="subtitle-expanded-toolbar"><button type="button" class="btn small" id="subtitle-actual-size" aria-pressed="false">View at 100%</button><p class="subtitle-expanded-help" id="subtitle-expanded-help">Fit to window. 100% shows the original 1280 × 720 CSS-pixel preview (scroll to inspect on smaller screens).</p></div>`);
  const dialog=modalHost.querySelector('.dialog');
  dialog.classList.add('subtitle-preview-dialog');
+ bindSubtitleSceneToggle(dialog);
  const stage=dialog.querySelector('#subtitle-expanded-stage');
  stage.querySelector('.subtitle-stage-day').style.backgroundColor=SHRINE_DAY_IMAGE;
  stage.querySelector('.subtitle-stage-night').style.backgroundColor=SHRINE_NIGHT_IMAGE;
@@ -7243,6 +7223,7 @@ const position=()=>{
 
 function setupSubtitlePreview(){
  const stage=settingsPage.querySelector('#subtitle-preview-stage');if(!stage)return;
+ bindSubtitleSceneToggle(settingsPage);
  settingsPage.querySelector('#subtitle-expand-preview')?.addEventListener('click',showExpandedSubtitlePreview);
  settingsPage.querySelector('#subtitle-compact-preview')?.addEventListener('click',showExpandedSubtitlePreview);
  const d=stage.querySelector('.subtitle-stage-day'); const n=stage.querySelector('.subtitle-stage-night');

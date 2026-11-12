@@ -24,10 +24,6 @@ LIGHT_PATCHES = (
      b"stage.querySelector('.subtitle-stage-night').style.backgroundColor=SHRINE_NIGHT_IMAGE;"),
     (b"d.src=SHRINE_DAY_IMAGE;n.src=SHRINE_NIGHT_IMAGE;",
      b"d.style.backgroundColor=SHRINE_DAY_IMAGE;n.style.backgroundColor=SHRINE_NIGHT_IMAGE;"),
-    (b"synchronized automatic day and night shrine scenes",
-     b"synchronized automatic day and night solid backgrounds"),
-    (b"the same automatic day/night shrine scenes",
-     b"the same automatic day/night solid backgrounds"),
 )
 
 def replace_once(source, old, new):
