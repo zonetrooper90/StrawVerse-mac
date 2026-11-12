@@ -1506,13 +1506,13 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .playback-pane[hidden]{display:none!important}
 .playback-pane:not([hidden]){animation:settings-panel-enter .19s ease-out both}
 /* v85 — Automatically crossfade the shrine scene; v84 sticky layout preserved. */
-.subtitle-preview-card{padding:17px 18px 15px;position:sticky;top:0;z-index:3;box-shadow:0 4px 18px rgba(0,0,0,.08);overflow-anchor:none;transition:padding .22s ease}
-.subtitle-preview-card.is-compact{padding:12px 16px 10px}
-.subtitle-preview-card.is-compact .subtitle-stage{max-width:460px}
-.subtitle-preview-card.is-compact .subtitle-preview-top{margin-bottom:9px}
-.subtitle-preview-card.is-compact .subtitle-preview-caveat{margin-top:7px;font-size:10px}
-.subtitle-preview-top,.subtitle-options-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:15px}
-.subtitle-preview-top .settings-card-note,.subtitle-options-header .settings-card-note{margin-top:5px}
+
+
+
+
+
+
+
 
 
 .subtitle-stage{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/9;width:100%;max-width:760px;margin-inline:auto;background:#091b2c;border:1px solid color-mix(in srgb,var(--line) 45%,#1e2e42);border-radius:12px;container-type:inline-size;user-select:none;transition:max-width .22s ease}
@@ -1524,15 +1524,15 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .subtitle-stage-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.08),transparent 25%);opacity:.35}
 .subtitle-preview-caption{position:absolute;z-index:2;left:50%;width:max-content;max-width:88%;text-align:center;transform:translateX(-50%);white-space:pre-line;overflow-wrap:break-word;line-height:1.27;font-weight:620;letter-spacing:.001em;text-shadow:none;box-sizing:border-box;pointer-events:none}
 .subtitle-stage[data-position="bottom"] .subtitle-preview-caption{bottom:8%;top:auto}
-.subtitle-preview-caveat{margin:12px 1px 0;font-size:11px;line-height:1.55;color:var(--muted)}
-.subtitle-options-header{margin-bottom:6px}
-.subtitle-options-header .btn{flex:none}
-.subtitle-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;row-gap:3px}
-.subtitle-settings-grid .field{min-width:0;max-width:none;margin-top:17px}
-.subtitle-settings-grid .field label{font-size:12px}
-.subtitle-settings-grid select,.subtitle-settings-grid textarea{width:100%;min-width:0;background:var(--raised);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 12px;font:inherit;font-size:12px;line-height:1.45}
-.subtitle-settings-grid textarea{min-height:70px;resize:vertical;max-height:150px}
-.subtitle-settings-grid select:focus-visible,.subtitle-settings-grid textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+
+
+
+
+
+
+
+
 .subtitle-control-caption{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .subtitle-control-caption output{font-size:12px;color:var(--ink);font-weight:660;font-variant-numeric:tabular-nums}
 .subtitle-range-field input[type="range"]{width:100%;margin:6px 0 0;padding:0;accent-color:var(--accent);background:transparent;border:0;cursor:pointer}
@@ -1542,144 +1542,73 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .subtitle-color-line output{font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 /* v84 — A narrow viewport cannot safely show a sticky preview over its scrolling controls.
    Keep mobile content in document flow, without changing macOS desktop behavior. */
-@media(max-width:810px){.subtitle-preview-card{position:relative;top:auto;z-index:auto}.subtitle-settings-grid{grid-template-columns:1fr}.subtitle-preview-top{align-items:flex-start}.subtitle-stage{border-radius:9px}}
-@media(max-width:510px){.subtitle-preview-card.is-compact .subtitle-stage{max-width:280px}.subtitle-preview-top{flex-direction:column;align-items:stretch}.subtitle-options-header{align-items:flex-start}.subtitle-options-header .btn{font-size:11px;padding:7px 9px}.subtitle-preview-card{padding:12px}.subtitle-stage{border-radius:8px}}
-@media(prefers-reduced-motion:reduce){.playback-pane{animation:none!important}.subtitle-stage-night{animation:none!important;opacity:0}.subtitle-stage,.subtitle-preview-card{transition:none!important}}
+@media(max-width:810px){.subtitle-stage{border-radius:9px}}
+@media(max-width:510px){.subtitle-stage{border-radius:8px}}
+@media(prefers-reduced-motion:reduce){.playback-pane{animation:none!important}.subtitle-stage-night{animation:none!important;opacity:0}.subtitle-stage{transition:none!important}}
 
 /* v86 — A compact, stable sticky subtitle preview and grouped controls.
    No scroll-driven resizing: the stage's size depends only on the viewport. */
-.subtitle-preview-card{
-  position:sticky;top:-25px;z-index:8;
-  background:var(--surface);isolation:isolate;
-  padding:12px 15px 13px;
-  border:1px solid var(--line);
-  box-shadow:0 8px 24px rgba(0,0,0,.20);
-  transition:none;
-}
-.subtitle-preview-top{margin-bottom:9px}
-.subtitle-preview-top .settings-card-note{margin-top:3px;font-size:11px}
+
+
+
 .subtitle-stage{
   max-width:min(560px,calc((100dvh - 470px)*16/9));
   transition:none;
 }
-.subtitle-options-card{margin-top:14px}
-.subtitle-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:15px;row-gap:1px}
-.subtitle-settings-grid .subtitle-full-row{grid-column:1 / -1}
-.subtitle-settings-grid select{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.subtitle-settings-grid .subtitle-range-field{margin-top:15px}
+
+
+
+
+
 .subtitle-color-line{gap:6px;min-width:0;overflow:hidden}
 .subtitle-color-line input[type=color]{flex:none;width:36px}
 .subtitle-color-line output{min-width:0;font-size:11px;white-space:nowrap}
 @media(max-width:810px){
- .subtitle-preview-card{position:sticky;top:-25px;z-index:8}
- .subtitle-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px}
+ 
+ 
  .subtitle-stage{max-width:min(100%,calc((100dvh - 390px)*16/9))}
 }
 @media(max-width:510px){
- .subtitle-preview-top{flex-direction:row;align-items:flex-start}
- .subtitle-preview-card{padding:11px 12px 12px}
- .subtitle-settings-grid select{padding:10px 7px;font-size:11px}
+ 
+ 
+ 
  .subtitle-color-line{padding:5px;gap:5px}
  .subtitle-color-line input[type=color]{width:28px;height:28px}
  .subtitle-color-line output{font-size:10.5px}
- .subtitle-options-header{align-items:flex-start}
- .subtitle-preview-top .settings-card-note{font-size:10px}
+ 
+ 
 }
-@media(max-width:440px){.subtitle-preview-card{top:-22px}}
+
 @media(max-width:350px){
- .subtitle-settings-grid{column-gap:8px}
- .subtitle-options-card{padding:13px}
+ 
+ 
  .subtitle-color-line output{font-size:9.5px}
 }
-@media(max-height:490px){.subtitle-preview-card{position:relative;top:auto}}
+
 
 /* v87 — Split subtitle workspace: scroll the controls while the preview remains visible.
    Only Playback > Subtitles is affected.  On narrower screens preserve the v86
    single-column arrangement instead of squeezing the two-column controls. */
-.subtitle-workbench{
-  display:grid;
-  grid-template-columns:minmax(0, 1.03fr) minmax(0, .97fr);
-  gap:17px;
-  align-items:start;
-  min-width:0;
-}
-.subtitle-workbench .subtitle-options-card{
-  grid-column:1;
-  grid-row:1;
-  margin:0;
-  min-width:0;
-  max-height:clamp(330px, calc(100dvh - 345px), 660px);
-  overflow-y:auto;
-  overflow-x:hidden;
-  overscroll-behavior-y:contain;
-  scrollbar-width:none;
-  -ms-overflow-style:none;
-  padding:18px 18px 20px;
-}
-.subtitle-workbench .subtitle-options-card::-webkit-scrollbar{display:none}
-.subtitle-workbench .subtitle-options-card:focus:not(:focus-visible){outline:none}
-.subtitle-workbench .subtitle-options-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.subtitle-workbench .subtitle-preview-card{
-  grid-column:2;
-  grid-row:1;
-  position:sticky;
-  top:12px;
-  z-index:1;
-  margin:0;
-  min-width:0;
-  padding:17px 16px 18px;
-  box-shadow:none;
-}
-.subtitle-workbench .subtitle-preview-top{margin-bottom:14px}
-.subtitle-workbench .subtitle-stage{
-  width:100%;
-  max-width:100%;
-}
-.subtitle-workbench .subtitle-settings-grid{column-gap:11px}
-.subtitle-workbench .subtitle-settings-grid select{font-size:11.5px;padding:10px 9px}
-.subtitle-workbench .subtitle-color-line{gap:5px}
-.subtitle-workbench .subtitle-color-line input[type=color]{width:29px}
-.subtitle-workbench .subtitle-color-line output{font-size:10px}
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Switch to the familiar top-preview layout when the Settings sidebar would
    leave either desktop column too narrow for its paired fields. */
-@media(max-width:1120px){
- .subtitle-workbench{display:flex;flex-direction:column;gap:14px}
- .subtitle-workbench .subtitle-preview-card{
-   order:0;
-   position:sticky;
-   top:-25px;
-   z-index:8;
-   width:100%;
-   padding:12px 15px 13px;
-   box-shadow:0 8px 24px rgba(0,0,0,.20);
- }
- .subtitle-workbench .subtitle-stage{max-width:min(560px,calc((100dvh - 470px)*16/9))}
- .subtitle-workbench .subtitle-preview-top{margin-bottom:9px}
- .subtitle-workbench .subtitle-options-card{
-   order:1;
-   width:100%;
-   max-height:none;
-   overflow:visible;
-   padding:18px 20px 21px;
- }
- .subtitle-workbench .subtitle-settings-grid{column-gap:15px}
- .subtitle-workbench .subtitle-settings-grid select{font-size:12px;padding:11px 12px}
- .subtitle-workbench .subtitle-color-line input[type=color]{width:36px}
- .subtitle-workbench .subtitle-color-line output{font-size:11px}
-}
-@media(max-width:810px){
- .subtitle-workbench .subtitle-stage{max-width:min(100%,calc((100dvh - 390px)*16/9))}
-}
-@media(max-width:510px){
- .subtitle-workbench .subtitle-preview-card{padding:11px 12px 12px}
- .subtitle-workbench .subtitle-options-card{padding:17px}
- .subtitle-workbench .subtitle-settings-grid{column-gap:12px}
- .subtitle-workbench .subtitle-settings-grid select{padding:10px 7px;font-size:11px}
- .subtitle-workbench .subtitle-color-line input[type=color]{width:28px}
- .subtitle-workbench .subtitle-color-line output{font-size:10.5px}
-}
-@media(max-width:440px){.subtitle-workbench .subtitle-preview-card{top:-22px}}
-@media(max-height:490px){.subtitle-workbench .subtitle-preview-card{position:relative;top:auto}}
+
+
+
+
+
 
 /* v88 — Choice of outline or directional drop shadow; the effect's controls
    reuse one area, keeping the split workspace compact. */
@@ -1694,11 +1623,7 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 /* v89 — Inspect subtitle outline/shadow on a larger, independently rendered scene.
    At 100% the stage is genuinely 1280 CSS pixels wide: do not transform/zoom
    a smaller stage, which would resample its stroke and shadow. */
-.subtitle-preview-top .subtitle-preview-expand{
-  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  border:1px solid var(--line);border-radius:9px;background:var(--raised);
-  padding:8px 10px;color:var(--ink);font-size:11px;font-weight:650;
-}
+
 .subtitle-preview-expand:hover{background:var(--hover)}
 .subtitle-preview-expand:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .overlay .dialog.subtitle-preview-dialog{
@@ -1722,8 +1647,8 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .subtitle-expanded-toolbar .btn[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
 .subtitle-expanded-help{color:var(--muted);font-size:11px;line-height:1.45;margin:0;flex:1}
 @media(max-width:580px){
- .subtitle-preview-top .subtitle-preview-expand{font-size:0;padding:7px;min-width:35px;min-height:35px;gap:0}
- .subtitle-preview-top .subtitle-preview-expand .icon{width:17px;height:17px}
+ 
+ 
  .subtitle-preview-dialog .dialog-scroll{padding:12px 13px 14px 18px}
  .subtitle-expanded-toolbar{align-items:flex-start;flex-direction:column}
 }
@@ -1746,456 +1671,153 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 /* v94 — Restore the stacked desktop subtitle editor from v86.
    Keep v93's presets, effect controls, expanded view and shared animation unchanged.
    Preview first, controls below; one scrolling surface rather than two. */
-@media (min-width:1121px){
-  .subtitle-workbench{
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    align-items:stretch;
-  }
-  .subtitle-workbench .subtitle-preview-card{
-    order:0;
-    position:sticky;
-    top:0;
-    z-index:8;
-    grid-column:auto;
-    grid-row:auto;
-    width:100%;
-    margin:0;
-    padding:12px 15px 13px;
-    background:var(--surface);
-    isolation:isolate;
-    box-shadow:0 8px 24px rgba(0,0,0,.20);
-  }
-  .subtitle-workbench .subtitle-preview-top{margin-bottom:9px}
-  .subtitle-workbench .subtitle-stage{
-    width:100%;
-    max-width:min(560px, calc((100dvh - 470px)*16/9));
-    margin-inline:auto;
-  }
-  .subtitle-workbench .subtitle-options-card{
-    order:1;
-    grid-column:auto;
-    grid-row:auto;
-    width:100%;
-    max-height:none;
-    overflow:visible;
-    overscroll-behavior:auto;
-    margin:0;
-    padding:18px 20px 21px;
-  }
-  .subtitle-workbench .subtitle-settings-grid{column-gap:15px}
-  .subtitle-workbench .subtitle-settings-grid select{font-size:12px;padding:11px 12px}
-  .subtitle-workbench .subtitle-color-line{gap:9px}
-  .subtitle-workbench .subtitle-color-line input[type=color]{width:36px}
-  .subtitle-workbench .subtitle-color-line output{font-size:11px}
-  .subtitle-workbench .subtitle-size-options{gap:5px}
-  .subtitle-workbench .subtitle-size-button{font-size:11px;padding:8px 6px}
-}
-@media (min-width:1121px) and (max-height:650px){
-  .subtitle-workbench .subtitle-preview-card{position:relative;top:auto}
-  .subtitle-workbench .subtitle-stage{max-width:min(560px,100%)}
-}
+
+
 
 /* v95 — Spacious stacked preview + compact, logically paired subtitle controls.
    Only the Playback > Subtitles layout changes. The synchronized day/night
    rendering, caption effect logic, presets and expanded view remain unchanged. */
-@media (min-width:811px){
-  .subtitle-workbench{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:12px;
-  }
-  .subtitle-workbench .subtitle-preview-card{
-    order:0;grid-column:auto;grid-row:auto;
-    position:sticky;top:0;z-index:8;
-    width:100%;margin:0;
-    padding:11px 15px 13px;
-    background:var(--surface);isolation:isolate;
-    box-shadow:0 8px 24px rgba(0,0,0,.20);
-  }
-  .subtitle-workbench .subtitle-preview-top{margin-bottom:8px}
-  .subtitle-workbench .subtitle-stage{
-    width:100%;
-    /* Larger than v94's 560px ceiling without monopolizing short windows. */
-    max-width:min(700px,max(500px,calc((100dvh - 465px)*16/9)));
-    margin-inline:auto;
-  }
-  .subtitle-workbench .subtitle-options-card{
-    order:1;grid-column:auto;grid-row:auto;
-    width:100%;max-height:none;overflow:visible;overscroll-behavior:auto;
-    margin:0;padding:15px 19px 16px;
-  }
-  .subtitle-workbench .subtitle-options-header{margin-bottom:0}
-  .subtitle-workbench .subtitle-settings-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    column-gap:18px;row-gap:0;
-  }
-  .subtitle-workbench .subtitle-settings-grid .field{margin-top:12px;min-width:0}
-  .subtitle-workbench .subtitle-settings-grid .subtitle-size-field{grid-column:1 / -1}
-  .subtitle-workbench .subtitle-settings-grid .subtitle-effect-field,
-  .subtitle-workbench .subtitle-settings-grid .subtitle-range-field{grid-column:auto}
-  .subtitle-workbench .subtitle-settings-grid select{font-size:12px;padding:9px 12px}
-  .subtitle-workbench .subtitle-size-options{gap:6px}
-  .subtitle-workbench .subtitle-size-button{min-height:40px;font-size:11px;padding:6px 6px}
-  .subtitle-workbench .subtitle-effect-label{margin-bottom:6px}
-  .subtitle-workbench .subtitle-effect-button{padding:8px 8px}
-  .subtitle-workbench .subtitle-range-field input[type=range]{margin-top:5px}
-  .subtitle-workbench .subtitle-color-line{min-height:38px;gap:8px}
-  .subtitle-workbench .subtitle-color-line input[type=color]{width:35px;height:28px}
-  .subtitle-workbench .subtitle-color-line output{font-size:11px}
-  .subtitle-workbench .subtitle-options-card > .settings-card-note{margin-top:12px!important;font-size:11px;line-height:1.45}
-}
+
 /* At narrower desktop widths, retain the paired font and color controls;
    don't squeeze the effect's slider into half a narrow column. */
-@media (min-width:811px) and (max-width:970px){
-  .subtitle-workbench .subtitle-settings-grid .subtitle-effect-field,
-  .subtitle-workbench .subtitle-settings-grid .subtitle-range-field{grid-column:1 / -1}
-}
-@media (min-width:811px) and (max-height:650px){
-  .subtitle-workbench .subtitle-preview-card{position:relative;top:auto}
-}
+
+
 
 /* v96 — Unified Subtitle Style, fitted to Gallery's REAL Playback content width.
    No nested application frame or artificially narrow settings card. */
-.subtitle-workbench .subtitle-style-switch{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
- width:100%;max-width:760px;
-}
-.subtitle-workbench .subtitle-style-switch .subtitle-effect-button{
- border:1px solid var(--line);background:var(--raised);border-radius:9px;
- min-height:39px;white-space:normal;line-height:1.2;
-}
-.subtitle-workbench .subtitle-style-switch .subtitle-effect-button[aria-pressed="true"]{
- background:var(--strong);border-color:var(--accent);color:var(--ink);
-}
-.subtitle-workbench .subtitle-size-options{max-width:760px}
-.subtitle-workbench .subtitle-font-field{max-width:360px}
-.subtitle-workbench .subtitle-tuning-grid{
- display:grid;grid-template-columns:minmax(210px,1.45fr) minmax(135px,.9fr) minmax(135px,.9fr);
- gap:15px;grid-column:1 / -1;min-width:0;align-items:start;
-}
-.subtitle-workbench .subtitle-tuning-grid .field{min-width:0;margin-top:12px}
-.subtitle-workbench .subtitle-tuning-grid [hidden]{display:none!important}
-.subtitle-workbench .subtitle-tuning-grid[data-subtitle-style="none"] .subtitle-text-color-field{grid-column:1;}
-.subtitle-workbench .subtitle-color-line{max-width:250px}
-.subtitle-workbench .subtitle-rendering-details{
- border:1px solid var(--line);background:var(--raised);border-radius:10px;
- padding:9px 11px;margin-top:15px;font-size:11px;color:var(--muted);
-}
-.subtitle-workbench .subtitle-rendering-details summary{
- display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:620;list-style:none;
-}
-.subtitle-workbench .subtitle-rendering-details summary::-webkit-details-marker{display:none}
-.subtitle-workbench .subtitle-rendering-details p{line-height:1.5;margin:9px 0 2px}
-@media (min-width:811px){
- .subtitle-workbench .subtitle-stage{
-   max-width:min(800px,max(520px,calc((100dvh - 470px)*16/9)));
- }
- .subtitle-workbench .subtitle-settings-grid .subtitle-effect-field{grid-column:1 / -1}
- .subtitle-workbench .subtitle-tuning-grid .subtitle-range-field{grid-column:auto}
-}
-@media (max-width:970px){
- .subtitle-workbench .subtitle-tuning-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
- .subtitle-workbench .subtitle-tuning-grid .subtitle-range-field{grid-column:1 / -1}
- .subtitle-workbench .subtitle-tuning-grid[data-subtitle-style="none"] .subtitle-text-color-field{grid-column:1 / -1}
-}
-@media (max-width:600px){
- .subtitle-workbench .subtitle-style-switch{grid-template-columns:repeat(2,minmax(0,1fr))}
- .subtitle-workbench .subtitle-style-switch .subtitle-effect-button{min-height:38px}
- .subtitle-workbench .subtitle-tuning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .subtitle-workbench .subtitle-rendering-details{margin-top:12px}
-}
-@media (max-width:380px){
- .subtitle-workbench .subtitle-tuning-grid{grid-template-columns:1fr}
- .subtitle-workbench .subtitle-tuning-grid .subtitle-range-field{grid-column:auto}
- .subtitle-workbench .subtitle-tuning-grid[data-subtitle-style="none"] .subtitle-text-color-field{grid-column:auto}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Layout Experiment A2 corrected — Restore A1's 800px preview allowance while preserving 10px gap and widened Font.
    A2 adjusted spacing and widened Font selector, based on A1.
    Original A1 change: Font moves beside the live preview.
    Other subtitle controls, settings navigation, preview clock, and data logic unchanged. */
-.subtitle-workbench .subtitle-experiment-preview-layout{
-  display:grid;
-  /* Match the first grid track to the preview sizing rule.
-     The second track uses the adjacent available width for a wider Font selector.
-     This eliminates the dead space left by the previous flexible preview track. */
-  grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);
-  gap:10px;
-  align-items:start;
-  min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-preview-layout > .subtitle-stage{
-  width:100%;max-width:min(100%,800px,max(520px,calc((100dvh - 470px)*16/9)));margin:0;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-font-panel{
-  min-width:0;
-  background:var(--raised);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:11px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field{max-width:none;margin:0;}
-.subtitle-workbench .subtitle-experiment-font-panel label{
-  display:block;font-size:12px;font-weight:600;margin:0 0 9px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel select{
-  display:block;width:100%;min-width:0;min-height:40px;
-  padding:9px 10px;border-radius:9px;
-  background:var(--surface);color:var(--ink);
-  border:1px solid var(--line);
-  font:inherit;font-size:12px;
-  overflow:hidden;text-overflow:ellipsis;
-}
+
+
+
+
+
+
 /* If the actual settings pane cannot accommodate the two items, stack them.
    The breakpoint is based on Gallery's available content width, not the monitor. */
 #playback-subtitles-pane{container-type:inline-size}
-@container (max-width:700px){
-  .subtitle-workbench .subtitle-experiment-preview-layout{grid-template-columns:minmax(0,1fr);gap:12px}
-  .subtitle-workbench .subtitle-experiment-font-panel{max-width:360px}
-  .subtitle-workbench .subtitle-experiment-preview-layout > .subtitle-stage{max-width:min(100%,800px);margin-inline:auto}
-}
+
 
 /* Layout Experiment A3 — ONLY change: move Text size beneath Font beside the
    preview, using five abbreviated choices (XS / S / N / L / XL).
    Accessible names and the selected-size label use full names.
    Other subtitle controls remain below the preview. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-field{
-  margin:17px 0 0;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-size-heading{
-  display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 8px;
-}
-.subtitle-workbench .subtitle-experiment-size-heading .subtitle-effect-label{
-  margin:0;font-size:12px;font-weight:600;flex:none;
-}
-.subtitle-workbench .subtitle-size-current{
-  font-size:11px;line-height:1.3;color:var(--muted);text-align:right;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated{
-  width:100%;max-width:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated .subtitle-size-button{
-  width:100%;min-width:0;min-height:38px;padding:7px 1px;font-size:11px;white-space:nowrap;
-  border-radius:8px;
-}
-@container (max-width:700px){
- .subtitle-workbench .subtitle-experiment-font-panel{max-width:360px}
-}
+
+
+
+
+
+
+
 
 /* Layout Experiment A4: Text color joins Font and Text size beside the preview.
    White and Yellow are one-click presets; Custom retains its last value. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-text-color-field{
- margin:16px 0 0;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-text-color-field > .subtitle-effect-label{
- display:block;margin:0 0 8px;font-size:12px;font-weight:600;
-}
-.subtitle-workbench .subtitle-text-color-choices{
- width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
-}
-.subtitle-workbench .subtitle-text-color-choice{
- min-width:0;min-height:40px;padding:6px 3px;border:1px solid var(--line);
- border-radius:8px;background:var(--raised);color:var(--muted);
- display:flex;align-items:center;justify-content:center;gap:5px;
- font:inherit;font-size:11px;font-weight:600;cursor:pointer;
-}
-.subtitle-workbench .subtitle-text-color-choice:hover{background:var(--hover);color:var(--ink)}
-.subtitle-workbench .subtitle-text-color-choice[aria-pressed="true"]{
- background:var(--strong);border-color:var(--accent);color:var(--ink);
-}
-.subtitle-workbench .subtitle-text-color-choice:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.subtitle-workbench .subtitle-choice-swatch{
- flex:none;width:14px;height:14px;border:1px solid rgba(100,100,100,.58);border-radius:50%;
-}
-.subtitle-workbench .subtitle-custom-color-row{margin-top:12px}
-.subtitle-workbench .subtitle-custom-color-row[hidden]{display:none!important}
-.subtitle-workbench .subtitle-custom-color-row label{
- display:block;font-size:11px;font-weight:600;margin:0 0 6px;
-}
-.subtitle-workbench .subtitle-custom-color-row .subtitle-color-line{max-width:100%;}
-.subtitle-workbench .subtitle-tuning-grid{grid-template-columns:minmax(190px,1.55fr) minmax(145px,.9fr)}
-.subtitle-workbench .subtitle-tuning-grid[hidden]{display:none!important}
-@media(max-width:970px){
- .subtitle-workbench .subtitle-tuning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:380px){
-.subtitle-workbench .subtitle-tuning-grid{grid-template-columns:1fr}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Layout Experiment A6 — Move only the Subtitle Style selector beside the
    preview, below Text Color. Keep the linked effect strength and color controls
    in the lower Subtitle Appearance card for the next design decision. */
-.subtitle-workbench .subtitle-experiment-style-group{margin-top:17px;min-width:0}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-style-field{
- margin:0;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-style-field > .subtitle-effect-label{
- display:block;font-size:12px;font-weight:600;margin:0 0 8px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-style-switch{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- width:100%;max-width:none;gap:6px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-effect-button{
- min-width:0;min-height:40px;padding:8px 5px;
- font-size:11px;line-height:1.2;white-space:normal;
-}
+
+
+
+
+
 
 /* Layout Experiment A7 — Visual polish only. Typography/effects settings stay
    alongside the existing preview; no changes to values or event handling. */
-.subtitle-workbench .subtitle-experiment-font-panel{
- display:flex;flex-direction:column;gap:16px;padding:12px;
-}
+
 /* Each section starts at the same left edge and has uniform outer spacing. */
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-font-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-size-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-text-color-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-style-group{
- width:100%;min-width:0;max-width:none;margin:0;
-}
+
 /* One consistent label-to-control distance for all four settings. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field > label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-size-heading,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-text-color-field > .subtitle-effect-label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-style-field > .subtitle-effect-label{
- margin-top:0;margin-bottom:8px;line-height:1.45;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field > label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-size-heading .subtitle-effect-label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-text-color-field > .subtitle-effect-label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-style-field > .subtitle-effect-label{
- font-size:12px;font-weight:600;
-}
+
+
 /* Five sizes and three colors keep equal-width, consistently rounded controls. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated{gap:5px}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated .subtitle-size-button{
- min-height:40px;border-radius:9px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-text-color-choices{gap:5px}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-text-color-choice{
- min-height:40px;border-radius:9px;
-}
+
+
+
+
 /* The 2x2 Subtitle Style grid has the same boundaries and spacing as other choices. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-style-switch{
- width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-effect-button{
- display:flex;align-items:center;justify-content:center;
- min-width:0;min-height:40px;height:40px;padding:6px 7px;
- border-radius:9px;font-size:11px;line-height:1.25;text-align:center;
-}
+
+
 
 /* Layout Experiment A8 — Compact sidebar; the stage/grid sizing from A7 is
    intentionally untouched. All effect adjustments now live below Style. */
-.subtitle-workbench .subtitle-experiment-font-panel{
- gap:11px;padding:11px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field > label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-size-heading,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-text-color-field > .subtitle-effect-label,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-experiment-style-field > .subtitle-effect-label{
- margin-bottom:5px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel select{min-height:36px;padding:7px 9px}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated .subtitle-size-button,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-text-color-choice{
- min-height:35px;height:35px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-effect-button{
- min-height:34px;height:34px;padding:4px 5px;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls{
- display:block;grid-template-columns:none;margin-top:10px;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls[hidden],
-.subtitle-workbench .subtitle-experiment-effect-controls [hidden]{display:none!important}
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-range-field{
- margin:0;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-control-caption{
- display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls #subtitle-effect-amount-label{
- margin:0;min-width:0;font-size:11px;font-weight:600;color:var(--muted);
-}
-.subtitle-workbench .subtitle-effect-inline-actions{
- display:inline-flex;align-items:center;gap:7px;flex:none;white-space:nowrap;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls #subtitle-effect-amount-value{
- font-size:11px;min-width:10px;text-align:right;color:var(--ink);
-}
-.subtitle-workbench .subtitle-effect-color-inline{
- display:inline-flex;align-items:center;gap:5px;border-left:1px solid var(--line);padding-left:7px;
-}
-.subtitle-workbench .subtitle-effect-color-inline label{
- margin:0;font-size:10.5px;font-weight:500;color:var(--muted);
-}
-.subtitle-workbench .subtitle-effect-color-inline input[type=color]{
- display:block;width:25px;height:24px;min-width:25px;margin:0;
- padding:2px;border:1px solid var(--line);border-radius:5px;
- background:var(--surface);cursor:pointer;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls input[type=range]{
- display:block;width:100%;margin:7px 0 2px;accent-color:var(--accent);
-}
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-range-ends{font-size:10px;line-height:1.2}
-.subtitle-workbench .subtitle-experiment-utilities{
- display:flex;align-items:center;justify-content:flex-end;gap:12px;
- flex-wrap:wrap;margin-top:8px;min-width:0;
-}
-.subtitle-workbench .subtitle-experiment-utilities .subtitle-rendering-details{
- margin:0;min-width:180px;max-width:420px;flex:0 1 auto;padding:7px 10px;
-}
-.subtitle-workbench .subtitle-experiment-utilities .subtitle-rendering-details summary{font-size:10.5px}
-.subtitle-workbench .subtitle-experiment-utilities .btn{font-size:11px;min-height:31px;padding:6px 10px}
-@container (max-width:700px){
- .subtitle-workbench .subtitle-experiment-effect-controls .subtitle-control-caption{flex-wrap:wrap}
- .subtitle-workbench .subtitle-experiment-utilities{justify-content:flex-start}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Layout Experiment A9 — Three effect presets, roomier color selector.
    Deliberately never modify the preview stage/grid dimensions. */
-.subtitle-workbench .subtitle-experiment-font-panel{gap:7px;padding:10px;align-self:stretch}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-size-abbreviated .subtitle-size-button,
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-text-color-choice{height:34px;min-height:34px}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-effect-button{min-height:32px;height:32px}
-.subtitle-workbench .subtitle-experiment-effect-controls{margin-top:5px}
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-control-caption{
- min-height:30px;align-items:center;gap:7px;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls #subtitle-effect-amount-label{
- font-size:11px;line-height:1.2;
-}
-.subtitle-workbench .subtitle-effect-color-inline{
- border-left:0;padding-left:0;gap:7px;
-}
-.subtitle-workbench .subtitle-effect-color-inline label{font-size:11px}
-.subtitle-workbench .subtitle-effect-color-inline input[type=color]{
- width:36px;min-width:36px;height:30px;min-height:30px;border-radius:7px;
- padding:2px;
-}
-.subtitle-workbench .subtitle-effect-strength-options{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:6px;min-width:0;
-}
-.subtitle-workbench .subtitle-effect-strength-button{
- min-width:0;min-height:30px;height:30px;border:1px solid var(--line);
- border-radius:8px;background:var(--raised);color:var(--muted);
- font:inherit;font-size:10.5px;font-weight:600;line-height:1.15;
- padding:5px 2px;text-align:center;cursor:pointer;
-}
-.subtitle-workbench .subtitle-effect-strength-button:hover{background:var(--hover);color:var(--ink)}
-.subtitle-workbench .subtitle-effect-strength-button[aria-pressed="true"]{
- background:var(--strong);color:var(--ink);border-color:var(--accent);
-}
-.subtitle-workbench .subtitle-effect-strength-button:focus-visible{
- outline:2px solid var(--accent);outline-offset:2px;
-}
-@media (prefers-reduced-motion:reduce){
- .subtitle-workbench .subtitle-effect-strength-button{transition:none}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Layout Experiment A12 — Gallery's own color popover. Fixed-positioned in
    the body so the scrolling settings panel never clips or resizes it. */
@@ -2271,121 +1893,40 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 
 /* Layout Experiment A16 — One color pill beside "Effect intensity".
    Same Text Color button treatment; do not change preview stage/grid sizing. */
-.subtitle-workbench .subtitle-experiment-effect-controls #subtitle-effect-amount-label{
- white-space:nowrap;
-}
-.subtitle-workbench .subtitle-effect-color-inline{
- display:inline-flex;align-items:center;flex:none;min-width:0;gap:0;
-}
-.subtitle-workbench .subtitle-effect-color-inline .subtitle-effect-color-button{
- display:inline-flex;flex:none;align-items:center;justify-content:center;
- width:auto;min-width:74px;height:30px;min-height:30px;
- padding:4px 8px;border-radius:9px;gap:6px;font-size:10.5px;
-}
-.subtitle-workbench .subtitle-effect-color-inline .subtitle-effect-color-button .subtitle-choice-swatch{
- width:14px;height:14px;
-}
-@container (max-width:335px){
- .subtitle-workbench .subtitle-effect-color-inline .subtitle-effect-color-button{min-width:70px;padding:4px 6px}
-}
+
+
+
+
+
 
 /* Layout Experiment A17 — Three targeted usability refinements, no stage sizing changes. */
 /* Place the Font chevron comfortably inside the select with a consistent inset. */
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field{position:relative}
-.subtitle-workbench .subtitle-experiment-font-panel #subtitle-font{
- appearance:none;-webkit-appearance:none;
- padding-right:39px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel .subtitle-font-field::after{
- content:"";position:absolute;pointer-events:none;
- right:18px;bottom:15px;width:8px;height:8px;
- border-right:1.7px solid var(--ink);border-bottom:1.7px solid var(--ink);
- transform:rotate(45deg);opacity:.83;
-}
+
+
+
 /* Layout Experiment A24 — No divider. Share spare height BETWEEN complete setting groups.
    Each group keeps its own label-to-control spacing, button dimensions, and behavior.
    On tall windows, justify-content distributes free room across four gaps;
    on short/stacked windows, 7px is the minimum and the panel may grow naturally.
    Stage/grid sizing is intentionally untouched. */
-.subtitle-workbench .subtitle-experiment-font-panel{
- justify-content:space-between;
- gap:7px;
- padding:10px;
-}
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-font-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-size-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-text-color-field,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-style-group,
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-effect-controls{
- flex-shrink:0;
- margin:0;
-}
-.subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-style-group{
- border:0;padding:0;
-}
+
+
+
 /* None keeps the controls on screen but visibly inactive and unfocusable. */
-.subtitle-workbench .subtitle-experiment-effect-controls.is-disabled{
- opacity:.47;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls.is-disabled .subtitle-effect-strength-button,
-.subtitle-workbench .subtitle-experiment-effect-controls.is-disabled .subtitle-effect-color-button{
- cursor:not-allowed;
-}
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-effect-strength-button:disabled:hover,
-.subtitle-workbench .subtitle-experiment-effect-controls .subtitle-effect-color-button:disabled:hover{
- background:var(--raised);color:var(--muted);
-}
+
+
+
 
 /* Layout Experiment A25 — responsive subtitle workbench.
    Wide: exactly A24. Medium: max-800px preview above a matching-width
    two-column settings panel, preserving the two conceptual groups.
    Narrow: full-width preview and full-width one-column controls.
    All breakpoints use the subtitle pane's actual available width, not the viewport. */
-@container (max-width:1030px){
- .subtitle-workbench .subtitle-experiment-preview-layout{
-   grid-template-columns:minmax(0,1fr);
-   gap:12px;
- }
- .subtitle-workbench .subtitle-experiment-preview-layout > .subtitle-stage{
-   width:100%;max-width:min(100%,800px);margin-inline:auto;
- }
- .subtitle-workbench .subtitle-experiment-font-panel{
-   width:100%;max-width:800px;margin-inline:auto;
-   align-self:auto;
-   height:auto;min-height:0;
- }
-}
+
 /* Two balanced groups of settings: text appearance to the left,
    subtitle effect and its controls to the right. */
-@container (min-width:741px) and (max-width:1030px){
- .subtitle-workbench .subtitle-experiment-font-panel{
-   display:grid;
-   grid-template-columns:repeat(2,minmax(0,1fr));
-   grid-template-areas:'font style' 'size style' 'text effect';
-   column-gap:18px;row-gap:15px;
-   align-items:start;align-content:start;justify-content:initial;
-   padding:14px;
- }
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-font-field{grid-area:font}
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-size-field{grid-area:size}
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-text-color-field{grid-area:text}
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-style-group{grid-area:style}
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-effect-controls{grid-area:effect}
-}
-@container (max-width:740px){
- .subtitle-workbench .subtitle-experiment-font-panel{
-   display:flex;flex-direction:column;justify-content:initial;
-   gap:15px;
-   width:100%;max-width:800px;padding:12px;
- }
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-font-field,
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-size-field,
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-text-color-field,
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-style-group,
- .subtitle-workbench .subtitle-experiment-font-panel > .subtitle-experiment-effect-controls{
-   width:100%;min-width:0;
- }
-}
+
+
 
 /* Layout Experiment A26 — short-window usability only.
    The Settings workspace is the sole page scroll container. At laptop-sized
@@ -2413,55 +1954,16 @@ body.settings-view .workspace.settings-mode{overscroll-behavior:contain}
 
 /* Layout Experiment A27 — move actions to where they belong; leave video
    geometry, text styling, settings, and color-picker behavior unchanged. */
-.subtitle-workbench .subtitle-preview-top .subtitle-preview-reset{
-  flex:none;white-space:nowrap;align-self:flex-start;
-}
-.subtitle-workbench .subtitle-stage > .subtitle-stage-expand{
-  position:absolute;top:10px;right:10px;z-index:5;
-  display:inline-flex;align-items:center;justify-content:center;
-  width:32px;height:32px;min-width:32px;min-height:32px;
-  margin:0;padding:0;border-radius:9px;
-  border:1px solid rgba(255,255,255,.23);
-  color:#fff;background:rgba(16,12,25,.62);
-  box-shadow:0 2px 9px rgba(0,0,0,.23);
-  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
-  transition:background-color .15s ease,border-color .15s ease;
-}
-.subtitle-workbench .subtitle-stage > .subtitle-stage-expand:hover{
-  background:rgba(32,24,48,.83);border-color:rgba(255,255,255,.45);
-}
-.subtitle-workbench .subtitle-stage > .subtitle-stage-expand:focus-visible{
-  outline:2px solid #d5b2f0;outline-offset:-4px;
-}
-.subtitle-workbench .subtitle-stage > .subtitle-stage-expand .icon{
-  display:block;width:17px;height:17px;flex:none;
-}
-@container (max-width:420px){
-  .subtitle-workbench .subtitle-stage > .subtitle-stage-expand{
-    top:7px;right:7px;width:30px;height:30px;min-width:30px;min-height:30px;
-  }
-}
+
+
+
+
+
+
 /* On narrow screens the note gets its own full-width line, so moving
    Reset into the heading does not squeeze or wrap the description. */
-@media(max-width:510px){
-  .subtitle-workbench .subtitle-preview-top{
-    display:grid;grid-template-columns:minmax(0,1fr) auto;
-    column-gap:10px;row-gap:3px;align-items:start;
-  }
-  .subtitle-workbench .subtitle-preview-top > div{display:contents}
-  .subtitle-workbench .subtitle-preview-top .settings-card-title{
-    grid-column:1;grid-row:1;align-self:center;
-  }
-  .subtitle-workbench .subtitle-preview-top .settings-card-note{
-    grid-column:1 / -1;grid-row:2;margin-top:0;
-  }
-  .subtitle-workbench .subtitle-preview-top .subtitle-preview-reset{
-    grid-column:2;grid-row:1;align-self:center;
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  .subtitle-workbench .subtitle-stage > .subtitle-stage-expand{transition:none}
-}
+
+
 
 /* v99 — Player Settings now owns subtitles; seek timeline has no thumb; Play Next
    slides horizontally from the right. Existing 2-colour download style is retained. */

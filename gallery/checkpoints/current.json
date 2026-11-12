@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-remove-prototype-preference-migrations",
-  "sha256": "12001b0ec4915bc3971380bc8c4b5348f1581743c08548f4e559ec3b169c242a",
-  "bytes": 6949666,
+  "folder": "2026-11-12-retired-subtitle-layout-css",
+  "sha256": "64942fe6416fcd07de902b24c46cc20414af3ff5ba48a7e67a7f5f729c8370c5",
+  "bytes": 6916467,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

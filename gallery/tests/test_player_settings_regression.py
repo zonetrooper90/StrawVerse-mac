@@ -203,5 +203,65 @@ with sync_playwright() as pw:
  prefs.evaluate("localStorage.setItem('gallery.subtitlePreferences','{invalid')")
  check(prefs.evaluate("readSubtitlePrefs()")==prefs.evaluate("SUBTITLE_DEFAULTS"),"Malformed subtitle storage uses defaults")
  prefs.close()
+
+ # Exact before/after equivalence for the retired subtitle selector cleanup.
+ import hashlib,base64,gzip,json
+ if hashlib.sha256(html.encode("utf-8")).hexdigest()=="64942fe6416fcd07de902b24c46cc20414af3ff5ba48a7e67a7f5f729c8370c5":
+  old_dir=Path(__file__).resolve().parents[1]/"checkpoints"/"2026-11-12-remove-prototype-preference-migrations"
+  manifest=json.loads((old_dir/"manifest.json").read_text())
+  chunks=[]
+  for part in manifest["parts"]:
+   data=(old_dir/part["file"]).read_bytes()
+   assert len(data)==part["encoded_chars"] and hashlib.sha256(data).hexdigest()==part["sha256"]
+   chunks.append(data)
+  old_raw=gzip.decompress(base64.b64decode(b"".join(chunks),validate=True))
+  assert len(old_raw)==6949666 and hashlib.sha256(old_raw).hexdigest()=="12001b0ec4915bc3971380bc8c4b5348f1581743c08548f4e559ec3b169c242a"
+  old_html=old_raw.decode("utf-8")
+  def subtitle_snapshot(source,width,theme):
+   pg=browser.new_page(viewport={"width":width,"height":900},reduced_motion="reduce")
+   errs=[]
+   pg.on("pageerror",lambda e:errs.append(str(e)))
+   try:
+    pg.set_content(source,wait_until="domcontentloaded")
+    pg.wait_for_timeout(240)
+    settings(pg)
+    pg.locator('[data-theme-button="'+theme+'"]').click()
+    pg.locator('[data-settings-section="playback"]').click()
+    pg.locator('[data-playback-tab="subtitles"]').click()
+    pg.evaluate("document.fonts.ready")
+    pg.wait_for_timeout(150)
+    def snap():
+     return pg.evaluate("""() => {
+      const props=['display','visibility','position','width','height','minWidth','maxWidth','minHeight','maxHeight','padding','margin','gap','gridTemplateColumns','gridTemplateRows','alignItems','justifyContent','border','borderRadius','backgroundColor','backgroundImage','color','fontFamily','fontSize','fontWeight','lineHeight','boxShadow','textShadow','webkitTextStroke','overflowX','overflowY','transform'];
+      const roots=[document.querySelector('#playback-subtitles-pane'),document.querySelector('.subtitle-preview-dialog'),document.querySelector('.gallery-color-popover')].filter(Boolean);
+      return roots.map(root=>[root,...root.querySelectorAll('*')].map(e=>{
+       const r=e.getBoundingClientRect(),c=getComputedStyle(e);
+       return [e.tagName,e.id,e.getAttribute('class'),[r.x,r.y,r.width,r.height].map(v=>Math.round(v*10)/10),props.map(p=>c[p])];
+      }));
+     }""")
+    states=[snap()]
+    for effect in ("none","shadow","box","outline"):
+     pg.locator('[data-subtitle-effect="'+effect+'"]').click()
+     states.append(snap())
+    pg.locator('[data-subtitle-text-color="custom"]').click()
+    pg.wait_for_selector(".gallery-color-popover")
+    states.append(snap())
+    pg.locator(".gallery-color-close").click()
+    if pg.locator("#subtitle-compact-preview").is_visible():
+     pg.locator("#subtitle-compact-preview").click()
+    else:
+     pg.evaluate("showExpandedSubtitlePreview()")
+    pg.wait_for_selector("#subtitle-expanded-stage")
+    pg.wait_for_timeout(150)
+    states.append(snap())
+    assert not errs,errs
+    return states
+   finally:
+    pg.close()
+  for width in (1600,700):
+   for theme in ("ocean","twilight","ember","slate","glacier","verdant"):
+    before=subtitle_snapshot(old_html,width,theme)
+    after=subtitle_snapshot(html,width,theme)
+    check(before==after,"Exact subtitle computed layout/style equivalence: "+theme+" at "+str(width))
  browser.close()
 print("Player and Settings regression suite passed:",n,"checks")
