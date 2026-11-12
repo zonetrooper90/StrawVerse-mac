@@ -4,14 +4,14 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 
 ## Current verified HTML build
 - Active branch: `gallery/development-clean`.
-- Checkpoint: `2026-11-12-manual-subtitle-preview`.
-- HTML build commit: `9658831d5dc5de06e94b3fa31bf3557a377c53fa`.
-- SHA-256: `72345931b0931aa0f9799c3fdf0355a1347b2e4c3ec79a1a403dbfe3ebc63dda`.
-- Bytes: 6,916,210.
-- [Full HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/9658831d5dc5de06e94b3fa31bf3557a377c53fa/gallery/Gallery-current.html).
-- [Lightweight HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/9658831d5dc5de06e94b3fa31bf3557a377c53fa/gallery/Gallery-development.html): 600,520 bytes, SHA-256 `b71d86ebffde3d7e68074528f01ebd1fc83125064c0c931e9544bef878b70bd6`.
-- [Build commit](https://github.com/zonetrooper90/StrawVerse-mac/commit/9658831d5dc5de06e94b3fa31bf3557a377c53fa).
-- [Publisher passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43288783280); independent [integrity passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43289502908) and [browser regression passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43289508816) on the exact build commit. Full reconstruction and immutable archive match; original PNG hashes unchanged. Both HTMLs passed 319 navigation/motion checks, History regression, 106 Player/Settings checks and manual scene tests at 1600 and 700px with and without Reduce Motion.
+- Checkpoint: `2026-11-12-expanded-subtitle-preview-polish`.
+- HTML build commit: `7016cb879a333de6955c4cad0bb38ce9130acc14`.
+- SHA-256: `9076274807010997193fd513a9253f079d142c0985c749054d6455f982a92876`.
+- Bytes: 6,916,337.
+- [Full HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/7016cb879a333de6955c4cad0bb38ce9130acc14/gallery/Gallery-current.html).
+- [Lightweight HTML (use GitHub Download raw file)](https://github.com/zonetrooper90/StrawVerse-mac/blob/7016cb879a333de6955c4cad0bb38ce9130acc14/gallery/Gallery-development.html): 600,647 bytes, SHA-256 `2be3bcc2560d953b8a539eeeddf3e4dbb6d9178e593c633ecddf7a3c5b7ffa10`.
+- [Build commit](https://github.com/zonetrooper90/StrawVerse-mac/commit/7016cb879a333de6955c4cad0bb38ce9130acc14).
+- [Publisher passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43318181706); independent [integrity passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43318841066) and [browser regression passed](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43318845504) on the exact build commit. Full reconstruction and immutable archive match; original PNG hashes unchanged. Both HTMLs passed 319 navigation/motion checks, History regression, 106 Player/Settings checks and expanded preview tests at 1600, 700 and 420px with and without Reduce Motion.
 - Delivery: both commit-pinned file-page links provided. User visual acceptance **pending**; no native integration or numbered release.
 
 ## Last completed HTML work
@@ -31,14 +31,14 @@ Last updated: 2026-11-12. This is a handoff record, not a substitute for GitHub 
 ## Completed HTML change — manual subtitle scene selection
 - User explicitly approved on 2026-11-12: replace the automatic day/night cycle for everyone with a single manual Day/Night switch above the image, right-aligned, title "Subtitle preview", no cycling help text, instant switching irrespective of Reduce Motion, synchronized expanded and compact previews. Preserve original PNGs, 16:9 preview geometry, styling controls, reset, six themes and all other motion/navigation. Day starts selected; scene choice stays shared for the current page session (not a new saved preference).
 - Previous asset-mode [browser run](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43271651757) failed on the original HTML live Reduce Motion switch; [integrity](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43271651719) passed. The new approved manual behavior supersedes automatic preview cycling only.
-- Implementation request `gallery/changes/pending/2026-11-12-manual-subtitle-preview.py` uses the verified canonical baseline and regenerates the transitional template and lightweight HTML from the exact same patched full HTML. Controlled publisher stages all derivatives and new checkpoint atomically, verifies both modes and dispatches both read-only workflows. No source-authority migration, native changes, image edits or numbered release. Status: publisher and both independent checks passed on the build commit above; user visual testing pending. Do not duplicate this request.
+- Implementation request `gallery/changes/pending/2026-11-12-manual-subtitle-preview.py` uses the verified canonical baseline and regenerates the transitional template and lightweight HTML from the exact same patched full HTML. Controlled publisher stages all derivatives and new checkpoint atomically, verifies both modes and dispatches both read-only workflows. No source-authority migration, native changes, image edits or numbered release. Status: publisher and both independent checks passed on the prior build commit `9658831d5dc5de06e94b3fa31bf3557a377c53fa`; the manual preview is retained with the latest approved polish. Do not duplicate this request.
 
-## Approved pending change — expanded subtitle preview polish
+## Completed HTML change — expanded subtitle preview polish
 - User tested the manual preview and requested reduced expanded padding, removal of the About subtitle rendering box, and Day/Night icons. They explicitly approved moving 100% / Fit into the header beside the shared icon-enhanced switch and Close, removing the bottom toolbar/help text, and using consistent 12px padding. Preserve the 1280 × 720 actual size, fit-to-window 16:9 geometry, scene synchronization and no automatic motion. At very narrow widths header controls may wrap to a second row without overflow. Keep tooltip/accessibility labels, search target and reset live status. No artwork or native changes; no numbered release.
-- Baseline: verified `2026-11-12-manual-subtitle-preview` SHA-256 `72345931b0931aa0f9799c3fdf0355a1347b2e4c3ec79a1a403dbfe3ebc63dda`. Request `gallery/changes/pending/2026-11-12-expanded-subtitle-preview-polish.py` synchronizes the canonical full HTML, template and lightweight derivative, stages a new immutable checkpoint and tests both modes. Status: pending publisher and both independent checks; inspect remote state before any retry.
+- Baseline: verified `2026-11-12-manual-subtitle-preview` SHA-256 `72345931b0931aa0f9799c3fdf0355a1347b2e4c3ec79a1a403dbfe3ebc63dda`. Request `gallery/changes/pending/2026-11-12-expanded-subtitle-preview-polish.py` synchronizes the canonical full HTML, template and lightweight derivative, stages a new immutable checkpoint and tests both modes. Status: publisher and both independent checks passed; delivery links provided. User visual testing pending. Do not duplicate this request.
  
 ## Pending / next step
-- Next: verify the expanded subtitle preview polish publisher and both independent workflows; then deliver both HTML modes for visual testing. Continue structural audit and CSS/JS extraction discussion afterwards. Keep the existing C1 cleanup visual test pending.
+- Next: obtain user visual approval of the expanded preview polish in both HTML modes. Continue structural audit and CSS/JS extraction discussion afterwards. Keep the existing C1 cleanup visual test pending.
 - C1 cleanup is retained in the current build; its user visual acceptance remains pending.
 - Suggested next maintenance task: review audit C2 (retired theme-only CSS), then C3 (duplicate cascade/keyframe candidates), one narrow approved scope at a time. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
 - After the agreed code cleanup, separately discuss/approve direct background dithering integration (Light preferred trial, Fine alternative). Keep all six themes and the stationary backdrop.
