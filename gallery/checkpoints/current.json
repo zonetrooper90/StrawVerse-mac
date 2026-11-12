@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-12-manual-subtitle-preview",
-  "sha256": "72345931b0931aa0f9799c3fdf0355a1347b2e4c3ec79a1a403dbfe3ebc63dda",
-  "bytes": 6916210,
+  "folder": "2026-11-12-expanded-subtitle-preview-polish",
+  "sha256": "9076274807010997193fd513a9253f079d142c0985c749054d6455f982a92876",
+  "bytes": 6916337,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

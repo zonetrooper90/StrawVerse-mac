@@ -1627,30 +1627,32 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .subtitle-preview-expand:hover{background:var(--hover)}
 .subtitle-preview-expand:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .overlay .dialog.subtitle-preview-dialog{
-  width:min(1360px,calc(100vw - 30px));max-height:min(94dvh,940px);
+  width:min(1360px,calc(100vw - 30px));max-height:min(94dvh,940px);padding:0;
 }
-.subtitle-preview-dialog .dialog-scroll{padding:16px 20px 18px 25px}
-.subtitle-preview-dialog .dialog-head{margin-bottom:9px}
-.subtitle-expanded-note{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px}
+.subtitle-preview-dialog .dialog-scroll{margin:0;padding:12px}
+.subtitle-preview-dialog .dialog-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;margin-bottom:10px}
+.subtitle-preview-dialog .dialog-head h2{margin:0;min-width:0;overflow-wrap:anywhere}
+.subtitle-preview-dialog .dialog-head #close-dialog{justify-self:end}
+.subtitle-expanded-header-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.subtitle-expanded-header-controls #subtitle-actual-size{min-width:58px;min-height:32px;white-space:nowrap}
+.subtitle-expanded-header-controls #subtitle-actual-size[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
 .subtitle-expanded-viewport{
   width:100%;overflow:auto;overscroll-behavior:contain;
   border-radius:13px;scrollbar-width:thin;scrollbar-color:var(--muted) var(--surface);
 }
 .subtitle-expanded-viewport .subtitle-stage{
-  width:min(1280px,100%,calc((100dvh - 205px)*16/9));
+  width:min(1280px,100%,calc((min(94dvh,940px) - 88px)*16/9));
   max-width:none;margin-inline:auto;transition:none;
 }
 .subtitle-expanded-viewport.is-actual-size .subtitle-stage{
   width:1280px;min-width:1280px;max-width:none;
 }
-.subtitle-expanded-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px}
-.subtitle-expanded-toolbar .btn[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
-.subtitle-expanded-help{color:var(--muted);font-size:11px;line-height:1.45;margin:0;flex:1}
 @media(max-width:580px){
- 
- 
- .subtitle-preview-dialog .dialog-scroll{padding:12px 13px 14px 18px}
- .subtitle-expanded-toolbar{align-items:flex-start;flex-direction:column}
+ .subtitle-preview-dialog .dialog-head{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+ .subtitle-preview-dialog .dialog-head h2{font-size:18px}
+ .subtitle-preview-dialog .dialog-head #close-dialog{grid-column:2;grid-row:1}
+ .subtitle-expanded-header-controls{grid-column:1/-1;grid-row:2;justify-content:flex-end}
+ .subtitle-expanded-viewport:not(.is-actual-size) .subtitle-stage{width:min(1280px,100%,calc((min(94dvh,940px) - 124px)*16/9))}
 }
 @media(prefers-reduced-motion:reduce){.subtitle-preview-expand{transition:none}}
 
@@ -2959,13 +2961,14 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-heading{display:grid;grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);align-items:center;gap:10px;margin-bottom:11px}
 .sf-subtitle-heading .sf-subtitle-reset{justify-self:end}
 .sf-subtitle-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-.sf-subtitle-scene-toggle{display:inline-grid;grid-template-columns:1fr 1fr;align-items:center;position:relative;isolation:isolate;flex:none;min-height:32px;min-width:112px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:660}
+.sf-subtitle-scene-toggle{display:inline-grid;grid-template-columns:1fr 1fr;align-items:center;position:relative;isolation:isolate;flex:none;min-height:32px;min-width:148px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:660}
 .sf-subtitle-scene-toggle::before{content:"";position:absolute;z-index:-1;inset:3px 50% 3px 3px;border-radius:7px;background:var(--raised);border:1px solid var(--line)}
 .sf-subtitle-scene-toggle[aria-checked="true"]::before{inset:3px 3px 3px 50%}
 .sf-subtitle-scene-toggle[aria-checked="false"] .scene-day,.sf-subtitle-scene-toggle[aria-checked="true"] .scene-night{color:var(--ink)}
 .sf-subtitle-scene-toggle:hover{border-color:var(--accent)}
 .sf-subtitle-scene-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.subtitle-expanded-scene-heading{display:flex;justify-content:flex-end;margin:0 0 10px}
+.sf-subtitle-scene-toggle .scene-day,.sf-subtitle-scene-toggle .scene-night{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.sf-subtitle-scene-toggle .icon{flex:none}
 .subtitle-stage-night{transition:none!important}
 @container (max-width:1030px){.sf-subtitle-heading{display:flex;justify-content:space-between}.sf-subtitle-preview-heading .sf-subtitle-scene-toggle{display:none}}
 .sf-subtitle-heading h3{font-size:16px;font-weight:710;letter-spacing:-.025em;margin:0 0 4px}
@@ -3011,11 +3014,6 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 .sf-subtitle-effect-color:disabled{cursor:not-allowed}
 .sf-subtitle-effect-color .sf-subtitle-swatch{width:14px;height:14px}
 .sf-subtitle-three .sf-subtitle-choice{min-height:30px;font-size:10px;padding:4px 2px}
-.sf-subtitle-utilities{display:flex;justify-content:flex-end;margin-top:12px}
-.sf-subtitle-utilities details{max-width:420px;border:1px solid var(--line);border-radius:10px;background:#ffffff07;padding:8px 10px;font-size:11px;color:var(--muted)}
-.sf-subtitle-utilities summary{cursor:pointer;list-style:none;font-weight:650}
-.sf-subtitle-utilities summary::-webkit-details-marker{display:none}
-.sf-subtitle-utilities p{line-height:1.6;margin:8px 0 1px}
 /* Two layout subtitle experiment: retain the accepted A7 preview size in the full
    layout; switch directly to controls-only when the actual Settings panel is too
    narrow. No stacked-preview state. Stable Gallery v103 is unchanged. */
@@ -3062,8 +3060,6 @@ body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
 #playback-subtitles-pane .sf-subtitle-font{height:36px;min-height:36px}
 #playback-subtitles-pane .sf-subtitle-swatch{border-radius:5px}
 #playback-subtitles-pane .sf-subtitle-effect-color{cursor:pointer}
-#playback-subtitles-pane .sf-subtitle-utilities{margin-top:12px}
-#playback-subtitles-pane .sf-subtitle-utilities details{font-size:11px}
 #playback-subtitles-pane .sf-subtitle-compact-preview[hidden]{display:none!important}
 #playback-subtitles-pane .sf-subtitle-compact-button:focus-visible,#playback-subtitles-pane .sf-subtitle-choice:focus-visible,#playback-subtitles-pane .sf-subtitle-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @container (max-width:1030px){#playback-subtitles-pane .sf-subtitle-main{grid-template-columns:minmax(0,1fr)}#playback-subtitles-pane .sf-subtitle-video{display:none}}
@@ -3735,7 +3731,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Tab')document.docume
 /* Single-file, offline, self-contained design prototype. v68 connects simulated Sources to the Discover catalogue without touching Library or Downloads. All demo media availability and viewing progress are illustrative. */
 /* NEXT APPLE SILICON BUILD: create a real-source smoke-test checklist (provider installation, updates, health, deduplication, and Library/Downloads preservation). */
 /* FUTURE VISUAL POLISH (user-requested): Audit and resolve visual inconsistencies between full-page Settings and Gallery's other pages. Deliberately deferred; do not couple to repository functionality. */
-const SVG={refresh:'<path d="M20 8v-5h-5M4 16v5h5M5 9a8 8 0 0 1 14-3l1 2M19 15a8 8 0 0 1 -14 3l-1-2"/>',rewind10:'<path d="M21 5v14l-8 -7l8 -7"/><path d="M10 5v14l-8 -7l8 -7"/>',forward10:'<path d="M3 5v14l8 -7l-8 -7"/><path d="M14 5v14l8 -7l-8 -7"/>',pause:'<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>',volume:'<path d="M4 9h4l5 -4v14l-5 -4H4z"/><path d="M17 8a6 6 0 0 1 0 8"/>',captions:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 11h5m-5 4h4m3 -4h5m-5 4h4"/>',maximize:'<path d="M9 3H3v6m12-6h6v6M9 21H3v-6m12 6h6v-6"/>',clapper:'<path d="M4 11h16v10H4zM4 11 2 6l17-4 3 5zM7 5l4 5m3-7 4 5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--window)"/><circle cx="15" cy="17" r="2" fill="var(--window)"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5 5-3z"/>',library:'<path d="M4 4v16M8 4v16M12 6v14M16 4l4 16M2 20h20"/>',download:'<path d="M12 2v13m-5-5 5 5 5-5M4 18v3h16v-3"/>',filter:'<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227"/>',sliders:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--window)"/><circle cx="16" cy="12" r="2" fill="var(--window)"/><circle cx="8" cy="18" r="2" fill="var(--window)"/>',play:'<path d="m9 6 10 6-10 6z"/>',share:'<path d="M12 16V3m-5 5 5-5 5 5M4 14v6h16v-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',import:'<path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/>',bookmark:'<path d="M5 3h14v18l-7-5-7 5z"/>',close:'<path d="M5 5l14 14M19 5 5 19"/>',chevron:'<path d="m9 6 6 6-6 6"/>',check:'<path d="m4 12 5 5L20 6"/>',dots:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',film:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16m10-16v16M3 9h4m-4 6h4m10-6h4m-4 6h4"/>',arrow:'<path d="M5 12h14m-7-7 7 7-7 7"/>',heart:'<path d="M20.8 5.9a5 5 0 0 0-7.1 0L12 7.6l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 22l8.8-9a5 5 0 0 0 0-7.1z"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c6 5 6 13 0 18M12 3c-6 5-6 13 0 18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.2"/>',folder:'<path d="M3 6h7l2 3h9v11H3z"/>',back:'<path d="m14 5-7 7 7 7"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.1M3 12h.1M3 18h.1"/>',headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14h4v7H5a2 2 0 0 1-2-2zm18 0h-4v7h2a2 2 0 0 0 2-2z"/>',palette:'<circle cx="12" cy="12" r="9"/><path d="M7 11h.1M9 7h.1M14 7h.1M17 11h.1"/><path d="M12 19a2 2 0 0 0 2-2c0-1 1-2 2-2h2"/>'};
+const SVG={sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3l1.42 1.42m0-14.14-1.42 1.42M6.35 17.65l-1.42 1.42"/>',moon:'<path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1 -9 -9z"/>',refresh:'<path d="M20 8v-5h-5M4 16v5h5M5 9a8 8 0 0 1 14-3l1 2M19 15a8 8 0 0 1 -14 3l-1-2"/>',rewind10:'<path d="M21 5v14l-8 -7l8 -7"/><path d="M10 5v14l-8 -7l8 -7"/>',forward10:'<path d="M3 5v14l8 -7l-8 -7"/><path d="M14 5v14l8 -7l-8 -7"/>',pause:'<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>',volume:'<path d="M4 9h4l5 -4v14l-5 -4H4z"/><path d="M17 8a6 6 0 0 1 0 8"/>',captions:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 11h5m-5 4h4m3 -4h5m-5 4h4"/>',maximize:'<path d="M9 3H3v6m12-6h6v6M9 21H3v-6m12 6h6v-6"/>',clapper:'<path d="M4 11h16v10H4zM4 11 2 6l17-4 3 5zM7 5l4 5m3-7 4 5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--window)"/><circle cx="15" cy="17" r="2" fill="var(--window)"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5 5-3z"/>',library:'<path d="M4 4v16M8 4v16M12 6v14M16 4l4 16M2 20h20"/>',download:'<path d="M12 2v13m-5-5 5 5 5-5M4 18v3h16v-3"/>',filter:'<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227"/>',sliders:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--window)"/><circle cx="16" cy="12" r="2" fill="var(--window)"/><circle cx="8" cy="18" r="2" fill="var(--window)"/>',play:'<path d="m9 6 10 6-10 6z"/>',share:'<path d="M12 16V3m-5 5 5-5 5 5M4 14v6h16v-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',import:'<path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/>',bookmark:'<path d="M5 3h14v18l-7-5-7 5z"/>',close:'<path d="M5 5l14 14M19 5 5 19"/>',chevron:'<path d="m9 6 6 6-6 6"/>',check:'<path d="m4 12 5 5L20 6"/>',dots:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',film:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16m10-16v16M3 9h4m-4 6h4m10-6h4m-4 6h4"/>',arrow:'<path d="M5 12h14m-7-7 7 7-7 7"/>',heart:'<path d="M20.8 5.9a5 5 0 0 0-7.1 0L12 7.6l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 22l8.8-9a5 5 0 0 0 0-7.1z"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c6 5 6 13 0 18M12 3c-6 5-6 13 0 18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.2"/>',folder:'<path d="M3 6h7l2 3h9v11H3z"/>',back:'<path d="m14 5-7 7 7 7"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.1M3 12h.1M3 18h.1"/>',headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14h4v7H5a2 2 0 0 1-2-2zm18 0h-4v7h2a2 2 0 0 0 2-2z"/>',palette:'<circle cx="12" cy="12" r="9"/><path d="M7 11h.1M9 7h.1M14 7h.1M17 11h.1"/><path d="M12 19a2 2 0 0 0 2-2c0-1 1-2 2-2h2"/>'};
 function icon(name,size=19){return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SVG[name]||SVG.film}</svg>`;}
 function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const demo=[
@@ -6879,7 +6875,7 @@ function subtitleAppearanceMarkup(){
  const styles=[['outline','Outline'],['shadow','Drop Shadow'],['box','Background Box'],['none','None']];
  const activePreset=({outline:'outlinePreset',shadow:'shadowPreset',box:'boxPreset'})[subtitlePrefs.effect];
  return `<section class="sf-subtitle-workbench" aria-label="Subtitle appearance and live preview">
-   <div class="sf-subtitle-heading">
+   <div class="sf-subtitle-heading" id="settings-subtitle-appearance" tabindex="-1">
     <div class="sf-subtitle-preview-heading"><div><h3><span class="sf-subtitle-full-title">Subtitle preview</span><span class="sf-subtitle-compact-title">Subtitle appearance</span></h3>
      <p class="sf-subtitle-compact-description">Fine-tune your subtitles, then open the preview to inspect the results.</p>
     </div>${subtitleSceneToggle()}</div>
@@ -6914,7 +6910,7 @@ function subtitleAppearanceMarkup(){
      </div>
     </div>
    </div>
-   <div class="sf-subtitle-utilities" id="settings-subtitle-appearance" tabindex="0" role="region" aria-label="Subtitle settings utilities"><details><summary>${icon('info',15)} About subtitle rendering</summary><p>Subtitle size scales with the displayed video area. These settings are saved locally and used in the preview. Applying custom styling in the playback engine is still planned; actual player rendering may differ.</p></details><span class="only-sr" id="subtitle-saved-status" role="status" aria-live="polite"></span></div>
+   <span class="only-sr" id="subtitle-saved-status" role="status" aria-live="polite"></span>
   </section>`;
 }
 function setPlaybackTab(tab,resetScroll=true){
@@ -6963,7 +6959,7 @@ function renderSubtitleStage(stage){
 // One manually selected scene is shared by both preview surfaces.
 let subtitlePreviewScene='day';
 function subtitleSceneToggle(){
- return `<button type="button" role="switch" class="sf-subtitle-scene-toggle" aria-label="Night preview" aria-checked="${subtitlePreviewScene==='night'}"><span class="scene-day" aria-hidden="true">Day</span><span class="scene-night" aria-hidden="true">Night</span></button>`;
+ return `<button type="button" role="switch" class="sf-subtitle-scene-toggle" aria-label="Night preview" aria-checked="${subtitlePreviewScene==='night'}"><span class="scene-day" aria-hidden="true">${icon('sun',14)}Day</span><span class="scene-night" aria-hidden="true">${icon('moon',14)}Night</span></button>`;
 }
 function subtitleStages(){
  return [settingsPage.querySelector('#subtitle-preview-stage'),modalHost.querySelector('#subtitle-expanded-stage')].filter(Boolean);
@@ -6991,25 +6987,29 @@ function renderSubtitlePreview(){
 }
 function showExpandedSubtitlePreview(){
  // Reuse Gallery's established dialog lifecycle, focus trapping and Escape key.
- modal('Expanded subtitle preview',`<div class="subtitle-expanded-scene-heading">${subtitleSceneToggle()}</div>
+ modal('Expanded subtitle preview',`<div class="subtitle-expanded-header-controls"><button type="button" class="btn small" id="subtitle-actual-size" aria-pressed="false" aria-label="View at 100%" title="View at 100% (1280 × 720 CSS pixels; scroll to inspect)">100%</button>${subtitleSceneToggle()}</div>
   <div class="subtitle-expanded-viewport" id="subtitle-expanded-viewport">
    <div class="subtitle-stage" id="subtitle-expanded-stage" data-position="bottom" aria-label="Expanded subtitle preview">
     <img class="subtitle-stage-image subtitle-stage-day" alt="" draggable="false"><img class="subtitle-stage-image subtitle-stage-night" alt="" draggable="false"><div class="subtitle-stage-shade" aria-hidden="true"></div><div class="subtitle-preview-caption" aria-live="off"></div>
    </div>
-  </div>
-  <div class="subtitle-expanded-toolbar"><button type="button" class="btn small" id="subtitle-actual-size" aria-pressed="false">View at 100%</button><p class="subtitle-expanded-help" id="subtitle-expanded-help">Fit to window. 100% shows the original 1280 × 720 CSS-pixel preview (scroll to inspect on smaller screens).</p></div>`);
+  </div>`);
  const dialog=modalHost.querySelector('.dialog');
  dialog.classList.add('subtitle-preview-dialog');
+ const headerControls=dialog.querySelector('.subtitle-expanded-header-controls');
+ dialog.querySelector('.dialog-head').insertBefore(headerControls,dialog.querySelector('#close-dialog'));
  bindSubtitleSceneToggle(dialog);
  const stage=dialog.querySelector('#subtitle-expanded-stage');
  stage.querySelector('.subtitle-stage-day').style.backgroundColor=SHRINE_DAY_IMAGE;
  stage.querySelector('.subtitle-stage-night').style.backgroundColor=SHRINE_NIGHT_IMAGE;
  const viewport=dialog.querySelector('#subtitle-expanded-viewport');
  const actual=dialog.querySelector('#subtitle-actual-size');
+ actual.focus({preventScroll:true});
  actual.addEventListener('click',()=>{
   const enabled=viewport.classList.toggle('is-actual-size');
   actual.setAttribute('aria-pressed',String(enabled));
-  actual.textContent=enabled?'Fit to window':'View at 100%';
+  actual.textContent=enabled?'Fit':'100%';
+  actual.setAttribute('aria-label',enabled?'Fit to window':'View at 100%');
+  actual.title=enabled?'Fit the preview to the window':'View at 100% (1280 × 720 CSS pixels; scroll to inspect)';
   viewport.scrollLeft=enabled?(viewport.scrollWidth-viewport.clientWidth)/2:0;
   if(!enabled)viewport.scrollTop=0;
   renderSubtitlePreview();

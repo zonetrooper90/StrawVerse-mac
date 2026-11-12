@@ -32,7 +32,7 @@ with sync_playwright() as pw:
     geometries = {}
     for filename, light in (("Gallery-current.html", False), ("Gallery-development.html", True)):
         for reduced in ("no-preference", "reduce"):
-            for width in (1600, 700):
+            for width in (1600, 700, 420):
                 page = browser.new_page(viewport={"width": width, "height": 950}, reduced_motion=reduced)
                 errors = []
                 page.on("pageerror", lambda e: errors.append(str(e)))
@@ -42,6 +42,12 @@ with sync_playwright() as pw:
                 wide = width == 1600
                 assert toggle.is_visible() == wide
                 assert_scene(page, False)
+                assert page.locator("text=About subtitle rendering").count() == 0
+                assert page.locator("#subtitle-saved-status").count() == 1
+                assert page.locator("#settings-subtitle-appearance").is_visible()
+                page.locator("#settings-subtitle-appearance").focus()
+                assert page.locator("#settings-subtitle-appearance").evaluate("(e) => document.activeElement === e")
+                assert toggle.locator("svg").count() == 2
                 if wide:
                     assert page.locator(".sf-subtitle-full-title").inner_text() == "Subtitle preview"
                     a,b = toggle.bounding_box(), main.bounding_box()
@@ -53,7 +59,27 @@ with sync_playwright() as pw:
                     page.locator("#subtitle-compact-preview").click()
                 expanded = page.locator("#subtitle-expanded-stage")
                 expanded.wait_for()
-                dialog_toggle = page.locator(".subtitle-expanded-scene-heading .sf-subtitle-scene-toggle")
+                dialog_toggle = page.locator(".dialog-head .subtitle-expanded-header-controls .sf-subtitle-scene-toggle")
+                scale = page.locator(".dialog-head #subtitle-actual-size")
+                assert dialog_toggle.locator("svg").count() == 2
+                assert scale.inner_text() == "100%"
+                assert page.locator(".subtitle-expanded-toolbar, .subtitle-expanded-help").count() == 0
+                assert page.locator(".subtitle-preview-dialog .dialog-scroll").evaluate("(e) => ['Top','Right','Bottom','Left'].every(s => getComputedStyle(e)['padding'+s] === '12px')")
+                page.wait_for_timeout(260)
+                header = page.locator(".subtitle-preview-dialog .dialog-head").bounding_box()
+                a,b,c = scale.bounding_box(),dialog_toggle.bounding_box(),page.locator("#close-dialog").bounding_box()
+                assert a["x"]+a["width"] <= b["x"]+1
+                assert a["y"]+a["height"] <= header["y"]+header["height"]+1
+                assert b["x"]+b["width"] <= header["x"]+header["width"]+1
+                if width > 580:
+                    assert b["x"]+b["width"] <= c["x"]+1
+                scale.click()
+                assert scale.inner_text() == "Fit" and scale.get_attribute("aria-pressed") == "true"
+                assert expanded.evaluate("(e) => e.offsetWidth") == 1280
+                scale.click()
+                assert scale.inner_text() == "100%" and scale.get_attribute("aria-pressed") == "false"
+                assert expanded.evaluate("(e) => e.offsetWidth") <= 1280
+                assert page.locator("#subtitle-expanded-viewport").evaluate("(e) => e.scrollLeft") == 0
                 assert_scene(page, wide)
                 dialog_toggle.press("Space")
                 assert_scene(page, not wide)
@@ -86,6 +112,8 @@ with sync_playwright() as pw:
                 page.locator("#close-dialog").click()
                 page.wait_for_selector("#subtitle-expanded-stage", state="detached")
                 assert_scene(page, wide)
+                page.locator("#subtitle-reset").click()
+                assert page.locator("#subtitle-saved-status").text_content() == "Subtitle preview settings reset to defaults."
                 assert not errors, errors
                 page.close()
                 print(filename, reduced, width, "passed", flush=True)
