@@ -148,3 +148,73 @@ Test plan: archived before/after actual Downloads styles and geometry in both bu
 
 ### C4a implementation verified
 Build `79c21ddbd0dea40f0a7de8f26b48a2ebb8d5436e`, checkpoint `2026-11-13-retired-downloads-css`, SHA-256 `197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f`, 6,910,290 bytes. Publisher 43332133380 and independent integrity/browser runs 43332906266/43332909517 passed. Exactly 52 retired Downloads rules removed, 4,226 bytes in each build; original assets, markup and JS unchanged. All eight actual Downloads before/after configurations passed: both modes, 1600/700/420px reduced motion and 700px normal motion, all six themes, expansion, scroll preservation, progress, pause/resume, retry, cancel, dismiss/undo, filter, reset and simulated progress. Existing application regressions passed. User visual acceptance pending. C4b is a separate proposal and not yet approved.
+
+
+## C4b approved scope — 2026-11-13
+Baseline `5f6b536f4e0980b567146e71b30b73fda2c18b19` / `2026-11-13-retired-downloads-css`. Reconfirmed 25 absent Anime-detail class names in current non-CSS source, no generated retired prefixes. Remove 64 whole rules and exactly one obsolete shared branch; retain active inline-installment-card transition. Exact selector list:
+- 116: `.detail-kicker`
+- 122: `.detail-helper`
+- 123: `.detail-section-head`
+- 124: `.detail-section-head h2`
+- 125: `.season-select`
+- 126: `.season-select select`
+- 131: `.availability .season-status`
+- 147: `.detail-kicker` (@media(max-width:570px))
+- 147: `.detail-helper` (@media(max-width:570px))
+- 147: `.availability .season-status` (@media(max-width:570px))
+- 147: `.detail-section-head h2` (@media(max-width:570px))
+- 147: `.season-select` (@media(max-width:570px))
+- 147: `.season-select select` (@media(max-width:570px))
+- 159: `.detail-audio-highlight`
+- 160: `.detail-audio-toggle[data-active="dub"] .detail-audio-highlight`
+- 163: `.detail-audio-toggle.is-returning .detail-audio-highlight`
+- 185: `.detail-audio-highlight` (@media(prefers-reduced-motion:reduce))
+- 189: `.connected-section`
+- 190: `.connected-section-header`
+- 191: `.connected-section-header h2`
+- 192: `.connected-section-note`
+- 193: `.connected-season-list`
+- 194: `.connected-season-card`
+- 195: `.connected-season-card:hover:not([aria-pressed="true"])`
+- 196: `.connected-season-card[aria-pressed="true"]`
+- 197: `.connected-season-copy`
+- 198: `.connected-season-name`
+- 199: `.connected-season-number`
+- 200: `.connected-season-provider`
+- 201: `.connected-season-card[aria-pressed="true"] .connected-season-provider`
+- 202: `.connected-season-check`
+- 203: `.connected-related`
+- 204: `.connected-related-header`
+- 205: `.connected-related-list`
+- 206: `.connected-related-button`
+- 207: `.connected-related-button:hover:not([aria-pressed="true"])`
+- 208: `.connected-related-button[aria-pressed="true"]`
+- 209: `.connected-related-button b`
+- 210: `.connected-related-button small`
+- 218: `.connected-season-list` (@media(max-width:850px))
+- 219: `.connected-season-list` (@media(max-width:570px))
+- 219: `.connected-season-card` (@media(max-width:570px))
+- 219: `.connected-season-name` (@media(max-width:570px))
+- 219: `.connected-section-header` (@media(max-width:570px))
+- 220: `.connected-season-list` (@media(max-width:370px))
+- 220: `.connected-season-card` (@media(max-width:370px))
+- 240: `.detail-section-head.installment-section-head`
+- 241: `.detail-section-head.installment-section-head .season-select`
+- 252: `.detail-section-head.installment-section-head` (@media(max-width:460px))
+- 325: `.playback-screen`
+- 326: `.playback-screen-center`
+- 327: `.playback-screen-center strong`
+- 328: `.playback-screen-center span`
+- 330: `.playback-screen` (@media(max-width:570px))
+- 330: `.playback-screen-center strong` (@media(max-width:570px))
+- 656: `.episode-heading-count`
+- 667: `.episode-item .episode-select`
+- 669: `.episode-item .episode-selected`
+- 681: `.episode-heading-count` (@media(max-width:430px))
+- 682: `.episode-item .episode-selected` (@media(max-width:430px))
+- 692: `.detail-audio-highlight`
+- 693: `.detail-audio-toggle[data-active="dub"] .detail-audio-highlight`
+- 761: `.episode-toolbar .episode-heading .season-select`
+- 3147: `body[data-theme] .detail-audio-highlight`
+- Shared rule at 478: remove only `.connected-season-card,`, preserve `.inline-installment-card` and declarations.
+Test plan: before/after actual Anime detail rendering across both modes, six themes, four reduced-motion widths and 700px normal motion, season, movie/special, Sub/Dub, playable filtering, unmatched provider, Player and return. C5 next read-only audit. No change to JS or source authority.

@@ -204,3 +204,7 @@ User approved removal of the 14 earlier identical rules after individual source-
 
 ## 2026-11-13 — C4a retired Downloads CSS
 User approved the first C4 maintenance patch: remove exactly 52 rules scoped to 20 retired Downloads class names (48 old rules, four superseded Soft Futuristic rules). Preserve all current markup and JS, shared expansion and scroll classes, existing progress and action states, responsive geometry, six themes, motion, assets, native app and source authority. Compare actual Downloads rendering and behavior against the verified prior checkpoint in both build modes. No numbered release. C4b Anime detail CSS remains a separate proposal.
+
+
+## 2026-11-13 — C4b retired Anime detail CSS
+User approved the second C4 patch: remove exactly 64 retired Anime detail/placeholder CSS rules and the connected-season-card branch of the shared transition rule; retain inline-installment-card styling and transition unchanged. Preserve current season and related release navigation, audio and episode filters, source matching, Player navigation, six themes, responsive layouts, motion, artwork, markup, JS and source authority. Verify before/after actual detail views in both build modes; no numbered release or native change. C5 investigation is read-only until specific changes are approved.
