@@ -72,6 +72,9 @@ jobs:
           python -m pip install 'playwright==1.57.0'
           # Ubuntu runner already provides required shared libraries; do not apt-install optional fonts.
           python -m playwright install chromium
+      - name: Compare approved Q2-A CSS cleanup against exact baseline
+        if: steps.change.outputs.id == '2026-11-13-q2a-eight-redundant-css-rules'
+        run: python3 gallery/audits/2026-11-13-q2a-eight-redundant-css-rules-compare.py
       - name: Run Watch History, navigation and motion regressions
         run: |
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
