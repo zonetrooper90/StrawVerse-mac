@@ -260,3 +260,7 @@ User approved exactly the eight earlier complete CSS rules in `gallery/audits/20
 
 ## 2026-11-13 — Q2-A visually approved
 User tested checkpoint `2026-11-13-q2a-eight-redundant-css-rules` (build `e97704268953e523c459521f86ab3bbd634b3d52`) and reported no visible changes, as expected. Accept the eight-rule cleanup. Both independent checks and the 1,440-comparison gate passed. No further CSS removals, Q2-B, or new Back-button color treatment are authorized by this acceptance.
+
+
+## 2026-11-13 — Design Standard 02: tinted accent Back buttons
+User approved the suggested soft tinted accent treatment. Apply one shared theme-aware Back button color rule to Anime details, Watch History, Player and Settings page headers, using existing palette tokens. Accent text/icon, 12% accent/panel background, 55% accent/panel2 border; hover 20% background and 70% border. Preserve pill shape, size, position, border thickness, keyboard focus, reduced motion, navigation provenance, other buttons, all six themes and DS01. No full accent fill, changes to markup, assets, native branches or unrelated cleanup. Actual-route browser checks on both builds across six themes, three widths, normal/reduced motion, rest/hover/focus, contrast and navigation. Controlled publisher and both independent checks; separate visual approval.
