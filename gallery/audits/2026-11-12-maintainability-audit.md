@@ -218,3 +218,7 @@ Baseline `5f6b536f4e0980b567146e71b30b73fda2c18b19` / `2026-11-13-retired-downlo
 - 3147: `body[data-theme] .detail-audio-highlight`
 - Shared rule at 478: remove only `.connected-season-card,`, preserve `.inline-installment-card` and declarations.
 Test plan: before/after actual Anime detail rendering across both modes, six themes, four reduced-motion widths and 700px normal motion, season, movie/special, Sub/Dub, playable filtering, unmatched provider, Player and return. C5 next read-only audit. No change to JS or source authority.
+
+
+### C4b verification failure and correction
+Publisher 43335079907 stopped before publication. The unchanged archived baseline failed the Solo Leveling season-2 selection assertion at 700px normal motion. Four reduced-motion full-build comparisons and all existing suites passed. Source review: non-Player routes use galleryStageFadeInProgress and gallery-route-transitioning (not galleryStageTransition, which tracks Player View Transitions); capture-phase input guard deliberately blocks clicks during the fade. Corrected fresh request waits for both mechanisms, mutations and pending routes to be idle before interacting or sampling, including after detail navigation and Player return. Application patch and all comparisons unchanged. Previous C4a checkpoint still matches immutable archive; original request retained unchanged.
