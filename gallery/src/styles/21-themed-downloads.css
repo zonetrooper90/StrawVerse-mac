@@ -91,9 +91,9 @@ body[data-theme] .sf-dl-list .demo-download-footer{padding-top:8px}
   grid-template-areas:"name status status status" "track track control percent";
   column-gap:8px;row-gap:6px;min-height:67px;padding:9px 0
  }
- body[data-theme] .sf-dl-episode-name{grid-area:name}
- body[data-theme] .sf-dl-episode-control{grid-area:control}
- body[data-theme] .sf-dl-episode-percent{grid-area:percent}
+ 
+ 
+ 
  body[data-theme] .sf-dl-list-heading span{display:none}
 }
 @media(max-width:450px){

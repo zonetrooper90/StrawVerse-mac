@@ -21,7 +21,7 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 
 
 .demo-download-footer{display:flex;align-items:center;flex-wrap:wrap;gap:7px 14px;margin-top:11px}
-.demo-download-footer .tip{margin:0}
+
 .demo-download-control{padding:2px 0;border:0;background:none;color:var(--accent);font-weight:650;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .demo-download-control:hover{color:var(--ink)}
 @media(prefers-reduced-motion:reduce){}

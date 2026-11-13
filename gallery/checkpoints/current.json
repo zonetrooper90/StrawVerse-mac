@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-shared-download-history-width",
-  "sha256": "6d62486f67526e5e310d08bf2cbcbf14f7a466e9df79edf8b562b6b3b057881d",
-  "bytes": 6904021,
+  "folder": "2026-11-13-q2a-eight-redundant-css-rules",
+  "sha256": "3b0677c0eb773aa426400779aef8fa5c4fabac5b60d0cdd4bef26f535747bb28",
+  "bytes": 6903601,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

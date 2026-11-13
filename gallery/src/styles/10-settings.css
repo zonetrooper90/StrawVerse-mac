@@ -22,7 +22,7 @@ body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
 .settings-panel-head{margin:0 0 22px}
 .settings-panel-head .eyebrow{margin-bottom:8px}
 .settings-panel-head h2{font-size:25px;letter-spacing:-.035em}
-.settings-panel-head .description{font-size:13px;line-height:1.5}
+
 .settings-card{padding:20px 22px 23px;border-radius:15px;border:1px solid var(--line);background:var(--surface);margin-bottom:15px}
 .settings-card-title{font-size:15px;font-weight:690;letter-spacing:-.01em}
 .settings-card-note{color:var(--muted);font-size:12px;line-height:1.65;margin:8px 0 0}
@@ -56,7 +56,7 @@ body.returning-to-gallery .tabs,
 .workspace.returning-to-gallery > #screen:not([hidden]){animation:gallery-return .14s cubic-bezier(.2,.75,.2,1) both}
 @media(prefers-reduced-motion:reduce){.settings-page.is-leaving,body.returning-to-gallery .tabs,.workspace.returning-to-gallery > #tab-pages-viewport,.workspace.returning-to-gallery > #screen{animation:none!important}}
 @media(max-width:710px){.settings-layout{grid-template-columns:1fr;gap:20px;padding-top:20px}.settings-side{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:3px}.settings-side::-webkit-scrollbar{display:none}.settings-section-button{width:auto;flex:none;padding:10px 12px;gap:7px;font-size:12px}.settings-section-button .icon{width:16px;height:16px}.settings-card{padding:17px}.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.settings-theme-tile{padding:8px}.settings-page-head{padding-top:18px}}
-@media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}.settings-back{padding:8px}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
+@media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
 @media(prefers-reduced-motion:reduce){.settings-page,.settings-panel{animation:none!important}.settings-layout *{scroll-behavior:auto!important}}
 
 /* v59 — Consistent Settings search: header stays stationary, sidebar remains visible. */

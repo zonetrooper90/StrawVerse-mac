@@ -31,7 +31,7 @@ body.desktop-build input,body.desktop-build textarea{-webkit-user-select:text;us
 .player-bottom{padding:58px 21px 20px;background:linear-gradient(transparent,rgba(4,3,8,.94) 68%);color:#f8f5fc}
 .player-controls{display:grid;grid-template-columns:1fr auto 1fr;gap:13px;align-items:center;margin-top:20px}
 .player-controls .controls-left,.player-controls .controls-right,.player-controls .controls-middle{display:flex;align-items:center;gap:14px}
-.player-controls .controls-left{justify-content:flex-start}.player-controls .controls-middle{justify-content:center}.player-controls .controls-right{justify-content:flex-end}
+.player-controls .controls-left{justify-content:flex-start}.player-controls .controls-right{justify-content:flex-end}
 .player-icon{display:grid;place-items:center;border:0;background:transparent;color:#f5f0fa;width:35px;height:35px;border-radius:10px;padding:5px;flex:none}
 .player-icon:hover{background:rgba(255,255,255,.14);color:var(--accent)}.player-icon:focus-visible{outline:2px solid var(--accent)}
 .player-icon[aria-pressed="true"]{background:var(--tab);color:#fff}
@@ -57,7 +57,7 @@ body.desktop-build input,body.desktop-build textarea{-webkit-user-select:text;us
 .player-note{font-size:12px;color:var(--muted);line-height:1.65;margin:14px 0 20px}
 .player-episode-nav{border:1px solid var(--line);background:var(--surface);border-radius:13px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,1fr);align-items:center;padding:13px 16px;gap:12px;margin-top:16px}
 .player-episode-nav .player-episode-label{min-width:0;text-align:center}.player-episode-nav strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-episode-nav small{display:block;color:var(--muted);font-size:12px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.player-episode-nav .player-episode-previous{justify-self:start}.player-episode-nav .player-episode-next{justify-self:end}.player-episode-nav .btn{font-size:12px;min-width:0;max-width:100%}
+.player-episode-nav .player-episode-previous{justify-self:start}.player-episode-nav .player-episode-next{justify-self:end}
 .player-notice{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 13px;font-size:12px;color:var(--muted);margin:13px 0}
 .player-file-actions{display:flex;flex-wrap:wrap;gap:9px;margin:9px 0 0}
 .player-settings-row{display:flex;gap:12px;align-items:center;justify-content:flex-end}.player-settings-row select{background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:5px 9px}
