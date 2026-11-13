@@ -144,3 +144,7 @@ Baseline `9c3b4ae98d3e763fb8457934d0a6c0a2c5b649f6` / `2026-11-13-exact-duplicat
 - 2728: `body[data-theme] .sf-dl-episode-control .sf-dl-mini-action`
 - 2761: `body[data-theme] .sf-dl-episode-control .sf-dl-mini-action` (@media(max-width:450px))
 Test plan: archived before/after actual Downloads styles and geometry in both builds; 1600/700/420px reduced and 700px normal motion; six themes, expansion, scroll, progress and action lifecycle. Keep C4b and all JS unchanged. Static evidence is not exhaustive proof; publisher must pass both verification checks before delivery.
+
+
+### C4a implementation verified
+Build `79c21ddbd0dea40f0a7de8f26b48a2ebb8d5436e`, checkpoint `2026-11-13-retired-downloads-css`, SHA-256 `197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f`, 6,910,290 bytes. Publisher 43332133380 and independent integrity/browser runs 43332906266/43332909517 passed. Exactly 52 retired Downloads rules removed, 4,226 bytes in each build; original assets, markup and JS unchanged. All eight actual Downloads before/after configurations passed: both modes, 1600/700/420px reduced motion and 700px normal motion, all six themes, expansion, scroll preservation, progress, pause/resume, retry, cancel, dismiss/undo, filter, reset and simulated progress. Existing application regressions passed. User visual acceptance pending. C4b is a separate proposal and not yet approved.
