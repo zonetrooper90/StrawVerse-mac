@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "style": [
+    "styles/gallery.css"
+  ],
+  "script": [
+    "js/gallery.js"
+  ]
+}

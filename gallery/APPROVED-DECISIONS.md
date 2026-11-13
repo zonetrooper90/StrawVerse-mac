@@ -208,3 +208,7 @@ User approved the first C4 maintenance patch: remove exactly 52 rules scoped to 
 
 ## 2026-11-13 — C4b retired Anime detail CSS
 User approved the second C4 patch: remove exactly 64 retired Anime detail/placeholder CSS rules and the connected-season-card branch of the shared transition rule; retain inline-installment-card styling and transition unchanged. Preserve current season and related release navigation, audio and episode filters, source matching, Player navigation, six themes, responsive layouts, motion, artwork, markup, JS and source authority. Verify before/after actual detail views in both build modes; no numbered release or native change. C5 investigation is read-only until specific changes are approved.
+
+
+## 2026-11-13 — M1 lossless source-block extraction
+User approved M1 after C5 audit: extract existing CSS and classic JavaScript blocks without changing any byte of full or lightweight HTML output. Use the existing dependency-free Python builder, explicit ordered manifest, original assets and single inline style/script assembly. Canonical `Gallery-current.html` and its immutable checkpoint remain authoritative; no new HTML checkpoint, numbered release, source-authority transition, module runtime or native changes. Synchronize derivative files from approved canonical edits and stage them with future publisher commits. Require exact round trip and both independent read-only checks. M2+ require further agreement; M1 canonical sync fails closed on multiple fragments.

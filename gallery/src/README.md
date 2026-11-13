@@ -1,20 +1,35 @@
-# Gallery asset separation — transitional build milestone
+# Gallery transitional modular source — M1
 
-The full canonical `gallery/Gallery-current.html` and its immutable checkpoint remain authoritative. This first reversible milestone extracts only the two original subtitle preview PNGs into `gallery/assets/subtitle-preview/` and creates a template with two exact replacement tokens. No artwork is edited or reencoded. No CSS/JS extraction or native app integration is performed yet.
+The full canonical `gallery/Gallery-current.html` and its immutable checkpoint **remain authoritative**. The asset-separated source has now been split losslessly into:
 
-Run from the repository root (Python 3 standard library only):
+- `Gallery.template.html`: HTML shell with one style-block and one classic-script-block token.
+- `styles/gallery.css`: exact existing CSS block, including original whitespace and cascade order.
+- `js/gallery.js`: exact existing classic JavaScript block, including original whitespace and execution order.
+- `build-manifest.json`: explicit ordered fragment paths. The builder concatenates file bytes without separators or transformations.
+- Original PNGs remain in `gallery/assets/subtitle-preview/`; the two image tokens remain in JavaScript.
+
+No library, bundler, module runtime, minification, reformatting, code cleanup, native integration or change to either delivered HTML is part of M1.
+
+Run from repository root (Python 3 standard library only):
 
 ```sh
 python3 gallery/tools/build-gallery.py
 python3 gallery/tools/build-gallery.py --mode subtitle-preview
 python3 gallery/tools/build-gallery.py --mode full
 python3 gallery/tools/build-gallery.py --check
+python3 gallery/tests/test_source_assembly.py
 ```
 
-- Default development mode writes the standalone tracked `gallery/Gallery-development.html`; both shrine layers use solid CSS background colors, retaining their geometry and shared scene selection.
-- Subtitle-preview mode writes `gallery/dist/Gallery-subtitle-preview.html`; full mode writes `gallery/dist/Gallery-full.html`. Both reconstruct the exact canonical HTML with the original PNGs embedded, offline and without network requests for those images. These are HTML prototypes, not native macOS builds.
-- `--output PATH` selects a different output. Do not commit incidental dist builds.
-- `--check` is read-only: compares both full modes to the canonical bytes and checkpoint SHA-256 and verifies the committed lightweight output exactly.
-- Use the commit-pinned lightweight file page for download only after both existing verification workflows pass on the build commit; use the existing canonical permalink for artwork-enabled testing.
+Development writes the tracked `Gallery-development.html` with solid scene colors. Full and subtitle-preview write standalone HTML under `gallery/dist/` with original artwork. `--output PATH` overrides the output; do not commit incidental dist builds. `--check` verifies both full modes, checkpoint and committed lightweight output byte-for-byte, without writing.
 
-The template and development output are transitional derivatives, not a new authority. Do not independently edit them. For the approved manual subtitle preview change, the controlled publisher patches the canonical HTML, regenerates the exact template and lightweight derivative, and stages all outputs with the new immutable checkpoint. Future publisher requests must synchronize these files before publication; no source authority has changed. Future incremental CSS/JS extraction and a source-authority change require a separate agreed migration. Historical checkpoints and native app branches remain untouched.
+## Canonical-first change workflow (transitional)
+
+Do not independently edit derivative fragments while canonical HTML is authoritative. For a newly approved change, patch the checksum-verified canonical HTML; run:
+
+```sh
+python3 gallery/tools/build-gallery.py --sync-from-canonical
+```
+
+This regenerates the shell, single CSS/JS files and lightweight output from the canonical bytes, preserving the exact asset substitutions. The controlled publisher invokes it after the approved patch and stages all of `gallery/src/`. If a future request needs candidate outputs within the script, use the builder's `sync_from_canonical()` function; do not write the old monolithic template. The sync command never writes canonical HTML, assets or checkpoints; it validates assembly before writes and refuses multiple fragments. The checkpoint is updated only by the existing approved publisher/staging process, and both independent checks still must pass.
+
+M2 CSS fragmentation needs a separately approved reversible synchronization strategy (explicit fragment boundaries or a different agreed canonical-first mechanism). The manifest already supports ordered multiple fragments, but M1 sync intentionally fails closed for that layout. Source-authority transition and JS module interfaces remain separate decisions. All historical checkpoints and native branches stay untouched.

@@ -32,6 +32,10 @@
 
 Documentation, workflows and test-runner changes require a GitHub commit and passing read-only checks, but do not create a new HTML checkpoint or numbered release. Retain separate secure permissions: checks use `contents: read`; only explicitly authorized development operations write commits.
 
+## Transitional modular source (M1)
+
+The canonical full HTML remains authoritative. `gallery/src/Gallery.template.html`, ordered `src/build-manifest.json`, `src/styles/gallery.css`, `src/js/gallery.js` and original assets reconstruct both build modes byte-for-byte. For newly approved HTML patches, use `python3 gallery/tools/build-gallery.py --sync-from-canonical` after editing canonical HTML; the controlled publisher does this automatically and stages all of `gallery/src/`. If a request script needs candidate outputs before returning, call the builder's `sync_from_canonical()`; never overwrite the shell with the old monolithic template. This M1 sync deliberately rejects multi-fragment manifests; agree a reversible strategy before M2. `--check` and the source assembly test remain read-only on the real checkout. No authority switch, new HTML checkpoint or numbered release for byte-identical infrastructure extraction.
+
 ## Historical source
 
 All old compressed checkpoints remain available. `gallery/tools/restore-checkpoint.py` is the recovery/verification path, while `gallery/Gallery-current.html` is the everyday editing baseline. Their hashes must match. The current HTML is a prototype, not proof of native player integration. User visual approval is separate from automated tests.
