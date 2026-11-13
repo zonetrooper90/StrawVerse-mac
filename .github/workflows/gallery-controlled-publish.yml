@@ -18,7 +18,9 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # The corrected Q2-B1 run has 24 theme/motion/build combinations and full regression.
+    # Keep the ordinary job limit unchanged for every other publishing request.
+    timeout-minutes: ${{ github.event.head_commit.message == 'Retry Q2-B1 after correcting hidden search-close test control' && 90 || 30 }}
     steps:
       - name: Checkout exact change request commit
         uses: actions/checkout@v7.0.1
@@ -78,6 +80,9 @@ jobs:
       - name: Compare approved Q2-B1 Downloads cleanup against exact baseline
         if: steps.change.outputs.id == '2026-11-13-q2b1-downloads-declarations'
         run: python3 gallery/audits/2026-11-13-q2b1-downloads-declarations-compare.py
+      - name: Compare approved Q2-B1 Downloads cleanup against exact baseline (corrected search interaction)
+        if: steps.change.outputs.id == '2026-11-13-q2b1-downloads-declarations-retry'
+        run: python3 gallery/audits/2026-11-13-q2b1-downloads-declarations-retry-compare.py
       - name: Run Watch History, navigation and motion regressions
         run: |
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
