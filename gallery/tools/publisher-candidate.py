@@ -36,7 +36,10 @@ def python(path,*args):
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 def names(*args):
-    return [x.decode("utf-8") for x in git(*args,"-z").split(b"\0") if x]
+    # Options must precede the pathspec separator (--), never follow it.
+    raw=git(args[0],"-z",*args[1:])
+    assert not raw or raw.endswith(b"\0"),"Git did not return NUL-delimited paths"
+    return [x.decode("utf-8") for x in raw.split(b"\0") if x]
 def tree():
     return git("write-tree").decode().strip()
 def assert_worktree_matches_index():

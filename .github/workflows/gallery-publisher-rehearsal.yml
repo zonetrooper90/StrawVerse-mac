@@ -6,6 +6,10 @@ on:
       - 'gallery/development-clean'
     paths:
       - '.github/workflows/gallery-publisher-rehearsal.yml'
+      - '.github/workflows/gallery-candidate-tests.yml'
+      - 'gallery/tools/publisher-candidate.py'
+      - 'gallery/tools/run-q2b1-comparison-shard.py'
+      - 'gallery/tests/test_publisher_candidate_paths.py'
 
 permissions:
   contents: read

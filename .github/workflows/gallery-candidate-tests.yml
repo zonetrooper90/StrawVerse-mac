@@ -47,6 +47,8 @@ jobs:
         env:
           BASE: ${{ inputs.base }}
         run: git worktree add --detach "$RUNNER_TEMP/gallery-candidate" "$BASE"
+      - name: Regression-test Git request and staged path parsing
+        run: python3 -B gallery/tests/test_publisher_candidate_paths.py
       - name: Verify baseline and prepare one exact approved candidate
         id: prepare
         working-directory: ${{ runner.temp }}/gallery-candidate
