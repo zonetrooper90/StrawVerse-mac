@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "id": "2026-11-13-infrastructure-audit",
+  "branch": "gallery/development-clean",
+  "tasks": [
+    "verify-independent-workflows",
+    "design-system-inventory",
+    "search-syntax-investigation"
+  ],
+  "mode": "read-only",
+  "stop": "human-review"
+}

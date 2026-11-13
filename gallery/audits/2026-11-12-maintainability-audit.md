@@ -270,3 +270,7 @@ Commit `d35973af7b248e81983e00e316e8e49f5f6275d0`: integrity 43391088833 and bro
 
 ## M5 approved core partition — 2026-11-13
 Split remaining 28,065-byte core preferences/navigation block into ten contiguous ordered fragments; compare exact reconstruction, retain other 43 script files and order. Total 53 JS fragments, 28 CSS fragments. Existing single-function core render and compact bootstrap remain intact. No runtime modules, refactors, generated HTML, CSS, asset, checkpoint or native changes. Both independent checks pending. Next: separately discuss design-system override audit.
+
+
+### M5 verification complete
+Commit `30e0b5d6155c91488968ebfb962db9615cc738b3`: integrity 43392666932 and browser 43392666888 both passed. Full/lightweight outputs and immutable checkpoint unchanged. Lossless structural migration complete (28 CSS, 53 JS fragments). Queue 1 approved separately: upgrade active workflow dependencies, require exact-commit independent verification, then read-only design-system inventory and isolated search error-recovery investigation. Results will be linked from the queue run; no CSS changes approved.
