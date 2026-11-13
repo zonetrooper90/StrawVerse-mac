@@ -9,6 +9,59 @@ assert 'GALLERY_COLLECTION_TRANSFER_UI_ENABLED=false' in source
 assert 'function showImport()' in source and 'function showShare()' in source
 with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
+    # Discover Search must collapse only the mounted Recently Watched wrapper,
+    # clip its contents, move Explore upward, and restore it on close.
+    for width,height,motion in ((1440,900,'no-preference'),(620,750,'no-preference'),(1440,900,'reduce')):
+        search_page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=motion)
+        search_errors=[]
+        search_page.on('pageerror',lambda exc: search_errors.append(str(exc)))
+        search_page.set_content(source,wait_until='domcontentloaded')
+        search_page.wait_for_selector('.sf-discover-page .continue-shell')
+        search_page.wait_for_timeout(200)
+        shell=search_page.locator('.sf-discover-page .continue-shell')
+        clip=shell.locator('.continue-clip')
+        assert clip.evaluate('(e)=>[getComputedStyle(e).minHeight,getComputedStyle(e).overflow]')==['0px','hidden'],('Search clip rule must apply',width,motion)
+        search_page.evaluate('window.__searchHistoryShell=document.querySelector(".sf-discover-page .continue-shell")')
+        def search_geometry():
+            return search_page.evaluate('''() => {
+                const shell=document.querySelector('.sf-discover-page .continue-shell');
+                const clip=shell.querySelector('.continue-clip');
+                const explore=document.querySelector('#sf-discover-explore');
+                const s=getComputedStyle(shell);
+                return {height:shell.getBoundingClientRect().height,clipHeight:clip.getBoundingClientRect().height,
+                    explore:explore.getBoundingClientRect().top,opacity:Number(s.opacity),
+                    pointerEvents:s.pointerEvents,transition:s.transitionProperty,
+                    sameNode:shell===window.__searchHistoryShell,open:searchOpen};
+            }''')
+        before=search_geometry()
+        assert before['height']>20 and before['opacity']==1 and not before['open'],before
+        if motion=='reduce':
+            assert before['transition']=='none',before
+        else:
+            assert 'grid-template-rows' in before['transition'],before
+        search_page.locator('#search').click()
+        search_page.wait_for_function('''() => {
+            const e=document.querySelector('.sf-discover-page .continue-shell');
+            return searchOpen && e.getBoundingClientRect().height<=1 && Number(getComputedStyle(e).opacity)<=0.01;
+        }''',timeout=5000)
+        collapsed=search_geometry()
+        assert collapsed['sameNode'] and collapsed['clipHeight']<=1 and collapsed['pointerEvents']=='none',collapsed
+        assert collapsed['explore']<before['explore']-20,(before,collapsed)
+        search_page.locator('#header-search-input').fill('anime')
+        assert search_geometry()['sameNode'],'Live search must not replace the Recently Watched wrapper'
+        search_page.locator('#header-search-input').press('Escape')
+        search_page.wait_for_function('''() => {
+            const e=document.querySelector('.sf-discover-page .continue-shell');
+            return !searchOpen && e.getBoundingClientRect().height>20 &&
+                Number(getComputedStyle(e).opacity)>=0.99 &&
+                !e.getAnimations().some(a=>a.playState==='running');
+        }''',timeout=5000)
+        restored=search_geometry()
+        assert restored['sameNode'] and abs(restored['height']-before['height'])<=2,(before,restored)
+        assert restored['explore']>collapsed['explore']+20 and restored['pointerEvents']!='none',restored
+        assert not search_errors,search_errors
+        print('PASS: Discover Search collapse/restore',width,motion,before['height'],collapsed['height'],restored['height'])
+        search_page.close()
     page=browser.new_page(viewport={'width':1200,'height':850})
     errors=[]
     page.on('pageerror', lambda exc: errors.append(str(exc)))
