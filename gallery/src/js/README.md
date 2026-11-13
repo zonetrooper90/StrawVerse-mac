@@ -1,15 +1,24 @@
-# Gallery JavaScript source map — M4
+# Gallery JavaScript source map — M5
 
-44 ordered source fragments reassemble the original 333,383-byte classic script exactly. `../build-manifest.json` is the sole assembly order; the builder adds zero bytes. No imports, exports, wrappers, module runtime, or changes to global scope, initialization order or hoisting.
+53 ordered source fragments reassemble the original 333,383-byte classic script exactly. `../build-manifest.json` is the sole assembly order; the builder adds zero bytes. No imports, exports, wrappers, module runtime, or changes to global scope, initialization order or hoisting.
 
-M4 partitions existing feature blocks in place. Numeric prefixes and suffixes describe assembly order, not independent runtime modules; several features remain in multiple nonadjacent files because initialization and execution order must stay exact. Core preferences/navigation, shared render, settings navigation state and startup remain candidates for separately approved M5. Sample fixtures and dormant transfers remain unchanged.
+M4 partitions existing feature blocks in place. Numeric prefixes and suffixes describe assembly order, not independent runtime modules; several features remain in multiple nonadjacent files because initialization and execution order must stay exact. M5 separates the remaining core preferences, state, route transitions, scroll overlay and tab navigation in place. Shared render, settings navigation state and bootstrap were already isolated by M4 and remain intact. Sample fixtures and dormant transfers remain unchanged.
 
 | Order / file | Original script lines | Bytes | Responsibility |
 |---|---:|---:|---|
 | `01-startup-preamble.js` | 1–11 | 1,129 | Strict mode and initial focus-modality listeners |
 | `02-shared-icons-and-escaping.js` | 12–14 | 3,277 | SVG dictionary, icon renderer and HTML escaping |
 | `03-data-anime-catalogue.js` | 15–30 | 3,828 | Demo title catalogue |
-| `04-core-preferences-and-navigation.js` | 31–557 | 28,065 | Existing preferences, state, route and tab lifecycles (M4/M5 follow-up) |
+| `04a-playback-preferences.js` | 31–68 | 1,931 | Autoplay, starting volume, persistence and session volume |
+| `04b-theme-and-app-state.js` | 69–74 | 972 | Theme validation and central application state |
+| `04c-font-preferences.js` | 75–115 | 2,858 | Typography specimens, font persistence and fallback |
+| `04d-route-transitions.js` | 116–227 | 6,514 | Shared DOM references, Player snapshot and coordinated route fades |
+| `04e-tab-state-and-dom.js` | 228–236 | 585 | Modal timer, tag count and tab DOM references |
+| `04f-shared-scroll-overlay.js` | 237–344 | 5,006 | Main tab and workspace scroll overlay lifecycle |
+| `04g-tab-lifecycle.js` | 345–368 | 815 | Tab readiness, active tab and accessibility state |
+| `04h-tab-rendering-and-events.js` | 369–458 | 5,550 | Tab event binding, Library rail and tab rendering |
+| `04i-tab-track-motion.js` | 459–516 | 2,280 | Tab track position and interruptible motion |
+| `04j-tab-navigation.js` | 517–557 | 1,554 | Tab visibility and route selection |
 | `05-shared-cards-and-headers.js` | 558–566 | 1,476 | Shared cards, gallery, search and page header helpers |
 | `06-data-watch-history.js` | 567–584 | 3,114 | History storage key, seed generator and sample records |
 | `07a-watch-history.js` | 585–974 | 30,990 | History lifecycle, recent preview, episode status and local playback tracking |
@@ -27,10 +36,10 @@ M4 partitions existing feature blocks in place. Numeric prefixes and suffixes de
 | `11f-player-motion.js` | 1801–1971 | 8,726 | Play/pause and next morphs, playback neighbors |
 | `11g-player-playback.js` | 1972–2146 | 9,311 | Demo/local playback, next state, volume and UI |
 | `11h-player-controls.js` | 2147–2273 | 9,624 | Player controls and initialization |
-| `11i-core-render.js` | 2274–2359 | 5,877 | Shared render and page event binding; M5 follow-up |
+| `11i-core-render.js` | 2274–2359 | 5,877 | Shared render and page event binding |
 | `11j-dialog-lifecycle.js` | 2360–2517 | 8,207 | Shared dialogs, focus and keyboard scrolling |
 | `11k-detail-and-download-entry-points.js` | 2518–2529 | 1,098 | Detail navigation and Downloads folder dialog |
-| `11l-settings-navigation-state.js` | 2530–2538 | 380 | Settings navigation state; M5 follow-up |
+| `11l-settings-navigation-state.js` | 2530–2538 | 380 | Settings navigation state |
 | `12-subtitle-presets.js` | 2539–2586 | 3,090 | Original image tokens, presets, font definitions and reference-size calculations |
 | `13-subtitle-preferences-and-settings-sections.js` | 2587–2617 | 1,558 | Subtitle preference lifecycle and Settings navigation definitions |
 | `14-data-source-providers.js` | 2618–2624 | 688 | Simulated source provider and repository records |
@@ -49,6 +58,8 @@ M4 partitions existing feature blocks in place. Numeric prefixes and suffixes de
 | `19e-settings-navigation.js` | 3789–4019 | 13,909 | Settings lifecycle, section changes, focus and scroll |
 | `19f-contextual-search.js` | 4020–4178 | 9,648 | Discover filters and contextual search |
 | `19g-library-dialogs.js` | 4179–4206 | 8,918 | Library tag and collection transfer dialogs |
-| `19h-bootstrap.js` | 4207–4208 | 1,356 | Final global event registration and startup; M5 follow-up |
+| `19h-bootstrap.js` | 4207–4208 | 1,356 | Final global event registration and startup |
 
 M4 baseline: `36c97fc3f9ab924bf23df6bab3b30157c5c785a2`. All four split blocks reconstruct their prior contents exactly; other 15 files retain their existing bytes and manifest positions. Existing image tokens remain in `12-subtitle-presets.js`. Preserve all six themes, navigation, motion, persistence, separate scrollbars, modal lifecycles, native bridge, tests and approved behavior. Actual runtime modules, shared-state refactors or reordering require separate approval.
+
+M5 baseline: `d35973af7b248e81983e00e316e8e49f5f6275d0`. The 28,065-byte core block is split into ten contiguous fragments that reconstruct it exactly; all other script fragments retain their bytes and manifest order. The rendering function and compact startup line remain intact. This completes lossless source fragmentation, not a runtime-module or state-management refactor.

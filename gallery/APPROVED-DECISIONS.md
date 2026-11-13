@@ -232,3 +232,7 @@ User approved proceeding with JavaScript modularization first, then the separate
 
 ## 2026-11-13 — M4 feature-specific JavaScript partition
 User approved proceeding after M3 verification: partition remaining large feature blocks in place without altering any assembled script byte, execution order, global scope, CSS, assets, HTML, checkpoint or native branches. Preserve interleaved feature sections where needed; no imports, exports, deletions, refactoring or numbered release. M5 core work and design-system override changes remain separate. Require both independent checks.
+
+
+## 2026-11-13 — M5 core JavaScript partition
+User approved final lossless source fragmentation after verified M4. Split remaining core preferences, app state, font preferences, route transitions, scroll overlay, tab lifecycle, rendering/event binding and tab motion/navigation in place. Keep the already isolated core render and bootstrap unchanged; no splitting functions, reordering, runtime module conversion or behavior changes. Preserve exact script bytes, CSS, assets, generated HTML, immutable checkpoint and native branches. Both independent checks required. Design-system override audit follows separately; no override cleanup or syntax correction authorized.

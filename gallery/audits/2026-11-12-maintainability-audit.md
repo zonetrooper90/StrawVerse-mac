@@ -263,3 +263,10 @@ Commit `36c97fc3f9ab924bf23df6bab3b30157c5c785a2`: integrity 43389079849 and bro
 
 ## M4 approved feature partition — 2026-11-13
 Verified M3 baseline above; split four large transitional fragments into 29 ordered feature sections, retaining 15 other files unchanged. Total 44 JS fragments; each split reconstructs its original block exactly and manifest ordering of unchanged files is preserved. See `gallery/src/js/README.md`. Keep feature sections interleaved when original execution order requires; no runtime refactoring, CSS/HTML/asset/checkpoint edits. Both independent checks pending; M5 separate.
+
+
+### M4 verification complete
+Commit `d35973af7b248e81983e00e316e8e49f5f6275d0`: integrity 43391088833 and browser 43391088840 both passed; exact full and lightweight outputs and immutable checkpoint unchanged.
+
+## M5 approved core partition — 2026-11-13
+Split remaining 28,065-byte core preferences/navigation block into ten contiguous ordered fragments; compare exact reconstruction, retain other 43 script files and order. Total 53 JS fragments, 28 CSS fragments. Existing single-function core render and compact bootstrap remain intact. No runtime modules, refactors, generated HTML, CSS, asset, checkpoint or native changes. Both independent checks pending. Next: separately discuss design-system override audit.
