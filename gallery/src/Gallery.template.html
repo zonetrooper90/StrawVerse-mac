@@ -113,22 +113,22 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .detail-cover::after{content:"";position:absolute;inset:43% 0 0;background:linear-gradient(0deg,rgba(0,0,0,.47),transparent);z-index:-1}
 .detail-cover::before{content:"";position:absolute;width:85%;aspect-ratio:1;border:2px solid rgba(255,255,255,.3);border-radius:50%;left:9%;top:13%;box-shadow:0 0 0 24px rgba(255,255,255,.035);z-index:-1}
 .detail-cover-name{font:700 27px/.98 Georgia,serif;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5);text-wrap:balance;letter-spacing:-.03em}
-.detail-kicker{font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--accent);font-weight:750;margin:3px 0 9px}
+
 .detail-title{font-size:clamp(27px,3vw,37px);line-height:1.08;letter-spacing:-.045em;font-weight:745;margin:0 0 15px}
 .detail-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .detail-badge{border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11.5px;color:var(--muted);background:var(--surface)}
 .detail-badge strong{color:var(--ink);font-weight:650}.detail-description{font-size:14px;line-height:1.65;color:var(--muted);margin:0 0 19px;max-width:650px}
 .detail-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.detail-actions .btn{min-height:40px}
-.detail-helper{font-size:11px;color:var(--muted);margin:11px 0 0;line-height:1.4}
-.detail-section{border-top:1px solid var(--line);padding-top:23px}.detail-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
-.detail-section-head h2{font-size:21px;letter-spacing:-.03em}
-.season-select{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
-.season-select select{border:1px solid var(--line);background:var(--raised);border-radius:10px;color:var(--ink);padding:9px 32px 9px 11px;max-width:210px;cursor:pointer;font-size:12px}
+
+.detail-section{border-top:1px solid var(--line);padding-top:23px}
+
+
+
 .availability{display:flex;gap:19px;align-items:center;flex-wrap:wrap;padding:12px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:11px}
 .availability-label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
 .availability-value{font-weight:720;color:var(--ink);font-variant-numeric:tabular-nums}
 .availability small{display:block;font-size:10px;opacity:.75;margin-top:2px}
-.availability .season-status{margin-left:auto;font-size:11px;color:var(--muted)}
+
 .episode-list{display:flex;flex-direction:column;gap:0}
 .episode-item{display:grid;grid-template-columns:44px minmax(160px,1fr) minmax(140px,auto) auto;align-items:center;gap:14px;border:0;border-radius:0;min-height:74px;padding:10px 12px;background:transparent;box-shadow:none;cursor:default}
 .episode-divider{height:1px;flex:none;background:var(--line);margin:7px 12px;pointer-events:none}
@@ -144,7 +144,7 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .preview-warning{font-size:12px;line-height:1.5;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;margin:11px 0}
 .tag-picker-list{display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;margin:16px 0}.tag-picker-list label{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);cursor:pointer}.tag-picker-list input{accent-color:var(--accent);width:16px;height:16px}
 @media(max-width:850px){.detail-hero{grid-template-columns:160px minmax(0,1fr);gap:22px}.detail-cover-name{font-size:23px}.episode-item{grid-template-columns:36px minmax(125px,1fr) auto;gap:9px}.episode-flags{grid-column:2;grid-row:2}.episode-actions{grid-column:3;grid-row:1 / span 2}.episode-item{min-height:88px}.episode-no{font-size:19px}.availability{gap:11px}}
-@media(max-width:570px){.detail-hero{grid-template-columns:114px minmax(0,1fr);gap:15px;margin-bottom:23px}.detail-title{font-size:24px}.detail-cover{border-radius:10px;padding:9px}.detail-cover-name{font-size:15px}.detail-description{font-size:12px;line-height:1.5;margin-bottom:11px}.detail-kicker{font-size:9px}.detail-badges{gap:5px;margin-bottom:10px}.detail-badge{padding:5px 7px;font-size:10px}.detail-actions .btn{min-height:34px;padding:8px;font-size:11px;gap:5px}.detail-helper{font-size:10px}.availability{gap:8px}.availability .season-status{margin-left:0}.availability-label{font-size:11px}.detail-section-head h2{font-size:18px}.season-select{gap:5px}.season-select select{max-width:138px}.episode-item{padding:9px 4px;grid-template-columns:27px minmax(100px,1fr) auto}.episode-no{font-size:16px}.episode-name{font-size:12px}.episode-actions .iconbtn{width:31px;height:31px}.audio-flag{padding:5px 7px;font-size:9px}}
+@media(max-width:570px){.detail-hero{grid-template-columns:114px minmax(0,1fr);gap:15px;margin-bottom:23px}.detail-title{font-size:24px}.detail-cover{border-radius:10px;padding:9px}.detail-cover-name{font-size:15px}.detail-description{font-size:12px;line-height:1.5;margin-bottom:11px}.detail-badges{gap:5px;margin-bottom:10px}.detail-badge{padding:5px 7px;font-size:10px}.detail-actions .btn{min-height:34px;padding:8px;font-size:11px;gap:5px}.availability{gap:8px}.availability-label{font-size:11px}.episode-item{padding:9px 4px;grid-template-columns:27px minmax(100px,1fr) auto}.episode-no{font-size:16px}.episode-name{font-size:12px}.episode-actions .iconbtn{width:31px;height:31px}.audio-flag{padding:5px 7px;font-size:9px}}
 @media(max-width:370px){.detail-cover-name{font-size:13px}.detail-title{font-size:21px}.detail-badge:nth-child(3){display:none}.detail-actions{gap:5px}}
 
 /* Shared availability indicators. */
@@ -156,11 +156,11 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 
 /* v25 — Audio segmented pill, season overflow and action-aligned episode flags. */
 .detail-audio-toggle{position:relative;isolation:isolate;overflow:hidden}
-.detail-audio-highlight{position:absolute;left:4px;top:4px;bottom:4px;width:calc((100% - 12px)/2);border:1px solid var(--accent);border-radius:9px;background:var(--tab);transform:translateX(0);transition:transform .34s cubic-bezier(.22,.72,.19,1);pointer-events:none;z-index:0;box-sizing:border-box}
-.detail-audio-toggle[data-active="dub"] .detail-audio-highlight{transform:translateX(calc(100% + 4px))}
+
+
 .detail-audio-toggle button{z-index:1;position:relative;transition:color .18s ease,background .18s ease}
 .detail-audio-toggle button[aria-pressed="true"]{background:transparent;border-color:transparent;color:var(--accent-ink)}
-.detail-audio-toggle.is-returning .detail-audio-highlight{transition-duration:.52s;transition-timing-function:cubic-bezier(.20,.74,.18,1)}
+
 .detail-audio-toggle button::before{content:"";position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--accent) 60%,transparent);border-radius:8px;background:color-mix(in srgb,var(--accent) 8%,transparent);opacity:0;pointer-events:none;z-index:-1;transition:opacity .42s ease-in-out}
 .detail-audio-toggle.is-hovering-other button[aria-pressed="true"]::before{opacity:1}
 .detail-audio-toggle.is-hovering-other button[aria-pressed="true"]{color:var(--accent)}
@@ -182,32 +182,32 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 }
 @media(max-width:390px){.episode-item{padding:9px 2px}.episode-tools{gap:4px}.episode-actions{gap:3px}}
 @media(max-width:570px){.episode-divider{margin-inline:4px}}
-@media(prefers-reduced-motion:reduce){.detail-audio-highlight{transition:none}}
+@media(prefers-reduced-motion:reduce){}
 
 /* v0.10 — Connected seasons: title-first cards, independently selected installments,
    separate related films/specials, no synthetic streaming availability claims. */
-.connected-section{border-top:1px solid var(--line);padding-top:20px;margin:0 0 24px}
-.connected-section-header{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:13px}
-.connected-section-header h2{font-size:19px;letter-spacing:-.03em;margin:0}
-.connected-section-note{font-size:11px;color:var(--muted);line-height:1.4}
-.connected-season-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(166px,1fr));gap:9px}
-.connected-season-card{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:105px;padding:13px 12px;text-align:left;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);transition:border-color .15s,background .15s}
-.connected-season-card:hover:not([aria-pressed="true"]){background:var(--hover)}
-.connected-season-card[aria-pressed="true"]{border-color:var(--accent);background:var(--strong);box-shadow:0 0 0 1px var(--glow) inset}
-.connected-season-copy{min-width:0;display:flex;flex-direction:column;gap:5px}
-.connected-season-name{font-size:13px;font-weight:750;line-height:1.25;overflow-wrap:anywhere}
-.connected-season-number{font-size:11px;color:var(--muted);line-height:1.3}
-.connected-season-provider{font-size:10px;color:var(--muted);line-height:1.25;margin-top:2px}
-.connected-season-card[aria-pressed="true"] .connected-season-provider{color:var(--ink)}
-.connected-season-check{flex:none;color:var(--accent)}
-.connected-related{margin-top:16px;border-top:1px solid var(--line);padding-top:15px}
-.connected-related-header{font-size:12px;font-weight:740;color:var(--ink);margin-bottom:9px}
-.connected-related-list{display:flex;gap:8px;flex-wrap:wrap}
-.connected-related-button{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 13px;display:flex;gap:10px;align-items:center;text-align:left;color:var(--ink);min-width:0}
-.connected-related-button:hover:not([aria-pressed="true"]){background:var(--hover)}
-.connected-related-button[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
-.connected-related-button b{display:block;font-size:12px;font-weight:700;line-height:1.35}
-.connected-related-button small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .selected-installment{font-size:14px;color:var(--accent);font-weight:710;line-height:1.35;margin:-4px 0 11px}
 .selected-installment small{font-size:11px;font-weight:560;color:var(--muted);display:block;margin-top:4px}
 .installment-meta-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:9px}
@@ -215,9 +215,9 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .provider-unmatched strong{display:block;font-size:13px;margin-bottom:6px}
 .provider-unmatched p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
 .provider-unmatched .btn{flex:none}
-@media(max-width:850px){.connected-season-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:570px){.connected-season-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.connected-season-card{padding:10px;min-height:99px}.connected-season-name{font-size:12px}.connected-section-header{align-items:flex-start;flex-direction:column;gap:4px}.provider-unmatched{flex-direction:column;gap:10px}}
-@media(max-width:370px){.connected-season-list{grid-template-columns:1fr}.connected-season-card{min-height:72px}}
+@media(max-width:850px){}
+@media(max-width:570px){.provider-unmatched{flex-direction:column;gap:10px}}
+@media(max-width:370px){}
 
 /* v0.12 — in-context installment navigation. Nothing opens over the episode list. */
 .inline-installments{margin-bottom:20px}
@@ -237,8 +237,8 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .inline-installment-card .icon{color:var(--accent);flex:none}
 .inline-installment-card:not([aria-current=true]) .icon{display:none}
 .inline-installment-rail:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.detail-section-head.installment-section-head{align-items:center;gap:12px;margin-bottom:12px}
-.detail-section-head.installment-section-head .season-select{display:block;overflow-wrap:anywhere;text-align:right}
+
+
 @media(max-width:700px){
  .inline-installment-card{flex-basis:clamp(170px,55%,240px)}
  .inline-installments{margin-bottom:14px}
@@ -249,7 +249,7 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
  .inline-arrow{width:29px;height:29px}
  .inline-installment-card{flex-basis:76%;max-width:245px}
  .inline-installment-card .installment-name{font-size:12px}
- .detail-section-head.installment-section-head{flex-direction:row;align-items:baseline}
+ 
 }
 
 /* v0.14 — Responsive, in-context playback row.
@@ -322,12 +322,12 @@ body{background:var(--desktop);color:var(--ink);padding:20px;transition:backgrou
 .playback-heading h1{font-size:clamp(24px,3vw,35px);margin:0 0 8px}
 .playback-meta{font-size:13px;color:var(--muted);margin:0;line-height:1.6}
 .playback-audio{border:1px solid var(--line);border-radius:99px;padding:8px 13px;font-size:12px;color:var(--ink);background:var(--surface);white-space:nowrap}
-.playback-screen{width:100%;aspect-ratio:16/9;border-radius:17px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 44%,var(--raised) 0%,var(--window) 72%);display:grid;place-items:center;min-height:210px;overflow:hidden}
-.playback-screen-center{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:11px;text-align:center;padding:16px;max-width:420px;color:var(--accent)}
-.playback-screen-center strong{color:var(--ink);font-size:19px}
-.playback-screen-center span{color:var(--muted);font-size:13px;line-height:1.5}
+
+
+
+
 .playback-footnote{color:var(--muted);font-size:12px;line-height:1.7;max-width:720px;margin:17px 0}
-@media(max-width:570px){.playback-heading{align-items:start;margin-top:15px}.playback-audio{font-size:11px}.playback-screen{min-height:210px}.playback-screen-center strong{font-size:17px}}
+@media(max-width:570px){.playback-heading{align-items:start;margin-top:15px}.playback-audio{font-size:11px}}
 
 
 /* Custom player layout; design based on Gallery v0.14. */
@@ -475,7 +475,7 @@ body.player-view .player-dev-tools{margin:8px auto 0;max-width:1120px;border:1px
 }
 .poster{transition:transform .22s cubic-bezier(.2,.75,.2,1),box-shadow .22s ease}
 /* Episode rows are non-interactive; only the individual Play and Download buttons respond to hover. */
-.connected-season-card,.inline-installment-card{transition:background-color .18s ease,border-color .18s ease}
+.inline-installment-card{transition:background-color .18s ease,border-color .18s ease}
 .btn:active:not(:disabled),.iconbtn:active:not(:disabled),.player-icon:active:not(:disabled),.player-main-action:active:not(:disabled){transform:scale(.98)}
 /* v49 — A focused text input matches :focus-visible even after a mouse click.
    Suppress that ring during pointer use; retain it for Tab-based navigation. */
@@ -653,7 +653,7 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 .detail-browsing-progress{font-variant-numeric:tabular-nums;border-left:1px solid var(--line);padding-left:14px}
 .detail-browsing-progress small{font-size:10px}
 .episode-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
-.episode-heading-count{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+
 .episode-filter{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 12px;align-items:center}
 .episode-filter button{border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:12px;font-weight:650;padding:8px 13px;min-height:34px;cursor:pointer;line-height:1.2}
 .episode-filter button span{color:inherit;opacity:.68;font-size:10px;margin-left:4px;font-variant-numeric:tabular-nums}
@@ -664,9 +664,9 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 /* No selected-row styling: episodes are actions, not selectable list items. */
 .episode-item.episode-not-playable .episode-subtext{color:var(--muted)}
 .episode-item .episode-copy{min-width:0}
-.episode-item .episode-select{min-width:0}
+
 .episode-item .episode-name{overflow-wrap:anywhere}
-.episode-item .episode-selected{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--raised);color:var(--accent-ink);padding:2px 7px;border-radius:999px;font-size:10px;line-height:1.4;vertical-align:middle}
+
 .episode-item .episode-actions button:disabled{opacity:.35;cursor:not-allowed}
 .episode-empty-filter{border:1px dashed var(--line);border-radius:12px;color:var(--muted);background:var(--surface);padding:24px 18px;font-size:12px;line-height:1.65}
 .episode-empty-filter strong{color:var(--ink)}
@@ -678,8 +678,8 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 }
 @media(max-width:430px){
  .detail-browsing-progress{border-left:0;padding-left:0;flex-basis:100%}
- .episode-heading-count{font-size:10px}
- .episode-item .episode-selected{font-size:9px;margin-left:5px}
+ 
+ 
 }
 
 
@@ -689,8 +689,8 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 .detail-audio-toggle button:not([aria-pressed="true"]):not(:hover){background:transparent}
 /* Match the pill to the true grid cell positions at each responsive width. */
 .detail-audio-toggle{--audio-pad:4px;--audio-gap:4px;gap:var(--audio-gap);padding:var(--audio-pad)}
-.detail-audio-highlight{left:calc(var(--audio-pad) + 1px);top:calc(var(--audio-pad) + 1px);bottom:calc(var(--audio-pad) + 1px);width:calc((100% - 2px - var(--audio-pad) - var(--audio-pad) - var(--audio-gap)) / 2)}
-.detail-audio-toggle[data-active="dub"] .detail-audio-highlight{transform:translateX(calc(100% + var(--audio-gap)))}
+
+
 @media(max-width:850px){.detail-audio-toggle{--audio-pad:3px;--audio-gap:3px}}
 @media(max-width:370px){.detail-audio-toggle{--audio-pad:2px;--audio-gap:2px}}
 /* v27 — The selection ghost belongs to each button, not only aria-pressed=true,
@@ -758,7 +758,7 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
    Only the filter changes state; no extra movement is added. */
 .episode-toolbar{display:flex;align-items:center;gap:17px;margin:0 0 13px;min-width:0}
 .episode-toolbar .episode-heading{flex:0 0 90px;min-width:0;align-self:center;display:flex;align-items:center}
-.episode-toolbar .episode-heading .season-select{display:none}
+
 .episode-toolbar .episode-availability{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px 7px 14px;margin:0;border-radius:12px}
 .episode-availability .episode-stats{display:flex;align-items:center;gap:15px;min-width:0;flex-wrap:wrap;row-gap:6px}
 .episode-availability .episode-shown{display:inline-flex;align-items:center;gap:13px;white-space:nowrap;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;opacity:1;transition:opacity .42s ease}
@@ -3144,7 +3144,7 @@ body[data-theme] .sf-subtitle-scene-toggle{
  box-shadow:inset 0 2px 9px #0003,0 6px 20px #0002;
  overflow:visible;
 }
-body[data-theme] .detail-audio-highlight{display:none!important}
+
 body[data-theme] .detail-audio-toggle>button,
 body[data-theme] .sf-subtitle-scene-toggle>button{
  position:relative;isolation:isolate;overflow:hidden;

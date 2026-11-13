@@ -437,5 +437,132 @@ with sync_playwright() as pw:
                 for stage in before:
                     assert before[stage]==after[stage],(filename,width,motion,stage)
                 print("C4a Downloads equivalence passed:",filename,width,motion,"six themes, expansion, scroll, progress, pause/resume, retry, cancel, dismiss/undo, filter and reset",flush=True)
+    # C4b: compare actual detail screens with the immediately preceding archive.
+    if hashlib.sha256((root / "Gallery-current.html").read_bytes()).hexdigest() == "1d10fb028639f3b4f04c9a9193bc5eeb0e4c25f7a5b7a71ec72de28ece56625f":
+        old_dir = root / "checkpoints/2026-11-13-retired-downloads-css"
+        manifest = json.loads((old_dir / "manifest.json").read_text())
+        chunks = []
+        for part in manifest["parts"]:
+            data = (old_dir / part["file"]).read_bytes()
+            assert len(data) == part["encoded_chars"] and hashlib.sha256(data).hexdigest() == part["sha256"]
+            chunks.append(data)
+        compressed = base64.b64decode(b"".join(chunks), validate=True)
+        assert len(compressed) == manifest["compressed_bytes"] and hashlib.sha256(compressed).hexdigest() == manifest["compressed_sha256"]
+        old_full = gzip.decompress(compressed)
+        assert len(old_full) == 6910290 and hashlib.sha256(old_full).hexdigest() == "197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f"
+        builder = runpy.run_path(str(root / "tools/build-gallery.py"))
+        old_light = old_full
+        for name in ("day", "night"):
+            asset = (root / "assets/subtitle-preview" / f"shrine-{name}.png").read_bytes()
+            old_light = builder["replace_once"](old_light, b"data:image/png;base64," + base64.b64encode(asset), builder["COLORS"][name])
+        for old, new in builder["LIGHT_PATCHES"]:
+            old_light = builder["replace_once"](old_light, old, new)
+        assert hashlib.sha256(old_light).hexdigest() == "2a5fabdd447d1955f17f4f9092c3eddf2faa61145f4d2aee147df6e36de94fd5"
+        retired_classes = ["detail-kicker","detail-helper","detail-section-head","season-select","season-status","detail-audio-highlight","connected-section","connected-section-header","connected-section-note","connected-season-list","connected-season-card","connected-season-copy","connected-season-name","connected-season-number","connected-season-provider","connected-season-check","connected-related","connected-related-header","connected-related-list","connected-related-button","playback-screen","playback-screen-center","episode-heading-count","episode-select","episode-selected"]
+        themes = ("ocean","twilight","ember","slate","glacier","verdant")
+        def detail_snapshot(source,width,motion):
+            pg=browser.new_page(viewport={"width":width,"height":950},reduced_motion=motion)
+            errors=[]
+            pg.on("pageerror",lambda e:errors.append(str(e)))
+            try:
+                pg.set_content(source.decode("utf-8"),wait_until="domcontentloaded")
+                pg.wait_for_timeout(240)
+                def route_idle():
+                    pg.wait_for_function("""() => !galleryStageFadeInProgress && !galleryStageTransition && !galleryStageMutating && !galleryStagePending && !document.querySelector('.app').classList.contains('gallery-route-transitioning')""",timeout=6000)
+                def click(selector):
+                    route_idle()
+                    pg.locator(selector).evaluate("(e)=>e.click()")
+                def open_detail(id):
+                    route_idle()
+                    pg.evaluate("(id)=>showDetail(id)",id)
+                    pg.wait_for_function("(id)=>state.detailId===id && !state.playback && !galleryStageTransition && !!document.querySelector('.anime-detail')",arg=id)
+                    route_idle()
+                def settle():
+                    route_idle()
+                    pg.mouse.move(0,0)
+                    pg.evaluate("() => {for(const e of document.querySelectorAll('.anime-detail,.anime-detail *'))getComputedStyle(e).color}")
+                    pg.wait_for_function("""() => !document.getAnimations().some(a=>a.effect?.target?.closest?.('.anime-detail') && (a.playState==='running'||a.pending) && Number.isFinite(a.effect.getComputedTiming().endTime))""",timeout=6000)
+                    pg.evaluate("() => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
+                def snap():
+                    settle()
+                    assert pg.locator(",".join("."+c for c in retired_classes)).count()==0
+                    return pg.evaluate("""() => {
+                        const props=['display','visibility','position','opacity','color','backgroundColor','backgroundImage','borderColor','borderRadius','boxShadow','width','height','padding','margin','gap','gridTemplateColumns','gridTemplateRows','gridArea','flexBasis','overflowX','overflowY','transitionProperty','transitionDuration','transform'];
+                        return [...document.querySelectorAll('.anime-detail,.anime-detail *')].map(e=>{
+                            const c=getComputedStyle(e),r=e.getBoundingClientRect();
+                            const pseudo=e.matches('[data-detail-audio],.inline-installment-card')?['::before','::after'].map(p=>{const x=getComputedStyle(e,p);return [x.opacity,x.backgroundImage,x.transitionDuration]}):[];
+                            return [e.tagName,e.getAttribute('class'),e.getAttribute('aria-current'),e.getAttribute('aria-pressed'),e.hasAttribute('disabled'),[r.x,r.y,r.width,r.height].map(x=>Math.round(x*10)/10),props.map(p=>c[p]),pseudo];
+                        });
+                    }""")
+                def select(id):
+                    click('[data-inline-installment="'+id+'"]')
+                    assert pg.locator('[data-inline-installment="'+id+'"]').get_attribute("aria-current")=="true"
+                    assert pg.evaluate("activeInstallment(demo.find(d=>d.id===state.detailId)).id")==id
+                def audio(lang):
+                    click('[data-detail-audio="'+lang+'"]')
+                    assert pg.locator('[data-detail-audio="'+lang+'"]').get_attribute("aria-pressed")=="true"
+                def count(n):
+                    assert pg.locator(".episode-item").count()==n
+                result={}
+                open_detail("demo:quints")
+                count(12)
+                assert pg.locator(".inline-installment-card").count()==5
+                for theme in themes:
+                    pg.evaluate("(t)=>{state.theme=t;document.body.dataset.theme=t}",theme)
+                    result["initial-"+theme]=snap()
+                select("quints-s2")
+                count(12)
+                result["season"]=snap()
+                select("quints-movie")
+                count(1)
+                result["movie"]=snap()
+                select("quints-sp-2023")
+                count(2)
+                result["special"]=snap()
+                open_detail("demo:solo")
+                select("solo-s2")
+                audio("dub")
+                count(13)
+                assert pg.locator(".episode-item.episode-not-playable").count()==4
+                result["dub-all"]=snap()
+                click('[data-episode-filter="playable"]')
+                count(9)
+                assert pg.locator('[data-episode-filter="playable"]').get_attribute("aria-pressed")=="true"
+                result["dub-playable"]=snap()
+                audio("sub")
+                count(13)
+                result["sub-playable"]=snap()
+                audio("dub")
+                count(9)
+                click('.detail-actions [data-episode-action="watch"]')
+                pg.wait_for_selector("#player-area")
+                pg.wait_for_function("() => state.playback && !galleryStageTransition")
+                assert pg.evaluate("state.playback.audio")=="dub"
+                assert pg.evaluate("state.playback.installmentId")=="solo-s2"
+                click("#back-from-playback")
+                pg.wait_for_function("() => !state.playback && !galleryStageTransition && !!document.querySelector('.anime-detail')")
+                route_idle()
+                assert pg.locator('[data-inline-installment="solo-s2"]').get_attribute("aria-current")=="true"
+                assert pg.locator('[data-detail-audio="dub"]').get_attribute("aria-pressed")=="true"
+                count(9)
+                result["player-return"]=snap()
+                open_detail("demo:aot")
+                select("aot-s3")
+                assert pg.locator(".provider-unmatched").count()==1
+                assert pg.locator(".detail-actions [data-episode-action='watch']").is_disabled()
+                count(0)
+                result["unmatched"]=snap()
+                assert not errors,errors
+                return result
+            finally:
+                pg.close()
+        for filename,old in (("Gallery-current.html",old_full),("Gallery-development.html",old_light)):
+            new=(root / filename).read_bytes()
+            for width,motion in ((1600,"reduce"),(700,"reduce"),(420,"reduce"),(340,"reduce"),(700,"no-preference")):
+                before,after=detail_snapshot(old,width,motion),detail_snapshot(new,width,motion)
+                assert before.keys()==after.keys()
+                for stage in before:
+                    assert before[stage]==after[stage],(filename,width,motion,stage)
+                print("C4b Anime detail equivalence passed:",filename,width,motion,"six themes, seasons, related releases, audio, filters, unmatched sources and Player return",flush=True)
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")

@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-retired-downloads-css",
-  "sha256": "197ee5e257d1e3236e336450a29609717ed25152e647abd9c0f428148300df1f",
-  "bytes": 6910290,
+  "folder": "2026-11-13-retired-anime-detail-css-retry",
+  "sha256": "1d10fb028639f3b4f04c9a9193bc5eeb0e4c25f7a5b7a71ec72de28ece56625f",
+  "bytes": 6904238,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
