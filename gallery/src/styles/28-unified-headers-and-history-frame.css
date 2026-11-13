@@ -114,3 +114,16 @@ body.watch-history-view:not(.desktop-build) .top .brand-row{margin-bottom:0}
 /* Watch History reuses Anime's exact page-header markup and header geometry;
    it is deliberately *not* a separate CSS approximation. Keep its full width. */
 #wh-root > .wh-page-header{width:100%}
+
+/* DS02: one theme-aware secondary-page Back button color treatment.
+   Preserve feature-specific geometry, focus rings and motion. */
+body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .detail-back,.settings-page-head .settings-back){
+  color:var(--accent);
+  background:color-mix(in srgb,var(--panel) 88%,var(--accent) 12%);
+  border-color:color-mix(in srgb,var(--panel2) 45%,var(--accent) 55%);
+}
+body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .detail-back,.settings-page-head .settings-back):hover{
+  color:var(--accent);
+  background:color-mix(in srgb,var(--panel) 80%,var(--accent) 20%);
+  border-color:color-mix(in srgb,var(--panel2) 30%,var(--accent) 70%);
+}

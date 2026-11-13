@@ -3,8 +3,7 @@
 .playback-compactbar{justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px}
 .playback-title-inline{order:0;flex:1 1 auto;justify-content:flex-start;align-items:center;gap:0;min-width:0}
 .playback-title-inline strong{font-size:16px;line-height:1.3}
-.playback-compactbar .detail-back{order:1;flex:none;margin:0 0 0 auto;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--raised);color:var(--ink)}
-.playback-compactbar .detail-back:hover{background:var(--hover)}
+.playback-compactbar .detail-back{order:1;flex:none;margin:0 0 0 auto;padding:7px 12px;border:1px solid var(--line);border-radius:999px}
 .player-episode-nav{grid-template-columns:minmax(0,1fr) minmax(95px,1.3fr) minmax(0,1fr);gap:8px}
 .player-episode-nav .player-episode-slot{display:flex;align-items:center;min-width:0}
 .player-episode-nav .player-episode-slot.is-previous{justify-content:flex-start}
@@ -48,10 +47,8 @@
 .detail-page-header .detail-back{
  flex:none;margin:0;align-self:center;
  border:1px solid var(--line);border-radius:999px;
- background:var(--raised);color:var(--ink);
  padding:9px 13px;white-space:nowrap
 }
-.detail-page-header .detail-back:hover{background:var(--hover)}
 .detail-hero .detail-overview{padding-top:3px}
 .detail-hero .detail-badges{margin-top:0}
 /* In web preview, preserve Gallery's brand/settings row but not tabs.
@@ -77,10 +74,9 @@ body.player-view .playback-compactbar .playback-title-inline{
 }
 body.player-view .playback-compactbar .detail-back{
  flex:none;align-self:center;margin:0 0 0 auto;white-space:nowrap;
- background:var(--raised);border:1px solid var(--line);
+ border:1px solid var(--line);
  border-radius:999px;padding:8px 12px
 }
-body.player-view .playback-compactbar .detail-back:hover{background:var(--hover)}
 @media(max-width:500px){
  .detail-page-header{gap:8px;padding-bottom:12px}
  .detail-page-header .detail-title{font-size:clamp(18px,5vw,24px)}

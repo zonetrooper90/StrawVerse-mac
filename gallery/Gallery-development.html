@@ -2293,8 +2293,7 @@ body[data-theme] .settings-theme-tile .swatch{height:52px;border-radius:11px;bor
 body[data-theme] .settings-theme-tile b{font-size:14px}
 body[data-theme] .settings-theme-tile>.icon{top:23px;right:20px;filter:drop-shadow(0 0 2px #000)}
 body[data-theme] .settings-theme-list{gap:12px}
-body[data-theme] .settings-back{border:1px solid var(--nav-border);border-radius:999px;background:var(--panel2);padding:10px 16px}
-body[data-theme] .settings-back:hover{background:var(--nav-hover)}
+body[data-theme] .settings-back{border:1px solid var(--nav-border);border-radius:999px;padding:10px 16px}
 body[data-theme] .appearance-subnav,body[data-theme] .settings-card select{border-color:var(--line)}
 body[data-theme] button:focus-visible,body[data-theme] input:focus-visible,body[data-theme] select:focus-visible{outline-color:var(--focus)}
 /* Keep the existing responsive behavior until the layout integration stage. */
@@ -3369,8 +3368,7 @@ body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
 .playback-compactbar{justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px}
 .playback-title-inline{order:0;flex:1 1 auto;justify-content:flex-start;align-items:center;gap:0;min-width:0}
 .playback-title-inline strong{font-size:16px;line-height:1.3}
-.playback-compactbar .detail-back{order:1;flex:none;margin:0 0 0 auto;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--raised);color:var(--ink)}
-.playback-compactbar .detail-back:hover{background:var(--hover)}
+.playback-compactbar .detail-back{order:1;flex:none;margin:0 0 0 auto;padding:7px 12px;border:1px solid var(--line);border-radius:999px}
 .player-episode-nav{grid-template-columns:minmax(0,1fr) minmax(95px,1.3fr) minmax(0,1fr);gap:8px}
 .player-episode-nav .player-episode-slot{display:flex;align-items:center;min-width:0}
 .player-episode-nav .player-episode-slot.is-previous{justify-content:flex-start}
@@ -3414,10 +3412,8 @@ body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
 .detail-page-header .detail-back{
  flex:none;margin:0;align-self:center;
  border:1px solid var(--line);border-radius:999px;
- background:var(--raised);color:var(--ink);
  padding:9px 13px;white-space:nowrap
 }
-.detail-page-header .detail-back:hover{background:var(--hover)}
 .detail-hero .detail-overview{padding-top:3px}
 .detail-hero .detail-badges{margin-top:0}
 /* In web preview, preserve Gallery's brand/settings row but not tabs.
@@ -3443,10 +3439,9 @@ body.player-view .playback-compactbar .playback-title-inline{
 }
 body.player-view .playback-compactbar .detail-back{
  flex:none;align-self:center;margin:0 0 0 auto;white-space:nowrap;
- background:var(--raised);border:1px solid var(--line);
+ border:1px solid var(--line);
  border-radius:999px;padding:8px 12px
 }
-body.player-view .playback-compactbar .detail-back:hover{background:var(--hover)}
 @media(max-width:500px){
  .detail-page-header{gap:8px;padding-bottom:12px}
  .detail-page-header .detail-title{font-size:clamp(18px,5vw,24px)}
@@ -3637,6 +3632,19 @@ body.watch-history-view:not(.desktop-build) .top .brand-row{margin-bottom:0}
 /* Watch History reuses Anime's exact page-header markup and header geometry;
    it is deliberately *not* a separate CSS approximation. Keep its full width. */
 #wh-root > .wh-page-header{width:100%}
+
+/* DS02: one theme-aware secondary-page Back button color treatment.
+   Preserve feature-specific geometry, focus rings and motion. */
+body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .detail-back,.settings-page-head .settings-back){
+  color:var(--accent);
+  background:color-mix(in srgb,var(--panel) 88%,var(--accent) 12%);
+  border-color:color-mix(in srgb,var(--panel2) 45%,var(--accent) 55%);
+}
+body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .detail-back,.settings-page-head .settings-back):hover{
+  color:var(--accent);
+  background:color-mix(in srgb,var(--panel) 80%,var(--accent) 20%);
+  border-color:color-mix(in srgb,var(--panel2) 30%,var(--accent) 70%);
+}
 </style></head><body data-theme="ocean">
 <div class="app" aria-label="Gallery for macOS preview">
   <header class="top">

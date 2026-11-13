@@ -22,6 +22,101 @@ with sync_playwright() as pw:
   page.locator("#settings").click()
   page.wait_for_function('() => document.body.classList.contains("settings-view") && !galleryStageTransition && !gallerySettingsOpening',timeout=6000)
   page.wait_for_timeout(260)
+ # DS02: shared Back color treatment on the four actual secondary routes.
+ # Test each theme and responsive size, including the icon-only Settings Back.
+ def ds02_check(page,selector,route,motion):
+  button=page.locator(selector)
+  check(button.count()==1 and button.is_visible(),"DS02 visible "+route)
+  def snapshot(hover):
+   return button.evaluate('''(el,hover)=>{
+    const s=getComputedStyle(el), r=el.getBoundingClientRect();
+    const probe=document.createElement('span');
+    probe.style.cssText='position:absolute;visibility:hidden;pointer-events:none';
+    el.append(probe);
+    probe.style.color='var(--accent)';
+    probe.style.backgroundColor=hover?'color-mix(in srgb,var(--panel) 80%,var(--accent) 20%)':'color-mix(in srgb,var(--panel) 88%,var(--accent) 12%)';
+    probe.style.borderTopColor=hover?'color-mix(in srgb,var(--panel2) 30%,var(--accent) 70%)':'color-mix(in srgb,var(--panel2) 45%,var(--accent) 55%)';
+    const p=getComputedStyle(probe);
+    const expected=[p.color,p.backgroundColor,p.borderTopColor];
+    probe.remove();
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    const lum=color=>{
+     ctx.clearRect(0,0,1,1);ctx.fillStyle=color;ctx.fillRect(0,0,1,1);
+     const rgb=[...ctx.getImageData(0,0,1,1).data].slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
+     return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
+    };
+    const a=lum(s.color),b=lum(s.backgroundColor);
+    return {actual:[s.color,s.backgroundColor,s.borderTopColor],expected,
+     icon:getComputedStyle(el.querySelector('svg')).color,
+     contrast:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),
+     geometry:[r.left,r.top,r.width,r.height,s.borderTopWidth,s.borderRadius,s.padding,s.fontSize],
+     outline:s.outlineStyle,outlineWidth:s.outlineWidth,focus:el.matches(':focus-visible'),
+     hover:el.matches(':hover')};
+   }''',hover)
+  for theme in ('ocean','twilight','ember','slate','glacier','verdant'):
+   page.evaluate('(theme)=>{state.theme=theme;document.body.dataset.theme=theme;}',theme)
+   for width in (1440,750,420):
+    page.set_viewport_size({'width':width,'height':900})
+    page.mouse.move(0,0)
+    page.evaluate('()=>document.activeElement?.blur()')
+    page.wait_for_timeout(350)
+    rest=snapshot(False)
+    check(rest['actual']==rest['expected'] and rest['icon']==rest['actual'][0],('DS02 rest accent',route,theme,width,motion,rest))
+    check(rest['contrast']>=4.5,('DS02 text contrast',route,theme,width,rest['contrast']))
+    button.hover(timeout=5000)
+    page.wait_for_timeout(350)
+    hover=snapshot(True)
+    check(hover['hover'] and hover['actual']==hover['expected'] and hover['actual']!=rest['actual'],('DS02 hover',route,theme,width,hover))
+    check(hover['contrast']>=4.5 and hover['geometry']==rest['geometry'],('DS02 hover contrast/geometry',route,theme,width,rest,hover))
+    page.mouse.move(0,0)
+    page.keyboard.press('Tab')
+    button.focus()
+    page.wait_for_timeout(350)
+    focus=snapshot(False)
+    check(focus['focus'] and focus['outline']!='none' and float(focus['outlineWidth'].removesuffix('px'))>=2,('DS02 keyboard focus',route,theme,width,focus))
+    check(focus['actual']==rest['actual'] and focus['geometry']==rest['geometry'],('DS02 focus geometry/color',route,theme,width,focus))
+  page.set_viewport_size({'width':1440,'height':900})
+  page.mouse.move(0,0)
+  page.wait_for_timeout(350)
+  print('PASS: DS02 Back accent',route,motion,'six themes; 1440/750/420; rest/hover/focus; contrast >=4.5',flush=True)
+ def ds02_stable(page):
+  page.wait_for_function('() => !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
+  page.wait_for_timeout(350)
+ for motion in ('no-preference','reduce'):
+  pg=browser.new_page(viewport={'width':1440,'height':900},reduced_motion=motion)
+  ds02_errors=[]
+  pg.on('pageerror',lambda e:ds02_errors.append(str(e)))
+  pg.set_content(html,wait_until='domcontentloaded')
+  pg.wait_for_selector('#wh-view-history')
+  pg.locator('[data-detail]').first.click()
+  pg.wait_for_selector('#detail-back')
+  ds02_stable(pg)
+  ds02_check(pg,'#detail-back','Anime details',motion)
+  pg.locator('.detail-actions [data-episode-action="watch"]').first.click()
+  pg.wait_for_selector('#back-from-playback')
+  ds02_stable(pg)
+  ds02_check(pg,'#back-from-playback','Player',motion)
+  pg.locator('#back-from-playback').click()
+  pg.wait_for_selector('#detail-back')
+  ds02_stable(pg)
+  pg.locator('#detail-back').click()
+  ds02_stable(pg)
+  pg.locator('#wh-view-history').click()
+  pg.wait_for_selector('#wh-root [data-wh-exit]')
+  ds02_stable(pg)
+  ds02_check(pg,'#wh-root [data-wh-exit]','Watch History',motion)
+  pg.locator('#wh-root [data-wh-exit]').click()
+  ds02_stable(pg)
+  pg.locator('#settings').click()
+  pg.wait_for_function('() => document.body.classList.contains("settings-view") && !gallerySettingsOpening')
+  ds02_stable(pg)
+  ds02_check(pg,'#settings-back','Settings',motion)
+  pg.locator('#settings-back').click()
+  pg.wait_for_function('() => !document.body.classList.contains("settings-view")')
+  ds02_stable(pg)
+  check(pg.locator('#wh-view-history').is_visible() and not ds02_errors,('DS02 Back navigation',motion,ds02_errors))
+  pg.close()
  page,errors=make()
  page.locator("[data-detail]").first.click()
  page.wait_for_timeout(550)

@@ -161,8 +161,7 @@ body[data-theme] .settings-theme-tile .swatch{height:52px;border-radius:11px;bor
 body[data-theme] .settings-theme-tile b{font-size:14px}
 body[data-theme] .settings-theme-tile>.icon{top:23px;right:20px;filter:drop-shadow(0 0 2px #000)}
 body[data-theme] .settings-theme-list{gap:12px}
-body[data-theme] .settings-back{border:1px solid var(--nav-border);border-radius:999px;background:var(--panel2);padding:10px 16px}
-body[data-theme] .settings-back:hover{background:var(--nav-hover)}
+body[data-theme] .settings-back{border:1px solid var(--nav-border);border-radius:999px;padding:10px 16px}
 body[data-theme] .appearance-subnav,body[data-theme] .settings-card select{border-color:var(--line)}
 body[data-theme] button:focus-visible,body[data-theme] input:focus-visible,body[data-theme] select:focus-visible{outline-color:var(--focus)}
 /* Keep the existing responsive behavior until the layout integration stage. */

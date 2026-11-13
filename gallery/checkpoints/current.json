@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-q2a-eight-redundant-css-rules",
-  "sha256": "3b0677c0eb773aa426400779aef8fa5c4fabac5b60d0cdd4bef26f535747bb28",
-  "bytes": 6903601,
+  "folder": "2026-11-13-ds02-tinted-back-buttons",
+  "sha256": "ec2a44d2bc9097441aa69dc0c615bc7a2462796762398b6555c57a1f80c20e92",
+  "bytes": 6903907,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
