@@ -276,3 +276,7 @@ User tested the stronger shared Back-button treatment in checkpoint `2026-11-13-
 
 ## 2026-11-13 — Approved Q2-B1 Downloads partial-rule cleanup
 User approved exactly 16 earlier declarations within six retained Downloads CSS rules, listed in `gallery/audits/2026-11-13-q2b-partial-rule-review.md`. Keep later copies, all other declarations, rule order, media contexts, DS01 width and scroll behavior, DS02b, all six themes, animation, markup, JS, assets and native branches unchanged. Gate on exact DS02b full/lightweight baseline hashes and exact CSS-only diff, actual Downloads computed-style/pseudo/geometry equivalence across six themes, ten widths, expanded/collapsed, normal/reduced motion, mixed statuses, hover/focus, filters/search. Standard regression and both independent checks required, new immutable checkpoint if changed; user visual approval separate. No remaining 78 candidates, grouped selectors, differing-value cleanup, dithering or numbered release approved.
+
+
+## 2026-11-13 — Q2-B1 visually approved
+User tested checkpoint `2026-11-13-q2b1-downloads-declarations-retry` (build `58eaad52e9cad8250341c7070aacbf4395e44b1b`) and confirmed no visual difference. Accept the 16-declaration Downloads cleanup; 672 actual-DOM comparisons, standard publisher regressions and both independent checks passed. Preserve DS01 and DS02b and the current Downloads appearance and behavior. No authorization for remaining 78 declarations, verification infrastructure changes or other work. No new HTML checkpoint.
