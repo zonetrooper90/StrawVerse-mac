@@ -268,3 +268,7 @@ User approved the suggested soft tinted accent treatment. Apply one shared theme
 
 ## 2026-11-13 — DS02b stronger tinted Back accent
 User found DS02 improved but some themes still blend into their page backgrounds. Approved one global stronger tint/border refinement before considering theme-specific exceptions. Rest: 20% accent/panel fill, 72% accent/panel2 border. Hover: 24% fill, 82% border (24% selected to preserve >=4.5:1 text contrast in Slate). Supersedes DS02 mix percentages only. Preserve text/icon, geometry, shape, focus, motion, navigation and all other controls. Update existing DS02 tests on both builds to verify exact colors, improved fill/border luminance versus DS02, >=3:1 border contrast against representative panel2 token and >=4.5:1 text contrast, geometry/focus/navigation. Actual page appearance requires separate visual approval; no per-theme exceptions or other changes authorized.
+
+
+## 2026-11-13 — DS02b visually approved
+User tested the stronger shared Back-button treatment in checkpoint `2026-11-13-ds02b-stronger-back-accent` (build `e108c7c892eab7e41d892ae06874c78f58160011`) and confirmed it looks better. Accept and lock the global DS02b treatment: 20% accent fill / 72% border at rest, 24% fill / 82% border on hover, accent text and icon, existing focus, motion, geometry and navigation. Both independent checks passed. No theme-specific exceptions or further Back-button refinements needed at this point. This acceptance does not approve Q2-B changes or other unrelated work.
