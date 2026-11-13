@@ -1,16 +1,17 @@
-# Gallery transitional modular source — M1
+# Gallery source-first development
 
-The full canonical `gallery/Gallery-current.html` and its immutable checkpoint **remain authoritative**. The asset-separated source has now been split losslessly into:
+**Authoritative editable application source:** this directory, its ordered manifest and the original assets in `gallery/assets/`. The tracked standalone `gallery/Gallery-current.html` and `gallery/Gallery-development.html` are generated deliverables, not independent editing inputs. The immutable full HTML checkpoint remains the recovery and delivery authority.
 
-- `Gallery.template.html`: HTML shell with one style-block and one classic-script-block token.
-- `styles/gallery.css`: exact existing CSS block, including original whitespace and cascade order.
-- `js/gallery.js`: exact existing classic JavaScript block, including original whitespace and execution order.
-- `build-manifest.json`: explicit ordered fragment paths. The builder concatenates file bytes without separators or transformations.
-- Original PNGs remain in `gallery/assets/subtitle-preview/`; the two image tokens remain in JavaScript.
+- `Gallery.template.html`: HTML shell with style/script block tokens.
+- `styles/gallery.css` and `js/gallery.js`: current exact extracted blocks.
+- `build-manifest.json`: ordered fragment paths. The builder concatenates bytes without separators, reordering or transformations.
+- `gallery/assets/subtitle-preview/`: original unchanged PNGs, referenced by tokens in JavaScript.
 
-No library, bundler, module runtime, minification, reformatting, code cleanup, native integration or change to either delivered HTML is part of M1.
+No framework, module runtime, bundler, minification or native integration. CSS cascade and classic script execution order remain exact.
 
-Run from repository root (Python 3 standard library only):
+## Preview and verify
+
+Run from the repository root with Python 3 (standard library only):
 
 ```sh
 python3 gallery/tools/build-gallery.py
@@ -20,16 +21,16 @@ python3 gallery/tools/build-gallery.py --check
 python3 gallery/tests/test_source_assembly.py
 ```
 
-Development writes the tracked `Gallery-development.html` with solid scene colors. Full and subtitle-preview write standalone HTML under `gallery/dist/` with original artwork. `--output PATH` overrides the output; do not commit incidental dist builds. `--check` verifies both full modes, checkpoint and committed lightweight output byte-for-byte, without writing.
+All preview commands now write only under `gallery/dist/` by default; `--output PATH` may select another nonprotected output. The default development preview uses solid scene colors; full and subtitle-preview embed the original PNGs. Do not commit incidental dist files. `--check` is read-only and requires both tracked deliverables and the full immutable checkpoint to agree with the sources.
 
-## Canonical-first change workflow (transitional)
+## Approved source changes
 
-Do not independently edit derivative fragments while canonical HTML is authoritative. For a newly approved change, patch the checksum-verified canonical HTML; run:
+Verify the existing source, generated HTML and immutable archive before editing. Edit only the relevant files in `src/` (assets require explicit separate approval). New controlled publisher requests patch these files with exact baseline guards; they must not write generated HTML, assets or checkpoint files. The publisher builds both deliverables explicitly:
 
 ```sh
-python3 gallery/tools/build-gallery.py --sync-from-canonical
+python3 gallery/tools/build-gallery.py --write-deliverables
 ```
 
-This regenerates the shell, single CSS/JS files and lightweight output from the canonical bytes, preserving the exact asset substitutions. The controlled publisher invokes it after the approved patch and stages all of `gallery/src/`. If a future request needs candidate outputs within the script, use the builder's `sync_from_canonical()` function; do not write the old monolithic template. The sync command never writes canonical HTML, assets or checkpoints; it validates assembly before writes and refuses multiple fragments. The checkpoint is updated only by the existing approved publisher/staging process, and both independent checks still must pass.
+This command refuses a stale/tampered old full HTML, validates all build modes and writes only the two tracked deliverables. It does not update the immutable pointer. Run browser regressions; stage a new immutable checkpoint only for a changed full HTML; commit source, generated files, tests and checkpoint together. Require both independent read-only checks before delivery. For a byte-identical source reorganization, commit only the infrastructure/source change and require both checks; no new checkpoint. See `gallery/WORKFLOW.md`.
 
-M2 CSS fragmentation needs a separately approved reversible synchronization strategy (explicit fragment boundaries or a different agreed canonical-first mechanism). The manifest already supports ordered multiple fragments, but M1 sync intentionally fails closed for that layout. Source-authority transition and JS module interfaces remain separate decisions. All historical checkpoints and native branches stay untouched.
+The former canonical-to-source synchronization command is retired. Historical request scripts remain unchanged and must never be rerun. Future CSS/JS fragmentation uses the ordered manifest; source authority was separately approved, but actual M2+ fragmentation and behavioral changes require their own approval. Native branches and historical checkpoints remain untouched.

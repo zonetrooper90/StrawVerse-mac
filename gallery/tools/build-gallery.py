@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic standalone Gallery HTML builds; canonical checkpoint stays authoritative."""
+"""Deterministic standalone Gallery HTML builds from authoritative modular source."""
 import argparse
 import base64
 import hashlib
@@ -130,28 +130,30 @@ def split_template(template):
     return shell, blocks
 
 
-def sync_from_canonical():
-    """M1 only: regenerate derivative fragments from an approved canonical edit."""
-    layout = source_layout()
-    if any(len(paths) != 1 for paths in layout.values()):
-        raise ValueError("Canonical sync requires an explicitly approved multi-fragment migration strategy")
-    canonical = CANONICAL.read_bytes()
-    template = canonical
-    for name, token in TOKENS.items():
-        template = replace_once(template, asset_url(name), token)
-    shell, blocks = split_template(template)
-    full = render_template(assemble_template(shell, blocks), "full")
-    if full != canonical or render_template(template, "subtitle-preview") != canonical:
-        raise ValueError("Canonical sync does not round trip")
+def write_deliverables():
+    """Generate both tracked HTML files after an approved source edit.
+
+    The old full deliverable must still match the existing immutable pointer.
+    This does not stage a new checkpoint or write source files.
+    """
+    pointer = json.loads((ROOT / "checkpoints/current.json").read_text())
+    previous = CANONICAL.read_bytes()
+    if len(previous) != pointer["bytes"] or hashlib.sha256(previous).hexdigest() != pointer["sha256"]:
+        raise ValueError("Existing full HTML differs from checkpoint; refuse publication")
+    template = read_template()
+    full = render_template(template, "full")
+    preview = render_template(template, "subtitle-preview")
     light = render_template(template, "development")
-    # All validation occurs before writes; never write canonical HTML, assets or checkpoints.
-    TEMPLATE.write_bytes(shell)
-    for kind, paths in layout.items():
-        paths[0].write_bytes(blocks[kind])
+    if full != preview:
+        raise ValueError("Artwork-enabled modes differ")
+    # Validate all modes before writing; only the two tracked generated files change.
+    CANONICAL.write_bytes(full)
     DEVELOPMENT.write_bytes(light)
-    if build("full") != canonical or build("development") != light:
-        raise ValueError("Written source fragments did not round trip")
-    print("Synchronized M1 source fragments and lightweight output from canonical HTML.")
+    if CANONICAL.read_bytes() != full or DEVELOPMENT.read_bytes() != light:
+        raise ValueError("Generated deliverables failed read-back")
+    print(f"Generated full HTML: {len(full)} bytes, SHA-256 {hashlib.sha256(full).hexdigest()}")
+    print(f"Generated development HTML: {len(light)} bytes, SHA-256 {hashlib.sha256(light).hexdigest()}")
+    print("Source files and immutable checkpoint untouched; verify and stage an approved changed build separately.")
 
 
 def check():
@@ -176,24 +178,25 @@ def main():
     parser.add_argument("--mode", choices=MODES, default="development")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--check", action="store_true", help="Verify all modes without writing files")
-    parser.add_argument("--sync-from-canonical", action="store_true", help="Regenerate M1 derivatives after an approved canonical edit")
+    parser.add_argument("--write-deliverables", action="store_true", help="Generate both tracked HTML deliverables after an approved source edit")
     args = parser.parse_args()
-    if args.sync_from_canonical:
+    if args.write_deliverables:
         if args.check or args.output or args.mode != "development":
-            parser.error("--sync-from-canonical cannot be combined with other options")
-        sync_from_canonical()
+            parser.error("--write-deliverables cannot be combined with other options")
+        write_deliverables()
         return
     if args.check:
         if args.output:
             parser.error("--check does not accept --output")
         check()
         return
-    output = args.output or (DEVELOPMENT if args.mode == "development" else ROOT / "dist" / f"Gallery-{args.mode}.html")
+    output = args.output or ROOT / "dist" / f"Gallery-{args.mode}.html"
     output = output.resolve()
-    # Prevent this transitional builder from writing the checkpoint or canonical source.
-    protected = (CANONICAL.resolve(), TEMPLATE.resolve())
-    if output in protected or any(p in output.parents for p in (ROOT / "checkpoints", ROOT / "assets", ROOT / "src")):
-        parser.error("Output cannot overwrite canonical source, assets or checkpoints")
+    # Preview mode never overwrites tracked deliverables, source, assets or checkpoints.
+    protected = (CANONICAL.resolve(), DEVELOPMENT.resolve())
+    protected_dirs = tuple((ROOT / name).resolve() for name in ("checkpoints", "assets", "src"))
+    if output in protected or any(output == p or p in output.parents for p in protected_dirs):
+        parser.error("Preview output cannot overwrite tracked deliverables, source, assets or checkpoints")
     result = build(args.mode)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(result)

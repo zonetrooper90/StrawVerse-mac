@@ -1,28 +1,29 @@
-# Gallery development workflow — simplified (2026-11-12)
+# Gallery development workflow — source-first (2026-11-13)
 
 ## Branches and files
 
 - Active working branch: `gallery/development-clean`. Do not modify the prior working branch, stable branches or `main` without explicit approval.
-- One plain HTML editing baseline: `gallery/Gallery-current.html` (complete, directly readable in a Git checkout).
+- Authoritative editable source: `gallery/src/` (HTML shell, ordered CSS/JS manifest and fragments), and original `gallery/assets/`.
+- Generated standalone deliverables: `gallery/Gallery-current.html` (full, artwork-enabled) and `gallery/Gallery-development.html` (lightweight). Never edit either directly.
 - Persistent development handoff: `gallery/DEVELOPMENT-STATE.md` (small Markdown file; records task progress and user-testing status, not a substitute for the actual pointer and CI).
 - One immutable backup pointer: `gallery/checkpoints/current.json`, referencing the full, independently reconstructible archived checkpoint under `gallery/checkpoints/`.
 - Earlier complete HTML deliverables and compressed historical checkpoints are retained unchanged for recovery.
 - Two read-only checks: `gallery-checkpoint-integrity.yml` (content and archive integrity) and `gallery-transition-ui.yml` (navigation, motion and Watch History browser regressions).
 - Old feature-specific mutating workflows are removed only from this new branch. Their Git history and the prior development branch are preserved. Do not dispatch legacy workflow scripts against a current checkpoint.
 
-## Before editing HTML
+## Before editing source
 
 1. Read `AGENTS.md`, this file, `gallery/PROJECT-CONTINUITY.md`, `gallery/DEVELOPMENT-STATE.md`, `gallery/APPROVED-DECISIONS.md` and `gallery/checkpoints/current.json`.
 2. From a fresh checkout of this exact branch, run `python3 gallery/tools/restore-checkpoint.py --verify-only`.
 3. SHA-256 and byte-count verify `gallery/Gallery-current.html` against the current pointer:
    `python3 -c "import hashlib,json,pathlib; p=json.loads(pathlib.Path('gallery/checkpoints/current.json').read_text()); b=pathlib.Path('gallery/Gallery-current.html').read_bytes(); assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256']; print('Gallery baseline verified')"`
-4. Stop if the two representations disagree. Never start from previous chat attachments, historical deliverables, or old checkpoints.
+4. Run `python3 gallery/tools/build-gallery.py --check` to verify authoritative source reconstructs both tracked outputs exactly. Stop if source, generated output or archive disagree. Never start from previous chat attachments, historical deliverables, or old checkpoints.
 
-## After an approved HTML edit
+## After an approved source edit
 
-1. Make the smallest approved change to the canonical complete HTML and run relevant existing tests; do not modify UI/behavior for infrastructure cleanup.
+1. Make the smallest approved change to the authoritative source files. Run `python3 gallery/tools/build-gallery.py --write-deliverables` to generate both tracked HTML files and run relevant existing tests; do not modify UI/behavior for infrastructure cleanup. For byte-identical output, use an infrastructure-only commit and do not stage a checkpoint.
 2. Use `python3 gallery/tools/stage-checkpoint.py --input gallery/Gallery-current.html --id YYYY-MM-DD-description --status delivered-for-user-testing` to create a NEW immutable archive and advance the LOCAL pointer.
-3. Commit `gallery/Gallery-current.html`, the new checkpoint folder, and `gallery/checkpoints/current.json` together; update `gallery/APPROVED-DECISIONS.md` for actual user-approved decisions. Existing archive folders remain immutable.
+3. Commit authoritative source, both generated HTML files, the new checkpoint folder, and `gallery/checkpoints/current.json` together; update `gallery/APPROVED-DECISIONS.md` for actual user-approved decisions. Existing archive folders remain immutable.
 4. Verify the remote branch head, pointer, byte count and SHA-256. Require both GitHub Actions integrity and browser regression checks to succeed. The checks only verify; they never make commits or regenerate builds.
 5. Only then provide the immutable GitHub file-page permalink `https://github.com/zonetrooper90/StrawVerse-mac/blob/<verified-build-commit>/gallery/Gallery-current.html`, with instructions to use **Download raw file** on GitHub, and the separate exact build commit URL. The linked file must be the verified canonical HTML at that commit, not a moving branch URL or a raw-code viewer alone. No ChatGPT attachment or duplicated file transfer is required. A raw link may be supplementary; do not present it as a guaranteed download. Record the checkpoint ID, SHA-256, byte count and verification result. The user can save the HTML from GitHub even if ChatGPT file storage is unavailable.
 6. Update `gallery/DEVELOPMENT-STATE.md` after verification and before ending the task. Record the verified build, completed task, actual CI outcomes, delivery link availability, pending user testing/approval, and next proposed step. This small documentation-only update does not create a new HTML checkpoint.
@@ -32,17 +33,17 @@
 
 Documentation, workflows and test-runner changes require a GitHub commit and passing read-only checks, but do not create a new HTML checkpoint or numbered release. Retain separate secure permissions: checks use `contents: read`; only explicitly authorized development operations write commits.
 
-## Transitional modular source (M1)
+## Source-first modular build
 
-The canonical full HTML remains authoritative. `gallery/src/Gallery.template.html`, ordered `src/build-manifest.json`, `src/styles/gallery.css`, `src/js/gallery.js` and original assets reconstruct both build modes byte-for-byte. For newly approved HTML patches, use `python3 gallery/tools/build-gallery.py --sync-from-canonical` after editing canonical HTML; the controlled publisher does this automatically and stages all of `gallery/src/`. If a request script needs candidate outputs before returning, call the builder's `sync_from_canonical()`; never overwrite the shell with the old monolithic template. This M1 sync deliberately rejects multi-fragment manifests; agree a reversible strategy before M2. `--check` and the source assembly test remain read-only on the real checkout. No authority switch, new HTML checkpoint or numbered release for byte-identical infrastructure extraction.
+M1 extraction was independently verified. The user subsequently approved making the smaller files authoritative before M2; there is no reverse synchronization. Use the explicit ordered `src/build-manifest.json` to preserve CSS cascade and JS execution order; output remains one inline style block and one classic script. Normal preview builds write under `gallery/dist/`, never tracked HTML or source. `--write-deliverables` is reserved for approved source changes and verifies the prior full HTML against the immutable pointer before generating both tracked files. No checkpoint is written by the builder. `--check` and source assembly tests are read-only on the actual checkout. M2+ source reorganizations require separate approval and byte-identical verification.
 
 ## Historical source
 
-All old compressed checkpoints remain available. `gallery/tools/restore-checkpoint.py` is the recovery/verification path, while `gallery/Gallery-current.html` is the everyday editing baseline. Their hashes must match. The current HTML is a prototype, not proof of native player integration. User visual approval is separate from automated tests.
+All old compressed checkpoints remain available. `gallery/tools/restore-checkpoint.py` is the recovery/verification path, while `gallery/Gallery-current.html` is the generated full deliverable. The archive, generated full HTML and source-first reconstruction must match exactly. The current HTML is a prototype, not proof of native player integration. User visual approval is separate from automated tests.
 
 ## Controlled publishing when GitHub HTML exceeds connector upload limits
 
-The optional generic `.github/workflows/gallery-controlled-publish.yml` runs when a newly approved, narrowly scoped change script is committed under `gallery/changes/pending/`. It reads the GitHub working HTML, checks the current immutable baseline, applies a checksum-guarded patch, runs browser regressions, stages a new immutable archive, and commits the HTML, checkpoint and pointer together. This avoids transferring a multi-megabyte source file through an API that rejects large requests. The publisher explicitly dispatches both read-only verification workflows after pushing because GitHub's own workflow token does not trigger push-based workflows. Never treat the publisher's test pass as a substitute for both completed remote read-only checks. If any publishing step fails, inspect the branch head and current pointer before retrying. This is a generic publishing path, not a feature-specific workflow.
+The optional generic `.github/workflows/gallery-controlled-publish.yml` runs when a newly approved, narrowly scoped change script is committed under `gallery/changes/pending/`. It verifies the existing authoritative source, generated HTML and immutable baseline, applies a checksum-guarded patch to source files, rejects direct changes to generated files, assets and checkpoints, builds both HTML modes, runs browser regressions, stages a new immutable archive, and commits source, generated HTML, checkpoint and pointer together. Only a newly added request may run; byte-identical reorganizations are infrastructure-only commits, not publisher requests. This avoids transferring a multi-megabyte source file through an API that rejects large requests. The publisher explicitly dispatches both read-only verification workflows after pushing because GitHub's own workflow token does not trigger push-based workflows. Never treat the publisher's test pass as a substitute for both completed remote read-only checks. If any publishing step fails, inspect the branch head and current pointer before retrying. This is a generic publishing path, not a feature-specific workflow.
 
 ## Resume after interruption
 
