@@ -69,11 +69,8 @@ jobs:
             echo "Full HTML is byte-identical; use a verified infrastructure-only commit, not a new checkpoint."
             exit 1
           fi
-      - name: Install browser regression dependencies
-        run: |
-          python -m pip install 'playwright==1.57.0'
-          # Ubuntu runner already provides required shared libraries; do not apt-install optional fonts.
-          python -m playwright install chromium
+      - name: Install pinned browser regression dependencies
+        uses: ./.github/actions/gallery-browser
       - name: Compare approved Q2-A CSS cleanup against exact baseline
         if: steps.change.outputs.id == '2026-11-13-q2a-eight-redundant-css-rules'
         run: python3 gallery/audits/2026-11-13-q2a-eight-redundant-css-rules-compare.py

@@ -1,0 +1,44 @@
+name: Gallery verification efficiency benchmark
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/tools/benchmark-q2b1-shard.py'
+
+permissions:
+  contents: read
+
+jobs:
+  comparison:
+    name: Q2-B1 comparison (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+    steps:
+      - name: Check out exact benchmark commit and historical baseline
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reconfirm immutable checkpoint and deterministic assembly
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - name: Install pinned Chromium
+        uses: ./.github/actions/gallery-browser
+      - name: Run complete historical comparison shard
+        env:
+          MODE: ${{ matrix.mode }}
+        run: python3 gallery/tools/benchmark-q2b1-shard.py "$MODE"
+      - name: Verify benchmark made no repository changes
+        run: test -z "$(git status --porcelain)"

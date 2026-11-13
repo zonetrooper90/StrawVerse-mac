@@ -7,6 +7,7 @@ on:
     paths:
       - 'gallery/**'
       - '.github/workflows/gallery-transition-ui.yml'
+      - '.github/actions/gallery-browser/action.yml'
   workflow_dispatch:
 
 permissions:
@@ -14,20 +15,29 @@ permissions:
 
 jobs:
   browser-routes:
+    name: browser-routes (${{ matrix.group }})
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: full
+            html: gallery/Gallery-current.html
+          - group: lightweight
+            html: gallery/Gallery-development.html
+          - group: subtitle-preview-modes
+            html: ''
     steps:
-      - name: Check out Gallery development branch
+      - name: Check out exact Gallery commit
         uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
-      - name: Install Chromium test runner
-        run: |
-          python -m pip install 'playwright==1.57.0'
-          # Ubuntu runner already provides required shared libraries; do not apt-install optional fonts.
-          python -m playwright install chromium
       - name: Verify checkpoint and canonical working file
         run: |
           python3 gallery/tools/restore-checkpoint.py --verify-only
@@ -38,17 +48,19 @@ jobs:
           b=Path('gallery/Gallery-current.html').read_bytes()
           assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256']
           PY
-      - name: Test navigation, coordinated fades and Watch History
-        run: |
-          python3 gallery/tests/test_transitions.py gallery/Gallery-current.html
-          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
-          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
-          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-current.html
-      - name: Test lightweight development build and both subtitle preview modes
-        run: |
           python3 gallery/tools/build-gallery.py --check
-          python3 gallery/tests/test_transitions.py gallery/Gallery-development.html
-          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-development.html
-          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-development.html
-          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-development.html
-          python3 gallery/tests/test_asset_build_modes.py
+      - name: Install pinned Chromium test runner
+        uses: ./.github/actions/gallery-browser
+      - name: Test navigation, coordinated fades, Watch History, Player and Settings
+        if: matrix.group != 'subtitle-preview-modes'
+        env:
+          GALLERY_HTML: ${{ matrix.html }}
+        run: |
+          set -euo pipefail
+          python3 gallery/tests/test_transitions.py "$GALLERY_HTML"
+          python3 gallery/tests/test_coordinated_fades.py "$GALLERY_HTML"
+          python3 gallery/tests/test_history_row_maintenance.py "$GALLERY_HTML"
+          python3 gallery/tests/test_player_settings_regression.py "$GALLERY_HTML"
+      - name: Test both subtitle preview asset modes and geometry parity
+        if: matrix.group == 'subtitle-preview-modes'
+        run: python3 gallery/tests/test_asset_build_modes.py

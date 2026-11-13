@@ -1,0 +1,30 @@
+name: Gallery pinned Chromium setup
+description: Install the exact Playwright version and cache its Chromium downloads for the Ubuntu 24.04 runner.
+runs:
+  using: composite
+  steps:
+    - name: Install pinned Playwright
+      shell: bash
+      run: python -m pip install 'playwright==1.57.0'
+    - name: Restore exact Chromium cache
+      id: chromium-cache
+      uses: actions/cache/restore@v6.1.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: gallery-chromium-ubuntu2404-${{ runner.os }}-${{ runner.arch }}-playwright-1.57.0-v1
+    - name: Ensure exact Chromium installation
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Playwright validates its pinned browser locations even on cache hits.
+        # Do not substitute a system browser or skip installation on a hit.
+        if ! python -m playwright install chromium; then
+          echo 'Chromium installation failed; retrying the same pinned version once.'
+          python -m playwright install chromium
+        fi
+    - name: Save exact Chromium cache
+      if: steps.chromium-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6.1.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: gallery-chromium-ubuntu2404-${{ runner.os }}-${{ runner.arch }}-playwright-1.57.0-v1
