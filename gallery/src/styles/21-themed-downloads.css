@@ -1,0 +1,240 @@
+/* Soft Futuristic Downloads integration (design experiment, after the approved title-only headers).
+   Scoped to Downloads only; the player seek bar and other page cards are unchanged. */
+body[data-theme] .sf-dl-list-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  color:var(--muted);font-size:12px;margin:0 0 18px;
+}
+body[data-theme] .sf-dl-list-heading span{font-size:11px;color:var(--section-accent)}
+body[data-theme] .sf-dl-list{display:grid;gap:13px;max-width:1220px;margin:0 auto}
+body[data-theme] .sf-dl-list .sf-dl-card{
+  position:relative;min-width:0;isolation:isolate;border:1px solid var(--card-border);
+  border-radius:23px;background:linear-gradient(125deg,var(--card-bg-a),var(--card-bg-b) 82%);
+  box-shadow:inset 0 1px 0 #ffffff12,0 9px 24px #0000000e;
+  transition:border-color .2s,background .2s;transform:none;
+}
+body[data-theme] .sf-dl-list .sf-dl-card:hover{border-color:var(--secondary-border);box-shadow:inset 0 1px 0 #ffffff12,0 9px 24px #0000000e;transform:none}
+body[data-theme] .sf-dl-list .sf-dl-card-top{display:flex;align-items:stretch;gap:0;background:transparent}
+body[data-theme] .sf-dl-list .sf-dl-card-top:hover{background:transparent}
+body[data-theme] .sf-dl-list .sf-dl-summary{
+  flex:1;width:100%;min-height:133px;display:grid;
+  grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:21px;
+  text-align:left;padding:16px 12px 16px 18px;background:transparent;border:0;border-radius:0;color:var(--fg)
+}
+body[data-theme] .sf-dl-list .sf-dl-summary:hover{background:transparent}
+body[data-theme] .sf-dl-cover{
+  width:72px;height:98px;border-radius:12px;display:block;position:relative;overflow:hidden;
+  border:1px solid #ffffff24;box-shadow:0 6px 20px #0003;isolation:isolate;flex:none
+}
+body[data-theme] .sf-dl-cover::before{content:"";position:absolute;inset:-18% -50%;border:2px solid #ffffff55;border-radius:50%;transform:rotate(-27deg)}
+body[data-theme] .sf-dl-cover::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 20%,#fff5,transparent 63%);mix-blend-mode:screen}
+body[data-theme] .sf-dl-cover-ring{position:absolute;inset:21% -29% 20% 24%;border:2px solid #ffffff5a;border-radius:50%;transform:rotate(-28deg)}
+body[data-theme] .sf-dl-cover-label{position:absolute;left:10px;bottom:10px;color:#ffffffb0;font-weight:750;font-size:10px;letter-spacing:.1em}
+body[data-theme] .sf-dl-main{min-width:0;display:flex;flex-direction:column;gap:4px;width:100%}
+body[data-theme] .sf-dl-list .sf-dl-title{font-size:19px;font-weight:730;letter-spacing:-.035em;line-height:1.25;overflow-wrap:anywhere;color:var(--fg)}
+body[data-theme] .sf-dl-list .sf-dl-summary-line{font-size:12px;line-height:1.5;margin-top:0;color:var(--muted)}
+body[data-theme] .sf-dl-series-progress{display:flex;align-items:center;gap:15px;width:min(100%,690px);margin-top:10px}
+body[data-theme] .sf-dl-series-percent{font-size:12px;font-weight:750;flex:none;width:42px;text-align:right;color:var(--fg);font-variant-numeric:tabular-nums}
+body[data-theme] .sf-dl-track{display:flex;gap:5px;width:100%;height:5px;align-items:center;min-width:0;flex:1;border:0;background:transparent;box-shadow:none}
+body[data-theme] .sf-dl-track-done{display:block;height:5px;flex:none;max-width:100%;border-radius:99px;background:var(--accent);transition:flex-basis .28s ease}
+body[data-theme] .sf-dl-track-rest{display:block;height:5px;flex:1;min-width:0;border-radius:99px;background:color-mix(in srgb,var(--muted) 40%,transparent)}
+body[data-theme] .sf-dl-right{display:flex;align-items:center;justify-content:flex-end;gap:15px;min-width:140px}
+body[data-theme] .sf-dl-status-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#ffffff0a;border-radius:30px;padding:7px 11px;font-size:11px;font-weight:650;color:var(--muted);white-space:nowrap}
+body[data-theme] .sf-dl-status-badge[data-status="Downloading"]{color:var(--fg);background:var(--feature-label-bg);border-color:var(--feature-label-border)}
+body[data-theme] .sf-dl-dot{display:inline-block;flex:none;width:7px;height:7px;background:var(--muted);border-radius:50%}
+body[data-theme] [data-status="Downloading"] > .sf-dl-dot{background:var(--accent);box-shadow:0 0 0 4px var(--kicker-ring)}
+body[data-theme] [data-status="Completed"] > .sf-dl-dot{background:#91d7b1}
+body[data-theme] [data-status="Failed"] > .sf-dl-dot{background:#efa89c}
+body[data-theme] [data-status="Queued"] > .sf-dl-dot{background:#dec78d}
+body[data-theme] [data-status="Paused"] > .sf-dl-dot{background:#b5b6db}
+body[data-theme] [data-status="Canceled"] > .sf-dl-dot{background:var(--muted)}
+body[data-theme] .sf-dl-list .sf-dl-chevron{width:27px;height:27px;display:grid;place-items:center;transform:rotate(0);color:var(--muted);transition:transform .24s ease,color .2s;flex:none}
+body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-chevron{transform:rotate(180deg);color:var(--fg)}
+
+
+body[data-theme] .sf-dl-list .sf-dl-body-inner{padding:0 18px 0 108px;background:transparent}
+body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner{padding:6px 18px 15px 108px;background:linear-gradient(180deg,#00000009,#00000013)}
+body[data-theme] .sf-dl-list .sf-dl-episode{
+ display:grid;grid-template-columns:minmax(100px,1fr) minmax(115px,.95fr) minmax(140px,1.45fr) 126px 44px;
+ gap:12px;align-items:center;min-width:0;min-height:48px;padding:7px 0;
+ border:0;color:var(--fg)
+}
+body[data-theme] .sf-dl-list .sf-dl-episode + .sf-dl-episode{border-top:1px solid var(--line)}
+body[data-theme] .sf-dl-episode-name{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:660;min-width:0;color:var(--fg)}
+body[data-theme] .sf-dl-release{font-size:10px;color:var(--muted);font-weight:450}
+body[data-theme] .sf-dl-episode-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);white-space:nowrap}
+body[data-theme] .sf-dl-episode-status .sf-dl-dot{width:6px;height:6px}
+body[data-theme] .sf-dl-episode-track{display:flex;align-items:center;min-width:0;width:100%}
+body[data-theme] .sf-dl-episode-control{display:flex;align-items:center;justify-content:flex-end;gap:4px;width:126px;min-width:0}
+body[data-theme] .sf-dl-control-button{height:28px;min-width:74px;padding:0 8px;background:#ffffff0d;border:1px solid var(--line);border-radius:16px;color:var(--fg);font-size:11px;font-weight:650;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+body[data-theme] .sf-dl-control-button:hover{background:var(--nav-hover)}
+
+body[data-theme] .sf-dl-episode-percent{width:44px;justify-self:end;text-align:right;font-size:11px;font-weight:620;color:var(--muted);font-variant-numeric:tabular-nums}
+body[data-theme] .sf-dl-list .download-matched-count{padding:10px 0 4px}
+body[data-theme] .sf-dl-list .demo-download-footer{padding-top:8px}
+@media(max-width:1120px){
+ body[data-theme] .sf-dl-list .sf-dl-summary{gap:15px}
+ body[data-theme] .sf-dl-right{min-width:110px;gap:5px}
+ body[data-theme] .sf-dl-list .sf-dl-episode{grid-template-columns:minmax(85px,1fr) minmax(90px,.9fr) minmax(100px,1.4fr) 126px 44px;gap:9px}
+}
+@media(max-width:760px){
+ body[data-theme] .sf-dl-list .sf-dl-summary{grid-template-columns:52px minmax(0,1fr) 23px;gap:11px;min-height:112px;padding:13px}
+ body[data-theme] .sf-dl-cover{width:52px;height:74px;border-radius:8px}
+ body[data-theme] .sf-dl-cover-label{font-size:8px;left:7px;bottom:6px}
+ body[data-theme] .sf-dl-list .sf-dl-title{font-size:16px}
+ body[data-theme] .sf-dl-list .sf-dl-summary-line{font-size:11px}
+ body[data-theme] .sf-dl-status-badge{display:none}
+ body[data-theme] .sf-dl-right{min-width:0}
+ body[data-theme] .sf-dl-list .sf-dl-body-inner{padding:0 13px}
+ body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner{padding:6px 13px 14px}
+ body[data-theme] .sf-dl-list .sf-dl-episode{
+  grid-template-columns:minmax(0,1fr) minmax(100px,.9fr) 126px 44px;
+  grid-template-areas:"name status status status" "track track control percent";
+  column-gap:8px;row-gap:6px;min-height:67px;padding:9px 0
+ }
+ body[data-theme] .sf-dl-episode-name{grid-area:name}
+ body[data-theme] .sf-dl-episode-control{grid-area:control}
+ body[data-theme] .sf-dl-episode-percent{grid-area:percent}
+ body[data-theme] .sf-dl-list-heading span{display:none}
+}
+@media(max-width:450px){
+ body[data-theme] .sf-dl-list .sf-dl-episode{grid-template-columns:minmax(0,1fr) 112px 42px;grid-template-areas:"name status status" "track control percent";column-gap:7px}
+ body[data-theme] .sf-dl-episode-control{width:112px}
+ body[data-theme] .sf-dl-control-button{min-width:62px;padding:0 5px}
+ 
+ body[data-theme] .sf-dl-episode-percent{width:42px}
+ body[data-theme] .sf-dl-summary-line{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){body[data-theme] .sf-dl-track-done,body[data-theme] .sf-dl-chevron{transition:none}}
+
+/* Approved Soft Futuristic Downloads refinements (standalone blended-rows design).
+   Continuous parent gradient, uniform episode height, hover-only actions and an
+   independent scroll viewport. No other Gallery sections or player controls change. */
+body[data-theme] .sf-dl-list .sf-dl-card { overflow:hidden; }
+body[data-theme] .sf-dl-list .sf-dl-card-top { width:100%; }
+body[data-theme] .sf-dl-list .sf-dl-summary { border-radius:23px; }
+body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-summary { border-radius:23px 23px 0 0; }
+body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner {
+  border-top:1px solid var(--line);
+  background:transparent;
+  padding:0 18px 12px 108px; /* No extra first-row top gap */
+}
+body[data-theme] .sf-dl-list .sf-dl-viewport {
+  max-height:384px;
+  background:transparent;
+  scrollbar-width:thin;
+  scrollbar-color:color-mix(in srgb,var(--muted) 42%,transparent) transparent;
+}
+/* Shared native episode scrolling policy: Downloads + Watch History use the
+   same vertical handoff, without intercepting wheel/trackpad events. Each
+   page retains its own viewport dimensions, layout and scrollbar visuals. */
+body[data-theme] .sf-dl-list .gallery-episode-scroll,
+#wh-root .gallery-episode-scroll{
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+}
+body[data-theme] .sf-dl-viewport::-webkit-scrollbar{width:7px}
+body[data-theme] .sf-dl-viewport::-webkit-scrollbar-track{background:transparent}
+body[data-theme] .sf-dl-viewport::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb,var(--muted) 42%,transparent);border-radius:999px;
+}
+body[data-theme] .sf-dl-viewport:focus-visible {outline:2px solid var(--focus);outline-offset:-2px;border-radius:6px}
+body[data-theme] .sf-dl-list .sf-dl-episode {
+  box-sizing:border-box;
+  height:48px;min-height:48px;max-height:48px;
+  grid-template-columns:minmax(100px,1fr) minmax(110px,.95fr) minmax(140px,1.45fr) 90px 44px 36px;
+  gap:12px;grid-template-rows:minmax(0,1fr);
+  padding:0 18px 0 0;
+  border:0;border-bottom:1px solid var(--line);
+  background:transparent;
+  transition:background-color .18s ease;
+}
+body[data-theme] .sf-dl-list .sf-dl-episode + .sf-dl-episode {border-top:0}
+body[data-theme] .sf-dl-list .sf-dl-episode:last-child {border-bottom:0}
+body[data-theme] .sf-dl-list .sf-dl-episode:hover,
+body[data-theme] .sf-dl-list .sf-dl-episode:focus-within {
+  background:color-mix(in srgb,var(--accent) 5%,transparent);
+}
+body[data-theme] .sf-dl-episode-control {
+  width:90px;justify-content:center;transform:translateX(10px);
+}
+body[data-theme] .sf-dl-control-button {
+  width:88px;min-width:88px;height:29px;min-height:29px;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-sizing:border-box;padding:0 10px;gap:6px;line-height:1;white-space:nowrap;
+  border-radius:16px;font-size:11px;
+}
+body[data-theme] .sf-dl-control-button svg {width:13px;height:13px;flex:0 0 13px;display:block}
+body[data-theme] .sf-dl-control-spacer {display:block;width:88px;height:29px;flex:none}
+body[data-theme] .sf-dl-episode-quick {
+  width:36px;min-width:36px;height:100%;display:grid;place-items:center;
+  justify-self:end;align-self:stretch;
+}
+body[data-theme] .sf-dl-quick-btn {
+  display:grid;place-items:center;width:28px;height:28px;padding:0;
+  border:1px solid var(--line);border-radius:10px;
+  background:#ffffff0a;color:var(--muted);
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease,background .18s ease,color .18s ease,border-color .18s ease;
+}
+body[data-theme] .sf-dl-episode:hover .sf-dl-quick-btn,
+body[data-theme] .sf-dl-episode:focus-within .sf-dl-quick-btn,
+body[data-theme] .sf-dl-quick-btn:focus-visible {opacity:1;pointer-events:auto}
+body[data-theme] .sf-dl-quick-btn:hover {background:var(--nav-hover);color:var(--fg);border-color:var(--secondary-border)}
+body[data-theme] .sf-dl-quick-btn:focus-visible {outline:2px solid var(--focus);outline-offset:2px}
+body[data-theme] .sf-dl-episode-percent {width:44px;min-width:44px;text-align:right;justify-self:end;font-variant-numeric:tabular-nums}
+body[data-theme] .sf-dl-episode-track {min-width:0;}
+body[data-theme] .sf-dl-action-hint {
+  display:flex;align-items:center;gap:8px;
+  padding:10px 3px 0;margin:0;
+  font-size:11px;line-height:1.5;color:var(--muted);
+}
+body[data-theme] .sf-dl-undo {
+  position:fixed;bottom:23px;left:50%;transform:translateX(-50%);z-index:70;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  min-width:min(380px,calc(100vw - 26px));max-width:calc(100vw - 26px);
+  padding:13px 17px;border-radius:15px;
+  background:var(--panel2);border:1px solid var(--secondary-border);box-shadow:0 15px 55px #0008;
+  color:var(--fg);font-size:12px;
+}
+body[data-theme] .sf-dl-undo button {
+  border:1px solid var(--secondary-border);border-radius:12px;padding:8px 13px;
+  color:var(--accent);background:#ffffff0a;font-weight:730;
+}
+@media(max-width:1120px){
+ body[data-theme] .sf-dl-list .sf-dl-episode {
+  grid-template-columns:minmax(85px,1fr) minmax(85px,.9fr) minmax(100px,1.4fr) 90px 44px 36px;gap:9px;
+ }
+}
+@media(max-width:760px){
+ body[data-theme] .sf-dl-list .sf-dl-card.is-expanded .sf-dl-body-inner {padding:0 13px 12px}
+ body[data-theme] .sf-dl-list .sf-dl-viewport {max-height:288px}
+ body[data-theme] .sf-dl-list .sf-dl-episode {
+  grid-template-columns:minmax(0,1fr) minmax(65px,.7fr) 90px 42px 30px;
+  grid-template-areas:"name name status status quick" "track track control percent quick";
+  grid-template-rows:repeat(2,minmax(0,1fr));
+  column-gap:6px;row-gap:0;
+  height:72px;min-height:72px;max-height:72px;padding:0 14px 0 0;
+ }
+ body[data-theme] .sf-dl-episode-name{grid-area:name;white-space:normal;overflow:hidden}
+ body[data-theme] .sf-dl-episode-status{grid-area:status}
+ body[data-theme] .sf-dl-episode-track{grid-area:track}
+ body[data-theme] .sf-dl-episode-control{grid-area:control;transform:translateX(9px)}
+ body[data-theme] .sf-dl-episode-percent{grid-area:percent;width:42px;min-width:42px}
+ body[data-theme] .sf-dl-episode-quick{grid-area:quick;min-width:30px;width:30px}
+}
+@media(max-width:370px){
+ body[data-theme] .sf-dl-list .sf-dl-episode {
+  grid-template-columns:minmax(0,1fr) minmax(44px,.5fr) 90px 38px 28px;
+  gap:5px;padding-right:12px;
+ }
+ body[data-theme] .sf-dl-episode-control{transform:translateX(7px)}
+ body[data-theme] .sf-dl-episode-percent{width:38px;min-width:38px}
+ body[data-theme] .sf-dl-episode-quick{min-width:28px;width:28px}
+}
+@media(hover:none){body[data-theme] .sf-dl-quick-btn{opacity:1;pointer-events:auto}}
+@media(prefers-reduced-motion:reduce){
+ body[data-theme] .sf-dl-quick-btn,body[data-theme] .sf-dl-episode{transition:none}
+}
+

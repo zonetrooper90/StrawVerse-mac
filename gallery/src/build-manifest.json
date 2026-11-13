@@ -1,7 +1,34 @@
 {
   "schema": 1,
   "style": [
-    "styles/gallery.css"
+    "styles/01-base-and-page-headers.css",
+    "styles/02-anime-detail.css",
+    "styles/03-player-and-desktop-frame.css",
+    "styles/04-motion-and-focus.css",
+    "styles/05-navigation-and-dialogs.css",
+    "styles/06-library-and-workspace-scroll.css",
+    "styles/07-anime-detail-refinements.css",
+    "styles/08-downloads.css",
+    "styles/09-search.css",
+    "styles/10-settings.css",
+    "styles/11-sources.css",
+    "styles/12-about-and-settings-refinements.css",
+    "styles/13-typography.css",
+    "styles/14-subtitle-preview-and-controls.css",
+    "styles/15-subtitle-color-popover.css",
+    "styles/16-player-navigation.css",
+    "styles/17-watch-history.css",
+    "styles/18-theme-palettes-and-foundation.css",
+    "styles/19-themed-settings.css",
+    "styles/20-themed-primary-pages.css",
+    "styles/21-themed-downloads.css",
+    "styles/22-stationary-backdrop.css",
+    "styles/23-themed-subtitle-workbench.css",
+    "styles/24-themed-headers-and-player.css",
+    "styles/25-themed-anime-audio-and-episodes.css",
+    "styles/26-player-icons-and-timelines.css",
+    "styles/27-player-navigation-and-header-refinements.css",
+    "styles/28-unified-headers-and-history-frame.css"
   ],
   "script": [
     "js/gallery.js"

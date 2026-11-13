@@ -1,0 +1,116 @@
+/* -------------------------------------------------------------
+   Stage 01 follow-up: original Soft Futuristic Settings tabs.
+   Every selected tab owns its highlight; no sliding indicator.
+   Appearance, Playback, and Sources share one visual language.
+   ------------------------------------------------------------- */
+body[data-theme] .appearance-subnav,
+body[data-theme] .sources-subnav{
+  display:inline-flex; width:max-content; max-width:100%;
+  align-items:center; justify-content:flex-start; flex-wrap:nowrap;
+  gap:5px; padding:5px; margin-bottom:20px;
+  border:1px solid var(--nav-border);border-radius:999px;
+  background:var(--nav-bg);
+  box-shadow:inset 0 2px 9px #0003,0 6px 20px #0002;
+}
+body[data-theme] .appearance-subnav>button,
+body[data-theme] .sources-subnav>button{
+  position:relative;isolation:isolate;overflow:hidden;
+  flex:0 1 auto; min-width:0;
+  padding:11px 19px; border:0; border-radius:999px;
+  color:var(--muted); background:transparent; box-shadow:none;
+  font-size:12px;font-weight:700; letter-spacing:.01em;
+  transition:color .26s ease,background-color .26s ease;
+}
+body[data-theme] .appearance-subnav>button::before,
+body[data-theme] .sources-subnav>button::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(170deg,var(--nav-active-a),var(--nav-active-b));
+  box-shadow:inset 0 1px 1px #fff8,0 3px 9px #0004;
+  opacity:0;transition:opacity .26s ease;
+}
+body[data-theme] .appearance-subnav>button[aria-selected="true"],
+body[data-theme] .sources-subnav>button[aria-selected="true"]{
+  background:transparent;border:0;color:var(--nav-active-text);
+}
+body[data-theme] .appearance-subnav>button[aria-selected="true"]::before,
+body[data-theme] .sources-subnav>button[aria-selected="true"]::before{opacity:1}
+body[data-theme] .appearance-subnav>button:not([aria-selected="true"]):hover,
+body[data-theme] .sources-subnav>button:not([aria-selected="true"]):hover{
+  background:var(--nav-hover);color:var(--fg);
+}
+body[data-theme] .appearance-subnav>button:focus-visible,
+body[data-theme] .sources-subnav>button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+body[data-theme] .sources-subnav .sources-count{
+  font-size:10px;padding:1px 5px;
+  background:color-mix(in srgb,var(--panel) 30%, transparent);
+  border-color:currentColor;color:inherit;opacity:.8;
+}
+/* The theme artwork/cards are ported from Two-Layout Subtitle Experiment. */
+body[data-theme] .settings-theme-list.sf-theme-grid{
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+  margin-top:17px;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile{
+  min-height:0;min-width:0;display:flex;flex-direction:column;align-items:stretch;
+  gap:0;padding:10px;border:1px solid var(--line);border-radius:20px;
+  background:#ffffff06;text-align:left;color:var(--fg);box-shadow:none;
+  transform:none;
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile:hover{
+  transform:translateY(-3px);background:#ffffff10;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile[aria-pressed="true"]{
+  border-color:var(--accent);background:#ffffff06;
+  box-shadow:0 0 0 1px var(--accent),0 7px 24px #0003;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile .sf-theme-art{
+  position:relative;display:block;overflow:hidden;flex:none;
+  height:84px;border-radius:13px;border:1px solid #ffffff16;
+  background:linear-gradient(135deg,var(--tile-bg),var(--tile-bg2));
+}
+body[data-theme] .sf-theme-art::before{
+  content:"";position:absolute;right:13%;top:15%;
+  width:55px;height:55px;border:3px solid var(--tile-accent);
+  opacity:.8;border-radius:50%;transform:rotate(-15deg);
+  box-shadow:0 0 0 13px #ffffff07;
+}
+body[data-theme] .sf-theme-art::after{
+  content:"";position:absolute;left:14px;bottom:14px;
+  width:52%;height:8px;border-radius:999px;
+  background:var(--tile-accent);box-shadow:0 0 20px #ffffff15;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile .sf-theme-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:6px;padding:11px 5px 3px;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile .sf-theme-row b{
+  display:block;font-size:12px;letter-spacing:-.01em;color:var(--fg);
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile .sf-theme-check{
+  display:flex;flex:none;color:var(--accent);opacity:0;
+  transition:opacity .18s ease;
+}
+body[data-theme] .settings-theme-tile.sf-theme-tile[aria-pressed="true"] .sf-theme-check{opacity:1}
+@media(max-width:850px){
+  body[data-theme] .settings-theme-list.sf-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  body[data-theme] .settings-theme-list.sf-theme-grid{grid-template-columns:1fr}
+  body[data-theme] .appearance-subnav>button,body[data-theme] .sources-subnav>button{padding:10px 12px}
+  body[data-theme] .sources-subnav{width:100%}
+  body[data-theme] .sources-subnav>button{flex:1;padding:10px 6px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-theme] .appearance-subnav>button,
+  body[data-theme] .appearance-subnav>button::before,
+  body[data-theme] .sources-subnav>button,
+  body[data-theme] .sources-subnav>button::before,
+  body[data-theme] .settings-theme-tile.sf-theme-tile,
+  body[data-theme] .settings-theme-tile.sf-theme-tile .sf-theme-check{
+    transition:none!important; transform:none!important;
+  }
+}
+
+

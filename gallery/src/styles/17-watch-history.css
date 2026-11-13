@@ -1,0 +1,143 @@
+/* Gallery v100 — Watch History (from Layout Experiment 03), scoped to this page. */
+#wh-root{max-width:1120px;margin:0 auto;min-width:0}
+#wh-root .wh-back{display:inline-flex;gap:7px;align-items:center;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:650;padding:5px 1px 13px;cursor:pointer}
+#wh-root .wh-back:hover{color:var(--ink)}
+#wh-root .wh-title{font-size:clamp(23px,3vw,30px);letter-spacing:-.03em;line-height:1.12;margin:5px 0 7px}
+#wh-root .wh-caption{margin:0 0 19px;color:var(--muted);font-size:12px}
+#wh-root .wh-header-rule{height:1px;background:var(--line);margin:0 0 16px}
+#wh-root .wh-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#wh-root .wh-segmented{display:inline-flex;align-items:center;gap:3px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--raised)}
+#wh-root .wh-segmented button{border:0;background:transparent;color:var(--muted);border-radius:9px;font-size:12px;font-weight:650;padding:9px 13px;cursor:pointer}
+#wh-root .wh-segmented button:hover{color:var(--ink)}
+#wh-root .wh-segmented button[aria-pressed=true]{background:var(--tab);color:var(--accent-ink)}
+#wh-root .wh-sort{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);padding:8px 11px;min-height:37px;font-size:12px;font-weight:620;cursor:pointer}
+#wh-root .wh-sort:hover{color:var(--ink);background:var(--hover)}
+#wh-root .wh-sort .icon{width:17px;height:17px}
+#wh-root .wh-result-count{font-size:11px;color:var(--muted);margin-bottom:12px}
+#wh-root .wh-match-heading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin:23px 0 11px}
+#wh-root .wh-match-heading:after{content:"";height:1px;background:var(--line);flex:1}
+#wh-root .wh-list{display:flex;flex-direction:column;gap:9px}
+#wh-root .wh-season{border:1px solid var(--line);border-radius:15px;background:var(--surface);overflow:clip;transition:border-color .18s}
+#wh-root .wh-season:hover{border-color:color-mix(in srgb,var(--line) 65%,var(--accent))}
+#wh-root .wh-season.is-expanded{border-color:color-mix(in srgb,var(--line) 40%,var(--accent))}
+#wh-root .wh-summary{display:flex;gap:15px;align-items:center;min-height:103px;padding:12px 14px}
+#wh-root .wh-cover-button{background:transparent;border:0;padding:0;flex:none;cursor:pointer;border-radius:9px}
+#wh-root .wh-cover{width:57px;height:79px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:var(--cover);position:relative;display:block;overflow:hidden}
+#wh-root .wh-cover:before{content:"";position:absolute;top:6px;left:-23px;width:72px;height:72px;border-radius:50%;border:1px solid rgba(255,255,255,.28)}
+#wh-root .wh-cover:after{content:"";position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(0deg,rgba(0,0,0,.54),transparent)}
+#wh-root .wh-cover span{position:absolute;bottom:7px;left:5px;right:5px;color:white;text-align:center;font-size:9px;font-weight:750;z-index:1;line-height:1.2;text-shadow:0 2px 5px rgba(0,0,0,.65)}
+#wh-root .wh-info{flex:1;min-width:0}
+#wh-root .wh-anime-title{font:inherit;font-size:14px;font-weight:690;color:var(--ink);padding:0;background:none;border:0;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+#wh-root .wh-anime-title:hover{color:var(--accent)}
+#wh-root .wh-meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
+#wh-root .wh-completed{display:flex;gap:7px;align-items:center;color:var(--accent);font-size:12px;font-weight:650;margin-top:7px}
+#wh-root .wh-completed .icon{width:14px;height:14px}
+#wh-root .wh-progress{display:flex;align-items:center;gap:5px;width:min(350px,100%);height:5px;margin-top:8px}
+#wh-root .wh-progress-done{background:var(--accent);height:5px;border-radius:99px;flex:none}
+#wh-root .wh-progress-rest{height:5px;background:var(--line);border-radius:99px;flex:1}
+#wh-root .wh-actions{display:flex;gap:3px;align-items:center;flex:none}
+#wh-root .wh-action{width:35px;height:35px;display:grid;place-items:center;color:var(--muted);border:0;border-radius:9px;background:transparent;cursor:pointer}
+#wh-root .wh-action:hover{background:var(--hover);color:var(--ink)}
+#wh-root .wh-action.wh-trash:hover{color:#e8a2ab}
+#wh-root .wh-action .icon{width:19px;height:19px}
+/* Match Downloads' 280ms grid-height expansion: panel remains mounted and reversible. */
+#wh-root .wh-expand .icon{transition:transform .28s cubic-bezier(.22,.7,.25,1)}
+#wh-root .is-expanded .wh-expand .icon{transform:rotate(180deg)}
+#wh-root .wh-episodes{display:grid;grid-template-rows:0fr;background:color-mix(in srgb,var(--raised) 34%,var(--surface));transition:grid-template-rows .28s cubic-bezier(.22,.7,.25,1)}
+#wh-root .wh-season.is-expanded .wh-episodes{grid-template-rows:1fr}
+#wh-root .wh-episodes-inner{min-height:0;overflow:clip;visibility:hidden;transition:visibility 0s linear .28s}
+#wh-root .wh-season.is-expanded .wh-episodes-inner{visibility:visible;transition:visibility 0s}
+#wh-root .wh-episodes-content{border-top:1px solid var(--line);padding:13px 18px 15px 87px}
+#wh-root .wh-episode-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:9px;font-size:11px;color:var(--muted)}
+#wh-root .wh-episode-head strong{font-size:12px;color:var(--ink)}
+#wh-root .wh-episode-shell{position:relative}
+#wh-root .wh-episode-shell:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--line) 82%,var(--accent));z-index:1;pointer-events:none}
+#wh-root .wh-episode-scroll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:42px;max-height:252px;scrollbar-gutter:auto;scrollbar-width:none;-ms-overflow-style:none}
+#wh-root .wh-episode-scroll::-webkit-scrollbar{display:none;width:0;height:0}
+#wh-root .wh-episode{min-width:0;height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 62%,transparent)}
+#wh-root .wh-episode:nth-child(odd){padding-right:22px}
+#wh-root .wh-episode:nth-child(even){padding-left:22px}
+#wh-root .wh-episode:hover{background:var(--hover)}
+#wh-root .wh-episode-main{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+#wh-root .wh-episode-number{font-size:12px;font-weight:650;min-width:69px;font-variant-numeric:tabular-nums}
+#wh-root .wh-episode-position{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Fixed-width status is critical: no checkbox movement as its label changes. */
+#wh-root .wh-episode-toggle{display:flex;align-items:center;justify-content:flex-start;gap:8px;flex:0 0 151px;width:151px;min-width:151px;padding:5px 7px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;white-space:nowrap;cursor:pointer}
+#wh-root .wh-episode-toggle:hover{color:var(--ink);background:var(--hover)}
+#wh-root .wh-episode-toggle[aria-pressed=true]{color:var(--accent)}
+#wh-root .wh-status-icon{display:grid;place-items:center;width:18px;height:18px;flex:none;border:1.7px solid currentColor;border-radius:50%}
+#wh-root .wh-status-icon.is-watched{background:var(--accent);border-color:var(--accent);color:var(--window)}
+#wh-root .wh-status-icon.is-partial{color:var(--accent);position:relative}
+#wh-root .wh-status-icon.is-partial:after{content:"";width:7px;height:7px;background:var(--accent);border-radius:50%}
+#wh-root .wh-status-icon.is-never{opacity:.55}
+#wh-root .wh-status-icon .icon{width:13px;height:13px;stroke-width:3}
+#wh-root .wh-episode-label{flex:1;text-align:left;min-width:0}
+#wh-root .wh-episode-hint{font-size:11px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+#wh-root .wh-inner-overlay{position:absolute;top:2px;right:1px;bottom:2px;width:7px;z-index:2;pointer-events:none;opacity:0;transition:opacity .4s}
+#wh-root .wh-inner-overlay.is-visible{opacity:1}
+#wh-root .wh-inner-thumb{position:absolute;top:0;right:0;width:6px;height:42px;border-radius:99px;background:color-mix(in srgb,var(--muted) 72%,transparent);pointer-events:none}
+#wh-root .wh-inner-overlay.is-visible .wh-inner-thumb{pointer-events:auto;cursor:default}
+#wh-root .wh-inner-overlay.is-dragging .wh-inner-thumb{background:var(--muted)}
+#wh-root .wh-undo{background:var(--raised);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin:0 0 17px}
+#wh-root .wh-undo-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}
+#wh-root .wh-undo-top strong{font-size:12px}
+#wh-root .wh-undo-hint{font-size:11px;color:var(--muted);margin-top:4px}
+#wh-root .wh-undo-items{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#wh-root .wh-undo-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:7px 9px;font-size:11px;max-width:100%}
+#wh-root .wh-undo-item span{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#wh-root .wh-undo-item button{border:0;background:none;border-left:1px solid var(--line);padding-left:8px;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer}
+#wh-root .wh-empty{padding:36px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:12px;text-align:center}
+#wh-root .wh-prototype-note{padding:16px 0;margin-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.5}
+/* v102: Soft Glide from the approved Animation Lab 03.
+   Keep the portrait fixed; transfer one conserved panel-width across the row
+   while switching covers. JS owns the flex-basis; CSS animates panel visibility. */
+.continue.wh-recent{padding:14px 18px 13px;display:block;min-width:0;margin-bottom:30px}
+.wh-recent-header{font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);margin-bottom:10px}
+.wh-recent-row{--wh-panel-width:188px;--wh-open-ms:550ms;--wh-close-ms:375ms;--wh-hover-ms:550ms;--wh-open-curve:cubic-bezier(.35,0,.13,1);--wh-close-curve:cubic-bezier(.25,0,.22,1);--wh-fade-ms:290ms;--wh-fade-delay:115ms;display:flex;align-items:stretch;gap:10px;min-width:0;width:100%;height:96px;overflow:hidden;isolation:isolate}
+.wh-recent-item{position:relative;display:block;flex:0 0 66px;width:66px;height:96px;min-width:0;overflow:hidden;transition:none;isolation:isolate}
+.wh-recent-item.is-preview-hidden{display:none!important}
+.wh-recent-item.is-active{z-index:5}
+.wh-recent-card{position:absolute;z-index:2;top:0;left:0;width:66px;height:96px;box-sizing:border-box;display:block;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:var(--cover);overflow:hidden;color:white;cursor:pointer;padding:0;text-align:left}
+.wh-recent-card:before{content:"";position:absolute;border:1px solid rgba(255,255,255,.35);border-radius:50%;width:77px;height:77px;top:4px;left:-25px}
+.wh-recent-card:after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(0deg,rgba(0,0,0,.72),transparent);pointer-events:none}
+.wh-recent-card:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.wh-recent-card-label{position:absolute;z-index:1;bottom:5px;left:5px;right:5px;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px #000;line-height:1.2;overflow:hidden;max-height:3.6em}
+/* 84px card sits 6px below top of the 96px foreground cover. */
+.wh-recent-info{position:absolute;z-index:1;top:6px;left:66px;width:var(--wh-panel-width);height:84px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:7px;min-width:0;padding:9px 12px 9px 13px;border:1px solid var(--line);border-left:0;border-radius:0 10px 10px 0;background:var(--surface);color:var(--ink);box-shadow:3px 4px 12px rgba(0,0,0,.1);transform:translate3d(-100%,0,0);opacity:0;transition:transform var(--wh-close-ms) var(--wh-close-curve),opacity 130ms ease;pointer-events:none}
+.wh-recent-item.is-active .wh-recent-info{transform:translate3d(0,0,0);opacity:1;transition:transform var(--wh-open-ms) var(--wh-open-curve),opacity var(--wh-fade-ms) ease var(--wh-fade-delay)}
+.wh-recent-row.is-switching .wh-recent-info{transition:transform var(--wh-hover-ms) var(--wh-open-curve),opacity var(--wh-fade-ms) ease!important}
+.wh-recent-info strong{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.24;font-weight:680;overflow-wrap:anywhere}
+.wh-recent-info span{font-size:11px;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wh-recent-view{margin:0;flex:0 0 66px;width:66px;height:96px;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:10px;font-weight:690;cursor:pointer;padding:7px 4px;text-align:center;white-space:normal}
+.wh-recent-view:hover,.wh-recent-view:focus-visible{background:var(--hover);color:var(--ink)}
+.wh-recent-view .icon{width:21px;height:21px;color:var(--accent)}
+@media(prefers-reduced-motion:reduce){.wh-recent-item,.wh-recent-info,.wh-recent-item.is-active .wh-recent-info,.wh-recent-row.is-switching .wh-recent-info{transition:none!important}}
+@media(max-width:820px){#wh-root .wh-episode-scroll{grid-template-columns:minmax(0,1fr)}#wh-root .wh-episode-shell:before{display:none}#wh-root .wh-episode:nth-child(n){padding:0 10px}}
+@media(max-width:750px){#wh-root .wh-summary{gap:10px;padding:11px 10px}#wh-root .wh-cover{width:48px;height:68px}#wh-root .wh-episodes-content{padding-left:14px}#wh-root .wh-anime-title{font-size:13px}#wh-root .wh-actions{gap:0}#wh-root .wh-action{width:30px;height:32px}}
+@media(max-width:430px){#wh-root .wh-controls{align-items:stretch}#wh-root .wh-segmented{flex:1;justify-content:space-between}#wh-root .wh-segmented button{padding:8px 9px;flex:1}#wh-root .wh-sort{margin-left:auto}#wh-root .wh-cover{width:42px;height:61px}#wh-root .wh-summary{gap:8px}#wh-root .wh-episode-toggle{font-size:10px;gap:5px;padding:5px 3px}#wh-root .wh-episode-number{min-width:63px}#wh-root .wh-episode-position{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#wh-root .wh-episodes,#wh-root .wh-expand .icon,#wh-root .wh-episodes-inner,#wh-root .wh-inner-overlay{transition:none!important}}
+/* Watch History follows Downloads' large click targets and keyboard-only focus. */
+#wh-root .wh-summary{position:relative;transition:background-color .16s ease}
+#wh-root .wh-summary:hover{background:var(--raised)}
+#wh-root .wh-summary-hit{position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer}
+#wh-root .wh-summary-hit:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:14px}
+#wh-root .wh-cover-button,#wh-root .wh-anime-title{position:relative;z-index:2}
+#wh-root .wh-actions{position:relative;z-index:2;pointer-events:none}
+#wh-root .wh-trash{pointer-events:auto}
+#wh-root .wh-season:has(.wh-summary-hit:focus-visible){border-color:var(--accent)}
+#wh-root .wh-season:hover:not(.is-expanded){border-color:var(--line)}
+/* Entire episode is the interactive button; fixed-width status slot remains. */
+#wh-root .wh-episode-row{appearance:none;box-sizing:border-box;width:100%;border:0;border-bottom:1px solid color-mix(in srgb,var(--line) 62%,transparent);background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+#wh-root .wh-episode-row:hover{background:var(--hover)}
+#wh-root .wh-episode-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;position:relative;z-index:1}
+#wh-root .wh-episode-row .wh-episode-toggle{cursor:inherit}
+#wh-root .wh-episode-row .wh-episode-toggle:hover{background:transparent;color:inherit}
+#wh-root .wh-episode-row[aria-pressed="true"] .wh-episode-toggle{color:var(--accent)}
+@media(prefers-reduced-motion:reduce){#wh-root .wh-summary{transition:none!important}}
+
+/* v100: player and detail pages use the existing shared fading overlay scrollbar,
+   never a native persistent scrollbar or reserved right-hand gutter. */
+body.player-view .workspace{scrollbar-gutter:auto!important;scrollbar-width:none!important;-ms-overflow-style:none!important}
+body.player-view .workspace::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+
+

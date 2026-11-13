@@ -1,0 +1,13 @@
+/* Soft Futuristic — stationary shared tab backdrop experiment.
+   All three tab pages previously painted this identical gradient themselves.
+   Paint it once on the untransformed viewport instead; leave only the page
+   content on the animated track. This also avoids gradient seams mid-slide. */
+body[data-theme] .tab-pages-viewport {
+  background:
+    radial-gradient(ellipse at 92% 0%,var(--backdrop-a),transparent 46%),
+    radial-gradient(ellipse at 10% 78%,var(--backdrop-b),transparent 48%),
+    var(--window);
+}
+body[data-theme] .tab-pages-track > .tab-page[data-tab-page] {
+  background:transparent;
+}

@@ -1,0 +1,66 @@
+/* v99 — Player Settings now owns subtitles; seek timeline has no thumb; Play Next
+   slides horizontally from the right. Existing 2-colour download style is retained. */
+/* v98 — Original Tabler Player Track Previous/Next icons, plus the approved
+   Player Track Next → Player Skip Forward geometry morph. The center column
+   stays anchored; this changes neither button hit-target nor player structure. */
+.player-track-control>.icon{stroke-width:2}
+.player-controls{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.player-controls .controls-right{min-width:0;gap:12px}
+.player-upnext{
+ display:flex;align-items:center;gap:9px;min-width:0;max-width:min(280px,calc(100% - 90px));
+ overflow:hidden;white-space:nowrap;pointer-events:none;visibility:hidden;
+ opacity:0;transform:translateX(14px);
+ transition:opacity .28s ease,transform .28s cubic-bezier(.2,.7,.2,1),visibility 0s linear .28s;
+}
+.player-area.play-next-active .player-upnext{
+ visibility:visible;opacity:1;transform:translateX(0);pointer-events:auto;
+ transition:opacity .28s ease,transform .28s cubic-bezier(.2,.7,.2,1),visibility 0s;
+}
+.player-upnext-cancel{
+ flex:none;width:29px;height:29px;background:transparent;border:0;border-radius:9px;
+ color:#f5f0fa;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;
+}
+.player-upnext-cancel:hover{background:rgba(255,255,255,.14)}
+.player-upnext-cancel:focus-visible{outline:2px solid var(--accent)}
+.player-upnext-text{display:flex;flex-direction:column;min-width:0;gap:3px;line-height:1.2}
+.player-upnext-text strong{font-size:11px;overflow:hidden;text-overflow:ellipsis;font-weight:650}
+.player-upnext-text span{font-size:10px;color:#ded7e7;font-variant-numeric:tabular-nums}
+.player-upnext-divider{height:26px;width:1px;background:rgba(255,255,255,.24);flex:none}
+/* Scale down only when the player itself becomes small. Never upscale in fullscreen. */
+.player-area{container:gallery-player / inline-size}
+@container gallery-player (max-width:820px){
+ .player-upnext{max-width:min(196px,calc(100% - 74px));gap:6px}
+ .player-upnext-text strong{font-size:10px}
+ .player-controls .controls-right{gap:7px}
+}
+@container gallery-player (max-width:650px){
+ .player-upnext{max-width:min(93px,calc(100% - 66px))}
+ .player-upnext-text strong{display:none}
+ .player-upnext-text span{font-size:9px}
+ .player-upnext-divider{display:none}
+ .player-upnext-cancel{width:24px;height:24px;font-size:20px}
+ .player-controls{gap:5px}
+ .player-controls .controls-middle{gap:4px}
+ .player-icon{width:30px;height:30px;padding:4px}
+ .player-track-control>.icon{width:24px;height:24px}
+}
+@container gallery-player (max-width:470px){
+ .player-upnext{display:none}
+ .player-controls .controls-left,.player-controls .controls-right{gap:0}
+ .player-volume{display:none}
+ .player-bottom{padding-inline:10px}
+ .player-main-action{width:42px;height:42px}
+}
+@container gallery-player (max-width:275px){
+ .player-controls{display:flex;justify-content:center;margin-top:6px}
+ .player-controls .controls-left,.player-controls .controls-right,
+ .player-controls #rewind10,.player-controls #forward10{display:none}
+ .player-progress-row{display:none}
+ .player-bottom{padding:16px 6px 8px}
+ .player-top{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .player-upnext,.player-area.play-next-active .player-upnext{transition:none!important;transform:none!important}
+}
+
+

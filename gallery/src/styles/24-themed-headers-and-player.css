@@ -1,0 +1,120 @@
+/* Corrected optical header alignment — inspect visible glyphs, not just the
+   CSS line-box. The previous 12px top padding displaced the visible titles
+   about 5px below the header center. Center the whole row normally, then apply
+   a small title-only optical correction. Header dimensions/divider stay fixed. */
+body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads) .page-header-primary {
+  padding-top:0;
+}
+/* The same optically lowered title used on Library and Downloads is now
+   shared by Discover, Anime details, Settings and the Player.  Buttons
+   remain in the geometric center of their existing flex rows. */
+body[data-theme] .sf-optical-title {
+  transform:translateY(1px);
+}
+/* Compensating button offset from the old padded-row approach is obsolete. */
+body[data-theme] :is(.page-header-library,.page-header-downloads) .page-header-actions {
+  position:static;
+  top:auto;
+}
+
+/* Soft Futuristic player integration · v103 player is the functional foundation.
+   The single shared theme styles the frame and controls; the video itself stays neutral.
+   Demo mode is explicitly simulated and cannot impersonate a real stream. */
+body[data-theme] .player-area{
+ background:#070e19;border-color:var(--feature-border,var(--line));border-radius:19px;
+ color:#f4fafb;box-shadow:0 14px 35px #0002;
+}
+body[data-theme] .player-top{
+ background:linear-gradient(180deg,rgba(2,9,18,.90),rgba(2,9,18,.30) 52%,transparent);
+ color:#f3fafb;
+}
+body[data-theme] .player-top small{color:#c8d9e3}
+body[data-theme] .player-bottom{
+ background:linear-gradient(180deg,transparent,rgba(2,8,16,.55) 45%,rgba(2,8,16,.94));
+ color:#f3fafb;
+}
+body[data-theme] .player-time{color:#d5e7ed;font-variant-numeric:tabular-nums}
+body[data-theme] .player-remaining{background:rgba(177,204,219,.42)}
+body[data-theme] .player-watched{background:var(--accent)}
+body[data-theme] .player-icon{color:#e8f3f7;border-radius:11px}
+body[data-theme] .player-icon:hover{color:var(--accent);background:rgba(255,255,255,.11)}
+body[data-theme] .player-icon:focus-visible,body[data-theme] .player-main-action:focus-visible,
+body[data-theme] .player-upnext-cancel:focus-visible{
+ outline:2px solid var(--accent);outline-offset:2px;
+}
+body[data-theme] .player-main-action{
+ background:linear-gradient(150deg,var(--nav-active-a),var(--nav-active-b));
+ color:var(--nav-active-text);box-shadow:0 5px 19px #0006;
+}
+body[data-theme] .player-main-action:hover{filter:brightness(1.055)}
+body[data-theme] .player-icon[aria-pressed="true"]{
+ background:rgba(255,255,255,.17);color:var(--accent)
+}
+body[data-theme] .player-upnext-text span{color:#d2e0e8}
+body[data-theme] .player-upnext-cancel{
+ display:grid;place-items:center;padding:0;border-radius:9px;color:#eff7fa;
+}
+body[data-theme] .player-upnext-cancel>.icon{display:block;width:17px;height:17px}
+body[data-theme] .player-upnext-cancel:hover{background:rgba(255,255,255,.12)}
+body[data-theme] .player-no-media{
+ background:radial-gradient(ellipse at 68% 22%,#32476179,transparent 46%),
+ radial-gradient(ellipse at 30% 75%,#1a526463,transparent 55%),#07111b;
+}
+body[data-theme] .player-empty-inner strong{color:#f4fbff}
+body[data-theme] .player-empty-inner p{color:#bfced5}
+body[data-theme] .sf-player-preview-button{margin-top:4px;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.22);color:#ebf9f9}
+body[data-theme] .sf-player-preview-button:hover{background:rgba(255,255,255,.13)}
+body[data-theme] .sf-player-demo-scene{
+ position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+ background:radial-gradient(ellipse at 72% 34%,#3e456b80,transparent 51%),
+ radial-gradient(ellipse at 29% 76%,#306f7580,transparent 60%),
+ linear-gradient(125deg,#07121c,#152635 41%,#0c1827 72%,#060e19);
+}
+.sf-player-demo-scene::before{
+ content:"";position:absolute;inset:0;opacity:.52;
+ background-image:radial-gradient(circle at 17% 28%,#d9effa 0 1px,transparent 2px),
+ radial-gradient(circle at 54% 18%,#d9effa 0 1px,transparent 2px),
+ radial-gradient(circle at 79% 27%,#d9effa 0 1.2px,transparent 2px),
+ radial-gradient(circle at 37% 39%,#d9effa 0 1px,transparent 2px),
+ radial-gradient(circle at 88% 61%,#d9effa 0 1px,transparent 2px),
+ radial-gradient(circle at 56% 66%,#d9effa 0 .8px,transparent 2px);
+ background-size:340px 260px;
+}
+.sf-player-demo-scene::after{
+ content:"";position:absolute;width:60%;aspect-ratio:1;left:32%;top:-18%;
+ border:1px solid #a7c8d133;border-radius:50%;transform:rotate(-17deg);
+ box-shadow:0 0 80px #8cafd015,inset 0 0 60px #8cafd015;
+}
+.sf-player-demo-horizon{
+ position:absolute;left:-12%;right:-12%;bottom:-26%;height:61%;
+ background:radial-gradient(ellipse at 60% 12%,#3b79845e,transparent 48%),
+ linear-gradient(#102432bd,#06111e);border-radius:50% 50% 0 0;transform:rotate(-5deg);
+}
+.sf-player-demo-mark{
+ position:absolute;left:7%;top:32%;color:#e0f5f5;opacity:.57;
+ letter-spacing:.34em;font-size:clamp(11px,3vw,27px);font-weight:760;text-transform:uppercase;
+ text-shadow:0 6px 26px #0009;
+}
+.sf-player-demo-mark small{display:block;margin-top:10px;font-size:.38em;letter-spacing:.23em;font-weight:500}
+body[data-theme] .player-dev-tools .sf-player-demo-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:3px 0 10px}
+body[data-theme] .player-dev-tools .sf-player-demo-tools .btn{white-space:nowrap}
+@media(prefers-reduced-motion:reduce){body[data-theme] .player-area,body[data-theme] .player-main-action{transition:none}}
+
+/* Keep the browser-only empty-state actions reachable without hiding the real
+   playback controls. The overlay gradient cannot intercept the empty-state button. */
+.player-area:has(.player-no-media:not([hidden])) .player-bottom{pointer-events:none}
+.player-area:has(.player-no-media:not([hidden])) .player-bottom button,
+.player-area:has(.player-no-media:not([hidden])) .player-bottom input,
+.player-area:has(.player-no-media:not([hidden])) .player-bottom .player-progress,
+.player-area:has(.player-no-media:not([hidden])) .player-bottom #seek{pointer-events:none}
+@container gallery-player (max-width:470px){
+ .player-area .player-no-media{padding:25px 12px 55px}
+ .player-area .player-empty-inner{gap:7px}
+ .player-area .player-empty-inner>.icon,.player-area .player-empty-inner p{display:none}
+ .player-area .player-empty-inner strong{font-size:12px;line-height:1.2}
+ body[data-theme] .player-area .player-empty-inner>.btn{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;font-size:11px;min-height:24px}
+}
+
+/* Fullscreen video keeps square edges despite the themed window frame. */
+body[data-theme] .player-area:fullscreen{border:0;border-radius:0;box-shadow:none;background:#05080e}
+

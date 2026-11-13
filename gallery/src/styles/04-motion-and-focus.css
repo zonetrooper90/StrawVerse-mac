@@ -1,0 +1,57 @@
+/* Sequential fade: outgoing stage 150ms, incoming stage 150ms afterwards.
+   No ghosting, depth scaling, or overlap. The common Gallery header/background
+   are live, not root-transition captures; primary tab sliding stays untouched. */
+:root{view-transition-name:none}
+@keyframes gallery-stage-fade-out{from{opacity:1}to{opacity:0}}
+@keyframes gallery-stage-fade-in{from{opacity:0}to{opacity:1}}
+::view-transition-image-pair(gallery-stage){isolation:isolate}
+::view-transition-old(gallery-stage){animation:gallery-stage-fade-out .15s ease-in both}
+::view-transition-new(gallery-stage){animation:gallery-stage-fade-in .15s ease-out .15s both}
+::view-transition-group(gallery-stage){animation:none}
+@keyframes gallery-about-forward{from{opacity:.94;transform:translateX(7px)}to{opacity:1;transform:translateX(0)}}
+@keyframes gallery-about-back{from{opacity:.94;transform:translateX(-7px)}to{opacity:1;transform:translateX(0)}}
+#settings-about-root [data-about-view]:not([hidden]){animation:gallery-about-forward .22s cubic-bezier(.2,.75,.2,1) both}
+#settings-about-root[data-about-direction="back"] [data-about-view]:not([hidden]){animation-name:gallery-about-back}
+@media(prefers-reduced-motion:reduce){
+ ::view-transition-old(gallery-stage),::view-transition-new(gallery-stage),
+ #settings-about-root [data-about-view]:not([hidden]){animation:none!important}
+}
+
+/* v0.2.6 — small, consistent UI motion; content and control geometry are unchanged.
+   Animate only real screen changes, not every episode/player state refresh. */
+#screen.surface-enter{animation:gallery-surface-in .24s cubic-bezier(.2,.7,.2,1) both}
+@keyframes gallery-surface-in{
+ from{opacity:0;transform:translateY(6px)}
+ to{opacity:1;transform:translateY(0)}
+}
+.overlay{animation:gallery-backdrop-in .18s ease-out both}
+.overlay .dialog{animation:gallery-dialog-in .22s cubic-bezier(.2,.8,.2,1) both}
+.overlay.is-closing{animation:gallery-backdrop-out .14s ease-in forwards;pointer-events:none}
+.overlay.is-closing .dialog{animation:gallery-dialog-out .14s ease-in forwards}
+@keyframes gallery-backdrop-in{from{opacity:0}to{opacity:1}}
+@keyframes gallery-backdrop-out{from{opacity:1}to{opacity:0}}
+@keyframes gallery-dialog-in{
+ from{opacity:0;transform:translateY(8px) scale(.99)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes gallery-dialog-out{
+ from{opacity:1;transform:translateY(0) scale(1)}
+ to{opacity:0;transform:translateY(4px) scale(.995)}
+}
+/* Use understated feedback across themes; don't animate the player's established fade. */
+.btn,.iconbtn,.tagchip,.filterpill,.theme-tile,.searchresult,.player-icon,.player-main-action,.inline-arrow{
+ transition:background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,filter .18s ease,transform .16s ease
+}
+.poster{transition:transform .22s cubic-bezier(.2,.75,.2,1),box-shadow .22s ease}
+/* Episode rows are non-interactive; only the individual Play and Download buttons respond to hover. */
+.inline-installment-card{transition:background-color .18s ease,border-color .18s ease}
+.btn:active:not(:disabled),.iconbtn:active:not(:disabled),.player-icon:active:not(:disabled),.player-main-action:active:not(:disabled){transform:scale(.98)}
+/* v49 — A focused text input matches :focus-visible even after a mouse click.
+   Suppress that ring during pointer use; retain it for Tab-based navigation. */
+html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{outline:none}
+/* v48 — Mouse hover is understated; accent borders communicate selection, and :focus-visible communicates keyboard focus. */
+.theme-tile:hover:not([aria-pressed="true"]),.searchresult:hover{background:var(--hover)}
+@media(prefers-reduced-motion:reduce){
+ #screen.surface-enter,.overlay,.overlay .dialog,.overlay.is-closing,.overlay.is-closing .dialog{animation:none!important}
+}
+

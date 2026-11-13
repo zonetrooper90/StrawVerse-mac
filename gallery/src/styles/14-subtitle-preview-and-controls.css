@@ -1,0 +1,319 @@
+/* v82 — Playback > Subtitles: full-width image, live controls below. */
+.playback-pane[hidden]{display:none!important}
+.playback-pane:not([hidden]){animation:settings-panel-enter .19s ease-out both}
+/* v85 — Automatically crossfade the shrine scene; v84 sticky layout preserved. */
+
+
+
+
+
+
+
+
+
+.subtitle-stage{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/9;width:100%;max-width:760px;margin-inline:auto;background:#091b2c;border:1px solid color-mix(in srgb,var(--line) 45%,#1e2e42);border-radius:12px;container-type:inline-size;user-select:none;transition:max-width .22s ease}
+.subtitle-stage-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;user-select:none}
+/* v91 — The night layer has no independent CSS animation. One shared
+   JavaScript clock calculates one opacity and paints both preview layers.
+   This prevents a late-created expanded view from owning a separate timeline. */
+.subtitle-stage-night{opacity:0}
+.subtitle-stage-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.08),transparent 25%);opacity:.35}
+.subtitle-preview-caption{position:absolute;z-index:2;left:50%;width:max-content;max-width:88%;text-align:center;transform:translateX(-50%);white-space:pre-line;overflow-wrap:break-word;line-height:1.27;font-weight:620;letter-spacing:.001em;text-shadow:none;box-sizing:border-box;pointer-events:none}
+.subtitle-stage[data-position="bottom"] .subtitle-preview-caption{bottom:8%;top:auto}
+
+
+
+
+
+
+
+
+
+.subtitle-control-caption{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.subtitle-control-caption output{font-size:12px;color:var(--ink);font-weight:660;font-variant-numeric:tabular-nums}
+.subtitle-range-field input[type="range"]{width:100%;margin:6px 0 0;padding:0;accent-color:var(--accent);background:transparent;border:0;cursor:pointer}
+.subtitle-range-ends{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:0}
+.subtitle-color-line{display:flex;align-items:center;gap:12px;min-height:41px;border:1px solid var(--line);border-radius:10px;background:var(--raised);padding:5px 8px}
+.subtitle-color-line input[type="color"]{width:39px;height:30px;padding:2px;border:0;background:transparent;border-radius:6px;cursor:pointer}
+.subtitle-color-line output{font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+/* v84 — A narrow viewport cannot safely show a sticky preview over its scrolling controls.
+   Keep mobile content in document flow, without changing macOS desktop behavior. */
+@media(max-width:810px){.subtitle-stage{border-radius:9px}}
+@media(max-width:510px){.subtitle-stage{border-radius:8px}}
+@media(prefers-reduced-motion:reduce){.playback-pane{animation:none!important}.subtitle-stage-night{animation:none!important;opacity:0}.subtitle-stage{transition:none!important}}
+
+/* v86 — A compact, stable sticky subtitle preview and grouped controls.
+   No scroll-driven resizing: the stage's size depends only on the viewport. */
+
+
+
+.subtitle-stage{
+  max-width:min(560px,calc((100dvh - 470px)*16/9));
+  transition:none;
+}
+
+
+
+
+
+.subtitle-color-line{gap:6px;min-width:0;overflow:hidden}
+.subtitle-color-line input[type=color]{flex:none;width:36px}
+.subtitle-color-line output{min-width:0;font-size:11px;white-space:nowrap}
+@media(max-width:810px){
+ 
+ 
+ .subtitle-stage{max-width:min(100%,calc((100dvh - 390px)*16/9))}
+}
+@media(max-width:510px){
+ 
+ 
+ 
+ .subtitle-color-line{padding:5px;gap:5px}
+ .subtitle-color-line input[type=color]{width:28px;height:28px}
+ .subtitle-color-line output{font-size:10.5px}
+ 
+ 
+}
+
+@media(max-width:350px){
+ 
+ 
+ .subtitle-color-line output{font-size:9.5px}
+}
+
+
+/* v87 — Split subtitle workspace: scroll the controls while the preview remains visible.
+   Only Playback > Subtitles is affected.  On narrower screens preserve the v86
+   single-column arrangement instead of squeezing the two-column controls. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Switch to the familiar top-preview layout when the Settings sidebar would
+   leave either desktop column too narrow for its paired fields. */
+
+
+
+
+
+
+/* v88 — Choice of outline or directional drop shadow; the effect's controls
+   reuse one area, keeping the split workspace compact. */
+.subtitle-effect-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.subtitle-effect-switch{display:flex;gap:4px;max-width:100%;padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--raised)}
+.subtitle-effect-button{flex:1;min-width:0;border:0;border-radius:8px;padding:9px 10px;background:transparent;color:var(--muted);font-size:12px;font-weight:620;transition:background .15s,color .15s}
+.subtitle-effect-button[aria-pressed="true"]{background:var(--tab);color:var(--accent-ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.subtitle-effect-button:hover:not([aria-pressed="true"]){background:var(--hover);color:var(--ink)}
+.subtitle-effect-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.subtitle-effect-button{transition:none}}
+
+/* v89 — Inspect subtitle outline/shadow on a larger, independently rendered scene.
+   At 100% the stage is genuinely 1280 CSS pixels wide: do not transform/zoom
+   a smaller stage, which would resample its stroke and shadow. */
+
+.subtitle-preview-expand:hover{background:var(--hover)}
+.subtitle-preview-expand:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.overlay .dialog.subtitle-preview-dialog{
+  width:min(1360px,calc(100vw - 30px));max-height:min(94dvh,940px);padding:0;
+}
+.subtitle-preview-dialog .dialog-scroll{margin:0;padding:12px}
+.subtitle-preview-dialog .dialog-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;margin-bottom:10px}
+.subtitle-preview-dialog .dialog-head h2{margin:0;min-width:0;overflow-wrap:anywhere}
+.subtitle-preview-dialog .dialog-head #close-dialog{justify-self:end}
+.subtitle-expanded-header-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.subtitle-expanded-header-controls #subtitle-actual-size{min-width:58px;min-height:32px;white-space:nowrap}
+.subtitle-expanded-header-controls #subtitle-actual-size[aria-pressed="true"]{border-color:var(--accent);background:var(--strong)}
+.subtitle-expanded-header-controls #subtitle-actual-size[hidden]{display:none!important}
+.subtitle-expanded-viewport{
+  width:100%;overflow:auto;overscroll-behavior:contain;
+  border-radius:13px;scrollbar-width:thin;scrollbar-color:var(--muted) var(--surface);
+}
+.subtitle-expanded-viewport .subtitle-stage{
+  width:min(1280px,100%,calc((min(94dvh,940px) - 88px)*16/9));
+  max-width:none;margin-inline:auto;transition:none;
+}
+.subtitle-expanded-viewport.is-actual-size .subtitle-stage{
+  width:1280px;min-width:1280px;max-width:none;
+}
+@media(max-width:580px){
+ .subtitle-preview-dialog .dialog-head{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+ .subtitle-preview-dialog .dialog-head h2{font-size:18px}
+ .subtitle-preview-dialog .dialog-head #close-dialog{grid-column:2;grid-row:1}
+ .subtitle-expanded-header-controls{grid-column:1/-1;grid-row:2;justify-content:flex-end}
+ .subtitle-expanded-viewport:not(.is-actual-size) .subtitle-stage{width:min(1280px,100%,calc((min(94dvh,940px) - 124px)*16/9))}
+}
+@media(prefers-reduced-motion:reduce){.subtitle-preview-expand{transition:none}}
+
+/* v93 — Five named, responsive subtitle-size presets. The selected size is
+   persistent and independent of source resolution or screen pixel density. */
+.subtitle-size-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.subtitle-size-button{display:flex;min-width:0;min-height:48px;align-items:center;justify-content:center;text-align:center;
+ padding:8px 4px;border:1px solid var(--line);border-radius:9px;background:var(--raised);color:var(--muted);
+ font:inherit;font-weight:620;font-size:11px;line-height:1.24;white-space:normal;overflow-wrap:normal;cursor:pointer;
+ transition:background .15s ease,border-color .15s ease,color .15s ease}
+.subtitle-size-button:hover:not([aria-pressed="true"]){background:var(--hover);color:var(--ink)}
+.subtitle-size-button[aria-pressed="true"]{background:var(--strong);border-color:var(--accent);color:var(--ink)}
+.subtitle-size-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(min-width:1121px) and (max-width:1360px){.subtitle-size-options{gap:3px}.subtitle-size-button{font-size:10px;padding:7px 2px}}
+@media(max-width:440px){.subtitle-size-options{gap:3px}.subtitle-size-button{font-size:10px;padding:7px 2px;min-height:47px}}
+@media(prefers-reduced-motion:reduce){.subtitle-size-button{transition:none}}
+
+/* v94 — Restore the stacked desktop subtitle editor from v86.
+   Keep v93's presets, effect controls, expanded view and shared animation unchanged.
+   Preview first, controls below; one scrolling surface rather than two. */
+
+
+
+/* v95 — Spacious stacked preview + compact, logically paired subtitle controls.
+   Only the Playback > Subtitles layout changes. The synchronized day/night
+   rendering, caption effect logic, presets and expanded view remain unchanged. */
+
+/* At narrower desktop widths, retain the paired font and color controls;
+   don't squeeze the effect's slider into half a narrow column. */
+
+
+
+/* v96 — Unified Subtitle Style, fitted to Gallery's REAL Playback content width.
+   No nested application frame or artificially narrow settings card. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Layout Experiment A2 corrected — Restore A1's 800px preview allowance while preserving 10px gap and widened Font.
+   A2 adjusted spacing and widened Font selector, based on A1.
+   Original A1 change: Font moves beside the live preview.
+   Other subtitle controls, settings navigation, preview clock, and data logic unchanged. */
+
+
+
+
+
+
+/* If the actual settings pane cannot accommodate the two items, stack them.
+   The breakpoint is based on Gallery's available content width, not the monitor. */
+
+
+/* Layout Experiment A3 — ONLY change: move Text size beneath Font beside the
+   preview, using five abbreviated choices (XS / S / N / L / XL).
+   Accessible names and the selected-size label use full names.
+   Other subtitle controls remain below the preview. */
+
+
+
+
+
+
+
+
+/* Layout Experiment A4: Text color joins Font and Text size beside the preview.
+   White and Yellow are one-click presets; Custom retains its last value. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Layout Experiment A6 — Move only the Subtitle Style selector beside the
+   preview, below Text Color. Keep the linked effect strength and color controls
+   in the lower Subtitle Appearance card for the next design decision. */
+
+
+
+
+
+
+/* Layout Experiment A7 — Visual polish only. Typography/effects settings stay
+   alongside the existing preview; no changes to values or event handling. */
+
+/* Each section starts at the same left edge and has uniform outer spacing. */
+
+/* One consistent label-to-control distance for all four settings. */
+
+
+/* Five sizes and three colors keep equal-width, consistently rounded controls. */
+
+
+
+
+/* The 2x2 Subtitle Style grid has the same boundaries and spacing as other choices. */
+
+
+
+/* Layout Experiment A8 — Compact sidebar; the stage/grid sizing from A7 is
+   intentionally untouched. All effect adjustments now live below Style. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Layout Experiment A9 — Three effect presets, roomier color selector.
+   Deliberately never modify the preview stage/grid dimensions. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

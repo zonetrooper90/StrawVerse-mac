@@ -1,0 +1,66 @@
+/* v44 — Grouped download notifications, including full-width header hover treatment. */
+.download-groups{display:flex;flex-direction:column;gap:12px}
+.download-group{min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;transition:border-color .18s ease}
+/* Only keyboard-visible focus should accent the whole group; mouse focus keeps the normal border. */
+.download-group:has(:focus-visible){border-color:var(--accent)}
+.download-group-top{display:flex;align-items:stretch;gap:8px;min-width:0;transition:background-color .16s ease}
+.download-group-top:hover{background:var(--raised)}
+.download-group-toggle{display:grid;grid-template-columns:58px minmax(0,1fr) 22px;align-items:center;gap:16px;flex:1;min-width:0;padding:13px 14px;border:0;background:transparent;text-align:left;color:var(--ink)}
+.download-group-toggle:hover{background:transparent}
+.download-group-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:12px}
+
+
+
+
+.download-group-chevron{color:var(--muted);display:inline-flex;justify-content:center;transition:transform .26s cubic-bezier(.18,.7,.22,1)}
+.download-group.is-expanded .download-group-chevron{transform:rotate(90deg)}
+
+
+
+.download-group-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.22,.7,.25,1)}
+.download-group.is-expanded .download-group-body{grid-template-rows:1fr}
+.download-group-body-inner{min-height:0;overflow:hidden;padding:0 14px}
+.download-group.is-expanded .download-group-body-inner{border-top:1px solid var(--line);padding:4px 14px 9px}
+.download-episode{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:16px;padding:13px 1px;min-height:83px}
+.download-episode + .download-episode{border-top:1px solid var(--line)}
+
+
+
+
+
+
+
+
+.download-matched-count{margin:8px 0 0;font-size:11px;color:var(--muted)}
+.demo-download-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:8px}
+.demo-download-footer .tip{flex:1;min-width:min(240px,100%);margin:0}
+.demo-download-actions{display:flex;gap:10px;flex-wrap:wrap}
+.demo-download-control:disabled{opacity:.45;cursor:not-allowed}
+.download-location-settings .download-folder-choice{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-top:8px;cursor:pointer}
+.download-location-settings .download-folder-choice:has(input:checked){border-color:var(--accent);background:var(--raised)}
+.download-folder-choice input{margin:3px 0 0;accent-color:var(--accent);flex:none}
+.download-folder-choice span{display:flex;flex-direction:column;gap:3px}
+.download-folder-choice b{font-size:12px;color:var(--ink)}
+.download-folder-choice small{font-size:11px;color:var(--muted);line-height:1.4}
+.download-folder-placeholder{display:flex;align-items:center;gap:7px;margin-top:8px;padding:10px;border:1px dashed var(--line);border-radius:10px;font-size:11px;color:var(--muted)}
+.download-folder-placeholder[hidden]{display:none}
+@media(max-width:650px){.download-group-toggle{grid-template-columns:48px minmax(0,1fr) 18px;gap:11px;padding:12px}}
+@media(max-width:460px){.download-group-top{flex-wrap:nowrap;gap:0}.download-group-toggle{flex:1 1 auto;min-width:0}.download-episode{gap:10px}}
+@media(prefers-reduced-motion:reduce){.download-group-body,.download-group-chevron,.download-group-top{transition:none!important}}
+
+
+/* v43 — Tabler SVG actions: cancel / clear-all / reload, supplied by the user. */
+.download-action-btn{width:36px;height:36px;min-width:36px;min-height:36px;display:inline-flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--line);border-radius:10px;background:var(--raised);color:var(--muted);padding:0;transition:background .16s ease,color .16s ease,border-color .16s ease}
+/* v47: all download icon actions (Dismiss, Cancel and Retry) keep their neutral border on mouse hover. Keyboard focus still receives the accent outline below. */
+.download-action-btn:hover:not(:disabled){background:var(--hover);color:var(--ink);border-color:var(--line)}
+.download-action-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.download-action-btn:disabled{opacity:.36;cursor:not-allowed}
+
+.download-action-btn .download-action-icon{display:block;flex:none}
+
+.page-header .page-header-actions .download-action-btn{width:36px;height:36px;min-width:36px;min-height:36px;padding:0}
+.download-dismiss-all-wrap{display:inline-flex;align-items:center;flex:none}
+@media(max-width:460px){.download-action-btn{width:34px;height:34px;min-width:34px;min-height:34px}.page-header .page-header-actions .download-action-btn{width:34px;height:34px;min-width:34px;min-height:34px}.download-group-toggle{grid-template-columns:48px minmax(0,1fr) 18px;gap:9px;padding:11px}}
+@media(prefers-reduced-motion:reduce){.download-action-btn{transition:none!important}}
+
+

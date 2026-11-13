@@ -1,0 +1,76 @@
+/* v79 — Accessible, locally selected UI typography. No online font loading. */
+body[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+body[data-font="atkinson"]{font-family:"Atkinson Hyperlegible Next",-apple-system,BlinkMacSystemFont,sans-serif}
+body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif}
+.settings-font-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:17px}
+.settings-font-tile{min-width:0;display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:10px;position:relative;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:13px;padding:15px;transition:background .16s,border-color .16s}
+.settings-font-tile:hover:not([aria-pressed="true"]){background:var(--hover)}
+.settings-font-tile[aria-pressed="true"]{border-color:var(--accent);background:var(--raised)}
+.settings-font-top{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;min-height:50px}
+.settings-font-name{display:block;font-size:13px;font-weight:730;line-height:1.45}
+.settings-font-sub{display:block;font-size:11px;color:var(--muted);line-height:1.45;margin-top:3px}
+.settings-font-check{width:20px;flex:none;color:var(--accent);opacity:0}
+.settings-font-tile[aria-pressed="true"] .settings-font-check{opacity:1}
+.settings-font-example{background:var(--window);border:1px solid var(--line);border-radius:9px;padding:13px 12px;min-height:100px;display:flex;flex-direction:column;justify-content:center;gap:5px;overflow:hidden}
+.settings-font-example strong{font-size:16px;line-height:1.3;font-weight:700;letter-spacing:0}
+.settings-font-example span{font-size:11px;line-height:1.5;color:var(--muted)}
+.settings-font-example small{font-size:12px;line-height:1.5;letter-spacing:.035em}
+.settings-font-tile[data-font-choice="system"] .settings-font-example{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
+.settings-font-tile[data-font-choice="atkinson"] .settings-font-example{font-family:"Atkinson Hyperlegible Next",-apple-system,BlinkMacSystemFont,sans-serif}
+.settings-font-tile[data-font-choice="inter"] .settings-font-example{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif}
+.settings-font-live{margin-top:14px;background:var(--raised);border:1px solid var(--line);padding:17px 18px;border-radius:12px}
+.settings-font-live-label{font-weight:700;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+.settings-font-live h3{font-size:20px;line-height:1.35;letter-spacing:0;font-weight:700}
+.settings-font-live p{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.55}
+.settings-font-live .settings-font-pairs{font-size:15px;letter-spacing:.065em;margin-top:12px;color:var(--ink)}
+.settings-font-notice{font-size:11px;line-height:1.6;color:var(--muted);margin:14px 0 0}
+.settings-font-notice a{color:var(--accent)}
+.settings-font-missing{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.settings-font-missing[hidden]{display:none!important}
+@media(max-width:1100px){.settings-font-list{grid-template-columns:1fr}.settings-font-tile{flex-direction:row;align-items:center;gap:16px}.settings-font-top{flex:0 0 40%;min-height:0}.settings-font-example{flex:1;min-height:86px}}
+@media(max-width:530px){.settings-font-tile{flex-direction:column;align-items:stretch;gap:9px}.settings-font-example{min-height:92px}}
+
+/* v80 — Language-aware, offline typography samples; restrained responsive controls. */
+.settings-font-language{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:15px 0 0;flex-wrap:wrap}
+.settings-font-language-info{display:flex;flex-direction:column;gap:4px;min-width:180px;flex:1}
+.settings-font-language-label{font-weight:700;font-size:12px;color:var(--ink)}
+.settings-font-language-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.settings-font-language select{min-width:190px;max-width:100%;border-radius:9px;background:var(--window);border:1px solid var(--line);color:var(--ink);padding:10px 12px;font-size:12px}
+.settings-font-example{justify-content:flex-start;gap:8px;min-height:177px}
+.settings-font-sample-label{display:block;font-size:10px!important;line-height:1.2!important;color:var(--muted)!important;font-weight:600;letter-spacing:.01em}
+.settings-font-glyphs{display:block;font-size:14px!important;line-height:1.4!important;color:var(--ink)!important;letter-spacing:.012em!important;overflow-wrap:anywhere;word-break:normal;font-weight:520}
+.settings-font-sample-pair{display:flex;flex-direction:column;gap:3px}
+.settings-font-live-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.settings-font-live .settings-font-live-label{margin:0}
+.settings-font-live-tag{font-size:11px;color:var(--muted)}
+.settings-font-live-character-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:22px;row-gap:14px;margin-top:16px}
+.settings-font-live-group{min-width:0;display:flex;flex-direction:column;gap:6px}
+.settings-font-live-group-wide{grid-column:1 / -1}
+.settings-font-live .settings-font-live-character{font-size:18px;line-height:1.6;letter-spacing:.035em;color:var(--ink);overflow-wrap:anywhere;font-weight:500}
+.settings-font-live .settings-font-live-character.compact{font-size:16px}
+.settings-font-coverage-note{font-size:11px;color:var(--muted);line-height:1.5;margin:13px 0 0}
+@media(max-width:1100px){.settings-font-example{min-height:113px}.settings-font-live-character-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.settings-font-live-character-grid{grid-template-columns:1fr}.settings-font-live-group-wide{grid-column:auto}}
+@media(max-width:530px){.settings-font-language select{width:100%}.settings-font-example{min-height:0}}
+
+/* v81 — Appearance categories and full-width type specimens. */
+.appearance-subnav{display:flex;gap:6px;padding:5px;border:1px solid var(--line);border-radius:13px;background:var(--surface);margin-bottom:17px}
+.appearance-subnav button{flex:1;min-width:0;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font-size:13px;font-weight:650;padding:11px 14px;text-align:center;transition:background .17s ease,color .17s ease,border-color .17s ease}
+.appearance-subnav button:hover{color:var(--ink);background:var(--hover)}
+.appearance-subnav button[aria-selected="true"]{background:var(--raised);border-color:var(--line);color:var(--ink)}
+.appearance-pane[hidden]{display:none!important}
+.appearance-pane:not([hidden]){animation:settings-panel-enter .19s ease-out both}
+.settings-font-list{display:flex;flex-direction:column;gap:12px;margin-top:19px}
+.settings-font-tile{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:14px;padding:19px 21px;border-radius:13px}
+.settings-font-top{width:100%;min-height:0;flex:0 0 auto;align-items:center}
+.settings-font-name{font-size:14px}
+.settings-font-sub{font-size:12px}
+.settings-font-example{width:100%;flex:none!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;justify-content:initial;column-gap:24px;row-gap:17px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:15px 0 0;min-height:0!important;overflow:visible}
+.settings-font-example .settings-font-sample-pair{min-width:0;display:flex;flex-direction:column;gap:7px}
+.settings-font-example .settings-font-sample-label{font-size:11px!important}
+.settings-font-example .settings-font-glyphs{font-size:18px!important;line-height:1.55!important;letter-spacing:.012em!important;overflow-wrap:anywhere;font-weight:450}
+.settings-font-coverage-note{margin-top:14px}
+@media(max-width:700px){.settings-font-example{grid-template-columns:1fr;row-gap:13px}}
+@media(max-width:530px){.settings-font-tile{flex-direction:column;align-items:stretch;gap:13px;padding:16px 15px}.settings-font-top{flex:none}.settings-font-example{flex:none}}
+@media(prefers-reduced-motion:reduce){.appearance-pane{animation:none!important}}
+

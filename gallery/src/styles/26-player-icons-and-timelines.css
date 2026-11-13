@@ -1,0 +1,141 @@
+/* Play/Pause icon unification · approved 260 ms interruptible filled-shape morph.
+   Use a secondary, per-theme pastel as an optional contrast to the navigation accent.
+   Foreground colors are intentionally deep for legibility across the six palettes. */
+body[data-theme="ocean"]{--sf-play-from:#ffd9c5;--sf-play-to:#f2adad;--sf-play-ink:#4d2d35}
+body[data-theme="twilight"]{--sf-play-from:#ffcfcd;--sf-play-to:#edabc5;--sf-play-ink:#4c2c4a}
+body[data-theme="ember"]{--sf-play-from:#ffe5ae;--sf-play-to:#efc475;--sf-play-ink:#4b351c}
+body[data-theme="slate"]{--sf-play-from:#cee8de;--sf-play-to:#99cec8;--sf-play-ink:#203f40}
+body[data-theme="glacier"]{--sf-play-from:#b4e2ff;--sf-play-to:#84c4ee;--sf-play-ink:#18364d}
+body[data-theme="verdant"]{--sf-play-from:#ffe4aa;--sf-play-to:#eecb83;--sf-play-ink:#453a20}
+body[data-theme] .player-main-action{
+  padding:0;
+  background:linear-gradient(145deg,var(--sf-play-from),var(--sf-play-to));
+  color:var(--sf-play-ink);
+  transition:filter .2s ease,box-shadow .2s ease,transform .15s ease;
+}
+body[data-theme][data-sf-play-accent="original"] .player-main-action{
+  background:linear-gradient(150deg,var(--nav-active-a),var(--nav-active-b));
+  color:var(--nav-active-text);
+}
+body[data-theme] .player-main-action .player-play-morph{
+  display:block;flex:none;overflow:visible;fill:currentColor;stroke:none;
+  width:25px;height:25px;pointer-events:none;
+}
+body[data-theme] .sf-player-accent-preview{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 9px;border:1px solid var(--line);border-radius:999px;
+  color:var(--muted);font-size:11px;white-space:nowrap;
+}
+body[data-theme] .sf-player-accent-preview input{accent-color:var(--accent)}
+@media(max-width:440px){body[data-theme] .player-main-action .player-play-morph{width:22px;height:22px}}
+@media(prefers-reduced-motion:reduce){body[data-theme] .player-main-action{transition:none}}
+
+
+/* Soft Futuristic — five fixed-size, Tabler-style volume states.
+   0: mute X; 1–25: bare speaker; 26–50 / 51–75 / 76–100: 1 / 2 / 3 waves.
+   The speaker never shifts; only the waves and X fade (150 ms). */
+.player-icon#mute{display:grid;place-items:center}
+.player-icon#mute .player-volume-icon{display:block;flex:none;overflow:visible;pointer-events:none}
+/* Keep mute visually identical to the normal button: the X conveys its state. */
+body[data-theme] .player-icon#mute[aria-pressed="true"]{background:transparent;color:#e8f3f7}
+body[data-theme] .player-icon#mute[aria-pressed="true"]:hover{color:var(--accent);background:rgba(255,255,255,.11)}
+.player-volume-icon .volume-wave,.player-volume-icon .volume-muted-x{
+  opacity:0;transition:opacity 150ms ease;
+}
+.player-volume-icon[data-level="0"] .volume-muted-x,
+.player-volume-icon[data-level="2"] .volume-wave-1,
+.player-volume-icon[data-level="3"] .volume-wave-1,
+.player-volume-icon[data-level="3"] .volume-wave-2,
+.player-volume-icon[data-level="4"] .volume-wave-1,
+.player-volume-icon[data-level="4"] .volume-wave-2,
+.player-volume-icon[data-level="4"] .volume-wave-3{opacity:1}
+@media(prefers-reduced-motion:reduce){
+  .player-volume-icon .volume-wave,.player-volume-icon .volume-muted-x{transition:none!important}
+}
+
+
+
+/* Starting volume belongs to the built-in player, not to external VLC. */
+.player-volume-preferences{margin:18px 0 4px;padding-top:18px;border-top:1px solid var(--line)}
+.player-volume-preferences[hidden],.player-vlc-volume-note[hidden]{display:none!important}
+.player-volume-preferences-title{font-size:14px;font-weight:690;letter-spacing:-.01em;color:var(--ink)}
+
+/* Starting Volume — the same split-timeline design language as Gallery's player and Downloads. */
+.starting-volume-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+.starting-volume-choice{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:14px;border:1px solid var(--line);background:var(--raised);border-radius:12px;cursor:pointer;transition:background .18s,border-color .18s}
+.starting-volume-choice:hover{background:var(--hover)}
+.starting-volume-choice:has(input:checked){border-color:var(--accent);background:var(--strong)}
+.starting-volume-choice:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.starting-volume-choice input{flex:none;margin:2px 0 0;accent-color:var(--accent)}
+.starting-volume-choice-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+.starting-volume-choice-copy strong{font-size:12px;line-height:1.4;color:var(--ink)}
+.starting-volume-choice-copy small{font-size:11px;line-height:1.5;color:var(--muted)}
+.starting-volume-fixed{margin-top:15px;padding:18px 19px 15px;background:var(--raised);border:1px solid var(--line);border-radius:14px;min-width:0}
+.starting-volume-fixed[hidden]{display:none!important}
+.starting-volume-value-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}
+.starting-volume-value-row label{font-size:12px;font-weight:650;color:var(--ink)}
+.starting-volume-value-row output{font-size:16px;font-weight:760;font-variant-numeric:tabular-nums;color:var(--accent)}
+/* Starting Volume is the actual player-seek visual component, not a look-alike.
+   The same .player-progress, .player-progress-bar, .player-watched and
+   .player-remaining rules render the familiar two 5px rounded pieces and 5px gap.
+   Only the invisible range control, hover affordance, and subtle ticks are new. */
+/* The existing body[data-theme] .player-remaining rule supplies the exact
+   player seek color across all six themes, without another approximation. */
+.starting-volume-slider-wrap.player-progress{
+  --volume-pct:calc((100% - var(--gallery-timeline-gap)) * .7);
+  width:100%;height:26px;flex:none;isolation:isolate;touch-action:none;
+}
+/* Pointer clicks should not add a prominent outline; keyboard focus still does. */
+.starting-volume-slider-wrap:focus-within:not(:has(input:focus-visible)) .player-progress-bar{
+  outline:none;
+}
+
+.starting-volume-slider-wrap .player-watched{
+  flex-basis:var(--volume-pct);transition:none;
+}
+.starting-volume-slider-wrap .player-remaining{min-width:0;}
+/* The gap remains present at both 0% and 100%; no endpoint exceptions. */
+/* Match Gallery seek timeline: no visible thumb at rest, hover, drag, or focus. */
+.starting-volume-slider-wrap input[type=range]{touch-action:none;}
+/* Tiny percentage guides are ancillary, never part of the player timeline. */
+.starting-volume-ticks{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin:3px 0 0;pointer-events:none;
+}
+.starting-volume-tick{
+  display:block;width:1px;height:2px;border-radius:2px;
+  background:color-mix(in srgb,var(--muted) 18%,transparent);
+}
+.starting-volume-tick.major{
+  height:5px;background:color-mix(in srgb,var(--muted) 32%,transparent);
+}
+.starting-volume-tick-labels{
+  display:flex;justify-content:space-between;margin:6px 0 0;
+  color:var(--muted);font-size:10px;font-weight:550;
+  font-variant-numeric:tabular-nums;
+}
+.starting-volume-precision-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:19px}
+.starting-volume-precision-row>span{font-size:11px;color:var(--muted);font-weight:650}
+.starting-volume-precision{display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:var(--raised);border:1px solid var(--line)}
+.starting-volume-precision button{border:0;border-radius:99px;padding:8px 13px;min-width:88px;background:transparent;color:var(--muted);cursor:pointer;font-weight:680;font-size:11px;transition:background .22s,color .22s}
+.starting-volume-precision button:hover:not([aria-pressed="true"]){background:var(--hover);color:var(--ink)}
+.starting-volume-precision button[aria-pressed="true"]{background:linear-gradient(160deg,var(--nav-active-a,var(--accent)),var(--nav-active-b,var(--accent)));color:var(--nav-active-text,var(--bg));box-shadow:0 2px 9px #0002}
+.starting-volume-precision button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:760px){.starting-volume-choices{grid-template-columns:1fr}.starting-volume-fixed{padding:16px 14px}.starting-volume-precision-row{align-items:stretch;flex-direction:column}.starting-volume-precision{align-self:flex-start}}
+@media(prefers-reduced-motion:reduce){.starting-volume-choice,.starting-volume-precision button{transition:none}}
+
+
+/* Gallery-wide moving-gap timeline. The fixed 5px gap, not a thumb or a
+   colored end cap, is the progress marker. Both bar halves remain in the DOM
+   at 0% and 100% so the gap is visible at either extreme. */
+:root{--gallery-timeline-gap:5px}
+.player-progress-bar.gallery-split-timeline,
+body[data-theme] .sf-dl-track.gallery-split-timeline,
+#wh-root .wh-progress.gallery-split-timeline{gap:var(--gallery-timeline-gap)}
+.gallery-split-timeline .player-watched,
+body[data-theme] .gallery-split-timeline .sf-dl-track-done,
+#wh-root .gallery-split-timeline .wh-progress-done{min-width:0;flex-shrink:0}
+.gallery-split-timeline .player-remaining,
+body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
+#wh-root .gallery-split-timeline .wh-progress-rest{min-width:0;flex:1 1 0%}
+

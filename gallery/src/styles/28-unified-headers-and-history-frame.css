@@ -1,0 +1,116 @@
+/* =====================================================================
+   Gallery unified PAGE headers — use the approved Library/Downloads geometry.
+   Their page header begins at the workspace top edge, and the action row is
+   62px + responsive workspace top-space (32px / 24px). No pad-based optical
+   shifts: .sf-optical-title alone gets the 1px text optical correction.
+
+   Secondary pages previously spent 25px/19px on workspace top padding before
+   beginning a short 56px flex band. This created an uneven 81px content band
+   and an off-center title. Draw the new 94px/86px row back over that inset,
+   matching the reference header's divider position and mathematical center.
+   Only the page-specific rows change; the approved .top brand stays intact.
+   ===================================================================== */
+body[data-theme] :is(.detail-page-header, .settings-page-head),
+body[data-theme].player-view .playback-compactbar {
+  --sf-header-top-space:32px;
+  box-sizing:border-box;
+  min-height:calc(62px + var(--sf-header-top-space));
+  height:auto;
+  padding-block:0;
+  display:flex;
+  align-items:center;
+  border-bottom:0;
+  position:relative;
+}
+/* Library uses a separate 1px divider immediately after its 94px title band.
+   Draw that divider at the same pixel, rather than using the last pixel of
+   the flex row as a border (which was shifting action centers by 0.5px). */
+body[data-theme] :is(.detail-page-header, .settings-page-head)::after,
+body[data-theme].player-view .playback-compactbar::after {
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:1px;
+  background:var(--line);
+  pointer-events:none;
+}
+body[data-theme] .detail-page-header {
+  margin-top:-25px; /* standard .workspace top padding = 25px */
+}
+body[data-theme] .settings-page-head {
+  margin-top:-25px; /* .workspace.settings-mode top padding = 25px */
+}
+body[data-theme].player-view .playback-compactbar {
+  margin-top:-5px; /* player .workspace top padding = 5px */
+  padding-inline:0; /* margin alone aligns the title + button + divider to the page inset */
+  margin-inline:15px;
+  width:calc(100% - 30px);
+}
+/* Gallery's Library/Downloads header row becomes 86px below 750px. */
+@media(max-width:750px){
+  body[data-theme] :is(.detail-page-header, .settings-page-head),
+  body[data-theme].player-view .playback-compactbar {
+    --sf-header-top-space:24px;
+  }
+  body[data-theme] .detail-page-header {margin-top:-19px}
+  /* Match the 17px inner page inset used by Library/Downloads on narrow screens. */
+  body.settings-view .workspace.settings-mode {padding-left:17px!important; padding-right:17px!important}
+  body[data-theme].player-view .playback-compactbar {
+    margin-inline:9px;
+    width:calc(100% - 18px);
+    padding-inline:0;
+  }
+}
+@media(max-width:440px){
+  body[data-theme] .settings-page-head {margin-top:-22px}
+  /* Library/Downloads keep their narrow insets, even on very small screens. */
+  body.settings-view .workspace.settings-mode {padding-left:17px!important; padding-right:17px!important}
+}
+/* The taller header must not push the player controls below the viewport.
+   Account for the extra 49px (94px Library band minus old 45px Player band)
+   only when the viewport height, rather than content width, limits the video. */
+body.player-view .playback-page {
+  --player-frame-width:min(100%,calc((100dvh - 231px) * 16 / 9));
+}
+body.player-view .player-area {max-height:calc(100dvh - 231px)}
+@media(max-width:740px){
+  body.player-view .playback-page {
+    --player-frame-width:min(100%,calc((100dvh - 218px) * 16 / 9));
+  }
+  body.player-view .player-area {max-height:calc(100dvh - 218px)}
+}
+
+/* Watch History: restore the approved full-width content frame. Settings uses
+   max-width:none inside the workspace; Watch History had retained an older
+   1120px clamp. Match Settings' available width and its existing workspace
+   gutters without changing season cards, controls, scroll behavior or headers. */
+#wh-root {
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+  margin-inline:0;
+  min-width:0;
+}
+
+/* Match Settings' compact application frame on short browser windows. */
+@media (max-height:620px) and (min-width:751px) {
+ body.watch-history-view:not(.desktop-build) {padding:8px;overflow:hidden}
+ body.watch-history-view:not(.desktop-build) .app {
+   height:calc(100dvh - 16px);
+   min-height:0;
+ }
+}
+
+/* Secondary-page navigation. Match the already approved Player/Settings
+   hierarchy: no main tabs on Anime or Watch History; the Gallery brand and
+   top-right toolbar stay in their shared positions. */
+body.detail-view .top .tabs,
+body.watch-history-view .top .tabs{display:none!important}
+body.detail-view:not(.desktop-build) .top .brand-row,
+body.watch-history-view:not(.desktop-build) .top .brand-row{margin-bottom:0}
+/* Watch History reuses Anime's exact page-header markup and header geometry;
+   it is deliberately *not* a separate CSS approximation. Keep its full width. */
+#wh-root > .wh-page-header{width:100%}

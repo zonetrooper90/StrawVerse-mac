@@ -1,0 +1,56 @@
+/* Soft Futuristic navigation: each tab owns its selected state.
+   The selected gradient remains in place when another tab is hovered. */
+.tabs{position:relative;isolation:isolate}
+.tabs>.tab .tab-label-wrap{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  gap:10px;white-space:nowrap
+}
+.tabs>.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.workspace{position:relative;overflow-x:hidden}
+/* v9 persistent-pages architecture retained without alteration. */
+.workspace.tab-pages-visible{padding:0!important;overflow:hidden!important;scrollbar-gutter:auto!important}
+.tab-pages-viewport{height:100%;width:100%;overflow:hidden;min-height:0;position:relative}
+.tab-pages-viewport[hidden]{display:none!important}
+.tab-pages-track{width:100%;height:100%;display:flex;will-change:transform}
+.tab-page{
+ flex:0 0 100%;min-width:0;box-sizing:border-box;height:100%;
+ overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+ padding:32px 28px 54px;scrollbar-color:var(--line) transparent
+}
+.workspace.tab-pages-visible>#screen{display:none!important}
+@media(max-width:750px){.tab-page{padding:24px 17px 35px}}
+@media(prefers-reduced-motion:reduce){.tab-pages-track{transition:none!important;animation:none!important}}
+/* v13 uses width-relative positioning, so resizing does not reveal
+   neighboring tab panels while the selected page is settled or sliding. */
+/* v12 HTML exploration: Downloads shares the player timeline's split accent + remaining design. */
+@media(prefers-reduced-motion:reduce){}
+
+/* v16 — Paper Lantern contrast and Settings scrollbar polish.
+   Deliberately isolated to the light theme: all v15 motion and Downloads states remain unchanged. */
+/* Use a warm, light-colored scrollbar inside Paper Lantern dialogs. */
+
+/* v17 — The dialog owns the rounded silhouette; a separately scrolling content
+   region keeps the native scrollbar inset from ALL four rounded corners.
+   This is applied to all themes and every modal, without changing page motion. */
+.overlay .dialog{
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:0 6px 0 0;
+}
+.dialog-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  margin:8px 0;
+  padding:16px 18px 16px 24px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--muted) var(--surface);
+}
+.dialog-scroll::-webkit-scrollbar{width:11px}
+.dialog-scroll::-webkit-scrollbar-track{background:var(--surface);border-radius:999px}
+.dialog-scroll::-webkit-scrollbar-thumb{background:var(--muted);border:2px solid var(--surface);border-radius:999px}
+.dialog-scroll::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+

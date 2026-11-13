@@ -1,0 +1,157 @@
+/* Player Navigation Refinement — a single clean header row, no duplicated
+   episode/audio metadata, stable navigation width and a centered episode label. */
+.playback-compactbar{justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px}
+.playback-title-inline{order:0;flex:1 1 auto;justify-content:flex-start;align-items:center;gap:0;min-width:0}
+.playback-title-inline strong{font-size:16px;line-height:1.3}
+.playback-compactbar .detail-back{order:1;flex:none;margin:0 0 0 auto;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--raised);color:var(--ink)}
+.playback-compactbar .detail-back:hover{background:var(--hover)}
+.player-episode-nav{grid-template-columns:minmax(0,1fr) minmax(95px,1.3fr) minmax(0,1fr);gap:8px}
+.player-episode-nav .player-episode-slot{display:flex;align-items:center;min-width:0}
+.player-episode-nav .player-episode-slot.is-previous{justify-content:flex-start}
+.player-episode-nav .player-episode-slot.is-next{justify-content:flex-end}
+.player-episode-nav .btn{border-radius:999px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
+  flex:none;width:143px;max-width:100%;height:32px;min-height:32px;min-width:0;
+  gap:5px;padding:0 9px;line-height:1.1;white-space:nowrap;text-align:center;font-size:12px}
+.player-episode-nav .btn .icon{flex:none}
+.player-episode-nav small{margin-top:3px;white-space:nowrap;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.player-episode-nav .player-episode-previous,.player-episode-nav .player-episode-next{justify-self:auto}
+.player-episode-nav .nav-label-compact{display:none}
+@media(max-width:560px){
+ .playback-title-inline{flex-direction:row;align-items:center}
+ .playback-title-inline strong{font-size:14px}
+ .player-episode-nav .btn{font-size:11px;padding:0 5px}
+ .player-episode-nav .nav-label-full{display:none}
+ .player-episode-nav .nav-label-compact{display:inline}
+}
+@media(max-width:390px){
+ .player-episode-nav{gap:4px}
+ .player-episode-nav .btn{gap:2px;font-size:10px;padding:0 3px;white-space:nowrap}
+ .player-episode-nav .btn .icon{width:13px;height:13px}
+ .player-episode-nav strong{font-size:12px}
+ .player-episode-nav small{font-size:10px}
+ .playback-compactbar{gap:6px}
+ .playback-compactbar .detail-back{font-size:10px;padding:7px 5px}
+}
+
+/* Restore the approved Anime / Player headers (regression fix).
+   Neither page regains the three-tab main navigation during playback. */
+.detail-page-header{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ min-width:0;min-height:56px;margin:0 0 19px;padding:0 0 15px;
+ border-bottom:1px solid var(--line)
+}
+.detail-page-header .detail-title{
+ flex:1 1 auto;min-width:0;margin:0;
+ font-size:clamp(23px,2.65vw,32px);line-height:1.16;
+ overflow-wrap:anywhere
+}
+.detail-page-header .detail-back{
+ flex:none;margin:0;align-self:center;
+ border:1px solid var(--line);border-radius:999px;
+ background:var(--raised);color:var(--ink);
+ padding:9px 13px;white-space:nowrap
+}
+.detail-page-header .detail-back:hover{background:var(--hover)}
+.detail-hero .detail-overview{padding-top:3px}
+.detail-hero .detail-badges{margin-top:0}
+/* In web preview, preserve Gallery's brand/settings row but not tabs.
+   In the desktop-native wrapper retain the established titlebar treatment. */
+body.player-view .top .tabs{display:none!important}
+/* The Player uses the exact same .top / .brand-row padding as every other
+   page. Only the tab row and the now-unneeded gap after the brand row vanish.
+   Keep native macOS traffic-light and titlebar behavior separate. */
+body.player-view:not(.desktop-build) .top .brand-row{margin-bottom:0}
+body.desktop-build.player-view .top .brand-row,
+body.desktop-build.player-view .top .tabs{display:none!important}
+/* With the redundant in-video title removed, anchor player controls at the
+   bottom; space-between otherwise moves the only overlay child to the top. */
+body.player-view .player-overlay{justify-content:flex-end}
+body.player-view .player-bottom{margin-top:auto}
+/* Give the player page the same aligned title/back header arrangement. */
+body.player-view .playback-compactbar{
+ min-height:43px;display:flex;align-items:center;justify-content:space-between;
+ border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px
+}
+body.player-view .playback-compactbar .playback-title-inline{
+ display:flex;align-items:center;justify-content:flex-start;min-width:0;flex:1 1 auto
+}
+body.player-view .playback-compactbar .detail-back{
+ flex:none;align-self:center;margin:0 0 0 auto;white-space:nowrap;
+ background:var(--raised);border:1px solid var(--line);
+ border-radius:999px;padding:8px 12px
+}
+body.player-view .playback-compactbar .detail-back:hover{background:var(--hover)}
+@media(max-width:500px){
+ .detail-page-header{gap:8px;padding-bottom:12px}
+ .detail-page-header .detail-title{font-size:clamp(18px,5vw,24px)}
+ .detail-page-header .detail-back{font-size:11px;padding:8px}
+ body.player-view .playback-compactbar .detail-back{padding:7px 8px}
+}
+
+/* Shared Header & Player Refinement.
+   - All views inherit the identical global header inset and brand/button row.
+   - The standard page-header optical-title/mathematical-action corrections
+     remain untouched above.
+   - Rewind/Forward SVGs center inside their actual button hit targets;
+     symmetric spacing survives Pause, Play Next, responsive shrinking and
+     fullscreen without shifting controls. */
+body.player-view:not(.desktop-build) .top{
+  /* No Player-only padding override: inherit the regular Gallery header. */
+  border-bottom:1px solid var(--line);
+}
+#rewind10,#forward10{position:relative}
+#rewind10>.icon,#forward10>.icon{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  margin:0;
+}
+/* The labels are optically corrected only; action buttons retain the true
+   vertical centerline, matching the regular Library / Downloads headers. */
+body.player-view .playback-compactbar .playback-title-inline strong{position:static;top:auto}
+@media(prefers-reduced-motion:reduce){
+  #rewind10>.icon,#forward10>.icon{transition:none!important}
+}
+
+/* Remove the old per-page vertical offsets: every title now uses the
+   approved Library / Downloads sf-optical-title class instead. */
+.detail-page-header .detail-title,
+.settings-page-head h1{position:static;top:auto}
+/* Keep hit targets and the central Play/Pause disk symmetric across sizes.
+   SVG viewBox paths are mirrored: the glyph ink is balanced against the disk,
+   independent of the forward-to-next morph and its animation frames. */
+.player-controls .controls-middle{justify-content:center;align-items:center}
+#rewind10,#forward10{display:grid;place-items:center;flex-shrink:0}
+#rewind10>.icon,#forward10>.icon{stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* A half-pixel optical correction compensates for the rasterized forward tip.
+   The 35px / 30px hit targets and all three mathematical centers stay fixed. */
+#forward10>.icon{transform:translate(calc(-50% - .5px),-50%)}
+
+/* Gallery header-row alignment: structural fix, not another glyph offset.
+   Library and Downloads center their action group inside the entire header
+   band.  Anime, Settings, and Player previously used bottom padding inside
+   that band, shifting BOTH the title and Back button upward by half the
+   padding.  Remove only this internal vertical padding, retaining the
+   existing outer heights/dividers and the shared title-only optical nudge. */
+.detail-page-header,
+.settings-page-head {
+  box-sizing: border-box;
+  min-height: 56px;
+  height: auto;
+  padding-top: 0;
+  padding-bottom: 0;
+  align-items: center;
+}
+body.player-view .playback-compactbar {
+  box-sizing: border-box;
+  height: 45px;
+  min-height: 45px;
+  padding-top: 0;
+  padding-bottom: 0;
+  align-items: center;
+}
+/* Narrow layouts retain the same header band geometry. */
+@media (max-width: 500px) {
+  .detail-page-header,
+  .settings-page-head {padding-top: 0; padding-bottom: 0}
+  body.player-view .playback-compactbar {padding-top: 0; padding-bottom: 0}
+}
+

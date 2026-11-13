@@ -1,0 +1,220 @@
+/* Discover: use the same original v103 cover grid as Library.
+   Only page framing, section headings, and Watch History differ. */
+body[data-theme] .tab-page[data-tab-page="discover"]{
+ background:radial-gradient(ellipse at 92% 0%,var(--backdrop-a),transparent 46%),radial-gradient(ellipse at 10% 78%,var(--backdrop-b),transparent 48%),var(--window)
+}
+body[data-theme] .sf-discover-page{min-width:0;padding-bottom:20px}
+body[data-theme] .sf-discover-page .continue-shell{margin-top:8px;margin-bottom:2px}
+body[data-theme] .sf-discover-page .continue.wh-recent{
+ margin-bottom:0;border-radius:21px;padding:17px 20px 18px;
+ background:var(--history-bg);border-color:var(--history-border)
+}
+body[data-theme] .sf-discover-page .wh-recent-header{
+ color:var(--fg);font-size:14px;letter-spacing:-.02em;text-transform:none;margin-bottom:13px
+}
+body[data-theme] .sf-discover-explore{margin-top:29px}
+body[data-theme] .sf-discover-explore-heading{
+ display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 17px
+}
+body[data-theme] .sf-explore-heading-text{
+ display:flex;align-items:baseline;min-width:0;gap:11px;flex-wrap:wrap
+}
+body[data-theme] .sf-discover-explore h2{
+ font-size:22px;font-weight:650;letter-spacing:-.045em;margin:0;line-height:1.2
+}
+body[data-theme] .sf-explore-star{color:var(--section-accent);font-size:12px}
+body[data-theme] .sf-discover-explore .discover-result-count{
+ color:var(--section-accent);font-size:11px
+}
+body[data-theme] .sf-discover-explore .page-filter-button{
+ border:1px solid var(--link-border);background:var(--link-bg);color:var(--link-text);
+ border-radius:100px;padding:10px 14px;min-height:36px;font-size:12px;white-space:nowrap
+}
+body[data-theme] .sf-discover-explore .search-empty{margin-top:14px}
+body[data-theme] .sf-discover-explore .discover-source-note{margin-top:17px}
+/* Inline search still collapses Watch History using v103's existing animation. */
+.tab-page.search-scope-open .sf-discover-page .continue-shell{margin-top:0}
+.tab-page.search-scope-open .sf-discover-explore{margin-top:5px}
+@media(max-width:410px){body[data-theme] .sf-discover-explore h2{font-size:19px}}
+
+
+/* Soft Futuristic — shared Discover, Library and Downloads page identity.
+   Only Discover receives the restored header; existing content and handlers remain unchanged. */
+body[data-theme] .tab-page[data-tab-page="library"],
+body[data-theme] .tab-page[data-tab-page="downloads"]{
+ background:radial-gradient(ellipse at 92% 0%,var(--backdrop-a),transparent 46%),
+ radial-gradient(ellipse at 10% 78%,var(--backdrop-b),transparent 48%),var(--window);
+}
+/* Compact page identity instead of another oversized hero. */
+body[data-theme] .page-header-discover,
+body[data-theme] .page-header-library,
+body[data-theme] .page-header-downloads{margin-bottom:24px}
+body[data-theme] .page-header-discover .page-header-primary,
+body[data-theme] .page-header-library .page-header-primary,
+body[data-theme] .page-header-downloads .page-header-primary{align-items:center;min-height:48px}
+body[data-theme] .sf-page-title{display:flex;align-items:center;min-width:0}
+body[data-theme] .sf-page-title h1{
+ font-size:clamp(26px,2.5vw,34px);font-weight:670;line-height:1.04;
+ letter-spacing:-.055em;color:var(--fg);margin:0
+}
+body[data-theme] .page-header-discover .page-header-divider,
+body[data-theme] .page-header-library .page-header-divider,
+body[data-theme] .page-header-downloads .page-header-divider{margin-top:14px;background:var(--line)}
+body[data-theme] .page-header-library .page-header-secondary,
+body[data-theme] .page-header-downloads .page-header-secondary{padding-top:17px}
+body[data-theme] .page-header-library .page-header-actions .btn,
+body[data-theme] .page-header-downloads .page-header-actions .btn{
+ border-radius:999px;min-height:39px;padding:9px 15px;background:var(--link-bg);
+ border:1px solid var(--link-border);color:var(--fg);box-shadow:none;transform:none;
+ transition:background-color .2s,border-color .2s,color .2s
+}
+body[data-theme] .page-header-library .page-header-actions .btn:hover,
+body[data-theme] .page-header-downloads .page-header-actions .btn:hover{background:var(--nav-hover);border-color:var(--nav-border)}
+body[data-theme] .page-header-library .page-header-actions .btn.primary{
+ background:linear-gradient(135deg,var(--nav-active-a),var(--nav-active-b));
+ border-color:transparent;color:var(--nav-active-text)
+}
+body[data-theme] .page-header-library .page-header-actions .btn.primary:hover{filter:brightness(1.04)}
+body[data-theme] .page-header-library .tagbar{gap:8px}
+body[data-theme] .page-header-library .tagchip,
+body[data-theme] .page-header-downloads .filterpill{
+ min-height:36px;padding:8px 14px;border-radius:999px;
+ color:var(--muted);background:var(--nav-bg);border:1px solid var(--nav-border);
+ transition:background-color .2s,border-color .2s,color .2s;transform:none;box-shadow:none
+}
+body[data-theme] .page-header-library .tagchip:hover:not(.active),
+body[data-theme] .page-header-downloads .filterpill:hover:not(.active){background:var(--nav-hover);color:var(--fg)}
+body[data-theme] .page-header-library .tagchip.active,
+body[data-theme] .page-header-downloads .filterpill.active{
+ background:linear-gradient(145deg,var(--nav-active-a),var(--nav-active-b));
+ border-color:transparent;color:var(--nav-active-text)!important;
+ box-shadow:0 4px 15px var(--glow)
+}
+body[data-theme] .page-header-library .tagchip.active .custom-tag-icon{color:var(--nav-active-text)}
+body[data-theme] .page-header-library .tagchip .count,
+body[data-theme] .page-header-downloads .filterpill .count{font-size:11px;font-weight:700;opacity:.8}
+/* The Library covers remain exactly the approved shared Discover/Library component. */
+body[data-theme] .library-collection .collections-head{margin-bottom:18px}
+body[data-theme] .library-collection .col-title-row h2{
+ font-size:22px;letter-spacing:-.045em;font-weight:660;color:var(--fg)
+}
+body[data-theme] .library-collection .col-title-row .meta{color:var(--section-accent);font-size:11px;margin-top:6px}
+body[data-theme] .library-collection .collection-actions .btn{
+ border:1px solid var(--link-border);background:var(--link-bg);border-radius:999px;
+ color:var(--fg);padding:8px 13px;min-height:35px;transform:none
+}
+body[data-theme] .library-collection .collection-actions .btn:hover{background:var(--nav-hover)}
+body[data-theme] .library-collection .collection-options{width:35px;padding:0}
+/* Downloads use the same section-heading language as Discover's Explore area. */
+body[data-theme] .sf-downloads-section-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 17px;min-width:0
+}
+body[data-theme] .sf-downloads-section-title{display:flex;align-items:baseline;gap:11px;min-width:0}
+body[data-theme] .sf-downloads-section-title h2{
+ color:var(--fg);font-size:22px;font-weight:660;letter-spacing:-.045em;margin:0;line-height:1.2
+}
+body[data-theme] .sf-section-star{color:var(--section-accent);font-size:12px}
+body[data-theme] .sf-downloads-section-caption{color:var(--section-accent);font-size:11px;white-space:nowrap}
+/* Stable transfer cards; no vertical lift or resizing on hover. */
+body[data-theme] .download-groups{gap:13px}
+body[data-theme] .download-groups .download-group{
+ border:1px solid var(--card-border);border-radius:20px;overflow:hidden;
+ background:linear-gradient(155deg,var(--card-bg-a),var(--card-bg-b));
+ box-shadow:0 5px 23px #0002;
+ transition:border-color .22s,background .22s,box-shadow .22s;
+ transform:none
+}
+body[data-theme] .download-groups .download-group:hover{
+ border-color:var(--nav-border);box-shadow:0 6px 24px #0003;transform:none
+}
+body[data-theme] .download-groups .download-group:has(:focus-visible){border-color:var(--focus)}
+body[data-theme] .download-groups .download-group-top:hover{background:var(--nav-hover)}
+body[data-theme] .download-groups .download-group-toggle{grid-template-columns:60px minmax(0,1fr) 20px;gap:16px;padding:15px 16px}
+
+
+
+
+body[data-theme] .download-groups .download-group-body-inner{background:color-mix(in srgb,var(--panel) 55%,transparent)}
+body[data-theme] .download-groups .download-episode + .download-episode{border-top-color:var(--line)}
+
+
+body[data-theme] .download-groups .download-action-btn:hover:not(:disabled){transform:none;background:var(--nav-hover)}
+body[data-theme] .download-groups .download-action-btn{border-radius:12px}
+body[data-theme] .demo-download-footer{margin:9px 1px 0;gap:14px}
+body[data-theme] .demo-download-control{color:var(--accent);transition:color .2s,opacity .2s}
+body[data-theme] .demo-download-control:hover:not(:disabled){color:var(--fg)}
+@media(max-width:750px){
+ body[data-theme] .page-header-library .page-header-primary,
+ body[data-theme] .page-header-downloads .page-header-primary{min-height:60px;gap:12px}
+ body[data-theme] .page-header-library .page-header-actions .btn,
+ body[data-theme] .page-header-downloads .page-header-actions .btn{padding:8px 11px;min-height:35px}
+ body[data-theme] .sf-page-title h1{font-size:26px}
+ body[data-theme] .download-groups .download-group-toggle{grid-template-columns:48px minmax(0,1fr) 18px;gap:11px;padding:12px}
+ 
+}
+@media(max-width:460px){
+ body[data-theme] .page-header-library .page-header-primary,
+ body[data-theme] .page-header-downloads .page-header-primary{align-items:flex-start;gap:10px;flex-wrap:wrap}
+ body[data-theme] .page-header-library .page-header-actions,
+ body[data-theme] .page-header-downloads .page-header-actions{margin-left:auto}
+ body[data-theme] .sf-downloads-section-title h2{font-size:19px}
+ body[data-theme] .sf-downloads-section-caption{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-theme] .page-header-library .tagchip,
+ body[data-theme] .page-header-downloads .filterpill,
+ body[data-theme] .download-groups .download-group,
+ body[data-theme] .demo-download-control{transition:none!important}
+}
+
+
+/* Soft Futuristic — vertically centered title-only page headers.
+   The header row now owns the space formerly split between workspace top
+   padding and the gap above the divider. This centers titles and actions
+   within the full header band without moving the divider or page content. */
+body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads){
+  --sf-header-top-space:32px;
+  margin-top:calc(-1 * var(--sf-header-top-space));
+}
+body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads) .page-header-primary{
+  min-height:calc(62px + var(--sf-header-top-space));
+  align-items:center;
+}
+body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads) .page-header-divider{
+  margin-top:0;
+}
+@media (max-width:750px){
+  body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads){
+    --sf-header-top-space:24px;
+  }
+}
+
+
+/* Optical alignment: the type's visible ink sits above its CSS line-box
+   center. Bias the complete header row (title + page actions) slightly
+   downward, toward the divider, without moving its edges or changing height. */
+body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads) .page-header-primary{
+  padding-top:12px;
+}
+@media (max-width:750px){
+  body[data-theme] :is(.page-header-discover,.page-header-library,.page-header-downloads) .page-header-primary{
+    padding-top:8px;
+  }
+}
+
+
+/* Keep page titles optically centered, but place Library and Downloads
+   action groups at the exact mathematical center of the header row.
+   The optical title treatment adds top padding to the shared flex row,
+   moving its contents by half the padding amount. Cancel that offset
+   for buttons only; leave title, row height, and divider untouched. */
+body[data-theme] :is(.page-header-library,.page-header-downloads) .page-header-actions{
+  position:relative;
+  top:-6px;
+}
+@media (max-width:750px){
+  body[data-theme] :is(.page-header-library,.page-header-downloads) .page-header-actions{
+    top:-4px;
+  }
+}
+

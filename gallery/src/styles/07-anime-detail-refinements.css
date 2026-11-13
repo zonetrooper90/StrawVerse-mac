@@ -1,0 +1,204 @@
+/* v24 — anime overview: explicit installment context and a calmer, more useful
+   episode list. No movement is added to stationary UI elements. */
+.detail-browsing{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:1px;color:var(--muted);font-size:12px;line-height:1.55}
+.detail-browsing-caption{font-size:10px;letter-spacing:.045em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.detail-browsing strong{font-size:12px;color:var(--ink);font-weight:670}
+.detail-browsing-sep{color:var(--muted);padding:0 2px}
+.detail-browsing-progress{font-variant-numeric:tabular-nums;border-left:1px solid var(--line);padding-left:14px}
+.detail-browsing-progress small{font-size:10px}
+.episode-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px}
+
+.episode-filter{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 12px;align-items:center}
+.episode-filter button{border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:12px;font-weight:650;padding:8px 13px;min-height:34px;cursor:pointer;line-height:1.2}
+.episode-filter button span{color:inherit;opacity:.68;font-size:10px;margin-left:4px;font-variant-numeric:tabular-nums}
+.episode-filter button:hover{background:var(--hover);color:var(--ink)}
+.episode-filter button[aria-pressed=true]{border-color:var(--accent);background:var(--tab);color:var(--accent-ink)}
+.episode-filter button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+ .episode-item{position:relative;min-width:0}
+/* No selected-row styling: episodes are actions, not selectable list items. */
+.episode-item.episode-not-playable .episode-subtext{color:var(--muted)}
+.episode-item .episode-copy{min-width:0}
+
+.episode-item .episode-name{overflow-wrap:anywhere}
+
+.episode-item .episode-actions button:disabled{opacity:.35;cursor:not-allowed}
+.episode-empty-filter{border:1px dashed var(--line);border-radius:12px;color:var(--muted);background:var(--surface);padding:24px 18px;font-size:12px;line-height:1.65}
+.episode-empty-filter strong{color:var(--ink)}
+@media(max-width:680px){
+ .detail-browsing{gap:4px 10px;font-size:11px}
+ .detail-browsing strong{font-size:11px}
+ .detail-browsing-progress{padding-left:10px}
+ .episode-filter button{font-size:11px;padding:7px 10px}
+}
+@media(max-width:430px){
+ .detail-browsing-progress{border-left:0;padding-left:0;flex-basis:100%}
+ 
+ 
+}
+
+
+/* v26: put the movable fill ABOVE the toggle background, but BELOW its labels.
+   Neutralize the inactive button's independent hover fill so it cannot mask the pill. */
+.detail-audio-toggle button:hover:not([aria-pressed="true"]){background:transparent;color:var(--accent-ink)}
+.detail-audio-toggle button:not([aria-pressed="true"]):not(:hover){background:transparent}
+/* Match the pill to the true grid cell positions at each responsive width. */
+.detail-audio-toggle{--audio-pad:4px;--audio-gap:4px;gap:var(--audio-gap);padding:var(--audio-pad)}
+
+
+@media(max-width:850px){.detail-audio-toggle{--audio-pad:3px;--audio-gap:3px}}
+@media(max-width:370px){.detail-audio-toggle{--audio-pad:2px;--audio-gap:2px}}
+/* v27 — The selection ghost belongs to each button, not only aria-pressed=true,
+   so changing audio fades the old outline away instead of destroying it. */
+@media(prefers-reduced-motion:reduce){.detail-audio-toggle button::before{transition:none!important}}
+
+/* v35 — Full-height integrated edge navigation.
+   Fade occupies the exact selector height; its ENTIRE surface is an accessible
+   button, not a small button floating over a clickable release card. */
+.inline-release-viewport{position:relative;min-width:0;isolation:isolate}
+.inline-release-viewport .inline-installment-rail{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none;
+  padding:1px 0;
+  scroll-snap-type:x proximity;
+}
+.inline-release-viewport .inline-installment-rail::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.inline-release-fade{
+  --edge-width:70px;
+  position:absolute;top:0;bottom:0;width:var(--edge-width);z-index:2;
+  pointer-events:none;
+  opacity:0;visibility:hidden;
+  transition:opacity .23s ease,visibility 0s linear .23s;
+}
+.inline-release-fade-left{left:0}
+.inline-release-fade-right{right:0}
+.inline-release-fade::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0}
+.inline-release-fade-left::before{background:linear-gradient(90deg,var(--window) 0%,var(--window) 12%,transparent 100%)}
+.inline-release-fade-right::before{background:linear-gradient(270deg,var(--window) 0%,var(--window) 12%,transparent 100%)}
+.inline-release-viewport.can-left .inline-release-fade-left,
+.inline-release-viewport.can-right .inline-release-fade-right{
+  opacity:1;visibility:visible;transition:opacity .23s ease,visibility 0s;
+}
+.inline-release-fade .inline-arrow{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;min-width:0;min-height:0;
+  margin:0;padding:0;
+  border:0;border-radius:0;background:transparent;box-shadow:none;
+  color:var(--muted);pointer-events:auto;
+}
+.inline-release-fade .inline-arrow:hover{
+  color:var(--accent);background:transparent;border:0;box-shadow:none;
+}
+.inline-release-fade .inline-arrow:focus-visible{
+  outline:2px solid var(--accent);outline-offset:-3px;border-radius:8px;
+}
+.inline-release-fade .inline-arrow .icon{pointer-events:none}
+/* Boundary guard: while a pointer rests on an edge that has just scrolled
+   to its limit, its full-height invisible hit target stays in place. */
+.inline-release-viewport.guard-left .inline-release-fade-left,
+.inline-release-viewport.guard-right .inline-release-fade-right{
+  opacity:0;visibility:visible;transition:opacity .23s ease,visibility 0s;
+}
+/* Clearer bare arrows, without restoring separate button chrome. */
+.inline-release-fade .inline-arrow{color:var(--ink)}
+.inline-release-fade .inline-arrow .icon{width:21px;height:21px;stroke-width:2.5;filter:drop-shadow(0 1px 2px var(--window))}
+.inline-release-fade .inline-arrow:hover{color:var(--accent)}
+@media(max-width:560px){.inline-release-fade{--edge-width:54px}}
+@media(prefers-reduced-motion:reduce){.inline-release-fade{transition:none!important}}
+
+
+/* v37 — One continuous episode heading/availability/filter toolbar.
+   The heading remains left of the card, and counts and filter share its row.
+   Only the filter changes state; no extra movement is added. */
+.episode-toolbar{display:flex;align-items:center;gap:17px;margin:0 0 13px;min-width:0}
+.episode-toolbar .episode-heading{flex:0 0 90px;min-width:0;align-self:center;display:flex;align-items:center}
+
+.episode-toolbar .episode-availability{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px 7px 14px;margin:0;border-radius:12px}
+.episode-availability .episode-stats{display:flex;align-items:center;gap:15px;min-width:0;flex-wrap:wrap;row-gap:6px}
+.episode-availability .episode-shown{display:inline-flex;align-items:center;gap:13px;white-space:nowrap;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;opacity:1;transition:opacity .42s ease}
+.episode-availability .episode-shown::before{content:'';display:block;width:1px;height:15px;flex:none;background:var(--line)}
+/* Reserve the count's footprint and fade the count + its divider as one unit. */
+.episode-availability .episode-shown.is-hidden{opacity:0;pointer-events:none}
+.episode-availability .episode-filter{flex:0 0 auto;margin:0;display:inline-flex;gap:2px;align-items:center;flex-wrap:nowrap;padding:3px;border-radius:9px;background:var(--window)}
+.episode-availability .episode-filter button{border:1px solid transparent;background:transparent;border-radius:7px;color:var(--muted);min-height:30px;padding:6px 10px;font-size:11px;font-weight:650;white-space:nowrap;line-height:1.1}
+.episode-availability .episode-filter button:hover:not([aria-pressed=true]){background:var(--hover);color:var(--ink)}
+.episode-availability .episode-filter button[aria-pressed=true]{background:var(--tab);color:var(--accent-ink);border-color:transparent}
+.episode-availability .episode-filter button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Preserve horizontal arrangement as long as there's enough room to fit. */
+@media(max-width:970px){
+ .episode-toolbar{gap:12px}
+ .episode-toolbar .episode-heading{flex-basis:82px}
+ .episode-availability .episode-stats{gap:9px}
+ .episode-availability .episode-shown{gap:9px}
+ .episode-toolbar .episode-availability{padding:8px 9px;gap:8px}
+ .episode-availability .episode-filter button{padding:6px 8px}
+}
+@media(max-width:790px){
+ .episode-toolbar .episode-availability{flex-wrap:wrap}
+ .episode-availability .episode-stats{flex:1 1 auto}
+ .episode-availability .episode-filter{margin-left:auto}
+}
+@media(max-width:570px){
+ .episode-toolbar{display:block}
+ .episode-toolbar .episode-heading{margin-bottom:11px;display:block}
+ .episode-toolbar .episode-heading h2{font-size:18px}
+ .episode-toolbar .episode-availability{width:100%;padding:10px 11px;gap:10px}
+ .episode-availability .episode-stats{flex-basis:100%}
+ .episode-availability .episode-filter{margin-left:auto}
+ .episode-availability .episode-shown{gap:8px}
+}
+@media(max-width:390px){
+ .episode-availability .episode-stats{gap:9px}
+ .episode-availability .availability-label{font-size:11px}
+ .episode-availability .episode-shown{font-size:10px}
+}
+
+
+/* v38 — Episode controls: equal 44×40 targets, responsive to the actual
+   episode-section width rather than browser-window breakpoints. */
+.detail-section{container-type:inline-size;container-name:episode-area}
+.episode-item{grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:80px;padding:12px}
+.episode-copy{min-width:0}
+.episode-tools{grid-column:3;grid-row:1;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
+.episode-flags,.episode-actions{display:grid;grid-template-columns:repeat(2,44px);gap:6px;align-items:center;justify-content:end;margin:0}
+.episode-flags .audio-flag{box-sizing:border-box;width:44px;min-width:44px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:9px;padding:0 2px;font-size:11px;line-height:1}
+.episode-actions .iconbtn{box-sizing:border-box;width:44px;min-width:44px;height:40px;min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:9px;padding:0}
+/* A compact, stable heading and episode toolbar. */
+.episode-toolbar{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:14px;align-items:center;margin:0 0 13px;min-width:0}
+.episode-toolbar .episode-heading{display:block;min-width:max-content;align-self:center}
+.episode-toolbar .episode-heading h2{font-size:21px;line-height:1.2;margin:0}
+.episode-toolbar .episode-availability{box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:12px;min-width:0;padding:7px 10px 7px 14px;margin:0}
+.episode-availability .episode-stats{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;min-width:0}
+.episode-availability .availability-label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.episode-availability .episode-shown{gap:10px;white-space:nowrap}
+.episode-availability .episode-filter{margin:0;justify-self:end;flex:0 0 auto;white-space:nowrap}
+.episode-availability .episode-filter button{min-height:30px;padding:6px 10px}
+/* Deliberate layout transitions follow the section's available width. */
+@container episode-area (max-width:710px){
+ .episode-toolbar{grid-template-columns:minmax(0,1fr);gap:9px}
+ .episode-toolbar .episode-heading{min-width:0}
+ .episode-toolbar .episode-availability{width:100%}
+}
+@container episode-area (max-width:635px){
+ .episode-item{grid-template-columns:36px minmax(0,1fr) auto;gap:10px;min-height:100px;padding:12px 8px}
+ .episode-tools{grid-column:3;grid-row:1;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+ .episode-flags,.episode-actions{grid-template-columns:repeat(2,44px);gap:6px}
+}
+@container episode-area (max-width:515px){
+ .episode-toolbar .episode-availability{display:flex;flex-wrap:wrap;gap:9px;padding:10px 11px}
+ .episode-availability .episode-stats{flex:1 1 100%;flex-wrap:wrap;gap:8px 12px}
+ .episode-availability .episode-filter{margin-left:auto}
+ .episode-item{grid-template-columns:28px minmax(0,1fr) auto;gap:8px;padding:10px 4px}
+ .episode-no{font-size:17px}
+}
+@container episode-area (max-width:320px){
+ .episode-flags,.episode-actions{grid-template-columns:repeat(2,40px);gap:5px}
+ .episode-flags .audio-flag,.episode-actions .iconbtn{width:40px;min-width:40px;height:38px;min-height:38px}
+.episode-item{grid-template-columns:24px minmax(0,1fr) auto;gap:6px;padding:10px 2px}
+ .episode-toolbar .episode-availability{padding:9px 8px}
+ .episode-availability .episode-stats{column-gap:9px}
+ .episode-availability .availability-label{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.episode-availability .episode-shown{transition:none}}
+
+

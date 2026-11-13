@@ -1,0 +1,108 @@
+/* Gallery Soft Futuristic — port of accepted A28 subtitle workbench. */
+#playback-subtitles-pane{container-type:inline-size}
+.sf-subtitle-workbench{margin-bottom:16px;padding:16px 18px 14px;min-width:0}
+.sf-subtitle-heading{display:grid;grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);align-items:center;gap:10px;margin-bottom:11px}
+.sf-subtitle-heading .sf-subtitle-reset{justify-self:end}
+.sf-subtitle-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.sf-subtitle-scene-toggle{flex:none;min-width:148px}
+.sf-subtitle-scene-toggle .scene-day,.sf-subtitle-scene-toggle .scene-night{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.sf-subtitle-scene-toggle .icon{flex:none}
+.subtitle-stage-night{transition:none!important}
+@container (max-width:1030px){.sf-subtitle-heading{display:flex;justify-content:space-between}.sf-subtitle-preview-heading .sf-subtitle-scene-toggle{display:none!important}}
+.sf-subtitle-heading h3{font-size:16px;font-weight:710;letter-spacing:-.025em;margin:0 0 4px}
+.sf-subtitle-heading p{font-size:11px;line-height:1.45;color:var(--muted);margin:0}
+.sf-subtitle-reset{flex:none;border:1px solid var(--line);color:var(--ink);background:var(--raised);border-radius:11px;min-height:32px;padding:7px 11px;font-size:11px;font-weight:660}
+.sf-subtitle-reset:hover{background:var(--hover)}
+/* Same A7/A28 preview track formula, aspect ratio and two-column threshold. */
+.sf-subtitle-main{display:grid;grid-template-columns:minmax(0,min(800px,max(520px,calc((100dvh - 470px)*16/9)))) minmax(235px,1fr);gap:10px;align-items:start;min-width:0}
+.sf-subtitle-video{min-width:0;position:sticky;top:8px}
+.sf-subtitle-stage{position:relative;width:100%;max-width:min(100%,800px,max(520px,calc((100dvh - 470px)*16/9)));margin:0;aspect-ratio:16/9;overflow:hidden;isolation:isolate;border:1px solid var(--line);background:#091b2c;border-radius:12px;container-type:inline-size;user-select:none}
+.sf-subtitle-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.sf-subtitle-stage .sf-night{opacity:0}
+.sf-subtitle-stage .sf-subtitle-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.08),transparent 25%);opacity:.35}
+.sf-subtitle-caption{position:absolute;z-index:2;bottom:8%;left:50%;width:max-content;max-width:88%;text-align:center;transform:translateX(-50%);white-space:pre-line;overflow-wrap:break-word;line-height:1.27;font-weight:620;letter-spacing:.001em;box-sizing:border-box;pointer-events:none}
+.sf-subtitle-expand{position:absolute;top:10px;right:10px;z-index:4;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;border:1px solid #ffffff44;background:#10121fb8;color:#fff;padding:0;box-shadow:0 2px 9px #0005;backdrop-filter:blur(7px)}
+.sf-subtitle-expand:hover{background:#1e283fe3;border-color:#ffffff75}
+.sf-subtitle-expand:focus-visible{outline:2px solid white;outline-offset:-4px}
+.sf-subtitle-controls{min-width:0;min-height:100%;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;gap:7px;padding:10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--raised) 70%,var(--surface))}
+.sf-subtitle-group{min-width:0;flex:none}
+.sf-subtitle-label{display:block;font-size:11.5px;font-weight:660;color:var(--ink);margin:0 0 6px;line-height:1.4}
+.sf-subtitle-font{display:block;width:100%;height:36px;min-width:0;appearance:none;-webkit-appearance:none;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;font-weight:550;padding:7px 39px 7px 10px;text-overflow:ellipsis;outline-offset:2px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23b3c1c5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-size:17px;background-position:right 12px center;background-repeat:no-repeat}
+.sf-subtitle-font option{background:#1d2b33;color:white}
+.sf-subtitle-size-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sf-subtitle-current{font-size:10px;color:var(--muted);font-weight:620}
+.sf-subtitle-five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.sf-subtitle-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.sf-subtitle-colors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.sf-subtitle-styles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.sf-subtitle-choice{display:flex;align-items:center;justify-content:center;min-width:0;min-height:35px;gap:5px;padding:5px 5px;border:1px solid var(--line);border-radius:9px;background:#ffffff08;color:var(--muted);font:inherit;font-size:11px;font-weight:620;line-height:1.2;text-align:center;cursor:pointer}
+.sf-subtitle-choice:hover:not([disabled]):not([aria-pressed="true"]){background:var(--hover);color:var(--ink)}
+.sf-subtitle-choice[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,var(--surface));box-shadow:inset 0 0 0 .5px var(--accent)}
+.sf-subtitle-choice:disabled{opacity:.46;cursor:not-allowed}
+.sf-subtitle-swatch{display:block;flex:none;width:14px;height:14px;border-radius:5px;border:1px solid #ffffff30;box-shadow:0 1px 3px #0003;background:var(--swatch)}
+.sf-subtitle-custom-indicator{display:flex;align-items:center;justify-content:center;flex:none;width:14px;height:14px}
+.sf-subtitle-custom-indicator [hidden]{display:none!important}
+.sf-subtitle-custom-indicator .icon{width:14px;height:14px}
+.sf-subtitle-effects{min-width:0}
+.sf-subtitle-effects.is-disabled{opacity:.47}
+.sf-subtitle-effect-heading{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:6px}
+.sf-subtitle-effect-heading .sf-subtitle-label{margin:0}
+.sf-subtitle-effect-color{display:flex;align-items:center;gap:5px;padding:5px 7px;min-height:28px;border:1px solid var(--line);border-radius:8px;background:#ffffff08;color:var(--muted);font-size:10px;font-weight:620}
+.sf-subtitle-effect-color:not(:disabled):hover{background:var(--hover)}
+.sf-subtitle-effect-color:disabled{cursor:not-allowed}
+.sf-subtitle-effect-color .sf-subtitle-swatch{width:14px;height:14px}
+.sf-subtitle-three .sf-subtitle-choice{min-height:30px;font-size:10px;padding:4px 2px}
+/* Two layout subtitle experiment: retain the accepted A7 preview size in the full
+   layout; switch directly to controls-only when the actual Settings panel is too
+   narrow. No stacked-preview state. Stable Gallery v103 is unchanged. */
+.sf-subtitle-compact-title,.sf-subtitle-compact-description{display:none}
+.sf-subtitle-compact-preview{display:none;margin:0 0 12px}
+.sf-subtitle-compact-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:40px;padding:10px 17px;border:1px solid var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent) 13%,var(--surface));color:var(--ink);font:inherit;font-size:12px;font-weight:720;cursor:pointer}
+.sf-subtitle-compact-button:hover{background:color-mix(in srgb,var(--accent) 23%,var(--surface))}
+.sf-subtitle-compact-button svg{flex:none}
+/* The container belongs to the right-hand Settings panel, not the viewport. */
+@container (max-width:1030px){
+ .sf-subtitle-main{grid-template-columns:minmax(0,1fr);gap:0}
+ .sf-subtitle-video{display:none}
+ .sf-subtitle-compact-preview{display:flex;justify-content:flex-start}
+ .sf-subtitle-full-title,.sf-subtitle-full-description{display:none}
+ .sf-subtitle-compact-title,.sf-subtitle-compact-description{display:inline}
+ .sf-subtitle-controls{width:100%;max-width:none;margin-inline:0;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"font style" "size style" "text effect";gap:15px 18px;align-content:start;justify-content:initial;padding:14px}
+ .sf-subtitle-group[data-subtitle-group="font"]{grid-area:font}
+ .sf-subtitle-group[data-subtitle-group="size"]{grid-area:size}
+ .sf-subtitle-group[data-subtitle-group="text"]{grid-area:text}
+ .sf-subtitle-group[data-subtitle-group="style"]{grid-area:style}
+ .sf-subtitle-effects{grid-area:effect}
+}
+@container (max-width:740px){
+ .sf-subtitle-controls{display:flex;flex-direction:column;gap:15px;padding:12px}
+ .sf-subtitle-group,.sf-subtitle-effects{width:100%;min-width:0}
+}
+@container (max-width:420px){
+ .sf-subtitle-heading{flex-wrap:wrap}
+ .sf-subtitle-compact-button{width:100%}
+ .sf-subtitle-compact-preview{width:100%}
+}
+@media(max-width:510px){.sf-subtitle-workbench{padding:12px}.sf-subtitle-heading{align-items:start}.sf-subtitle-reset{padding:7px 8px}.sf-subtitle-stage{border-radius:9px}.sf-subtitle-controls{padding:11px}}
+@media(prefers-reduced-motion:no-preference){.sf-subtitle-compact-button{transition:background-color .18s ease,border-color .18s ease}}
+
+/* Real Gallery Settings integration: exactly two layouts; no stacked stage. */
+#playback-subtitles-pane .sf-subtitle-workbench{max-width:none;margin:0;padding:16px 18px 14px;background:var(--surface);border:1px solid var(--line);border-radius:17px}
+#playback-subtitles-pane .sf-subtitle-main{margin:0}
+#playback-subtitles-pane .sf-subtitle-stage{max-width:min(100%,800px,max(520px,calc((100dvh - 470px)*16/9)));border-color:var(--line)}
+#playback-subtitles-pane .sf-subtitle-stage .subtitle-stage-image{max-width:none}
+#playback-subtitles-pane .sf-subtitle-stage .subtitle-preview-caption{line-height:1.27;bottom:8%}
+#playback-subtitles-pane .sf-subtitle-controls{height:100%;border:1px solid var(--line);background:color-mix(in srgb,var(--raised) 70%,var(--surface))}
+#playback-subtitles-pane .sf-subtitle-choice{min-height:35px;height:auto;padding:5px;font-size:11px}
+#playback-subtitles-pane .sf-subtitle-three .sf-subtitle-choice{min-height:30px}
+#playback-subtitles-pane .sf-subtitle-font{height:36px;min-height:36px}
+#playback-subtitles-pane .sf-subtitle-swatch{border-radius:5px}
+#playback-subtitles-pane .sf-subtitle-effect-color{cursor:pointer}
+#playback-subtitles-pane .sf-subtitle-compact-preview[hidden]{display:none!important}
+#playback-subtitles-pane .sf-subtitle-compact-button:focus-visible,#playback-subtitles-pane .sf-subtitle-choice:focus-visible,#playback-subtitles-pane .sf-subtitle-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@container (max-width:1030px){#playback-subtitles-pane .sf-subtitle-main{grid-template-columns:minmax(0,1fr)}#playback-subtitles-pane .sf-subtitle-video{display:none}}
+@container (max-width:740px){#playback-subtitles-pane .sf-subtitle-controls{display:flex;flex-direction:column;min-height:0;height:auto;justify-content:initial;gap:15px}}
+@container (max-width:420px){#playback-subtitles-pane .sf-subtitle-heading{flex-wrap:wrap}#playback-subtitles-pane .sf-subtitle-reset{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){#playback-subtitles-pane .sf-subtitle-compact-button{transition:none!important}}
+
+

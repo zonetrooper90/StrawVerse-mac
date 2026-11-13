@@ -1,0 +1,185 @@
+/* ===============================================================
+   GALLERY × SOFT FUTURISTIC — DESIGN SYSTEM INTEGRATION, STAGE 01
+   Source palette values: Soft Futuristic Settings Study 01.
+   Scoped to the six new themes. Existing v103 behavior untouched.
+   =============================================================== */
+body[data-theme="ocean"]{
+  --bg:#101e26; --fg:#ecfaf7; --muted:#a7c1c1; --line:#7ebbbb35; --frame:#37535d; --focus:#8affd8; --accent:#a0f1d6; --panel:#193038; --panel2:#213d44;
+  --backdrop-a:#35546672; --backdrop-b:#235d4e45; --orb:#b2f0dc; --nav-bg:#1d343b; --nav-border:#a8e5d139; --nav-active-a:#c8fae7; --nav-active-b:#91ddce; --nav-active-text:#123b3d; --nav-hover:#34555c;
+  --circle-bg:#203c43; --circle-border:#86d0c64f; --circle-hover:#335961; --kicker:#99e3d0; --kicker-dot:#a0f1d6; --kicker-ring:#a0f1d629; --hero-em:#9fe8d4;
+  --feature-bg-a:#244a52; --feature-bg-b:#1a3740; --feature-border:#aee2d455; --feature-glow:#a1d6cc25; --feature-shadow2:#a1ffee08; --feature-label-text:#b3f1dd; --feature-label-bg:#b2f3dd17; --feature-label-border:#a7edce52;
+  --primary-a:#d4fbe8; --primary-b:#89d9c8; --primary-text:#173e3e; --secondary-border:#b9e3db67; --secondary-bg:#ffffff12;
+  --sat-border:#b3f2e172; --sat-bg:#1e4144b8; --sat-text:#b0e6d6; --section-accent:#79bbad; --link-bg:#ffffff0c; --link-text:#b7e8d9; --link-border:#a7e4d535;
+  --card-bg-a:#294951; --card-bg-b:#172e37; --card-border:#b1dcca2a; --card-hover:#335a61; --card-meta:#9db9bb;
+  --history-bg:#1a363c; --history-border:#97ded04a; --history-spot-a:#706b99; --history-spot-b:#b383ac; --history-meta:#a0c1c0;
+}
+body[data-theme="twilight"]{
+  --bg:#181827; --fg:#f3f1ff; --muted:#b8b3d4; --line:#c1b8ff24; --frame:#4d4c72; --focus:#d3bcff; --accent:#c8bcff; --panel:#25253c; --panel2:#302f4d;
+  --backdrop-a:#5a4f8b55; --backdrop-b:#352f6c4d; --orb:#d8d0ff; --nav-bg:#282744; --nav-border:#c6bfff30; --nav-active-a:#ebe4ff; --nav-active-b:#bdb1ff; --nav-active-text:#2d2451; --nav-hover:#3d3b63;
+  --circle-bg:#2e2d4b; --circle-border:#c6bcff45; --circle-hover:#433f6a; --kicker:#d1c6ff; --kicker-dot:#c8bcff; --kicker-ring:#c8bcff2b; --hero-em:#d7cbff;
+  --feature-bg-a:#3a355f; --feature-bg-b:#242243; --feature-border:#cfc3ff47; --feature-glow:#d9d0ff22; --feature-shadow2:#d8ccff08; --feature-label-text:#ddd3ff; --feature-label-bg:#d9d0ff14; --feature-label-border:#c8bcff4a;
+  --primary-a:#f0ebff; --primary-b:#b9adff; --primary-text:#2d2451; --secondary-border:#d4cbff63; --secondary-bg:#ffffff12;
+  --sat-border:#d8d0ff63; --sat-bg:#342f53b8; --sat-text:#ddd5ff; --section-accent:#b5a8f0; --link-bg:#ffffff0c; --link-text:#e3dcff; --link-border:#cec4ff34;
+  --card-bg-a:#38345e; --card-bg-b:#23213f; --card-border:#cbc3ff26; --card-hover:#4a4474; --card-meta:#b8b0da;
+  --history-bg:#2d2948; --history-border:#c9bdff42; --history-spot-a:#8065b7; --history-spot-b:#d49ec7; --history-meta:#c1bbe0;
+}
+body[data-theme="ember"]{
+  --bg:#211518; --fg:#fff1ea; --muted:#d5b2a8; --line:#f1d1c529; --frame:#6c4743; --focus:#ffc4ad; --accent:#f0c0ab; --panel:#3a2427; --panel2:#4a2d30;
+  --backdrop-a:#8f564b4a; --backdrop-b:#6e3c4152; --orb:#ffd3c0; --nav-bg:#43292d; --nav-border:#ffd9c02d; --nav-active-a:#fff0e7; --nav-active-b:#e9b19d; --nav-active-text:#4f2c28; --nav-hover:#61393f;
+  --circle-bg:#4c2f33; --circle-border:#f0c0ab48; --circle-hover:#6a4247; --kicker:#ffc7b0; --kicker-dot:#f0c0ab; --kicker-ring:#f0c0ab2d; --hero-em:#ffd3c0;
+  --feature-bg-a:#6a3b3f; --feature-bg-b:#3f2529; --feature-border:#ffd0bc45; --feature-glow:#ffd9cf1e; --feature-shadow2:#ffd4c107; --feature-label-text:#ffd7c5; --feature-label-bg:#ffd7c513; --feature-label-border:#f0c0ab46;
+  --primary-a:#fff1e8; --primary-b:#e2a891; --primary-text:#4f2c28; --secondary-border:#ffd7c25d; --secondary-bg:#ffffff10;
+  --sat-border:#ffd8c65f; --sat-bg:#4e2f34b8; --sat-text:#ffd8c6; --section-accent:#dd9f8d; --link-bg:#ffffff0a; --link-text:#ffe0d4; --link-border:#f0c0ab34;
+  --card-bg-a:#573238; --card-bg-b:#341f23; --card-border:#f3ccbe26; --card-hover:#71434a; --card-meta:#d8b4aa;
+  --history-bg:#45292d; --history-border:#f1c1ae42; --history-spot-a:#8c5d65; --history-spot-b:#d38e79; --history-meta:#dab8ae;
+}
+body[data-theme="slate"]{
+  --bg:#1a1f24; --fg:#f1f4f6; --muted:#bac3ca; --line:#cfd8df24; --frame:#54616b; --focus:#d2dee8; --accent:#c7d2da; --panel:#2a333a; --panel2:#344049;
+  --backdrop-a:#66748040; --backdrop-b:#46535f40; --orb:#dde5eb; --nav-bg:#313c45; --nav-border:#d8e2ea26; --nav-active-a:#f4f7f9; --nav-active-b:#bcc8d0; --nav-active-text:#253139; --nav-hover:#44515a;
+  --circle-bg:#39454e; --circle-border:#d2dde643; --circle-hover:#536069; --kicker:#d2dde7; --kicker-dot:#c7d2da; --kicker-ring:#c7d2da2a; --hero-em:#dee7ee;
+  --feature-bg-a:#495660; --feature-bg-b:#313b44; --feature-border:#d7e1e945; --feature-glow:#dde6ee18; --feature-shadow2:#dde6ee07; --feature-label-text:#e0e7ec; --feature-label-bg:#dde6ee10; --feature-label-border:#ced8e04a;
+  --primary-a:#f3f6f8; --primary-b:#b8c4cc; --primary-text:#253139; --secondary-border:#dce5ea5e; --secondary-bg:#ffffff10;
+  --sat-border:#dde6ee59; --sat-bg:#3c4850b8; --sat-text:#e3eaef; --section-accent:#a5b3bd; --link-bg:#ffffff0a; --link-text:#e6edf2; --link-border:#d3dde432;
+  --card-bg-a:#43505a; --card-bg-b:#29333b; --card-border:#d6dfe724; --card-hover:#596771; --card-meta:#b9c4cc;
+  --history-bg:#343e46; --history-border:#d1dce442; --history-spot-a:#7a8a98; --history-spot-b:#b2bec8; --history-meta:#c0cad1;
+}
+body[data-theme="glacier"]{
+  --bg:#101722; --fg:#f4fbff; --muted:#b7c6d6; --line:#d9ecf829; --frame:#6a8196; --focus:#eef8ff; --accent:#dff3ff; --panel:#222f3d; --panel2:#2d3b4a;
+  --backdrop-a:#8fb2c932; --backdrop-b:#5d7f9829; --orb:#f6fcff; --nav-bg:#2a3948; --nav-border:#e4f3fc2e; --nav-active-a:#ffffff; --nav-active-b:#d9eefb; --nav-active-text:#22384a; --nav-hover:#3b4f61;
+  --circle-bg:#314253; --circle-border:#e2f2fb45; --circle-hover:#455a6c; --kicker:#e6f4fc; --kicker-dot:#eef8ff; --kicker-ring:#eef8ff26; --hero-em:#f7fcff;
+  --feature-bg-a:#5c7489; --feature-bg-b:#2b3948; --feature-border:#edf8ff47; --feature-glow:#f3fbff20; --feature-shadow2:#eef7ff08; --feature-label-text:#eff8ff; --feature-label-bg:#f3fbff12; --feature-label-border:#e4f2fb44;
+  --primary-a:#ffffff; --primary-b:#e1f1fb; --primary-text:#22384a; --secondary-border:#edf8ff57; --secondary-bg:#ffffff10;
+  --sat-border:#eef8ff5c; --sat-bg:#334657bd; --sat-text:#eef8ff; --section-accent:#bfd2e2; --link-bg:#ffffff0b; --link-text:#f0f8fd; --link-border:#e5f3fb35;
+  --card-bg-a:#465a6c; --card-bg-b:#293846; --card-border:#ebf7ff24; --card-hover:#5a7082; --card-meta:#c4d0db;
+  --history-bg:#2a3948; --history-border:#e6f4fc3f; --history-spot-a:#95adc3; --history-spot-b:#dcecf7; --history-meta:#cbd6df;
+}
+body[data-theme="verdant"]{
+  --bg:#131d18; --fg:#eef7f0; --muted:#aec3b3; --line:#b8e0c02a; --frame:#4d6e58; --focus:#c3efd0; --accent:#c3efd0; --panel:#1d2f26; --panel2:#264033;
+  --backdrop-a:#3d7d5a4e; --backdrop-b:#244a394d; --orb:#daf6e1; --nav-bg:#23382d; --nav-border:#bfe8cb35; --nav-active-a:#eefbf1; --nav-active-b:#a7ddbc; --nav-active-text:#173426; --nav-hover:#355344;
+  --circle-bg:#2a4336; --circle-border:#c1edcf48; --circle-hover:#3b5d4b; --kicker:#d3f1db; --kicker-dot:#c3efd0; --kicker-ring:#c3efd02b; --hero-em:#dff8e5;
+  --feature-bg-a:#335542; --feature-bg-b:#20372b; --feature-border:#c3eecf4e; --feature-glow:#d8f6e12a; --feature-shadow2:#d7f6e008; --feature-label-text:#d9f5e1; --feature-label-bg:#d8f5df15; --feature-label-border:#c4efcf4d;
+  --primary-a:#f0fbf3; --primary-b:#9cd0af; --primary-text:#173325; --secondary-border:#d1efda62; --secondary-bg:#ffffff10;
+  --sat-border:#d0f0da73; --sat-bg:#274536bb; --sat-text:#daf5e2; --section-accent:#8fb9a0; --link-bg:#ffffff0b; --link-text:#dff5e6; --link-border:#c9ead23a;
+  --card-bg-a:#345745; --card-bg-b:#1d3127; --card-border:#c9ecd330; --card-hover:#416952; --card-meta:#adc4b4;
+  --history-bg:#233a2d; --history-border:#c3eed045; --history-spot-a:#587d62; --history-spot-b:#9fd0ad; --history-meta:#b5cbbd;
+}
+
+/* Adapt the exact study tokens to the existing v103 semantic tokens.
+   Keeping the original token names also makes a later full layout
+   migration easier without duplicating the six palettes. */
+body[data-theme]{
+  --window:var(--bg);
+  --surface:var(--panel);
+  --raised:var(--panel2);
+  --hover:var(--nav-hover);
+  --ink:var(--fg);
+  --accent-ink:var(--nav-active-text);
+  --tab:var(--nav-active-a);
+  --strong:var(--feature-bg-a);
+  --glow:var(--feature-glow);
+  --shadow:rgba(2,9,14,.46);
+  --desktop:#0a1014;
+  background:var(--desktop);color:var(--fg);
+  color-scheme:dark;
+}
+body[data-theme] .app{
+  background:radial-gradient(ellipse at 92% 12%,var(--backdrop-a),transparent 42%),
+             radial-gradient(ellipse at 11% 91%,var(--backdrop-b),transparent 43%),var(--bg);
+  border-color:var(--nav-border);
+  border-radius:25px;
+  box-shadow:0 28px 76px var(--shadow),inset 0 1px 0 #ffffff10;
+}
+body[data-theme] .top{background:transparent;border-color:var(--nav-border);padding:23px 34px 18px}
+body[data-theme] .brandname{font-weight:735;letter-spacing:-.065em;font-size:23px}
+body[data-theme] .brandmark{height:32px;width:32px;position:relative;color:var(--orb);display:block}
+body[data-theme] .brandmark>svg{display:none}
+body[data-theme] .brandmark::before{content:"";position:absolute;inset:2px;border:2.5px solid var(--orb);border-radius:50%;transform:rotate(-34deg)}
+body[data-theme] .brandmark::after{content:"";position:absolute;inset:9px;border:2px solid var(--orb);border-radius:50%}
+body[data-theme] .subtitle{border-color:var(--line);color:var(--muted);background:var(--secondary-bg)}
+body[data-theme] .iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--circle-border);background:var(--circle-bg);color:var(--fg);transition:background .2s,border-color .2s}
+body[data-theme] .iconbtn:hover{background:var(--circle-hover);border-color:var(--sat-border)}
+body[data-theme] .tabs{
+  width:max-content;max-width:100%;margin-inline:auto;display:flex;gap:4px;
+  position:relative;align-items:center;
+  background:var(--nav-bg);border:1px solid var(--nav-border);border-radius:999px;
+  padding:5px;box-shadow:inset 0 2px 9px #0003,0 8px 24px #0002;
+}
+body[data-theme] .tabs>.tab{
+  position:relative;isolation:isolate;overflow:hidden;
+  flex:none;z-index:1;min-width:116px;padding:11px 19px;border-radius:999px;
+  color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.005em;
+  background:transparent;box-shadow:none;
+  transition:background-color .26s ease,color .26s ease;
+}
+/* The selected pill fades in place rather than sliding between labels. */
+body[data-theme] .tabs>.tab::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(170deg,var(--nav-active-a),var(--nav-active-b));
+  box-shadow:inset 0 1px 1px #fff8,0 3px 9px #0004;
+  opacity:0;transition:opacity .26s ease;
+}
+body[data-theme] .tabs>.tab.active,
+body[data-theme] .tabs>.tab.active:hover,
+body[data-theme] .tabs>.tab.active:focus-visible{
+  color:var(--nav-active-text)!important;
+  background:transparent;box-shadow:none;
+}
+body[data-theme] .tabs>.tab.active::before{opacity:1}
+body[data-theme] .tabs>.tab:not(.active):hover,
+body[data-theme] .tabs>.tab:not(.active):focus-visible{
+  background:var(--nav-hover);color:var(--fg);
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-theme] .tabs>.tab,
+  body[data-theme] .tabs>.tab::before{transition:none!important}
+}
+body[data-theme] .workspace{scrollbar-color:var(--line) transparent}
+body[data-theme] .eyebrow{color:var(--kicker)}
+body[data-theme] .heading-row h1,body[data-theme] .page-header-primary h1{letter-spacing:-.055em}
+body[data-theme] .page-header-divider{background:var(--line)}
+body[data-theme] .btn{border-radius:999px;background:var(--panel2);border-color:var(--line);color:var(--fg);transition:background .2s,border-color .2s,transform .2s}
+body[data-theme] .btn:hover{background:var(--nav-hover);border-color:var(--sat-border)}
+body[data-theme] .btn.primary{background:linear-gradient(155deg,var(--primary-a),var(--primary-b));color:var(--primary-text);border-color:transparent}
+body[data-theme] .btn.primary:hover{filter:brightness(1.03)}
+body[data-theme] .btn.ghost{background:transparent;color:var(--accent);border-color:transparent}
+body[data-theme] .continue{background:radial-gradient(circle at 90% 0%,var(--feature-glow),transparent 56%),linear-gradient(130deg,var(--feature-bg-a),var(--feature-bg-b));border-color:var(--feature-border);border-radius:19px}
+body[data-theme] .poster{border-radius:15px;border-color:var(--card-border);box-shadow:0 9px 25px #0002;transition:border-color .2s}
+body[data-theme] .poster:hover{transform:none;box-shadow:0 9px 25px #0002;border-color:var(--sat-border)}
+body[data-theme] .settings-page-head{border-color:var(--line)}
+body[data-theme] .settings-side{background:var(--panel);border-color:var(--nav-border);border-radius:20px;padding:9px;box-shadow:0 13px 25px #0002}
+body[data-theme] .settings-section-button{border-radius:14px;transition:background .18s,color .18s}
+body[data-theme] .settings-section-button:hover{background:var(--nav-hover)}
+body[data-theme] .settings-section-button.is-active{background:linear-gradient(140deg,var(--nav-active-a),var(--nav-active-b));border-color:transparent;color:var(--nav-active-text);box-shadow:0 5px 16px #0002}
+body[data-theme] .settings-section-button.is-active .icon{color:var(--nav-active-text)}
+body[data-theme] .settings-card{border-radius:18px;background:var(--panel);border-color:var(--nav-border)}
+body[data-theme] .theme-tile{border-radius:15px;background:var(--panel2);border-color:var(--line);transition:transform .18s,border-color .18s,background .18s}
+body[data-theme] .theme-tile:hover{background:var(--nav-hover);transform:translateY(-2px)}
+body[data-theme] .theme-tile[aria-pressed="true"]{border-color:var(--accent);background:var(--circle-bg);box-shadow:inset 0 0 0 1px var(--accent)}
+body[data-theme] .settings-theme-tile{min-height:136px;padding:12px 12px 13px}
+body[data-theme] .settings-theme-tile .swatch{height:52px;border-radius:11px;border-color:#ffffff26;box-shadow:inset 0 0 10px #ffffff09}
+body[data-theme] .settings-theme-tile b{font-size:14px}
+body[data-theme] .settings-theme-tile>.icon{top:23px;right:20px;filter:drop-shadow(0 0 2px #000)}
+body[data-theme] .settings-theme-list{gap:12px}
+body[data-theme] .settings-back{border:1px solid var(--nav-border);border-radius:999px;background:var(--panel2);padding:10px 16px}
+body[data-theme] .settings-back:hover{background:var(--nav-hover)}
+body[data-theme] .appearance-subnav,body[data-theme] .settings-card select{border-color:var(--line)}
+body[data-theme] button:focus-visible,body[data-theme] input:focus-visible,body[data-theme] select:focus-visible{outline-color:var(--focus)}
+/* Keep the existing responsive behavior until the layout integration stage. */
+@media(max-width:760px){
+  body[data-theme] .top{padding:16px 17px 13px}
+  body[data-theme] .brandname{font-size:18px}
+  body[data-theme] .tabs{width:100%}
+  body[data-theme] .tabs>.tab{flex:1;min-width:0;padding:10px 8px;font-size:12px}
+  body[data-theme] .app{border-radius:0}
+}
+@media(max-width:850px){
+  body[data-theme] .settings-theme-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  body[data-theme] .settings-theme-list{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-theme] .poster,body[data-theme] .btn,body[data-theme] .settings-section-button,body[data-theme] .theme-tile{transition:none!important}
+}
+

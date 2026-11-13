@@ -1,0 +1,102 @@
+/* v20 — Library: direct poster layout, collection-local actions, scalable tag rail. */
+.page-header-library{margin-bottom:19px}
+.page-header-library .page-header-secondary{padding-top:14px}
+.page-header-library .library-tag-row{display:flex;align-items:center;gap:5px;min-width:0}
+.page-header-library .tagbar{position:relative;min-width:0;flex:1;display:flex;align-items:center;gap:8px;margin:0;padding:4px 0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.page-header-library .tagbar::-webkit-scrollbar{display:none}
+.page-header-library .tagbar.can-left{mask-image:linear-gradient(to right,transparent,black 17px,black 100%)}
+.page-header-library .tagbar.can-right{mask-image:linear-gradient(to right,black 0%,black calc(100% - 17px),transparent 100%)}
+.page-header-library .tagbar.can-left.can-right{mask-image:linear-gradient(to right,transparent,black 17px,black calc(100% - 17px),transparent)}
+.library-tag-arrow{display:none;flex:none;width:29px;height:32px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);padding:0}
+.library-tag-row.has-overflow .library-tag-arrow{display:flex}
+.library-tag-arrow:hover:not(:disabled){background:var(--hover)}
+.library-tag-arrow:disabled{opacity:.25}
+.library-tag-prev svg{transform:rotate(180deg)}
+.page-header-library .tagchip{padding:8px 13px;gap:7px;min-height:33px}
+.tagchip .custom-tag-icon{color:var(--accent);opacity:.83}
+.tagchip.active .custom-tag-icon{color:var(--ink)}
+.library-collection{min-width:0}
+.library-collection .collections-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;margin-bottom:19px}
+.library-collection .col-title-row h2{font-size:19px;line-height:1.3;letter-spacing:-.026em}
+.library-collection .col-title-row .meta{font-size:12px;margin-top:4px}
+.library-collection .col-contents{margin:0}
+.library-collection .poster-grid{margin:0}
+.library-collection .collection-actions{display:flex;align-items:center;gap:8px;flex:none}
+.library-collection .collection-actions .btn{min-height:35px}
+.library-collection .collection-menu-wrap{position:relative}
+.library-collection .collection-options{width:35px;height:35px;min-height:35px;padding:0}
+.collection-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:10;width:175px;padding:5px;border:1px solid var(--line);border-radius:11px;background:var(--raised);box-shadow:0 12px 28px var(--shadow)}
+.collection-menu[hidden]{display:none}
+.collection-menu button{width:100%;border:0;background:transparent;color:var(--ink);font-size:12px;padding:10px;border-radius:7px;text-align:left;display:flex;align-items:center;gap:10px}
+.collection-menu button:hover,.collection-menu button:focus-visible{background:var(--hover)}
+.collection-menu .delete-tag-action{color:var(--danger-ink,var(--ink));border-top:1px solid var(--line);border-radius:0 0 7px 7px;margin-top:2px;padding-top:12px}
+.library-collection .tip{margin-top:23px}
+@media(max-width:750px){
+  .page-header-library{margin-bottom:17px}
+  .library-collection .collections-head{gap:9px;margin-bottom:15px}
+  .library-collection .col-title-row h2{font-size:18px}
+  .library-collection .collection-actions{gap:5px}
+  .library-collection .collection-actions .btn{font-size:12px;padding:8px 10px}
+  .page-header-library .tagchip{padding:8px 11px}
+}
+@media(max-width:430px){
+  .library-tag-arrow{width:25px;height:30px}
+  .library-collection .collection-actions .btn{padding:8px 9px}
+  .library-collection .col-title-row .meta{font-size:11px}
+}
+
+
+/* v23 — The anime overview and player use the same scrollbar as the main tabs.
+   Scroll indicator belongs to the window, never inside one hidden tab's viewport. */
+.app{position:relative}
+.workspace:not(.tab-pages-visible){
+  scrollbar-width:none;
+  scrollbar-gutter:auto!important;
+  -ms-overflow-style:none;
+}
+.workspace:not(.tab-pages-visible)::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* v22 — No permanent scrollbar or reserved gutter.
+   Main-page scrolling stays native. A shared, overlaid thumb is visible only
+   while the user scrolls. It never reduces the page's content width. */
+.tab-pages-visible .tab-page{
+  overflow-y:auto;
+  scrollbar-gutter:auto;
+  scrollbar-width:none; /* Firefox and modern Chromium */
+  -ms-overflow-style:none;
+}
+.tab-pages-visible .tab-page::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.tab-scroll-overlay{
+  position:absolute;
+  top:6px;
+  right:5px;
+  bottom:6px;
+  width:8px;
+  z-index:3;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .4s ease;
+}
+.tab-scroll-overlay.is-visible{opacity:1}
+.tab-scroll-thumb{
+  position:absolute;
+  top:0;
+  right:0;
+  width:7px;
+  height:46px;
+  background:color-mix(in srgb,var(--muted) 72%,transparent);
+  border-radius:999px;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--window) 35%,transparent);
+  pointer-events:none;
+}
+.tab-scroll-overlay.is-visible .tab-scroll-thumb{pointer-events:auto;cursor:default}
+.tab-scroll-overlay.is-dragging .tab-scroll-thumb{background:var(--muted)}
+@media(prefers-reduced-motion:reduce){
+ .tab-scroll-overlay{transition:none}
+}
+
+

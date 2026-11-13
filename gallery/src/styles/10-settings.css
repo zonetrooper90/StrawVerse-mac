@@ -1,0 +1,88 @@
+/* v57 — Settings is a full page; main navigation disappears entirely. */
+.settings-page[hidden],.settings-panel[hidden]{display:none!important}
+body.settings-view .tabs{display:none!important}
+body.settings-view .brand-row{margin-bottom:0;min-height:40px}
+body.settings-view .top{padding-bottom:20px}
+body.settings-view .workspace.settings-mode{padding:0 28px 60px!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:none}
+body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
+.workspace.settings-mode>#tab-pages-viewport,.workspace.settings-mode>#screen{display:none!important}
+.settings-page{width:100%;max-width:1170px;margin:0 auto;min-width:0}
+.settings-page-head{padding:23px 2px 24px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line)}
+.settings-page-head h1{font-size:30px;letter-spacing:-.04em}
+.settings-page-head .description{font-size:13px;margin-top:4px}
+.settings-back{display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex:none}
+.settings-layout{display:grid;grid-template-columns:minmax(185px,222px) minmax(0,1fr);gap:32px;padding-top:28px;align-items:start}
+.settings-side{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:8px;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px}
+.settings-section-button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid transparent;border-radius:10px;padding:12px 13px;background:transparent;color:var(--muted);font-weight:600;width:100%;font-size:13px}
+.settings-section-button:hover{background:var(--hover);color:var(--ink)}
+.settings-section-button.is-active{background:var(--raised);color:var(--accent);border-color:var(--line)}
+.settings-content{min-width:0;padding:4px 0 30px}
+.settings-panel:not([hidden]){animation:settings-panel-enter .19s ease-out both}
+@keyframes settings-panel-enter{from{opacity:.2;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.settings-panel-head{margin:0 0 22px}
+.settings-panel-head .eyebrow{margin-bottom:8px}
+.settings-panel-head h2{font-size:25px;letter-spacing:-.035em}
+.settings-panel-head .description{font-size:13px;line-height:1.5}
+.settings-card{padding:20px 22px 23px;border-radius:15px;border:1px solid var(--line);background:var(--surface);margin-bottom:15px}
+.settings-card-title{font-size:15px;font-weight:690;letter-spacing:-.01em}
+.settings-card-note{color:var(--muted);font-size:12px;line-height:1.65;margin:8px 0 0}
+.settings-card .field{max-width:460px}
+.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:17px}
+.settings-theme-tile{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-height:125px;position:relative}
+.settings-theme-tile .swatch{width:100%;height:43px}
+.settings-theme-tile b{display:block;font-size:13px}
+.settings-theme-tile small{display:block;font-size:11px;line-height:1.4;color:var(--muted);margin-top:4px}
+.settings-theme-tile>.icon{position:absolute;top:19px;right:18px;color:var(--accent);opacity:0}
+.settings-theme-tile[aria-pressed="true"]>.icon{opacity:1}
+.settings-card .download-folder-choice{max-width:600px}
+.settings-source-preview{display:flex;align-items:flex-start;gap:18px}
+.settings-source-icon{flex:none;width:52px;height:52px;border:1px solid var(--line);border-radius:14px;background:var(--raised);color:var(--accent);display:grid;place-items:center}
+.settings-repo-row{display:flex;align-items:center;gap:12px;padding:15px;margin-top:15px;border:1px solid var(--line);background:var(--raised);border-radius:11px}
+.settings-repo-row>span{color:var(--accent)}
+.settings-repo-row strong{font-size:12px;display:block}
+.settings-repo-row small{font-size:11px;color:var(--muted);line-height:1.5;display:block;margin-top:5px}
+/* Settings replaces the underlying page in the same workspace. Because those
+   two surfaces cannot overlap here, neither side of the swap may start/end
+   transparent: that created a blank frame. Keep the subtle motion and very
+   light opacity easing, but never expose an empty workspace. */
+/* v70: Opening and closing Settings both take 280ms.
+   Closing uses two 140ms halves (Settings out, Gallery in), not the
+   previous 220ms + 240ms double-duration animation. */
+@keyframes settings-exit{from{opacity:1;transform:translateY(0)}to{opacity:.97;transform:translateY(5px)}}
+@keyframes gallery-return{from{opacity:.97;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.settings-page.is-leaving{animation:settings-exit .14s cubic-bezier(.4,0,.4,1) both;pointer-events:none}
+body.returning-to-gallery .tabs,
+.workspace.returning-to-gallery > #tab-pages-viewport,
+.workspace.returning-to-gallery > #screen:not([hidden]){animation:gallery-return .14s cubic-bezier(.2,.75,.2,1) both}
+@media(prefers-reduced-motion:reduce){.settings-page.is-leaving,body.returning-to-gallery .tabs,.workspace.returning-to-gallery > #tab-pages-viewport,.workspace.returning-to-gallery > #screen{animation:none!important}}
+@media(max-width:710px){.settings-layout{grid-template-columns:1fr;gap:20px;padding-top:20px}.settings-side{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:3px}.settings-side::-webkit-scrollbar{display:none}.settings-section-button{width:auto;flex:none;padding:10px 12px;gap:7px;font-size:12px}.settings-section-button .icon{width:16px;height:16px}.settings-card{padding:17px}.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.settings-theme-tile{padding:8px}.settings-page-head{padding-top:18px}}
+@media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}.settings-back{padding:8px}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
+@media(prefers-reduced-motion:reduce){.settings-page,.settings-panel{animation:none!important}.settings-layout *{scroll-behavior:auto!important}}
+
+/* v59 — Consistent Settings search: header stays stationary, sidebar remains visible. */
+.settings-search-results[hidden]{display:none!important}
+.settings-page.is-searching .settings-section-button.is-active{background:transparent;border-color:transparent;color:var(--muted)}
+.settings-page.is-searching .settings-section-button.is-active:hover{background:var(--hover);color:var(--ink)}
+.settings-search-results .settings-panel-head{margin-bottom:23px}
+.settings-search-results .settings-panel-head .description{margin-top:9px}
+.settings-result-group{margin-bottom:25px}
+.settings-result-group h3{font-size:12px;font-weight:680;letter-spacing:.005em;color:var(--muted);margin:0 0 11px 3px}
+.settings-result-stack{background:var(--surface);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.settings-result-item{width:100%;min-height:74px;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:14px 17px;display:flex;gap:14px;align-items:center;justify-content:space-between;transition:background .16s ease}
+.settings-result-item:last-child{border-bottom:0}
+.settings-result-item:hover,.settings-result-item:focus-visible{background:var(--raised)}
+.settings-result-item:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;position:relative;z-index:1}
+.settings-result-item .icon{flex:none;color:var(--muted)}
+.settings-result-item:hover .icon,.settings-result-item:focus-visible .icon{color:var(--accent)}
+.settings-result-text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.settings-result-text strong{font-weight:620;font-size:13px}
+.settings-result-text small{color:var(--muted);font-size:11px;line-height:1.5}
+.settings-search-placeholder{min-height:185px;border:1px dashed var(--line);background:var(--surface);border-radius:15px;padding:31px 25px;display:flex;gap:17px;align-items:center;color:var(--muted)}
+.settings-search-placeholder>.icon{color:var(--accent);flex:none}
+.settings-search-placeholder b{display:block;color:var(--ink);font-size:14px}
+.settings-search-placeholder p{font-size:12px;line-height:1.65;margin-top:7px}
+.settings-search-target{outline:2px solid var(--accent)!important;outline-offset:5px;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 9%,transparent);border-radius:9px}
+@media(max-width:710px){.settings-result-item{padding:14px 13px;min-height:70px}.settings-search-placeholder{min-height:160px}}
+@media(prefers-reduced-motion:reduce){.settings-result-item{transition:none}}
+
+
