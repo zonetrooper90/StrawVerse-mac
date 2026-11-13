@@ -256,3 +256,10 @@ User agrees with consistent global standards, shared component defaults, and jus
 
 ## M3 approved JavaScript utility/data partition — 2026-11-13
 Baseline `3ae67a30f56918c747ef0abf92352a279bd2275b` (M2 and documentation checks passed). 333,383-byte classic script partitioned into 19 contiguous fragments without reordering, edits or wrappers; see `gallery/src/js/README.md`. Extract icon/escaping, shared card/header markup, galleryTimelineFill, HSV/HEX helpers, title/History/release/provider/listing sample data and subtitle presets. Retain stateful initialization and larger feature blocks for M4/M5; existing direct-global browser tests remain compatible because script bytes are identical. No CSS, HTML, checkpoint, artwork, builder, native or publisher changes. Both checks pending. Design-system audit follows modularization, not blanket override removal.
+
+
+### M3 verification complete
+Commit `36c97fc3f9ab924bf23df6bab3b30157c5c785a2`: integrity 43389079849 and browser 43389079766 both passed; exact full and lightweight outputs and immutable checkpoint unchanged.
+
+## M4 approved feature partition — 2026-11-13
+Verified M3 baseline above; split four large transitional fragments into 29 ordered feature sections, retaining 15 other files unchanged. Total 44 JS fragments; each split reconstructs its original block exactly and manifest ordering of unchanged files is preserved. See `gallery/src/js/README.md`. Keep feature sections interleaved when original execution order requires; no runtime refactoring, CSS/HTML/asset/checkpoint edits. Both independent checks pending; M5 separate.

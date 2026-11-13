@@ -228,3 +228,7 @@ User agreed to the principle: define consistent global design standards, build s
 
 ## 2026-11-13 — M3 shared JavaScript utilities and data extraction
 User approved proceeding with JavaScript modularization first, then the separate design-system consistency audit. M3 extracts existing shared utility and sample-data sections in place, using explicit ordered contiguous fragments and exact byte reconstruction. Preserve classic script scope and execution order, all functions, global state, events, persistence keys, original artwork tokens, CSS, generated HTML, checkpoint and native branches. No imports/exports, behavioral refactor or numbered release. Larger feature/core blocks remain for staged M4/M5 discussion; verify both independent checks. Override consolidation and search syntax correction remain unapproved.
+
+
+## 2026-11-13 — M4 feature-specific JavaScript partition
+User approved proceeding after M3 verification: partition remaining large feature blocks in place without altering any assembled script byte, execution order, global scope, CSS, assets, HTML, checkpoint or native branches. Preserve interleaved feature sections where needed; no imports, exports, deletions, refactoring or numbered release. M5 core work and design-system override changes remain separate. Require both independent checks.
