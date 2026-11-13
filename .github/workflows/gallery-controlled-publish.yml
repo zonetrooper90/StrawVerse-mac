@@ -8,104 +8,73 @@ on:
       - 'gallery/changes/pending/*.py'
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 concurrency:
   group: gallery-approved-publish
   cancel-in-progress: false
 
 jobs:
+  candidate:
+    uses: ./.github/workflows/gallery-candidate-tests.yml
+    permissions:
+      contents: read
+    with:
+      base: ${{ github.sha }}
+      previous: ${{ github.event.before }}
   publish:
+    needs: candidate
+    # Default success() semantics: never run after any failed, cancelled or skipped required job.
     runs-on: ubuntu-24.04
-    # The corrected Q2-B1 run has 24 theme/motion/build combinations and full regression.
-    # Keep the ordinary job limit unchanged for every other publishing request.
-    timeout-minutes: ${{ github.event.head_commit.message == 'Retry Q2-B1 after correcting hidden search-close test control' && 90 || 30 }}
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
     steps:
-      - name: Checkout exact change request commit
+      - name: Check out exact infrastructure commit and history
         uses: actions/checkout@v7.0.1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: true
-      - name: Validate exactly one newly approved change request
-        id: change
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --name-only --diff-filter=AM "${{ github.event.before }}" "${{ github.sha }}" -- gallery/changes/pending/ > "$RUNNER_TEMP/requests.txt"
-          test "$(grep -Ec '^gallery/changes/pending/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+\.py$' "$RUNNER_TEMP/requests.txt")" -eq 1
-          test "$(wc -l < "$RUNNER_TEMP/requests.txt")" -eq 1
-          CHANGE="$(cat "$RUNNER_TEMP/requests.txt")"
-          test -f "$CHANGE"
-          test "$(git diff --name-only --diff-filter=A "${{ github.event.before }}" "${{ github.sha }}" -- "$CHANGE")" = "$CHANGE"
-          echo "script=$CHANGE" >> "$GITHUB_OUTPUT"
-          echo "id=$(basename "$CHANGE" .py)" >> "$GITHUB_OUTPUT"
       - name: Set up Python
         uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
-      - name: Verify authoritative source, generated HTML and immutable archive before modification
+      - name: Create isolated request worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-candidate" "$BASE"
+      - name: Download tested candidate by artifact ID
+        uses: actions/download-artifact@v8.0.2
+        with:
+          artifact-ids: ${{ needs.candidate.outputs.artifact-id }}
+          path: ${{ runner.temp }}/gallery-patch
+          digest-mismatch: error
+      - name: Verify exact tested candidate and stage immutable checkpoint
+        working-directory: ${{ runner.temp }}/gallery-candidate
+        env:
+          BASE: ${{ github.sha }}
+          TREE: ${{ needs.candidate.outputs.tree }}
+          DIGEST: ${{ needs.candidate.outputs.sha256 }}
+          REQUEST: ${{ needs.candidate.outputs.request }}
         run: |
           set -euo pipefail
-          python3 gallery/tools/restore-checkpoint.py --verify-only
-          python3 - <<'PY'
-          import hashlib,json
-          from pathlib import Path
-          p=json.loads(Path('gallery/checkpoints/current.json').read_text())
-          b=Path('gallery/Gallery-current.html').read_bytes()
-          assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256']
-          PY
-          python3 gallery/tools/build-gallery.py --check
-      - name: Apply exact approved patch to authoritative Gallery source
-        run: python3 "${{ steps.change.outputs.script }}"
-      - name: Generate standalone HTML from approved source
-        shell: bash
+          test "$(git ls-remote origin refs/heads/gallery/development-clean | cut -f1)" = "$BASE"
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" restore --base "$BASE" --tree "$TREE" --sha256 "$DIGEST" --patch "$RUNNER_TEMP/gallery-patch/candidate.patch"
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" stage --base "$BASE" --tree "$TREE" --request "$REQUEST"
+      - name: Commit tested source, generated HTML and checkpoint together
+        working-directory: ${{ runner.temp }}/gallery-candidate
+        env:
+          BASE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          # Requests must edit source, not the generated files or checkpoint.
-          test -z "$(git status --porcelain -- gallery/Gallery-current.html gallery/Gallery-development.html gallery/checkpoints/ gallery/assets/)"
-          python3 gallery/tools/build-gallery.py --write-deliverables
-          if git diff --quiet HEAD -- gallery/Gallery-current.html; then
-            echo "Full HTML is byte-identical; use a verified infrastructure-only commit, not a new checkpoint."
-            exit 1
-          fi
-      - name: Install pinned browser regression dependencies
-        uses: ./.github/actions/gallery-browser
-      - name: Compare approved Q2-A CSS cleanup against exact baseline
-        if: steps.change.outputs.id == '2026-11-13-q2a-eight-redundant-css-rules'
-        run: python3 gallery/audits/2026-11-13-q2a-eight-redundant-css-rules-compare.py
-      - name: Compare approved Q2-B1 Downloads cleanup against exact baseline
-        if: steps.change.outputs.id == '2026-11-13-q2b1-downloads-declarations'
-        run: python3 gallery/audits/2026-11-13-q2b1-downloads-declarations-compare.py
-      - name: Compare approved Q2-B1 Downloads cleanup against exact baseline (corrected search interaction)
-        if: steps.change.outputs.id == '2026-11-13-q2b1-downloads-declarations-retry'
-        run: python3 gallery/audits/2026-11-13-q2b1-downloads-declarations-retry-compare.py
-      - name: Run Watch History, navigation and motion regressions
-        run: |
-          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
-          python3 gallery/tests/test_transitions.py gallery/Gallery-current.html
-          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-current.html
-          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-current.html
-          python3 gallery/tests/test_transitions.py gallery/Gallery-development.html
-          python3 gallery/tests/test_coordinated_fades.py gallery/Gallery-development.html
-          python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-development.html
-          python3 gallery/tests/test_player_settings_regression.py gallery/Gallery-development.html
-          python3 gallery/tests/test_asset_build_modes.py
-      - name: Create new immutable checkpoint and update pointer
-        run: |
-          python3 gallery/tools/stage-checkpoint.py --input gallery/Gallery-current.html --id "${{ steps.change.outputs.id }}" --status delivered-for-user-testing
-          python3 gallery/tools/restore-checkpoint.py --verify-only
-          python3 gallery/tools/build-gallery.py --check
-      - name: Commit authoritative source, generated HTML, tests and checkpoint together
-        shell: bash
-        run: |
-          set -euo pipefail
+          test "$(git ls-remote origin refs/heads/gallery/development-clean | cut -f1)" = "$BASE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add gallery/Gallery-current.html gallery/Gallery-development.html gallery/src/ gallery/tools/build-gallery.py gallery/tests/test_asset_build_modes.py gallery/tests/test_history_row_maintenance.py gallery/tests/test_player_settings_regression.py gallery/tests/test_source_assembly.py gallery/checkpoints/current.json "gallery/checkpoints/${{ steps.change.outputs.id }}/"
-          git diff --cached --check -- 'gallery/tests/test_history_row_maintenance.py'
           git commit -m "fix(gallery): publish approved Gallery source change"
-          git push origin HEAD:gallery/development-clean
+          git push origin HEAD:refs/heads/gallery/development-clean
+          test "$(git ls-remote origin refs/heads/gallery/development-clean | cut -f1)" = "$(git rev-parse HEAD)"
       - name: Trigger independent read-only post-commit verification
         env:
           GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,111 @@
+name: Gallery prepare and test exact candidate
+
+on:
+  workflow_call:
+    inputs:
+      base:
+        required: true
+        type: string
+      previous:
+        required: true
+        type: string
+    outputs:
+      artifact-id:
+        value: ${{ jobs.prepare.outputs.artifact-id }}
+      request:
+        value: ${{ jobs.prepare.outputs.request }}
+      tree:
+        value: ${{ jobs.prepare.outputs.tree }}
+      sha256:
+        value: ${{ jobs.prepare.outputs.sha256 }}
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      request: ${{ steps.prepare.outputs.request }}
+      tree: ${{ steps.prepare.outputs.tree }}
+      sha256: ${{ steps.prepare.outputs.sha256 }}
+      matrix: ${{ steps.prepare.outputs.matrix }}
+    steps:
+      - name: Check out exact infrastructure commit and history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Create isolated request worktree
+        env:
+          BASE: ${{ inputs.base }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-candidate" "$BASE"
+      - name: Verify baseline and prepare one exact approved candidate
+        id: prepare
+        working-directory: ${{ runner.temp }}/gallery-candidate
+        env:
+          BASE: ${{ inputs.base }}
+          PREVIOUS: ${{ inputs.previous }}
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" prepare --base "$BASE" --previous "$PREVIOUS" --patch "$RUNNER_TEMP/gallery-patch/candidate.patch"
+      - name: Upload immutable candidate patch
+        id: upload
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-patch/candidate.patch
+          if-no-files-found: error
+          retention-days: 7
+  test:
+    needs: prepare
+    name: Candidate ${{ matrix.kind }} (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Check out exact infrastructure commit and history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Create isolated request worktree
+        env:
+          BASE: ${{ inputs.base }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-candidate" "$BASE"
+      - name: Download exact prepared candidate
+        uses: actions/download-artifact@v8.0.2
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.artifact-id }}
+          path: ${{ runner.temp }}/gallery-patch
+          digest-mismatch: error
+      - name: Restore and verify exact candidate
+        working-directory: ${{ runner.temp }}/gallery-candidate
+        env:
+          BASE: ${{ inputs.base }}
+          TREE: ${{ needs.prepare.outputs.tree }}
+          DIGEST: ${{ needs.prepare.outputs.sha256 }}
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" restore --base "$BASE" --tree "$TREE" --sha256 "$DIGEST" --patch "$RUNNER_TEMP/gallery-patch/candidate.patch"
+      - name: Install pinned Chromium
+        uses: ./.github/actions/gallery-browser
+      - name: Run required test shard and reverify candidate tree
+        working-directory: ${{ runner.temp }}/gallery-candidate
+        env:
+          BASE: ${{ inputs.base }}
+          TREE: ${{ needs.prepare.outputs.tree }}
+          REQUEST: ${{ needs.prepare.outputs.request }}
+          KIND: ${{ matrix.kind }}
+          MODE: ${{ matrix.mode }}
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" test --base "$BASE" --tree "$TREE" --request "$REQUEST" --kind "$KIND" --mode "$MODE" --shard-tool "$GITHUB_WORKSPACE/gallery/tools/run-q2b1-comparison-shard.py"
