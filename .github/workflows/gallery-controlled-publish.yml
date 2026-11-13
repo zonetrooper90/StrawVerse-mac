@@ -75,6 +75,9 @@ jobs:
       - name: Compare approved Q2-A CSS cleanup against exact baseline
         if: steps.change.outputs.id == '2026-11-13-q2a-eight-redundant-css-rules'
         run: python3 gallery/audits/2026-11-13-q2a-eight-redundant-css-rules-compare.py
+      - name: Compare approved Q2-B1 Downloads cleanup against exact baseline
+        if: steps.change.outputs.id == '2026-11-13-q2b1-downloads-declarations'
+        run: python3 gallery/audits/2026-11-13-q2b1-downloads-declarations-compare.py
       - name: Run Watch History, navigation and motion regressions
         run: |
           python3 gallery/tests/test_history_row_maintenance.py gallery/Gallery-current.html
