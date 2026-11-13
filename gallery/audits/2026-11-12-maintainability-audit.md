@@ -245,3 +245,10 @@ Commit `d82055b2fcca800d491149c39169d5487bca7828`: both independent integrity 43
 
 ## M2 approved CSS partition — 2026-11-13
 Source-first baseline `d82055b2fcca800d491149c39169d5487bca7828`. Split current 251,922-byte stylesheet into 28 contiguous files using existing top-level comment boundaries; explicit manifest order, no inserted bytes. Source map: `gallery/src/styles/README.md`. Byte-for-byte original CSS equivalence checked before commit. No generated HTML or checkpoint changes, no JS or artwork edits. Existing syntax anomaly (bare repeated transition declaration and unmatched brace at original line 979) preserved in search fragment, not corrected without approval; investigate separately. Existing empty conditional blocks also retained. Both checks pending; M3 next discussion.
+
+
+### M2 verification complete
+Infrastructure commit `034f24e6b1397cb0fa928275b60c88ef35931938`; independent integrity 43380808625 and browser 43380808645 passed. All 28 CSS fragments reconstruct 251,922 original bytes; generated full SHA-256 `1d10fb028639f3b4f04c9a9193bc5eeb0e4c25f7a5b7a71ec72de28ece56625f` and lightweight SHA-256 `23378b19b143ad53bd3994150b57a63e05a2b3ce6648e902d5e672ffe2bdd7d7` unchanged. Source-first isolated publication/checkpoint round trip and existing browser regressions passed. No new HTML checkpoint.
+
+### Future design-system override audit (principle agreed, implementation not approved)
+User agrees with consistent global standards, shared component defaults, and justified exceptions only. Review current ordered fragments for override chains and distinguish valid responsive/theme/interaction/accessibility/feature variants from historical corrective or redundant overrides. Preserve original cascade until a specific consolidation is approved and verified; no blanket deduplication or specificity changes. Prefer shared tokens/components where genuinely appropriate. Timing and specific changes remain proposals; M3 shared JS extraction remains next modularization discussion.
