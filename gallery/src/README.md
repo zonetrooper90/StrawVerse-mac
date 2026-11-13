@@ -4,7 +4,7 @@
 
 - `Gallery.template.html`: HTML shell with style/script block tokens.
 - `styles/`: 28 ordered CSS fragments, see [CSS source map](styles/README.md).
-- `js/gallery.js`: current exact extracted classic script.
+- `js/`: 19 ordered JavaScript fragments, see [JavaScript source map](js/README.md).
 - `build-manifest.json`: ordered fragment paths. The builder concatenates bytes without separators, reordering or transformations.
 - `gallery/assets/subtitle-preview/`: original unchanged PNGs, referenced by tokens in JavaScript.
 
@@ -34,4 +34,4 @@ python3 gallery/tools/build-gallery.py --write-deliverables
 
 This command refuses a stale/tampered old full HTML, validates all build modes and writes only the two tracked deliverables. It does not update the immutable pointer. Run browser regressions; stage a new immutable checkpoint only for a changed full HTML; commit source, generated files, tests and checkpoint together. Require both independent read-only checks before delivery. For a byte-identical source reorganization, commit only the infrastructure/source change and require both checks; no new checkpoint. See `gallery/WORKFLOW.md`.
 
-The former canonical-to-source synchronization command is retired. Historical request scripts remain unchanged and must never be rerun. M2 CSS fragmentation uses the ordered manifest and preserves the exact original cascade. Further JS fragmentation (M3+) and behavioral changes require their own approval. Native branches and historical checkpoints remain untouched.
+The former canonical-to-source synchronization command is retired. Historical request scripts remain unchanged and must never be rerun. M2 CSS fragmentation uses the ordered manifest and preserves the exact original cascade. M3 extracts shared JS utilities and data in place while preserving the exact classic script. Further feature/core fragmentation (M4/M5) and behavioral changes require their own approval. Native branches and historical checkpoints remain untouched.

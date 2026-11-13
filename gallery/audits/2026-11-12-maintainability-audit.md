@@ -252,3 +252,7 @@ Infrastructure commit `034f24e6b1397cb0fa928275b60c88ef35931938`; independent in
 
 ### Future design-system override audit (principle agreed, implementation not approved)
 User agrees with consistent global standards, shared component defaults, and justified exceptions only. Review current ordered fragments for override chains and distinguish valid responsive/theme/interaction/accessibility/feature variants from historical corrective or redundant overrides. Preserve original cascade until a specific consolidation is approved and verified; no blanket deduplication or specificity changes. Prefer shared tokens/components where genuinely appropriate. Timing and specific changes remain proposals; M3 shared JS extraction remains next modularization discussion.
+
+
+## M3 approved JavaScript utility/data partition — 2026-11-13
+Baseline `3ae67a30f56918c747ef0abf92352a279bd2275b` (M2 and documentation checks passed). 333,383-byte classic script partitioned into 19 contiguous fragments without reordering, edits or wrappers; see `gallery/src/js/README.md`. Extract icon/escaping, shared card/header markup, galleryTimelineFill, HSV/HEX helpers, title/History/release/provider/listing sample data and subtitle presets. Retain stateful initialization and larger feature blocks for M4/M5; existing direct-global browser tests remain compatible because script bytes are identical. No CSS, HTML, checkpoint, artwork, builder, native or publisher changes. Both checks pending. Design-system audit follows modularization, not blanket override removal.

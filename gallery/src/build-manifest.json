@@ -31,6 +31,24 @@
     "styles/28-unified-headers-and-history-frame.css"
   ],
   "script": [
-    "js/gallery.js"
+    "js/01-startup-preamble.js",
+    "js/02-shared-icons-and-escaping.js",
+    "js/03-data-anime-catalogue.js",
+    "js/04-core-preferences-and-navigation.js",
+    "js/05-shared-cards-and-headers.js",
+    "js/06-data-watch-history.js",
+    "js/07-history-and-primary-pages.js",
+    "js/08-shared-timeline.js",
+    "js/09-downloads-remainder.js",
+    "js/10-data-release-metadata.js",
+    "js/11-detail-player-and-dialogs.js",
+    "js/12-subtitle-presets.js",
+    "js/13-subtitle-preferences-and-settings-sections.js",
+    "js/14-data-source-providers.js",
+    "js/15-source-state-initialization.js",
+    "js/16-data-source-listings.js",
+    "js/17-sources-settings-and-preview.js",
+    "js/18-shared-color-conversion.js",
+    "js/19-settings-search-and-bootstrap.js"
   ]
 }
