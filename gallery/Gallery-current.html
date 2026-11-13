@@ -1989,7 +1989,6 @@ body.settings-view .workspace.settings-mode{overscroll-behavior:contain}
 
 
 /* Gallery v100 — Watch History (from Layout Experiment 03), scoped to this page. */
-#wh-root{max-width:1120px;margin:0 auto;min-width:0}
 #wh-root .wh-back{display:inline-flex;gap:7px;align-items:center;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:650;padding:5px 1px 13px;cursor:pointer}
 #wh-root .wh-back:hover{color:var(--ink)}
 #wh-root .wh-title{font-size:clamp(23px,3vw,30px);letter-spacing:-.03em;line-height:1.12;margin:5px 0 7px}
@@ -2659,7 +2658,7 @@ body[data-theme] .sf-dl-list-heading{
   color:var(--muted);font-size:12px;margin:0 0 18px;
 }
 body[data-theme] .sf-dl-list-heading span{font-size:11px;color:var(--section-accent)}
-body[data-theme] .sf-dl-list{display:grid;gap:13px;max-width:1220px;margin:0 auto}
+body[data-theme] .sf-dl-list{display:grid;gap:13px}
 body[data-theme] .sf-dl-list .sf-dl-card{
   position:relative;min-width:0;isolation:isolate;border:1px solid var(--card-border);
   border-radius:23px;background:linear-gradient(125deg,var(--card-bg-a),var(--card-bg-b) 82%);
@@ -3606,18 +3605,18 @@ body.player-view .player-area {max-height:calc(100dvh - 231px)}
   body.player-view .player-area {max-height:calc(100dvh - 218px)}
 }
 
-/* Watch History: restore the approved full-width content frame. Settings uses
-   max-width:none inside the workspace; Watch History had retained an older
-   1120px clamp. Match Settings' available width and its existing workspace
-   gutters without changing season cards, controls, scroll behavior or headers. */
-#wh-root {
-  display:block;
+/* Shared full-width list frame: Downloads and Watch History use the available
+   page content width and existing page gutters. Keep feature-specific display,
+   card styling, row spacing and scroll behavior in their own rules. */
+#wh-root,
+body[data-theme] .sf-dl-list {
   box-sizing:border-box;
   width:100%;
   max-width:none;
-  margin-inline:0;
+  margin:0;
   min-width:0;
 }
+#wh-root {display:block}
 
 /* Match Settings' compact application frame on short browser windows. */
 @media (max-height:620px) and (min-width:751px) {

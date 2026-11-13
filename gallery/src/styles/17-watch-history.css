@@ -1,5 +1,4 @@
 /* Gallery v100 — Watch History (from Layout Experiment 03), scoped to this page. */
-#wh-root{max-width:1120px;margin:0 auto;min-width:0}
 #wh-root .wh-back{display:inline-flex;gap:7px;align-items:center;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:650;padding:5px 1px 13px;cursor:pointer}
 #wh-root .wh-back:hover{color:var(--ink)}
 #wh-root .wh-title{font-size:clamp(23px,3vw,30px);letter-spacing:-.03em;line-height:1.12;margin:5px 0 7px}

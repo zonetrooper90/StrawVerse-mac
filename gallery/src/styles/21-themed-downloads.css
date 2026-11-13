@@ -5,7 +5,7 @@ body[data-theme] .sf-dl-list-heading{
   color:var(--muted);font-size:12px;margin:0 0 18px;
 }
 body[data-theme] .sf-dl-list-heading span{font-size:11px;color:var(--section-accent)}
-body[data-theme] .sf-dl-list{display:grid;gap:13px;max-width:1220px;margin:0 auto}
+body[data-theme] .sf-dl-list{display:grid;gap:13px}
 body[data-theme] .sf-dl-list .sf-dl-card{
   position:relative;min-width:0;isolation:isolate;border:1px solid var(--card-border);
   border-radius:23px;background:linear-gradient(125deg,var(--card-bg-a),var(--card-bg-b) 82%);

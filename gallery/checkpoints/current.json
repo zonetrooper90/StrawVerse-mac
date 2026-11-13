@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-discover-search-collapse-syntax",
-  "sha256": "02c2268062fe7000b58d55794c27e01b546e8ee60ad72877a347d04bf98d0566",
-  "bytes": 6904157,
+  "folder": "2026-11-13-shared-download-history-width",
+  "sha256": "6d62486f67526e5e310d08bf2cbcbf14f7a466e9df79edf8b562b6b3b057881d",
+  "bytes": 6904021,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

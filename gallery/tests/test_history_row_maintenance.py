@@ -9,6 +9,50 @@ assert 'GALLERY_COLLECTION_TRANSFER_UI_ENABLED=false' in source
 assert 'function showImport()' in source and 'function showShare()' in source
 with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
+    # Shared content frame: compare actual outer card bounds with each other
+    # and with the respective page-header bounds, not just declared CSS widths.
+    def frame_bounds(page, header_selector, card_selector):
+        return page.evaluate('''({header,card}) => {
+            const bounds=e=>{const r=e.getBoundingClientRect();return [r.left,r.right,r.width]};
+            const rows=[...document.querySelectorAll(card)];
+            return {header:bounds(document.querySelector(header)),rows:rows.map(bounds)};
+        }''',{'header':header_selector,'card':card_selector})
+    def same_frame(a,b,label):
+        assert all(abs(x-y)<=1 for x,y in zip(a,b)),(label,a,b)
+    def stable_route(page):
+        page.wait_for_function('() => !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
+        page.wait_for_timeout(80)
+    for width,height,motion in ((1600,950,'no-preference'),(1440,900,'reduce'),
+                                (1280,900,'reduce'),(1100,850,'reduce'),
+                                (751,850,'reduce'),(750,850,'reduce'),
+                                (620,850,'reduce'),(420,850,'reduce')):
+        width_page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=motion)
+        width_errors=[]
+        width_page.on('pageerror',lambda exc: width_errors.append(str(exc)))
+        width_page.set_content(source,wait_until='domcontentloaded')
+        width_page.wait_for_selector('#wh-view-history')
+        width_page.locator('.tab[data-view="downloads"]').click()
+        width_page.wait_for_function('() => state.view==="downloads" && !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
+        # Primary tab slides are independent of secondary-stage transitions.
+        width_page.wait_for_timeout(600 if motion=='no-preference' else 100)
+        dl_frame=frame_bounds(width_page,'.page-header-downloads','.sf-dl-list .sf-dl-card')
+        assert dl_frame['rows'],('Downloads rows missing',width)
+        for row in dl_frame['rows']:
+            same_frame(row,dl_frame['header'],('Downloads/header',width))
+        width_page.locator('.tab[data-view="discover"]').click()
+        width_page.wait_for_timeout(600 if motion=='no-preference' else 100)
+        width_page.locator('#wh-view-history').click()
+        width_page.wait_for_function('() => whOpen && document.querySelector("#wh-root") && !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
+        stable_route(width_page)
+        wh_frame=frame_bounds(width_page,'#wh-root > .wh-page-header','#wh-root .wh-season')
+        assert wh_frame['rows'],('Watch History rows missing',width)
+        for row in wh_frame['rows']:
+            same_frame(row,wh_frame['header'],('Watch History/header',width))
+        same_frame(dl_frame['header'],wh_frame['header'],('Shared header width',width))
+        same_frame(dl_frame['rows'][0],wh_frame['rows'][0],('Shared row width',width))
+        assert not width_errors,width_errors
+        print('PASS: shared Downloads/Watch History row bounds',width,motion,dl_frame['rows'][0],wh_frame['rows'][0])
+        width_page.close()
     # Discover Search must collapse only the mounted Recently Watched wrapper,
     # clip its contents, move Explore upward, and restore it on close.
     for width,height,motion in ((1440,900,'no-preference'),(620,750,'no-preference'),(1440,900,'reduce')):

@@ -82,18 +82,18 @@ body.player-view .player-area {max-height:calc(100dvh - 231px)}
   body.player-view .player-area {max-height:calc(100dvh - 218px)}
 }
 
-/* Watch History: restore the approved full-width content frame. Settings uses
-   max-width:none inside the workspace; Watch History had retained an older
-   1120px clamp. Match Settings' available width and its existing workspace
-   gutters without changing season cards, controls, scroll behavior or headers. */
-#wh-root {
-  display:block;
+/* Shared full-width list frame: Downloads and Watch History use the available
+   page content width and existing page gutters. Keep feature-specific display,
+   card styling, row spacing and scroll behavior in their own rules. */
+#wh-root,
+body[data-theme] .sf-dl-list {
   box-sizing:border-box;
   width:100%;
   max-width:none;
-  margin-inline:0;
+  margin:0;
   min-width:0;
 }
+#wh-root {display:block}
 
 /* Match Settings' compact application frame on short browser windows. */
 @media (max-height:620px) and (min-width:751px) {
