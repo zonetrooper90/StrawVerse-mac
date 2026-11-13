@@ -256,3 +256,7 @@ After testing the delivered checkpoint `2026-11-13-shared-download-history-width
 
 ## 2026-11-13 — Approved Q2-A eight whole-rule cleanup
 User approved exactly the eight earlier complete CSS rules in `gallery/audits/2026-11-13-queue-2-identical-value-review.md` (11 declarations). Keep all later declarations, other rules and conditions in original order. Verify exact baseline source hashes, compare both actual generated HTMLs against DS01 with only these eight rule deletions and no non-CSS differences; gate on computed styles and geometry for affected elements and descendants across six themes, responsive widths, normal/reduced motion and hover/focus. Controlled publisher runs a request-specific read-only comparison before normal regression and checkpoint creation; any comparison failure blocks publication. Both independent checks required; visual approval remains separate. No broader CSS cleanup or numbered release authorized.
+
+
+## 2026-11-13 — Q2-A visually approved
+User tested checkpoint `2026-11-13-q2a-eight-redundant-css-rules` (build `e97704268953e523c459521f86ab3bbd634b3d52`) and reported no visible changes, as expected. Accept the eight-rule cleanup. Both independent checks and the 1,440-comparison gate passed. No further CSS removals, Q2-B, or new Back-button color treatment are authorized by this acceptance.
