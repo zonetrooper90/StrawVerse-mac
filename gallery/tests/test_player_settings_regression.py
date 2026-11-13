@@ -34,10 +34,16 @@ with sync_playwright() as pw:
     probe.style.cssText='position:absolute;visibility:hidden;pointer-events:none';
     el.append(probe);
     probe.style.color='var(--accent)';
-    probe.style.backgroundColor=hover?'color-mix(in srgb,var(--panel) 80%,var(--accent) 20%)':'color-mix(in srgb,var(--panel) 88%,var(--accent) 12%)';
-    probe.style.borderTopColor=hover?'color-mix(in srgb,var(--panel2) 30%,var(--accent) 70%)':'color-mix(in srgb,var(--panel2) 45%,var(--accent) 55%)';
+    probe.style.backgroundColor=hover?'color-mix(in srgb,var(--panel) 76%,var(--accent) 24%)':'color-mix(in srgb,var(--panel) 80%,var(--accent) 20%)';
+    probe.style.borderTopColor=hover?'color-mix(in srgb,var(--panel2) 18%,var(--accent) 82%)':'color-mix(in srgb,var(--panel2) 28%,var(--accent) 72%)';
     const p=getComputedStyle(probe);
     const expected=[p.color,p.backgroundColor,p.borderTopColor];
+    // Reference the previous DS02 strength and a representative theme panel.
+    probe.style.backgroundColor=hover?'color-mix(in srgb,var(--panel) 80%,var(--accent) 20%)':'color-mix(in srgb,var(--panel) 88%,var(--accent) 12%)';
+    probe.style.borderTopColor=hover?'color-mix(in srgb,var(--panel2) 30%,var(--accent) 70%)':'color-mix(in srgb,var(--panel2) 45%,var(--accent) 55%)';
+    const oldFill=p.backgroundColor,oldBorder=p.borderTopColor;
+    probe.style.backgroundColor='var(--panel2)';
+    const panel=p.backgroundColor;
     probe.remove();
     const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
     const ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -46,8 +52,11 @@ with sync_playwright() as pw:
      const rgb=[...ctx.getImageData(0,0,1,1).data].slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
      return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
     };
-    const a=lum(s.color),b=lum(s.backgroundColor);
+    const a=lum(s.color),b=lum(s.backgroundColor),edge=lum(s.borderTopColor),surface=lum(panel);
+    const ratio=(x,y)=>(Math.max(x,y)+.05)/(Math.min(x,y)+.05);
     return {actual:[s.color,s.backgroundColor,s.borderTopColor],expected,
+     strongerFill:b>lum(oldFill),strongerBorder:edge>lum(oldBorder),
+     borderPanelContrast:ratio(edge,surface),
      icon:getComputedStyle(el.querySelector('svg')).color,
      contrast:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),
      geometry:[r.left,r.top,r.width,r.height,s.borderTopWidth,s.borderRadius,s.padding,s.fontSize],
@@ -64,11 +73,13 @@ with sync_playwright() as pw:
     rest=snapshot(False)
     check(rest['actual']==rest['expected'] and rest['icon']==rest['actual'][0],('DS02 rest accent',route,theme,width,motion,rest))
     check(rest['contrast']>=4.5,('DS02 text contrast',route,theme,width,rest['contrast']))
+    check(rest['strongerFill'] and rest['strongerBorder'] and rest['borderPanelContrast']>=3,('DS02b stronger rest separation',route,theme,width,rest))
     button.hover(timeout=5000)
     page.wait_for_timeout(350)
     hover=snapshot(True)
     check(hover['hover'] and hover['actual']==hover['expected'] and hover['actual']!=rest['actual'],('DS02 hover',route,theme,width,hover))
     check(hover['contrast']>=4.5 and hover['geometry']==rest['geometry'],('DS02 hover contrast/geometry',route,theme,width,rest,hover))
+    check(hover['strongerFill'] and hover['strongerBorder'] and hover['borderPanelContrast']>=3,('DS02b stronger hover separation',route,theme,width,hover))
     page.mouse.move(0,0)
     page.keyboard.press('Tab')
     button.focus()
@@ -79,7 +90,7 @@ with sync_playwright() as pw:
   page.set_viewport_size({'width':1440,'height':900})
   page.mouse.move(0,0)
   page.wait_for_timeout(350)
-  print('PASS: DS02 Back accent',route,motion,'six themes; 1440/750/420; rest/hover/focus; contrast >=4.5',flush=True)
+  print('PASS: DS02 Back accent',route,motion,'six themes; 1440/750/420; rest/hover/focus; text >=4.5; stronger tint/border; border vs panel2 >=3',flush=True)
  def ds02_stable(page):
   page.wait_for_function('() => !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
   page.wait_for_timeout(350)
