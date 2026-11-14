@@ -7,13 +7,13 @@ body.settings-view .workspace.settings-mode{padding:0 28px 60px!important;overfl
 body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
 .workspace.settings-mode>#tab-pages-viewport,.workspace.settings-mode>#screen{display:none!important}
 .settings-page{width:100%;max-width:1170px;margin:0 auto;min-width:0}
-.settings-page-head{padding:23px 2px 24px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line)}
+.settings-page-head{padding:23px 2px 24px;gap:22px}
 .settings-page-head h1{font-size:30px;letter-spacing:-.04em}
 .settings-page-head .description{font-size:13px;margin-top:4px}
-.settings-back{display:flex;align-items:center;gap:6px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex:none}
-.settings-layout{display:grid;grid-template-columns:minmax(185px,222px) minmax(0,1fr);gap:32px;padding-top:28px;align-items:start}
+.settings-back{display:flex;gap:6px;color:var(--muted);border:1px solid var(--line);padding:10px 12px;flex:none}
+.settings-layout{display:grid;gap:32px;padding-top:28px}
 .settings-side{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:8px;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px}
-.settings-section-button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid transparent;border-radius:10px;padding:12px 13px;background:transparent;color:var(--muted);font-weight:600;width:100%;font-size:13px}
+.settings-section-button{display:flex;align-items:center;gap:12px;text-align:left;border-radius:10px;padding:12px 13px;background:transparent;color:var(--muted);font-weight:600;width:100%;font-size:13px}
 .settings-section-button:hover{background:var(--hover);color:var(--ink)}
 .settings-section-button.is-active{background:var(--raised);color:var(--accent);border-color:var(--line)}
 .settings-content{min-width:0;padding:4px 0 30px}
@@ -24,7 +24,7 @@ body.settings-view .workspace.settings-mode::-webkit-scrollbar{display:none}
 .settings-panel-head h2{font-size:25px;letter-spacing:-.035em}
 
 .settings-card{padding:20px 22px 23px;border-radius:15px;border:1px solid var(--line);background:var(--surface);margin-bottom:15px}
-.settings-card-title{font-size:15px;font-weight:690;letter-spacing:-.01em}
+.settings-card-title{font-weight:690;letter-spacing:-.01em}
 .settings-card-note{color:var(--muted);font-size:12px;line-height:1.65;margin:8px 0 0}
 .settings-card .field{max-width:460px}
 .settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:17px}
@@ -55,7 +55,7 @@ body.returning-to-gallery .tabs,
 .workspace.returning-to-gallery > #tab-pages-viewport,
 .workspace.returning-to-gallery > #screen:not([hidden]){animation:gallery-return .14s cubic-bezier(.2,.75,.2,1) both}
 @media(prefers-reduced-motion:reduce){.settings-page.is-leaving,body.returning-to-gallery .tabs,.workspace.returning-to-gallery > #tab-pages-viewport,.workspace.returning-to-gallery > #screen{animation:none!important}}
-@media(max-width:710px){.settings-layout{grid-template-columns:1fr;gap:20px;padding-top:20px}.settings-side{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:3px}.settings-side::-webkit-scrollbar{display:none}.settings-section-button{width:auto;flex:none;padding:10px 12px;gap:7px;font-size:12px}.settings-section-button .icon{width:16px;height:16px}.settings-card{padding:17px}.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.settings-theme-tile{padding:8px}.settings-page-head{padding-top:18px}}
+@media(max-width:710px){.settings-layout{gap:20px;padding-top:20px}.settings-side{scrollbar-width:none}.settings-side::-webkit-scrollbar{display:none}.settings-section-button{padding:10px 12px;font-size:12px}.settings-section-button .icon{width:16px;height:16px}.settings-card{padding:17px}.settings-theme-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.settings-theme-tile{padding:8px}.settings-page-head{padding-top:18px}}
 @media(max-width:440px){.settings-theme-list{grid-template-columns:1fr}.settings-theme-tile{min-height:0;flex-direction:row;align-items:center}.settings-theme-tile .swatch{width:46px;flex:none;height:46px}.settings-theme-tile>.icon{top:21px;right:12px}.settings-page-head{gap:13px}body.settings-view .workspace.settings-mode{padding:0 16px 45px!important}}
 @media(prefers-reduced-motion:reduce){.settings-page,.settings-panel{animation:none!important}.settings-layout *{scroll-behavior:auto!important}}
 

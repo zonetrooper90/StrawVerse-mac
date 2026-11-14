@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-selected-release-auto-reveal-retry",
-  "sha256": "ecc20f6750f4c61ba093c88bd4f2392a8e25f1f542dfa94a0c33a36c9127cf68",
-  "bytes": 6906203,
+  "folder": "2026-11-14-q2b7-settings",
+  "sha256": "0bac7523d2c3e5345a36445038a4d369d7e0774059f75fb9640ef5066b32b53d",
+  "bytes": 6905842,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
