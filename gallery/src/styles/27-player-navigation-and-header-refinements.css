@@ -66,7 +66,7 @@ body.player-view .player-overlay{justify-content:flex-end}
 body.player-view .player-bottom{margin-top:auto}
 /* Give the player page the same aligned title/back header arrangement. */
 body.player-view .playback-compactbar{
- min-height:43px;display:flex;align-items:center;justify-content:space-between;
+ min-height:43px;display:flex;justify-content:space-between;
  border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px
 }
 body.player-view .playback-compactbar .playback-title-inline{

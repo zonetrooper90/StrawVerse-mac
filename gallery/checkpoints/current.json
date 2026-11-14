@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-q2b7-settings",
-  "sha256": "0bac7523d2c3e5345a36445038a4d369d7e0774059f75fb9640ef5066b32b53d",
-  "bytes": 6905842,
+  "folder": "2026-11-14-q2b8-player",
+  "sha256": "2c57113ca6bdd5f76b4f5da82b5cf17409bad92011342318d97cf747f728bbd9",
+  "bytes": 6905718,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
