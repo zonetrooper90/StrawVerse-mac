@@ -1193,7 +1193,7 @@ html[data-focus-modality="keyboard"] .sources-provider:focus-within{border-color
 @media(prefers-reduced-motion:reduce){.discover-source-empty{animation:none!important}}
 
 /* v73 · Focused macOS-inspired About view; unified contextual Settings Back. */
-.about-shell{max-width:730px;margin:0 auto;min-width:0}
+.about-shell{max-width:730px;margin:0 auto}
 .about-shell [hidden]{display:none!important}
 .about-hero{text-align:center;display:flex;flex-direction:column;align-items:center;padding:33px 14px 27px;gap:0}
 .about-hero-logo{display:grid;place-items:center;width:78px;height:78px;border-radius:20px;background:var(--raised);border:1px solid var(--line);color:var(--accent);margin-bottom:17px}
@@ -1206,12 +1206,12 @@ html[data-focus-modality="keyboard"] .sources-provider:focus-within{border-color
 .about-menu-item:hover{background:var(--hover)}
 .about-menu-item>.icon:first-child{flex:none;color:var(--muted)}
 .about-menu-item .about-menu-copy{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
-.about-menu-item .about-menu-copy strong{font-size:13px;font-weight:620}
+.about-menu-item .about-menu-copy strong{font-weight:620}
 .about-menu-item .about-menu-copy small{color:var(--muted);font-size:11px;line-height:1.4}
 .about-menu-item .about-chevron{color:var(--muted);flex:none;opacity:.65}
 .about-footnote{color:var(--muted);font-size:11px;line-height:1.6;text-align:center;max-width:550px;margin:19px auto 0;padding:0 12px}
 .about-detail{max-width:730px;margin:auto}
-.about-detail-title{font-size:20px;font-weight:720;letter-spacing:-.035em;line-height:1.3;margin:0 0 7px}
+.about-detail-title{font-weight:720;letter-spacing:-.035em;line-height:1.3;margin:0 0 7px}
 .about-detail-description{font-size:12px;line-height:1.65;color:var(--muted);margin:0 0 20px}
 .about-detail-card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:19px 21px}
 .about-detail-card h4{font-size:13px;font-weight:680;margin:0 0 10px}
@@ -1315,7 +1315,7 @@ body.settings-view .workspace.settings-mode{padding:25px 28px 54px!important}
 /* v75 — About matches v74 Settings' typography, surfaces, and left alignment. */
 .about-shell{width:100%;max-width:850px;margin:0;min-width:0}
 .about-detail{width:100%;max-width:850px;margin:0}
-.about-identity{display:flex;align-items:center;gap:19px;padding:20px 22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.about-identity{display:flex;gap:19px;padding:20px 22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
 .about-identity-logo{width:66px;height:66px;border-radius:17px;flex:none;display:grid;place-items:center;color:var(--accent);background:var(--raised);border:1px solid var(--line)}
 .about-identity-copy h3{margin:0;font-size:22px;font-weight:730;letter-spacing:-.035em;line-height:1.15}
 .about-identity-description{margin:7px 0 0;color:var(--ink);font-size:12.5px;line-height:1.5}
@@ -1343,7 +1343,7 @@ body.settings-view .workspace.settings-mode{padding:25px 28px 54px!important}
 .about-legal-document{padding:18px 21px 6px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
 .about-legal-document h4{font-size:13px;font-weight:700;line-height:1.4;margin:2px 0 7px}
 .about-legal-document p{font-size:12.5px;line-height:1.73;margin:0 0 19px;color:var(--muted)}
-@media(max-width:700px){.about-identity{padding:17px;gap:13px}.about-identity-logo{width:54px;height:54px;border-radius:14px}.about-identity-logo .icon{width:29px;height:29px}.about-identity-copy h3{font-size:20px}.about-menu-item{padding:12px 14px;gap:12px}.about-legal-document{padding:16px 17px 2px}}
+@media(max-width:700px){.about-identity{gap:13px}.about-identity-logo{width:54px;height:54px;border-radius:14px}.about-identity-logo .icon{width:29px;height:29px}.about-identity-copy h3{font-size:20px}.about-menu-item{padding:12px 14px;gap:12px}.about-legal-document{padding:16px 17px 2px}}
 @media(max-width:440px){.about-identity{align-items:flex-start}.about-identity-version{font-size:10px}.about-menu-item{min-height:64px}}
 
 /* v76 — About overview uses the full Settings content width. Existing detail views,

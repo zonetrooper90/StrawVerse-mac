@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-q2b3-anime-details-retry",
-  "sha256": "17f0af64a3f1ada057557327c9e26feeeb676a801be319fd23e2f1905b29cd5b",
-  "bytes": 6903147,
+  "folder": "2026-11-14-q2b4-about",
+  "sha256": "0a3a9f474ad454b99e758a70a3c93d3bd03ac3f2c4ddf92aaa3ca536e28b6bbd",
+  "bytes": 6903073,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
