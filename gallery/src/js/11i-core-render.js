@@ -40,6 +40,9 @@ function render(){
    const rail=document.getElementById('inline-installment-rail');
    if(rail){
      rail.addEventListener('scroll',refreshInstallmentArrows,{passive:true});
+     rail.addEventListener('wheel',event=>{if(event.deltaX||event.shiftKey&&event.deltaY)restoreInstallmentSnap(rail);},{passive:true});
+     rail.addEventListener('pointerdown',event=>{if(event.pointerType!=='mouse'||event.button===1)restoreInstallmentSnap(rail);},{passive:true});
+     rail.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(event.key))restoreInstallmentSnap(rail);});
      setupInstallmentEdgeGuards(rail.closest('.inline-release-viewport'));
      activeInstallmentRailObserver=new ResizeObserver(refreshInstallmentArrows);
      activeInstallmentRailObserver.observe(rail);
@@ -60,6 +63,7 @@ function render(){
          : [...offsets].reverse().find(offset=>offset<position-4);
        const limit=Math.max(0,rail.scrollWidth-rail.clientWidth);
        if(target===undefined)return;
+       restoreInstallmentSnap(rail);
        rail.scrollTo({left:Math.max(0,Math.min(target,limit)),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
      });
      for(const card of rail.querySelectorAll('[data-inline-installment]'))

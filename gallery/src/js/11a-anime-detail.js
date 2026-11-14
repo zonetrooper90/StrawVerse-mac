@@ -89,10 +89,58 @@ function setupInstallmentEdgeGuards(viewport){
    });
  }
 }
+/* Reveal a selected release inside the unobstructed part of the rail.
+   The arrow overlays disappear at their respective scroll boundaries. */
+function revealInlineInstallment(card,rail){
+ const viewport=rail.closest('.inline-release-viewport');
+ if(!viewport||!rail.isConnected||!rail.contains(card))return;
+ const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
+ if(max<=3)return;
+ const width=rail.clientWidth;
+ const x=Math.max(0,Math.min(max,rail.scrollLeft));
+ const rect=rail.getBoundingClientRect(),selected=card.getBoundingClientRect();
+ const start=selected.left-rect.left+x;
+ const end=selected.right-rect.left+x;
+ const left=viewport.querySelector('.inline-release-fade-left').getBoundingClientRect().width;
+ const right=viewport.querySelector('.inline-release-fade-right').getBoundingClientRect().width;
+ // Each feasible interval accounts for the arrows that would be active
+ // at the destination, not just those visible before scrolling.
+ const intervals=[];
+ // Integer destinations match Chromium's pixel scroll offsets. Also retain
+ // the current subpixel position when it already exposes the entire card.
+ for(const [lo,hi,l,r] of [[0,2,0,right],[3,max-3,left,right],[max-2,max,left,0]]){
+   intervals.push([Math.max(lo,end-width+r),Math.min(hi,max,start-l)]);
+ }
+ if(max<=4)intervals.push([Math.max(0,max-2,end-width),Math.min(2,start,max)]);
+ const visibleLeft=x>2?left:0,visibleRight=x<max-2?right:0;
+ if(start>=x+visibleLeft-0.01&&end<=x+width-visibleRight+0.01){
+   if(rail.style.scrollSnapType==='none')rail.scrollTo({left:x,behavior:'instant'});
+   return;
+ }
+ const targets=[];
+ for(const [lo,hi] of intervals){
+   const min=Math.ceil(lo-0.01),limit=Math.floor(hi+0.01);
+   if(min<=limit)targets.push(Math.max(min,Math.min(limit,Math.round(x))));
+ }
+ if(!targets.length)return; // No feasible position: never alter card geometry here.
+ const target=targets.reduce((a,b)=>Math.abs(b-x)<Math.abs(a-x)?b:a);
+ if(Math.abs(target-x)<0.5)return;
+ // Proximity snap may otherwise pull the chosen exact position back under
+ // an arrow. Restore it only for the next intentional manual scroll.
+ rail.style.scrollSnapType='none';
+ rail.scrollTo({left:target,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+function restoreInstallmentSnap(rail){
+ if(rail.style.scrollSnapType==='none'){
+   const x=rail.scrollLeft;
+   rail.scrollTo({left:x,behavior:'instant'});
+   rail.style.removeProperty('scroll-snap-type');
+ }
+}
 /* Update only release-dependent sections; the rail itself never gets
    destroyed, so its scroll position, pointer target and buttons survive. */
 function selectInlineInstallment(card,rail){
- if(card.getAttribute('aria-current')==='true')return;
+ if(card.getAttribute('aria-current')==='true'){revealInlineInstallment(card,rail);return;}
  const savedScroll=workspace.scrollTop;
  if(card.dataset.inlineKind==='season'){
    state.detailSeason=Number(card.dataset.inlineIndex);
@@ -115,7 +163,9 @@ function selectInlineInstallment(card,rail){
  const newSection=newDetail.querySelector('.detail-section');
  if(section&&newSection){
    const releaseNav=section.querySelector('.inline-installments');
-   section.replaceChildren(releaseNav,...Array.from(newSection.children).filter(node=>!node.classList.contains('inline-installments')));
+   // Keep the rail connected so native focus and horizontal position survive.
+   for(const child of Array.from(section.children))if(child!==releaseNav)child.remove();
+   section.append(...Array.from(newSection.children).filter(node=>!node.classList.contains('inline-installments')));
  }
  for(const release of rail.querySelectorAll('.inline-installment-card')){
    const selected=release===card;
@@ -132,6 +182,7 @@ function selectInlineInstallment(card,rail){
  bindEpisodeFiltersAndActions();
  for(const el of screen.querySelectorAll('.detail-actions [data-episode-action]'))el.addEventListener('click',()=>showEpisodeAction(el.dataset.episodeAction,Number(el.dataset.episode)));
  workspace.scrollTop=savedScroll;
+ revealInlineInstallment(card,rail);
  requestAnimationFrame(updateTabScrollOverlay);
 }
 

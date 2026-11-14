@@ -104,6 +104,7 @@
 .inline-release-fade .inline-arrow .icon{width:21px;height:21px;stroke-width:2.5;filter:drop-shadow(0 1px 2px var(--window))}
 .inline-release-fade .inline-arrow:hover{color:var(--accent)}
 @media(max-width:560px){.inline-release-fade{--edge-width:54px}}
+@media(max-width:460px){.inline-release-fade{--edge-width:min(54px,11.5%)}}
 @media(prefers-reduced-motion:reduce){.inline-release-fade{transition:none!important}}
 
 
