@@ -1,0 +1,28 @@
+# Q2-B7 — Settings shared layout and navigation partial-rule review (2026-11-14)
+
+Read-only review approved; application removals require separate explicit approval. Baseline visually accepted auto-reveal build `2f0eafede1ba7402ad54d32384576203c7eb57d2`, checkpoint `2026-11-14-selected-release-auto-reveal-retry`, full SHA-256 `ecc20f6750f4c61ba093c88bd4f2392a8e25f1f542dfa94a0c33a36c9127cf68` (6,906,203 bytes), lightweight `352e2c0231422b65650cd9afa77cb2100a10abb452e2b189332a434d194999c2` (590,513 bytes). Exact-build independent checks 43619060924 and 43619063067 passed; current documentation head `dac0d940d16f1738d341f3c7c2262c084abeabe3` checks 43622740334 and 43622740342 passed. Integrity log confirms exact full/lightweight bytes, immutable archive and deterministic assembly. Manifest and pointer agree. First-season dedicated regression and Sources readiness synchronization verified separately; retain them.
+
+## Rescan
+Lexical scan of actual assembled lightweight stylesheet in cascade order, with comments, strings, escapes, parentheses/brackets, conditional context and top-level selector branches respected; exclude keyframes/non-qualified at-rules. Require identical property/value/priority throughout matching branch/context chain and later identical complete selector. 2,076 qualified rules, 7,080 declarations, 53 identical-value and 239 differing-value repeated chains, 37 earlier candidates across 19 partial rules; no scanner errors. One extra responsive rule since Q2-B6 from approved auto-reveal. 18 Settings, 8 Player, 11 Search. Lexical equivalence not universal runtime proof. Earlier audit shorthand line references were not exact selector locations; actual current rescan below supersedes them.
+
+## Proposed exact edits (18 declarations, 361 ASCII bytes)
+Only `gallery/src/styles/10-settings.css`, Git blob `8a423f4bc21209e6905716e33e2b4ebd8d893c74`. All surviving copies in `12-about-and-settings-refinements.css`, blob `2be782715f161929cbfc7d3c8b655b811bd9d0e1`. Remove the earlier tokens only; exact old and replacement rules checked unique in current source and assembled lightweight HTML using in-memory replacements, no files changed.
+
+| Earlier fragment line | Complete selector | Condition | Exact deleted tokens | Later fragment line |
+|---|---|---|---|---|
+| 10 | .settings-page-head | base | `display:flex;`, `align-items:center;`, `;border-bottom:1px solid var(--line)` | 48–52 |
+| 13 | .settings-back | base | `align-items:center;`, `background:transparent;`, `border-radius:10px;` | 57–63 |
+| 14 | .settings-layout | base | `grid-template-columns:minmax(185px,222px) minmax(0,1fr);`, `;align-items:start` | 66–69 |
+| 16 | .settings-section-button | base | `border:1px solid transparent;` | 74–78 |
+| 27 | .settings-card-title | base | `font-size:15px;` | 92 |
+| 58 | .settings-layout | max-width:710px | `grid-template-columns:1fr;` | 103 |
+| 58 | .settings-side | max-width:710px | `position:static;`, `flex-direction:row;`, `overflow-x:auto;`, `;gap:3px` | 104 |
+| 58 | .settings-section-button | max-width:710px | `width:auto;`, `flex:none;`, `gap:7px;` | 105 |
+
+Keep all eight earlier rules and every other declaration; keep `.settings-side{scrollbar-width:none}` at <=710px and separate scrollbar pseudo rule. Preserve base sticky vertical sidebar, mobile horizontal navigation, grid display, button base flex, active/hover/focus states, all differing-value declarations, card padding and typography, 710/440px and later theme/shared-header breakpoints. No animation declarations removed: original reduced-motion rule at line 57 remains. Preserve theme-specific styles and final DS02b shared Back accent in `28-unified-headers-and-history-frame.css`, native workspace scroll, no horizontal page overflow, search and nested Back semantics. Expected sizes after approved edit: full 6,905,842 bytes, lightweight 590,152 bytes. Other 19 candidates held.
+
+## Required verification after specific approval
+- Guard baseline HTML hashes, exact source blob, each unique whole earlier rule and exact byte deletion; preserve all non-CSS bytes and later copies. Four required mode/motion shards with exact planned counts, all three standard regression groups (including new first-season test and Sources readiness), immutable checkpoint and both independent checks. No application JS/markup/assets/native/numbered-release changes.
+- Actual mounted Settings DOM; all six themes and both motions/build modes. Sample desktop, narrow 370px and both sides of 710 and 440px; inspect actual shared-header and theme breakpoint rules (including 750/700 as appropriate), plus all relevant layout boundaries. Compare enumerable computed styles, pseudo styles and geometry of page head, Back button/icon/text, layout, sidebar, each section button/descendants, card titles, visible panel descendants and layout ancestors using same-page baseline/candidate stylesheet comparisons; settle transitions before comparison. Exercise all real sections and Appearance Theme/Typography, Playback General/Subtitles, Sources installed/marketplace, Downloads, About nested pages. Include real hover/focus and active/selected/disabled states, search empty/matching/no-match and result navigation, narrow side navigation horizontal overflow/scroll, wide sticky sidebar with vertical scroll, correct Back destinations and shared header accent/hover, keyboard navigation and reduced motion. Preserve previously verified typography, About legal content, subtitle preview, first-season reveal and Sources route readiness. No universal claim from sampling; stop if discrepancy. User visual review separate.
+- Read-only audit only; no change request until explicit approval.
+
