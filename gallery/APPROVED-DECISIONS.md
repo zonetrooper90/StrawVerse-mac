@@ -364,3 +364,6 @@ User confirmed the reported issue is fixed in verified build `827b4c079d9b3a1c0b
 
 ## 2026-11-15 — Approved A1 read-only saved-history investigation
 User approved A1 diagnostic only after upstream Mac release discussion. Verify the accepted build and run isolated synthetic browser-storage cases in both build modes. Distinguish confirmed failures from static risks, preserve valid history and existing UI/motion, never touch personal data or publish a new HTML build. No corrective behavior or shared persistence abstraction approved; discuss results first.
+
+## 2026-11-15 — Approved A1 Watch History resilience correction
+User approved the narrow recovery and safe-rendering proposal after confirmed startup, date-search and unintended markup defects. Preserve valid records and fields, known dates and playback data; isolate ambiguous/unrecoverable records without fabricating status. No automatic primary overwrite; preserve exact original before repaired save, fail closed on unavailable/conflicting storage. Preserve current normal appearance, manual override semantics, all six themes and motion. Mandatory both-mode synthetic regression plus existing independent gates; no new numbered release or broader persistence layer.
