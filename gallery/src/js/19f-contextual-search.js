@@ -13,6 +13,57 @@ const searchClear=document.getElementById('header-search-clear');
 const searchClose=document.getElementById('header-search-close');
 let searchOpen=false;
 let searchScrollBefore=0;
+// Suppress native anchoring only while Discover's retained shell expands.
+let discoverSearchRestore=null;
+function finishDiscoverSearchRestore(){
+ const restore=discoverSearchRestore;
+ if(!restore)return;
+ discoverSearchRestore=null;
+ cancelAnimationFrame(restore.frame);
+ restore.page.classList.remove('search-scroll-restoring');
+}
+function releaseDiscoverSearchScroll(){
+ // User scrolling wins; keep anchoring suppressed until the expansion ends.
+ if(discoverSearchRestore)discoverSearchRestore.hold=false;
+}
+for(const type of ['wheel','touchmove','pointerdown']){
+ tabPages.discover.addEventListener(type,releaseDiscoverSearchScroll,{passive:true});
+}
+tabScrollThumb.addEventListener('pointerdown',releaseDiscoverSearchScroll,{passive:true});
+document.addEventListener('keydown',event=>{
+ if(!discoverSearchRestore||currentScrollSurface()!==tabPages.discover)return;
+ if(!['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(event.key))return;
+ if(event.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+ releaseDiscoverSearchScroll();
+});
+function beginDiscoverSearchRestore(top){
+ finishDiscoverSearchRestore();
+ const page=tabPages.discover,shell=page.querySelector('.continue-shell');
+ if(!shell)return;
+ page.classList.add('search-scroll-restoring');
+ const restore={page,shell,top,hold:true,frame:0,quiet:0,start:performance.now()};
+ discoverSearchRestore=restore;
+ const step=()=>{
+  if(discoverSearchRestore!==restore)return;
+  if(searchOpen||currentScrollSurface()!==page||!shell.isConnected){
+   finishDiscoverSearchRestore();return;
+  }
+  // A saved near-bottom offset may not fit until the shell has expanded.
+  const available=Math.max(0,page.scrollHeight-page.clientHeight);
+  if(restore.hold){
+   const wanted=Math.min(restore.top,available);
+   if(Math.abs(page.scrollTop-wanted)>.5)page.scrollTop=wanted;
+  }
+  const moving=shell.getAnimations().some(a=>a.transitionProperty==='grid-template-rows'&&
+   (a.pending||a.playState==='running'));
+  restore.quiet=moving?0:restore.quiet+1;
+  if(restore.quiet>=2||performance.now()-restore.start>1500){
+   finishDiscoverSearchRestore();updateTabScrollOverlay();return;
+  }
+  restore.frame=requestAnimationFrame(step);
+ };
+ restore.frame=requestAnimationFrame(step);
+}
 function searchPlaceholder(){
  if(document.body.classList.contains('settings-view'))return 'Search settings…';
  if(whOpen)return 'Search watch history…';
@@ -59,6 +110,7 @@ function updateInlineSearchResults(){
 function openInlineSearch(){
  if(searchOpen){searchInput.focus({preventScroll:true});return;}
  if(state.playback||modalHost.firstChild)return;
+ finishDiscoverSearchRestore();
  const searchingSettings=document.body.classList.contains('settings-view');
  if(state.detailId&&!searchingSettings)setView(state.view); // Return to the active tab, not always Discover.
  searchScrollBefore=searchingSettings?workspace.scrollTop:tabPages[state.view].scrollTop;
@@ -108,6 +160,7 @@ function closeInlineSearch(restoreFocus=true){
  if(searchingSettings){renderSettingsSearchResults();workspace.scrollTop=searchScrollBefore;}
  else if(!state.detailId&&!state.playback){
   if(view==='discover'){
+   beginDiscoverSearchRestore(searchScrollBefore);
    tabPages.discover.classList.remove('search-scope-open');
    updateDiscoverSearchResults();
   }else if(hadQuery)renderTabPage(view);

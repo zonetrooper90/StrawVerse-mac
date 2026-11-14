@@ -566,3 +566,7 @@ with sync_playwright() as pw:
                 print("C4b Anime detail equivalence passed:",filename,width,motion,"six themes, seasons, related releases, audio, filters, unmatched sources and Player return",flush=True)
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")
+
+# Mandatory cross-build smoke for Discover search scroll restoration.
+import subprocess,sys
+subprocess.run([sys.executable,str(Path(__file__).with_name('test_discover_search_scroll.py')),'--smoke'],check=True)
