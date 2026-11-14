@@ -12,7 +12,7 @@ body[data-theme] .sf-discover-page .continue.wh-recent{
 body[data-theme] .sf-discover-page .wh-recent-header{
  color:var(--fg);font-size:14px;letter-spacing:-.02em;text-transform:none;margin-bottom:13px
 }
-body[data-theme] .sf-discover-explore{margin-top:29px}
+body[data-theme] .sf-discover-explore{margin-top:29px;transition:margin-top .42s cubic-bezier(.22,.72,.2,1)}
 body[data-theme] .sf-discover-explore-heading{
  display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 17px
 }

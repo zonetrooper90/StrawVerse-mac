@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-discover-search-scroll-restoration-retry",
-  "sha256": "0a23a22f70febbbb0d25fd71240fa592a4343731fd6116a8df285f3b55ea30e3",
-  "bytes": 6907993,
+  "folder": "2026-11-14-discover-search-coordinated-scroll-margin-retry",
+  "sha256": "0eef4d2c7e935271a05228a54f489c47eb00461fff661c2b51865f8ad7d724e4",
+  "bytes": 6910908,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

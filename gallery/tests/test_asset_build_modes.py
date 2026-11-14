@@ -567,6 +567,6 @@ with sync_playwright() as pw:
     browser.close()
 print("Both modes: manual scene switching, synchronization, geometry, keyboard and reduced motion passed.")
 
-# Mandatory cross-build smoke for Discover search scroll restoration.
+# Mandatory cross-build smoke for coordinated Discover search motion and restoration.
 import subprocess,sys
-subprocess.run([sys.executable,str(Path(__file__).with_name('test_discover_search_scroll.py')),'--smoke'],check=True)
+subprocess.run([sys.executable,str(Path(__file__).with_name('test_discover_search_motion_margin.py')),'--smoke'],check=True)
