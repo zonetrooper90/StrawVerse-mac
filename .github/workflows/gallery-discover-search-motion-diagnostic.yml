@@ -1,0 +1,40 @@
+name: Gallery Discover Search motion diagnostic
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/audits/2026-11-14-discover-search-motion-diagnostic.py'
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    name: Reproduce exact failed candidate (${{ matrix.mode }}, ${{ matrix.motion }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+        motion: [no-preference, reduce]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged accepted baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Capture exact failed candidate input and motion without edits
+        env:
+          MODE: ${{ matrix.mode }}
+          MOTION: ${{ matrix.motion }}
+        run: python3 -B gallery/audits/2026-11-14-discover-search-motion-diagnostic.py "$MODE" "$MOTION"
+      - name: Confirm no repository files changed
+        if: always()
+        run: test -z "$(git status --porcelain)"
