@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-q2b2-episode-toolbar",
-  "sha256": "369f2ddb37e01b2ebe30901c5143157543a1c72fdbd6b850ef0829e675205e04",
-  "bytes": 6903392,
+  "folder": "2026-11-14-q2b3-anime-details-retry",
+  "sha256": "17f0af64a3f1ada057557327c9e26feeeb676a801be319fd23e2f1905b29cd5b",
+  "bytes": 6903147,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
