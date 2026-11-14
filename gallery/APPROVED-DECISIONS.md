@@ -334,3 +334,6 @@ User confirmed verified checkpoint `2026-11-14-selected-release-auto-reveal-retr
 
 ## 2026-11-14 — Approved first-release regression and test synchronization
 User approved explicit first-season partial-click regression and resolving Sources-to-Discover verification failure. Require actual intermediate smooth-scroll frames in normal motion and instant reduced-motion, retained rail and guard. Synchronize Sources test with real route readiness, retaining all fade and destination assertions. Test/documentation-only changes; preserve approved application bytes and checkpoint. No new numbered release.
+
+## 2026-11-14 — Approved Q2-B7 Settings duplicate cleanup
+User approved exact 18 earlier declarations (361 bytes) in eight retained rules of `10-settings.css` per `gallery/audits/2026-11-14-q2b7-settings-review.md`. Preserve later copies, all other rules, shared Back accent/header, sidebar and responsive layout, section/search/keyboard/nested navigation, all six themes and motion decisions. Four mandatory real-DOM comparison shards, three standard groups (first-season regression and Sources readiness retained), immutable checkpoint and both independent checks. Other 19 candidates held; no JS, markup, assets, native or numbered release changes.
