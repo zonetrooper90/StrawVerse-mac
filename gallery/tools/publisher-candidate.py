@@ -26,6 +26,8 @@ ALLOWED=[FULL,LIGHT,"gallery/src","gallery/tools/build-gallery.py",
 SLUG=re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+")
 SHA=re.compile(r"[0-9a-f]{40}")
 HISTORICAL_SHARD="2026-11-13-q2b1-downloads-declarations-retry"
+Q2B3_RETRY="2026-11-14-q2b3-anime-details-retry"
+MOTION_SHARDS=("full-normal","full-reduced","lightweight-normal","lightweight-reduced")
 
 def git(*args):
     return subprocess.check_output(["git",*args])
@@ -71,16 +73,22 @@ def plan(request):
     base=Path("gallery/audits")/request
     single=Path(str(base)+"-compare.py").is_file()
     pair=[Path(str(base)+"-compare-"+m+".py").is_file() for m in ("full","lightweight")]
+    quartet=[Path(str(base)+"-compare-"+m+".py").is_file() for m in MOTION_SHARDS]
     assert not any(pair) or all(pair),"Incomplete comparison shard pair"
-    assert not (single and any(pair)),"Ambiguous comparison gate"
+    assert not any(quartet) or all(quartet),"Incomplete comparison motion quartet"
+    assert sum((single,any(pair),any(quartet)))<=1,"Ambiguous comparison gate"
+    if request==Q2B3_RETRY:
+        assert all(quartet),"Approved Q2-B3 motion quartet missing"
     if request==HISTORICAL_SHARD:
-        assert single and not any(pair),"Historical comparison gate missing"
+        assert single and not any(pair) and not any(quartet),"Historical comparison gate missing"
         groups += [{"kind":"historical-comparison","mode":m} for m in ("full","lightweight")]
+    elif all(quartet):
+        groups += [{"kind":"comparison","mode":m} for m in MOTION_SHARDS]
     elif all(pair):
         groups += [{"kind":"comparison","mode":m} for m in ("full","lightweight")]
     elif single:
         groups += [{"kind":"comparison","mode":"both"}]
-    elif request in ("2026-11-13-q2a-eight-redundant-css-rules","2026-11-13-q2b1-downloads-declarations"):
+    elif request in ("2026-11-13-q2a-eight-redundant-css-rules","2026-11-13-q2b1-downloads-declarations","2026-11-14-q2b2-episode-toolbar","2026-11-14-q2b3-anime-details"):
         raise AssertionError("Approved historical comparison missing")
     return {"include":groups}
 

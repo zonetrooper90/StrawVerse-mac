@@ -45,3 +45,5 @@ jobs:
         run: |
           python3 gallery/tools/build-gallery.py --check
           python3 gallery/tests/test_source_assembly.py
+      - name: Verify complete publisher comparison matrices and original gate preservation
+        run: python3 -B gallery/tests/test_publisher_comparison_plan.py

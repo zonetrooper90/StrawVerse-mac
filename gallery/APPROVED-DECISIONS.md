@@ -300,3 +300,7 @@ User tested checkpoint `2026-11-14-q2b2-episode-toolbar` (build `fcc1d493b09dac7
 
 ## 2026-11-14 — Approved Q2-B3 remaining Anime Details cleanup
 User explicitly approved exactly 12 earlier declarations across seven retained rules in `02-anime-detail.css` listed in `gallery/audits/2026-11-14-q2b3-anime-details-review.md`. Keep all later declarations, compact hero/control layouts, stationary Sub/Dub gradient, episode rows/tools/flags/actions, toolbar and count animations, media/container/state rules, DS02b and all six themes. Paired exact-scope real-DOM gates, existing regression suites and independent post-publish checks required. No other CSS, JS, markup, assets, native or numbered-release changes. Remaining 49 candidates held; visual acceptance separate.
+
+
+## 2026-11-14 — Approved Q2-B3 lossless comparison sharding and retry
+After full comparison passed (1,152) and lightweight exceeded the 60-minute limit after nine of twelve theme/motion combinations, user approved four independent build-mode × motion shards, exactly 576 comparisons each (2,304 total). Original approved 12-declaration application patch unchanged. Preserve original gate byte-for-byte, restrict only outer motion iteration in checksum-guarded runner, tighten count, verify both candidate HTML hashes, require complete quartet and all existing standard/independent checks. Verify infrastructure and historical rehearsal before retry. No extra application changes or new numbered release; 49 candidates held.
