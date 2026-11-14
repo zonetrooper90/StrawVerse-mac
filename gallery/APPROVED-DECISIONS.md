@@ -340,3 +340,6 @@ User approved exact 18 earlier declarations (361 bytes) in eight retained rules 
 
 ## 2026-11-14 — Q2-B7 Settings visually approved
 User confirmed verified checkpoint `2026-11-14-q2b7-settings` (build `881e546da8bdf640fb7b10ed8e465d1461996821`) seems fine. Accept exact 18-declaration, 361-byte CSS-only cleanup; all 1,920 actual-DOM comparisons, standard groups and both independent exact-build checks passed. Preserve approved Settings navigation, responsive layout, shared Back and motion. Q2-B progress 75/94; eight Player and eleven Search declarations held. No further removals authorized.
+
+## 2026-11-14 — Approved Q2-B8 Player duplicate cleanup
+User approved exact eight earlier declarations (124 bytes) in five retained rules of `03-player-and-desktop-frame.css` and `27-player-navigation-and-header-refinements.css` per `gallery/audits/2026-11-14-q2b8-player-review.md`. Preserve later copies, all responsive rules, fullscreen, episode navigation, shared header/Back, control motion and six themes. Require real Chromium fullscreen cycles and actual DOM comparisons, all standard regressions, immutable checkpoint and both independent checks. No JS, markup, assets, native or numbered release changes. Eleven Search candidates held.
