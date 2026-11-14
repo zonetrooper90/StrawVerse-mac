@@ -322,3 +322,6 @@ When the user selects a partially obscured season/movie/special card in Anime De
 
 ## 2026-11-14 — Approved Q2-B6 release arrow hover cleanup
 User approved exact one earlier `color:var(--accent);` declaration removal (20 bytes) in `gallery/audits/2026-11-14-q2b6-release-arrow-review.md`. Preserve later copy, other declarations, both arrows, gradients, guard hits, focus, one-card navigation, release selection, six themes and motion behavior. Four mandatory actual-DOM comparison shards, all standard and independent checks, immutable checkpoint after success. Other 37 held. No JS, markup, assets, fonts, native or numbered release changes; separately approved selected-release auto-reveal follows after verification and visual review.
+
+## 2026-11-14 — Q2-B6 visually approved
+User confirmed the verified checkpoint `2026-11-14-q2b6-release-arrow` (build `9b35f5528b532bcf26b47ee0016f84103fb2152f`) looks good. Accept exact one-declaration CSS cleanup; all 1,416 actual-DOM comparisons, standard groups and both independent exact-build checks passed. Preserve existing arrow appearance and behavior. Selected-release auto-reveal is separately approved; any necessary layout adjustment must be discussed first. Other 37 candidates held.
