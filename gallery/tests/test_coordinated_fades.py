@@ -89,7 +89,17 @@ with sync_playwright() as p:
   route('Discover to Settings',lambda:page.locator('#settings').click(),lambda:stat()['settings'])
   route('Settings back to Discover',lambda:page.locator('#settings-back').click(),lambda:not stat()['settings'] and stat()['view']=='discover',True)
   page.evaluate('openSourceManagerFromDiscover()')
+  # The input gate consumes clicks until the incoming fade completes.
+  # Record readiness at the former fixed delay, then await actual readiness.
   page.wait_for_timeout(410 if mode=='fade' else 65)
+  ready=page.evaluate("""()=>({fade:galleryStageFadeInProgress,transition:!!galleryStageTransition,
+    opening:gallerySettingsOpening,closing:settingsClosing,section:settingsLastSection,
+    busy:document.querySelector('.app').getAttribute('aria-busy')})""")
+  print('Sources readiness at former fixed delay',ready,flush=True)
+  page.wait_for_function("""()=>!galleryStageFadeInProgress && !galleryStageTransition &&
+    !gallerySettingsOpening && !settingsClosing &&
+    !document.querySelector('.app').classList.contains('gallery-route-transitioning') &&
+    settingsLastSection==='sources' && document.body.classList.contains('settings-view')""",timeout=5000)
   rec('Sources deep link',page.evaluate("settingsLastSection==='sources' && document.body.classList.contains('settings-view')"))
   route('Source Settings back to Discover',lambda:page.locator('#settings-back').click(),lambda:stat()['view']=='discover' and not stat()['settings'],True)
   # Player transitions retain the previous View Transition implementation.

@@ -7,7 +7,7 @@ Requires: pip install playwright && python -m playwright install chromium
 """
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-import os, sys
+import os, sys, subprocess
 import traceback
 PATH=Path(sys.argv[1] if len(sys.argv)>1 else 'Gallery-current.html')
 checks=[];issues=[]
@@ -90,3 +90,5 @@ with sync_playwright() as p:
  browser.close()
 print('RESULT',len(checks),'checks, issues',len(issues),issues)
 if issues:raise SystemExit(1)
+# Mandatory in both existing browser/publisher regression runners.
+subprocess.run([sys.executable,str(Path(__file__).with_name('test_first_release_reveal.py')),str(PATH)],check=True)

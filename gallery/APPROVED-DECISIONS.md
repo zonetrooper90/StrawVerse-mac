@@ -331,3 +331,6 @@ User approved narrowing arrow overlays at small window widths to allow selected-
 
 ## 2026-11-14 — Selected-release auto-reveal visually approved
 User confirmed verified checkpoint `2026-11-14-selected-release-auto-reveal-retry` (build `2f0eafede1ba7402ad54d32384576203c7eb57d2`) looks and feels great. All 624 feature test cases and both independent exact-build checks passed. User also confirmed a previously unreported first-season abrupt snap when clicking the partially left-obscured card is now resolved. Preserve smooth full reveal to the first boundary in normal motion, instant in reduced motion, no vertical jump or unnecessary scroll, retained rail and native navigation. Specific first-season partial-click regression test proposed separately. No new application change or checkpoint authorized.
+
+## 2026-11-14 — Approved first-release regression and test synchronization
+User approved explicit first-season partial-click regression and resolving Sources-to-Discover verification failure. Require actual intermediate smooth-scroll frames in normal motion and instant reduced-motion, retained rail and guard. Synchronize Sources test with real route readiness, retaining all fade and destination assertions. Test/documentation-only changes; preserve approved application bytes and checkpoint. No new numbered release.
