@@ -343,3 +343,6 @@ User confirmed verified checkpoint `2026-11-14-q2b7-settings` (build `881e546da8
 
 ## 2026-11-14 — Approved Q2-B8 Player duplicate cleanup
 User approved exact eight earlier declarations (124 bytes) in five retained rules of `03-player-and-desktop-frame.css` and `27-player-navigation-and-header-refinements.css` per `gallery/audits/2026-11-14-q2b8-player-review.md`. Preserve later copies, all responsive rules, fullscreen, episode navigation, shared header/Back, control motion and six themes. Require real Chromium fullscreen cycles and actual DOM comparisons, all standard regressions, immutable checkpoint and both independent checks. No JS, markup, assets, native or numbered release changes. Eleven Search candidates held.
+
+## 2026-11-14 — Q2-B8 Player visually approved
+User confirmed verified checkpoint `2026-11-14-q2b8-player` (build `d7d110e05e3a35da2c5bec16552b0f2881d993b4`) looks fine. Accept exact eight-declaration, 124-byte CSS-only cleanup; all 1,296 actual-DOM comparisons, 48 Chromium fullscreen cycles, standard groups and both independent exact-build checks passed. Preserve approved Player header, Back, controls, episode navigation, fullscreen and motion. Browser tests do not verify native macOS or provider playback. Q2-B progress 83/94; eleven Search declarations held. No further removals authorized.
