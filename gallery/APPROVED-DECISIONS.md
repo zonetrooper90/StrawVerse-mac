@@ -337,3 +337,6 @@ User approved explicit first-season partial-click regression and resolving Sourc
 
 ## 2026-11-14 — Approved Q2-B7 Settings duplicate cleanup
 User approved exact 18 earlier declarations (361 bytes) in eight retained rules of `10-settings.css` per `gallery/audits/2026-11-14-q2b7-settings-review.md`. Preserve later copies, all other rules, shared Back accent/header, sidebar and responsive layout, section/search/keyboard/nested navigation, all six themes and motion decisions. Four mandatory real-DOM comparison shards, three standard groups (first-season regression and Sources readiness retained), immutable checkpoint and both independent checks. Other 19 candidates held; no JS, markup, assets, native or numbered release changes.
+
+## 2026-11-14 — Q2-B7 Settings visually approved
+User confirmed verified checkpoint `2026-11-14-q2b7-settings` (build `881e546da8bdf640fb7b10ed8e465d1461996821`) seems fine. Accept exact 18-declaration, 361-byte CSS-only cleanup; all 1,920 actual-DOM comparisons, standard groups and both independent exact-build checks passed. Preserve approved Settings navigation, responsive layout, shared Back and motion. Q2-B progress 75/94; eight Player and eleven Search declarations held. No further removals authorized.
