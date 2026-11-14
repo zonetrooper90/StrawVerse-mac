@@ -349,3 +349,6 @@ User confirmed verified checkpoint `2026-11-14-q2b8-player` (build `d7d110e05e3a
 
 ## 2026-11-14 — Approved Q2-B9 Search duplicate cleanup
 User approved exact eleven earlier declarations (139 bytes) in six retained rules of `09-search.css` per `gallery/audits/2026-11-14-q2b9-search-review.md`. Preserve later copies, animations, fixed header controls, narrow brand and all five contextual Search scopes, input/focus and keyboard behavior, corrected Discover collapse and all six themes. Four mandatory actual-DOM and motion comparison shards, standard regressions, immutable checkpoint and both independent checks; rescan original Q2-B inventory. No other CSS, JS, markup, assets, native or numbered release changes.
+
+## 2026-11-14 — Approved Q2-B9 test-only retry
+User approved byte-identical retry after all four read-only diagnostic jobs proved the Discover normal-motion scroll shift exists in both accepted and candidate builds. Correct only the comparison assumption: verify immediate restore and measure actual accepted-versus-candidate settled scroll at both widths and all six themes; preserve absolute restoration elsewhere and reduced motion, all original comparison counts and standard tests. Original request and gate unchanged; both exact candidate hashes required. No application behavior fix authorized; discuss separately.
