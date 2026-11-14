@@ -361,3 +361,6 @@ Read-only diagnostic 43646720236 proved the exact failed candidate clamps scroll
 
 ## Coordinated Discover Search motion — visually approved
 User confirmed the reported issue is fixed in verified build `827b4c079d9b3a1c0b1f317595c98a7c6979a4cc` (checkpoint `2026-11-14-discover-search-coordinated-scroll-margin-retry`). Accept the coordinated Search opening/closing motion as the baseline: scroll, Recently Watched grid and Explore margin animate together over the existing 420ms cubic-bezier(.22,.72,.2,1); retain saved position, reversal, user input priority, reduced-motion instant behavior and navigation semantics. Keep 336-case comparison coverage and mandatory bottom-of-page smoke tests. Publisher 43648353985 and independent checks 43649064772 and 43649067292 passed. Preserve all other pending visual reviews separately. No new release or application change.
+
+## 2026-11-15 — Approved A1 read-only saved-history investigation
+User approved A1 diagnostic only after upstream Mac release discussion. Verify the accepted build and run isolated synthetic browser-storage cases in both build modes. Distinguish confirmed failures from static risks, preserve valid history and existing UI/motion, never touch personal data or publish a new HTML build. No corrective behavior or shared persistence abstraction approved; discuss results first.
