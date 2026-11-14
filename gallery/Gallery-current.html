@@ -1386,7 +1386,7 @@ body[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Di
 body[data-font="atkinson"]{font-family:"Atkinson Hyperlegible Next",-apple-system,BlinkMacSystemFont,sans-serif}
 body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif}
 .settings-font-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:17px}
-.settings-font-tile{min-width:0;display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:10px;position:relative;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:13px;padding:15px;transition:background .16s,border-color .16s}
+.settings-font-tile{min-width:0;text-align:left;gap:10px;position:relative;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:15px;transition:background .16s,border-color .16s}
 .settings-font-tile:hover:not([aria-pressed="true"]){background:var(--hover)}
 .settings-font-tile[aria-pressed="true"]{border-color:var(--accent);background:var(--raised)}
 .settings-font-top{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;min-height:50px}
@@ -1411,7 +1411,7 @@ body[data-font="inter"]{font-family:"Inter",-apple-system,BlinkMacSystemFont,san
 .settings-font-missing{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
 .settings-font-missing[hidden]{display:none!important}
 @media(max-width:1100px){.settings-font-list{grid-template-columns:1fr}.settings-font-tile{flex-direction:row;align-items:center;gap:16px}.settings-font-top{flex:0 0 40%;min-height:0}.settings-font-example{flex:1;min-height:86px}}
-@media(max-width:530px){.settings-font-tile{flex-direction:column;align-items:stretch;gap:9px}.settings-font-example{min-height:92px}}
+@media(max-width:530px){.settings-font-tile{gap:9px}.settings-font-example{min-height:92px}}
 
 /* v80 — Language-aware, offline typography samples; restrained responsive controls. */
 .settings-font-language{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:15px 0 0;flex-wrap:wrap}

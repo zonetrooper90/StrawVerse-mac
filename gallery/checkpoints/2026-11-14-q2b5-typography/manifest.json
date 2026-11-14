@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "checkpoint": "2026-11-14-q2b5-typography",
+  "source_name": "Gallery-current.html",
+  "output_filename": "Gallery-current.html",
+  "source_bytes": 6902957,
+  "source_sha256": "3df19003fa0e0b1bbe2a4d47bca65835223052fc5e7e1222bf955fd3c63b1aa8",
+  "compression": "gzip (mtime=0) + base64",
+  "compressed_bytes": 4930254,
+  "compressed_sha256": "1b8cb1f29bc2aa2946704bda2099a8f9f4be60dc7b2e890d5e7637824b043e0a",
+  "encoded_chars": 6573672,
+  "parts": [
+    {
+      "file": "parts/part-001.b64",
+      "encoded_chars": 245760,
+      "sha256": "12f7e238cb63427de06a532a84a8213a8bfa2928cd04e4721dae58ec3cbb2f63"
+    },
+    {
+      "file": "parts/part-002.b64",
+      "encoded_chars": 245760,
+      "sha256": "06552532f53ee0e3cf5c0e4b3da25d3946f0e019bc5e23831f86a72823fdc350"
+    },
+    {
+      "file": "parts/part-003.b64",
+      "encoded_chars": 245760,
+      "sha256": "26fd669804df87b12cc0c169c003f087a51729b6fb845a93bfffdce98c7c2a29"
+    },
+    {
+      "file": "parts/part-004.b64",
+      "encoded_chars": 245760,
+      "sha256": "2f612c9a65608e64a8c25dee8be9a8985f741941bc4ba4ba8bffcb4748ff242a"
+    },
+    {
+      "file": "parts/part-005.b64",
+      "encoded_chars": 245760,
+      "sha256": "d01b82a8bdb774d8cd238d8bfc478793a56c3561fb7685fb2d3940402f2c6eaf"
+    },
+    {
+      "file": "parts/part-006.b64",
+      "encoded_chars": 245760,
+      "sha256": "8a52dc014a68f20a4f999e9e4e49ce83f629db9dba4603f24ca80b4855b783ce"
+    },
+    {
+      "file": "parts/part-007.b64",
+      "encoded_chars": 245760,
+      "sha256": "52cfd3bf50583bc52f0948109a02497b2cdc9ddce5b8a85dfea3ab0cdb7c06e4"
+    },
+    {
+      "file": "parts/part-008.b64",
+      "encoded_chars": 245760,
+      "sha256": "fa2949f2ee6163ed64cbdcc3ef6c5849f299a908e1cf5c9e33945c145b3a15c4"
+    },
+    {
+      "file": "parts/part-009.b64",
+      "encoded_chars": 245760,
+      "sha256": "4daba1566ca59d829b7800eec27c5c957cbdfce33671e80e6e04134ae6e52ea0"
+    },
+    {
+      "file": "parts/part-010.b64",
+      "encoded_chars": 245760,
+      "sha256": "dc82dce2b5c7367f002d5361477de19140580e0651eeb77344691c2948f30d40"
+    },
+    {
+      "file": "parts/part-011.b64",
+      "encoded_chars": 245760,
+      "sha256": "1e6d0f6d71fd530cae0d57450caca8070657c89abc140d7a11f81f94d5c629fa"
+    },
+    {
+      "file": "parts/part-012.b64",
+      "encoded_chars": 245760,
+      "sha256": "e9dd1f5221c0a0f9152a2e6ecbba4964d78a5dc5e8508ed8c9eb8ca1e988909d"
+    },
+    {
+      "file": "parts/part-013.b64",
+      "encoded_chars": 245760,
+      "sha256": "b65bbf33ec72ff56961e6bbc2537983e3dde03b6aa9cbd094854a1a66c6afb6e"
+    },
+    {
+      "file": "parts/part-014.b64",
+      "encoded_chars": 245760,
+      "sha256": "3c8f08b851827a63abca29a89c1900c46e3ef94707f8089b314250a597feb24f"
+    },
+    {
+      "file": "parts/part-015.b64",
+      "encoded_chars": 245760,
+      "sha256": "7e5f64bf0fb0d33ac8a6734859edb77cee6226a053e3d541e74c2c4532c2c03a"
+    },
+    {
+      "file": "parts/part-016.b64",
+      "encoded_chars": 245760,
+      "sha256": "2f880caa839def8ceb414bb20c444a3fb071f5ecf7bec052fa8a6c6ca03102a9"
+    },
+    {
+      "file": "parts/part-017.b64",
+      "encoded_chars": 245760,
+      "sha256": "82bcb190d8709429f2cb6c20981abdc7b0d6c85f7529f95c21c3530481a31d1d"
+    },
+    {
+      "file": "parts/part-018.b64",
+      "encoded_chars": 245760,
+      "sha256": "3b97595d2cdbfa38a9aa1827e40782fde2186733856d752ba95c723427f361d8"
+    },
+    {
+      "file": "parts/part-019.b64",
+      "encoded_chars": 245760,
+      "sha256": "1bf82a093629b0b596b8956c803890bfd9bbf36e1cfc4ff15c718a98a2feb2e0"
+    },
+    {
+      "file": "parts/part-020.b64",
+      "encoded_chars": 245760,
+      "sha256": "f2614adbddb3439d97c7c5634bedd3af3362e1f577c0bc1b6f39d3692204383b"
+    },
+    {
+      "file": "parts/part-021.b64",
+      "encoded_chars": 245760,
+      "sha256": "41fc2970f6d1e7f35df00e8a6d6d087ebd149248b090cda59c0843220309eedc"
+    },
+    {
+      "file": "parts/part-022.b64",
+      "encoded_chars": 245760,
+      "sha256": "b4b57b10d871faed83bbd872ff56d7de025b9b192223e78b6db9c3d4ed81a130"
+    },
+    {
+      "file": "parts/part-023.b64",
+      "encoded_chars": 245760,
+      "sha256": "9028bb1fdb3607dabc29a19124a5a0930ccca454797e69154bf4976e3068c2e9"
+    },
+    {
+      "file": "parts/part-024.b64",
+      "encoded_chars": 245760,
+      "sha256": "caa0c088d8be50382cb271078a792e6b87f6e4281009679d18aa228d345031ba"
+    },
+    {
+      "file": "parts/part-025.b64",
+      "encoded_chars": 245760,
+      "sha256": "c4e631de7b9f61f157c6ccbb72273c1d4e3480c17feacc4cccaae81b2413d824"
+    },
+    {
+      "file": "parts/part-026.b64",
+      "encoded_chars": 245760,
+      "sha256": "483fa353b804de99f05079e7258e43c30156b337256d3c5ef17a7f19f438c56e"
+    },
+    {
+      "file": "parts/part-027.b64",
+      "encoded_chars": 183912,
+      "sha256": "77ae95221f464626cd192f59e8f70ca1b064e8b9bb62639bac437bb8c6156a6d"
+    }
+  ],
+  "status": "delivered-for-user-testing",
+  "provenance": "Generated from a locally tested complete HTML file; commit and verify before delivery."
+}

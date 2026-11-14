@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-14-q2b4-about",
-  "sha256": "0a3a9f474ad454b99e758a70a3c93d3bd03ac3f2c4ddf92aaa3ca536e28b6bbd",
-  "bytes": 6903073,
+  "folder": "2026-11-14-q2b5-typography",
+  "sha256": "3df19003fa0e0b1bbe2a4d47bca65835223052fc5e7e1222bf955fd3c63b1aa8",
+  "bytes": 6902957,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
