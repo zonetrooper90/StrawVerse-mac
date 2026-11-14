@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-13-q2b1-downloads-declarations-retry",
-  "sha256": "2c0dbfd0aa3ff31fd36d0f0b82ae3421351a128cd6e9c39f46fbde232d24d608",
-  "bytes": 6903651,
+  "folder": "2026-11-14-q2b2-episode-toolbar",
+  "sha256": "369f2ddb37e01b2ebe30901c5143157543a1c72fdbd6b850ef0829e675205e04",
+  "bytes": 6903392,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
