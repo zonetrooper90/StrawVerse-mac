@@ -325,3 +325,6 @@ User approved exact one earlier `color:var(--accent);` declaration removal (20 b
 
 ## 2026-11-14 — Q2-B6 visually approved
 User confirmed the verified checkpoint `2026-11-14-q2b6-release-arrow` (build `9b35f5528b532bcf26b47ee0016f84103fb2152f`) looks good. Accept exact one-declaration CSS cleanup; all 1,416 actual-DOM comparisons, standard groups and both independent exact-build checks passed. Preserve existing arrow appearance and behavior. Selected-release auto-reveal is separately approved; any necessary layout adjustment must be discussed first. Other 37 candidates held.
+
+## 2026-11-14 — Approved narrow release overlay adjustment
+User approved narrowing arrow overlays at small window widths to allow selected-release auto-reveal while preserving existing card dimensions, arrow icons, gradients, full-height edge guard, desktop layout, one-card navigation and native scrolling. Implementation cap min(54px,11.5% of viewport) at <=460px; temporarily suspend proximity snap for minimal auto-reveal and restore on manual horizontal navigation. Verify actual baseline and candidate geometry, minimal position, motion and guards across modes/themes/widths, standard regressions and independent checks. No other CSS cleanup or native change.
