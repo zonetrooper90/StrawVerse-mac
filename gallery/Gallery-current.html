@@ -4270,15 +4270,84 @@ const whSeed=[
  {id:'aot',library:true,group:'aot',galleryId:'demo:aot',installmentId:'aot-final',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',last:'2025-04-10',dates:['2025-04-10'],episodes:whMakeEpisodes(16,9,10,611)},
  {id:'astra',library:false,group:'astra',galleryId:'demo:02',installmentId:'astra-s1',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',last:'2024-12-16',dates:['2024-12-16'],episodes:whMakeEpisodes(12,12)}
 ];
+// Recovery is deliberately scoped to the preview history key. No writes on load.
+const whRecoveryKey=whStorageKey+'.recovery-original';
+const whFallbackCover='linear-gradient(145deg,#414753,#737b87)';
+let whStorageReadable=false,whLoadedRaw=null,whNeedsRecovery=false;
+function whSeedRecords(){return whSeed.map(r=>({...r,dates:[...r.dates],episodes:r.episodes.map(e=>({...e}))}));}
+function whRecordObject(v){return v!==null&&typeof v==='object'&&!Array.isArray(v);}
+function whIdentity(v){return typeof v==='string'&&v.trim().length>0&&!/[\x00-\x1f\x7f]/.test(v);}
+function whDateValid(v){
+ if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;
+ const d=new Date(v+'T00:00:00Z');
+ return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===v;
+}
+function whCoverValue(v){
+ // Preview artwork is a simple linear gradient, never an external URL or a declaration list.
+ return typeof v==='string'&&/^linear-gradient\([#a-z0-9\s.,%+-]+\)$/i.test(v)&&CSS.supports('background-image',v)?v:whFallbackCover;
+}
+function whValidEpisode(e){
+ return whRecordObject(e)&&Number.isSafeInteger(e.n)&&e.n>0&&
+  typeof e.watched==='boolean'&&typeof e.started==='boolean'&&
+  Number.isFinite(e.progressSeconds)&&e.progressSeconds>=0&&
+  Number.isFinite(e.duration)&&e.duration>=0&&e.progressSeconds<=e.duration;
+}
+function whRecoverRecords(saved){
+ if(!Array.isArray(saved))return [];
+ const counts=new Map();
+ for(const r of saved)if(whRecordObject(r)&&whIdentity(r.id))counts.set(r.id,(counts.get(r.id)||0)+1);
+ const result=[];
+ for(const r of saved){
+  // Ambiguous record or episode identities cannot be safely edited. Do not
+  // discard individual episodes and thereby misrepresent a season as complete.
+  if(!whRecordObject(r)||!whIdentity(r.id)||counts.get(r.id)!==1||!Array.isArray(r.episodes)||!r.episodes.length||
+   !r.episodes.every(whValidEpisode)||new Set(r.episodes.map(e=>e.n)).size!==r.episodes.length)continue;
+  const dates=Array.isArray(r.dates)?r.dates.filter(whDateValid):[];
+  const last=whDateValid(r.last)?r.last:[...dates].sort().at(-1)||'';
+  if(last&&!dates.includes(last))dates.push(last);
+  const title=typeof r.title==='string'&&r.title.trim()?r.title:typeof r.short==='string'&&r.short.trim()?r.short:'Unknown title';
+  const short=typeof r.short==='string'&&r.short.trim()?r.short:title;
+  const record={...r,group:whIdentity(r.group)?r.group:r.id,title,short,cover:whCoverValue(r.cover),last,dates,
+   episodes:r.episodes.map(e=>{const copy={...e};if(!['never','partial','watched'].includes(copy.manualStatus))delete copy.manualStatus;return copy;})};
+  if(typeof record.library!=='boolean')delete record.library;
+  for(const key of ['galleryId','installmentId'])if(record[key]!==null&&!whIdentity(record[key]))delete record[key];
+  if(!record.episodes.some(e=>e.n===record.latestEpisode))delete record.latestEpisode;
+  result.push(record);
+ }
+ return result;
+}
 function whLoadRecords(){
- try{const saved=JSON.parse(localStorage.getItem(whStorageKey));if(Array.isArray(saved)&&saved.every(r=>typeof r.id==='string'&&Array.isArray(r.episodes)))return saved;}
- catch{}
- return whSeed.map(r=>({...r,dates:[...r.dates],episodes:r.episodes.map(e=>({...e}))}));
+ try{whLoadedRaw=localStorage.getItem(whStorageKey);whStorageReadable=true;}
+ catch{return whSeedRecords();} // Inaccessible storage: preview only; never write over it.
+ if(whLoadedRaw===null)return whSeedRecords();
+ let saved;
+ try{saved=JSON.parse(whLoadedRaw);}
+ catch{whNeedsRecovery=true;return [];}
+ const records=whRecoverRecords(saved);
+ whNeedsRecovery=JSON.stringify(records)!==JSON.stringify(saved);
+ return records;
 }
 let whRecords=whLoadRecords();let whOpen=false,whFilter='all',whSort='newest',whSearch='',whExpanded=new Set(),whPending=new Set();
 let whSuspended=null,whParentView='discover';
 let whInnerScrollers=new Map();
-function whSave(){try{localStorage.setItem(whStorageKey,JSON.stringify(whRecords));}catch{/* Private/browser file preview may forbid storage */}}
+function whSave(){
+ // Do not overwrite unreadable storage or changes from another open preview.
+ if(!whStorageReadable)return;
+ try{
+  if(localStorage.getItem(whStorageKey)!==whLoadedRaw)return;
+  if(whNeedsRecovery){
+   const original=localStorage.getItem(whRecoveryKey);
+   // Never replace a previous distinct recovery snapshot. If the exact original
+   // cannot be preserved and read back, keep the primary untouched.
+   if(original!==null&&original!==whLoadedRaw)return;
+   if(original===null)localStorage.setItem(whRecoveryKey,whLoadedRaw);
+   if(localStorage.getItem(whRecoveryKey)!==whLoadedRaw)return;
+  }
+  const next=JSON.stringify(whRecords);
+  localStorage.setItem(whStorageKey,next);
+  whLoadedRaw=next;whNeedsRecovery=false;
+ }catch{/* Private/browser file preview may forbid storage; keep in-memory changes. */}
+}
 /* Manual watched-state changes are an override, not a fake playback event:
    preserve saved duration/position separately from the status indicator. */
 function whEpisodeStatus(ep){return ['never','partial','watched'].includes(ep.manualStatus)?ep.manualStatus:ep.watched?'watched':ep.started?'partial':'never';}
@@ -4287,7 +4356,7 @@ function whEpisodeStatusLabel(status){return status==='watched'?'Watched':status
 function whEpisodePress(status){return status==='watched'?'true':status==='partial'?'mixed':'false';}
 function whCount(r){return r.episodes.reduce((n,e)=>n+(whEpisodeStatus(e)==='watched'?1:0),0)}
 function whCompleted(r){return r.episodes.length>0&&whCount(r)===r.episodes.length}
-function whFormatDate(date){const d=new Date(date+'T12:00:00');return Number.isNaN(d.getTime())?date:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function whFormatDate(date){if(!date)return 'Unknown';const d=new Date(date+'T12:00:00');return Number.isNaN(d.getTime())?date:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 function whFmt(sec){const n=Math.max(0,Math.floor(Number(sec)||0));return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;}
 function whLastEpisode(r){return r.episodes.find(e=>e.n===r.latestEpisode)||[...r.episodes].reverse().find(e=>e.started)||r.episodes[0]}
 function whSorted(list){return [...list].sort((a,b)=>whSort==='newest'?b.last.localeCompare(a.last):a.last.localeCompare(b.last));}
@@ -4462,7 +4531,7 @@ function whPreviewMarkup(){
  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
  <div class="wh-recent-header">Recently Watched</div>
- <div class="wh-recent-row">${recent.map(r=>`<div class="wh-recent-item"><button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${r.cover}" aria-label="Open ${escapeHTML(r.title)}; ${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span></button><div class="wh-recent-info" aria-hidden="true"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></div></div>`).join('')}
+ <div class="wh-recent-row">${recent.map(r=>`<div class="wh-recent-item"><button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${escapeHTML(whCoverValue(r.cover))}" aria-label="Open ${escapeHTML(r.title)}; ${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span></button><div class="wh-recent-info" aria-hidden="true"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></div></div>`).join('')}
  <button class="wh-recent-view" type="button" id="wh-view-history">${whSmallIcon('history')}<span>View History</span></button></div></section></div></div>`;
 }
 function whEpisodeMarkup(r,ep){
@@ -4474,7 +4543,7 @@ function whSummaryMarkup(r){
  const last=whLastEpisode(r);
  return `<div class="wh-summary">
  <button class="wh-summary-hit" type="button" data-wh-expand="${escapeHTML(r.id)}" aria-expanded="${open}" aria-label="${open?'Collapse':'Expand'} episodes for ${escapeHTML(r.title)}" title="${open?'Collapse episodes':'View episodes'}"></button>
- <button class="wh-cover-button" type="button" data-wh-open="${escapeHTML(r.id)}" title="Open anime details"><span class="wh-cover" style="--cover:${r.cover}"><span>${escapeHTML(r.short)}</span></span></button>
+ <button class="wh-cover-button" type="button" data-wh-open="${escapeHTML(r.id)}" title="Open anime details"><span class="wh-cover" style="--cover:${escapeHTML(whCoverValue(r.cover))}"><span>${escapeHTML(r.short)}</span></span></button>
  <div class="wh-info"><button class="wh-anime-title" type="button" data-wh-open="${escapeHTML(r.id)}">${escapeHTML(r.title)}</button>
  ${complete?`<div class="wh-completed">${whSmallIcon('completed')} Completed</div>`:`<div class="wh-meta">Episode ${last?.n||1} · ${whFmt(last?.progressSeconds)} / ${whFmt(last?.duration)}</div><div class="wh-meta">${watched} of ${total} episodes watched</div><div class="wh-progress gallery-split-timeline" aria-hidden="true"><div class="wh-progress-done" style="flex-basis:${galleryTimelineFill(pct)}"></div><div class="wh-progress-rest"></div></div>`}
  <div class="wh-meta">Last watched ${whFormatDate(r.last)}</div></div>
