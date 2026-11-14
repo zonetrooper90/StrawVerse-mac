@@ -296,3 +296,7 @@ User confirmed the affected Episodes/Sub-Dub availability/All-Playable only tool
 
 ## 2026-11-14 — Q2-B2 visually approved
 User tested checkpoint `2026-11-14-q2b2-episode-toolbar` (build `fcc1d493b09dac7fa68703d199e3e234a33e1c37`) and confirmed no visual differences. Accept the 17-declaration Anime episode toolbar cleanup. All 1,272 actual-DOM comparisons, standard publisher regressions and both independent exact-build checks passed; first real parallel publication succeeded. Preserve the current toolbar appearance and behavior, including responsive layouts, count fades and filtering. Hold remaining 61 candidates for separate review and specific approval. No new HTML checkpoint or further application change.
+
+
+## 2026-11-14 — Approved Q2-B3 remaining Anime Details cleanup
+User explicitly approved exactly 12 earlier declarations across seven retained rules in `02-anime-detail.css` listed in `gallery/audits/2026-11-14-q2b3-anime-details-review.md`. Keep all later declarations, compact hero/control layouts, stationary Sub/Dub gradient, episode rows/tools/flags/actions, toolbar and count animations, media/container/state rules, DS02b and all six themes. Paired exact-scope real-DOM gates, existing regression suites and independent post-publish checks required. No other CSS, JS, markup, assets, native or numbered-release changes. Remaining 49 candidates held; visual acceptance separate.
