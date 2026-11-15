@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-15-recently-watched-directional-stack",
-  "sha256": "ef824f1289993fe22f9bfbd6fd5c4d2f95d815edd987e9493665b77c5a7c810f",
-  "bytes": 6923816,
+  "folder": "2026-11-15-recently-watched-dense-test-fixture-retry",
+  "sha256": "0a73fd1027e6b0a993fd318e3147e4fbb51b60812ce4b2827451a87a84908dbc",
+  "bytes": 6925082,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

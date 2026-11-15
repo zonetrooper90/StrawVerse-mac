@@ -45,6 +45,8 @@ function whRecoverRecords(saved){
  return result;
 }
 function whLoadRecords(){
+ // The opt-in dense fixture neither reads nor writes the real preview history.
+ if(whRecentTestMode)return whRecentTestRecords();
  try{whLoadedRaw=localStorage.getItem(whStorageKey);whStorageReadable=true;}
  catch{return whSeedRecords();} // Inaccessible storage: preview only; never write over it.
  if(whLoadedRaw===null)return whSeedRecords();
@@ -228,7 +230,7 @@ function whSetupRecentPreview(content){
 function whPreviewMarkup(){
  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
- <div class="wh-recent-header">Recently Watched</div>
+ <div class="wh-recent-header">Recently Watched${whRecentTestMode?' · Test data':''}</div>
  <div class="wh-recent-row">${recent.map(r=>`<div class="wh-recent-item"><button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${escapeHTML(whCoverValue(r.cover))}" aria-label="Open ${escapeHTML(r.title)}; ${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span></button><div class="wh-recent-info" aria-hidden="true"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></div></div>`).join('')}
  <button class="wh-recent-view" type="button" id="wh-view-history">${whSmallIcon('history')}<span>View History</span></button></div></section></div></div>`;
 }

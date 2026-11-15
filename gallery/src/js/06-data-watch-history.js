@@ -16,3 +16,18 @@ const whSeed=[
  {id:'aot',library:true,group:'aot',galleryId:'demo:aot',installmentId:'aot-final',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',last:'2025-04-10',dates:['2025-04-10'],episodes:whMakeEpisodes(16,9,10,611)},
  {id:'astra',library:false,group:'astra',galleryId:'demo:02',installmentId:'astra-s1',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',last:'2024-12-16',dates:['2024-12-16'],episodes:whMakeEpisodes(12,12)}
 ];
+
+/* Opt-in dense sample history for Recently Watched visual testing only.
+ * Keep the ordinary seed and stored preview history unchanged. */
+const whRecentTestMode=location.hash==='#recently-watched-test';
+function whRecentTestRecords(){
+ const extraTitles=['demo:long','demo:03','demo:04','demo:05','demo:06','demo:07','demo:08','demo:09','demo:10'].map(id=>demo.find(x=>x.id===id));
+ const extraSamples=['Amber Horizon','Cloudbound','Midnight Archive','Copper Moon','Ocean Echoes','Starfall Garden','Winter Lanterns'].map((name,i)=>({name,art:extraTitles[i].art,episodes:12,id:null}));
+ const extras=[...extraTitles,...extraSamples].map((x,i)=>{
+  const id='recent-test-'+(i+1),last='2024-01-'+String(28-i).padStart(2,'0');
+  const total=x.episodes,watched=i%3===0?total:Math.min(total-1,2+i%5);
+  return {id,library:false,group:id,galleryId:x.id,installmentId:null,title:x.name,short:x.name.split(' ').slice(0,2).join(' '),cover:x.art,
+   last,dates:[last],episodes:whMakeEpisodes(total,watched,watched<total?watched+1:null,watched<total?420:0)};
+ });
+ return [...whSeedRecords(),...extras];
+}

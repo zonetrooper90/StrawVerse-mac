@@ -4273,6 +4273,21 @@ const whSeed=[
  {id:'aot',library:true,group:'aot',galleryId:'demo:aot',installmentId:'aot-final',title:'Attack on Titan: The Final Season',short:'AoT',cover:'linear-gradient(150deg,#334447,#697b77 50%,#958c76)',last:'2025-04-10',dates:['2025-04-10'],episodes:whMakeEpisodes(16,9,10,611)},
  {id:'astra',library:false,group:'astra',galleryId:'demo:02',installmentId:'astra-s1',title:'Astra Afterlight',short:'Astra',cover:'linear-gradient(145deg,#213654,#386e88 50%,#88c2c1)',last:'2024-12-16',dates:['2024-12-16'],episodes:whMakeEpisodes(12,12)}
 ];
+
+/* Opt-in dense sample history for Recently Watched visual testing only.
+ * Keep the ordinary seed and stored preview history unchanged. */
+const whRecentTestMode=location.hash==='#recently-watched-test';
+function whRecentTestRecords(){
+ const extraTitles=['demo:long','demo:03','demo:04','demo:05','demo:06','demo:07','demo:08','demo:09','demo:10'].map(id=>demo.find(x=>x.id===id));
+ const extraSamples=['Amber Horizon','Cloudbound','Midnight Archive','Copper Moon','Ocean Echoes','Starfall Garden','Winter Lanterns'].map((name,i)=>({name,art:extraTitles[i].art,episodes:12,id:null}));
+ const extras=[...extraTitles,...extraSamples].map((x,i)=>{
+  const id='recent-test-'+(i+1),last='2024-01-'+String(28-i).padStart(2,'0');
+  const total=x.episodes,watched=i%3===0?total:Math.min(total-1,2+i%5);
+  return {id,library:false,group:id,galleryId:x.id,installmentId:null,title:x.name,short:x.name.split(' ').slice(0,2).join(' '),cover:x.art,
+   last,dates:[last],episodes:whMakeEpisodes(total,watched,watched<total?watched+1:null,watched<total?420:0)};
+ });
+ return [...whSeedRecords(),...extras];
+}
 // Recovery is deliberately scoped to the preview history key. No writes on load.
 const whRecoveryKey=whStorageKey+'.recovery-original';
 const whFallbackCover='linear-gradient(145deg,#414753,#737b87)';
@@ -4320,6 +4335,8 @@ function whRecoverRecords(saved){
  return result;
 }
 function whLoadRecords(){
+ // The opt-in dense fixture neither reads nor writes the real preview history.
+ if(whRecentTestMode)return whRecentTestRecords();
  try{whLoadedRaw=localStorage.getItem(whStorageKey);whStorageReadable=true;}
  catch{return whSeedRecords();} // Inaccessible storage: preview only; never write over it.
  if(whLoadedRaw===null)return whSeedRecords();
@@ -4503,7 +4520,7 @@ function whSetupRecentPreview(content){
 function whPreviewMarkup(){
  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
- <div class="wh-recent-header">Recently Watched</div>
+ <div class="wh-recent-header">Recently Watched${whRecentTestMode?' · Test data':''}</div>
  <div class="wh-recent-row">${recent.map(r=>`<div class="wh-recent-item"><button class="wh-recent-card" type="button" data-wh-recent="${escapeHTML(r.id)}" style="--cover:${escapeHTML(whCoverValue(r.cover))}" aria-label="Open ${escapeHTML(r.title)}; ${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}"><span class="wh-recent-card-label">${escapeHTML(r.short)}</span></button><div class="wh-recent-info" aria-hidden="true"><strong>${escapeHTML(r.title)}</strong><span>${whCompleted(r)?'Completed':`Episode ${whLastEpisode(r).n}`}</span></div></div>`).join('')}
  <button class="wh-recent-view" type="button" id="wh-view-history">${whSmallIcon('history')}<span>View History</span></button></div></section></div></div>`;
 }
