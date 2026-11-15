@@ -303,3 +303,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory Watch History animated progress geometry and status regression (both builds).
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-watch-history-animated-progress-retry-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory Anime Details Search return and navigation isolation regression (both builds).
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-anime-detail-search-return-synchronized-regression.py'),sys.argv[1]],check=True)

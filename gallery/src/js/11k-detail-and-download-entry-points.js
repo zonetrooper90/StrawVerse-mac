@@ -1,5 +1,6 @@
 function showDetail(id,fromHistory=false,installmentId=null){
  const x=demo.find(t=>t.id===id);if(!x)return;
+ if(searchOpen&&searchDetailReturn)closeInlineSearch(false);
  transitionGalleryStage(()=>{
   state.playback=null;state.detailReturnHistory=fromHistory;
   state.detailReturnView=state.view;state.detailReturnScroll=selectedTabScroll();

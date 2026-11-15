@@ -1,4 +1,4 @@
-function render(){
+function render(options={}){
  if(!state.playback){clearTimeout(playerControlsTimer);playerControlsTimer=null;playerEventController?.abort();playerEventController=null;resetPlayNextState();}
  document.body.classList.toggle('player-view',Boolean(state.playback));
  // Both the Anime detail and Watch History are secondary pages: hide main
@@ -39,6 +39,15 @@ function render(){
    activeInstallmentRailObserver=null;
    const rail=document.getElementById('inline-installment-rail');
    if(rail){
+     // Search return alone must restore the exact offset, not the nearest snap point.
+     // Disable snapping before any scroll write or observer/layout initialization.
+     const searchRailScroll=options?.searchRailScroll;
+     const restoringSearchRail=Number.isFinite(searchRailScroll);
+     if(restoringSearchRail){
+       rail.style.scrollSnapType='none';
+       void rail.offsetWidth;
+       rail.scrollTo({left:searchRailScroll,behavior:'instant'});
+     }
      rail.addEventListener('scroll',refreshInstallmentArrows,{passive:true});
      rail.addEventListener('wheel',event=>{if(event.deltaX||event.shiftKey&&event.deltaY)restoreInstallmentSnap(rail);},{passive:true});
      rail.addEventListener('pointerdown',event=>{if(event.pointerType!=='mouse'||event.button===1)restoreInstallmentSnap(rail);},{passive:true});
@@ -48,7 +57,8 @@ function render(){
      activeInstallmentRailObserver.observe(rail);
      for(const card of rail.children)activeInstallmentRailObserver.observe(card);
      requestAnimationFrame(refreshInstallmentArrows);
-     rail.scrollLeft=priorRailScroll;
+     if(!restoringSearchRail)rail.scrollLeft=priorRailScroll;
+     else refreshInstallmentArrows();
      for(const arrow of screen.querySelectorAll('[data-inline-scroll]'))arrow.addEventListener('click',()=>{
 // One arrow click advances by exactly one discrete release, not a viewport fraction.
        const direction=Number(arrow.dataset.inlineScroll);

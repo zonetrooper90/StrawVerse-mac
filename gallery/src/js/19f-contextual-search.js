@@ -13,6 +13,28 @@ const searchClear=document.getElementById('header-search-clear');
 const searchClose=document.getElementById('header-search-close');
 let searchOpen=false;
 let searchScrollBefore=0;
+let searchDetailReturn=null;
+// Save only the detail route's context, not global preferences or catalogue data.
+function captureSearchDetailReturn(){
+ const keys=['detailId','detailSeason','detailRelated','detailEpisode','detailAudio','detailEpisodeFilter','detailReturnHistory','detailReturnView','detailReturnScroll'];
+ const rail=screen.querySelector('#inline-installment-rail');
+ return {view:state.view,fields:Object.fromEntries(keys.map(key=>[key,state[key]])),
+  scroll:workspace.scrollTop,railScroll:rail?.scrollLeft||0};
+}
+function restoreSearchDetail(saved){
+ transitionGalleryStage(()=>{
+  // The catalogue is now invisible; no pending Discover scroll animation may
+  // write into the detail route. The original Back destination is independent.
+  finishDiscoverSearchRestore();
+  state.view=saved.view;state.playback=null;
+  Object.assign(state,saved.fields);updateActiveTab(state.view);
+  // Pass the saved offset into reconstruction, before its first scroll write.
+  render({searchRailScroll:saved.railScroll});
+  workspace.scrollTo({top:saved.scroll,behavior:'instant'});
+  configureHeaderSearchContext();updateTabScrollOverlay();
+ });
+}
+
 // Use the retained shell's actual CSS transition as the scroll clock.
 const discoverSearchMotionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 let discoverSearchRestore=null;
@@ -160,7 +182,12 @@ function openInlineSearch(){
  if(searchOpen){searchInput.focus({preventScroll:true});return;}
  if(state.playback||modalHost.firstChild)return;
  const searchingSettings=document.body.classList.contains('settings-view');
- if(state.detailId&&!searchingSettings)setView(state.view); // Return to the active tab, not always Discover.
+ if(state.detailId&&!searchingSettings){
+  const saved=captureSearchDetailReturn();
+  // Open the ordinary contextual search only after the coordinated route midpoint.
+  transitionGalleryStage(()=>{searchDetailReturn=saved;setView(saved.view);openInlineSearch();});
+  return;
+ }
  const discoverScope=!searchingSettings&&!whOpen&&state.view==='discover';
  const reversing=discoverScope&&discoverSearchRestore&&!discoverSearchRestore.opening&&discoverSearchRestore.hold;
  searchScrollBefore=reversing?discoverSearchRestore.top:searchingSettings?workspace.scrollTop:tabPages[state.view].scrollTop;
@@ -195,6 +222,8 @@ function closeInlineSearch(restoreFocus=true){
  if(!searchOpen)return;
  const view=state.view;
  const searchingSettings=document.body.classList.contains('settings-view');
+ const saved=restoreFocus&&!searchingSettings&&!whOpen&&!state.detailId&&!state.playback&&searchDetailReturn?.view===view?searchDetailReturn:null;
+ searchDetailReturn=null; // Result selection, tab changes and other navigation discard the origin.
  const hadQuery=Boolean(state.query.trim());
  searchOpen=false;
  state.query='';
@@ -222,6 +251,7 @@ function closeInlineSearch(restoreFocus=true){
   }
  }
  if(restoreFocus)searchToggle.focus({preventScroll:true});
+ if(saved)restoreSearchDetail(saved);
  requestAnimationFrame(updateTabScrollOverlay);
 }
 function toggleInlineSearch(){if(searchOpen)closeInlineSearch();else openInlineSearch();}

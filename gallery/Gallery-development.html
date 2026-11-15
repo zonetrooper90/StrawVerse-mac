@@ -6214,7 +6214,7 @@ function initializePlayer(){
  updatePlaybackUI();
 }
 
-function render(){
+function render(options={}){
  if(!state.playback){clearTimeout(playerControlsTimer);playerControlsTimer=null;playerEventController?.abort();playerEventController=null;resetPlayNextState();}
  document.body.classList.toggle('player-view',Boolean(state.playback));
  // Both the Anime detail and Watch History are secondary pages: hide main
@@ -6255,6 +6255,15 @@ function render(){
    activeInstallmentRailObserver=null;
    const rail=document.getElementById('inline-installment-rail');
    if(rail){
+     // Search return alone must restore the exact offset, not the nearest snap point.
+     // Disable snapping before any scroll write or observer/layout initialization.
+     const searchRailScroll=options?.searchRailScroll;
+     const restoringSearchRail=Number.isFinite(searchRailScroll);
+     if(restoringSearchRail){
+       rail.style.scrollSnapType='none';
+       void rail.offsetWidth;
+       rail.scrollTo({left:searchRailScroll,behavior:'instant'});
+     }
      rail.addEventListener('scroll',refreshInstallmentArrows,{passive:true});
      rail.addEventListener('wheel',event=>{if(event.deltaX||event.shiftKey&&event.deltaY)restoreInstallmentSnap(rail);},{passive:true});
      rail.addEventListener('pointerdown',event=>{if(event.pointerType!=='mouse'||event.button===1)restoreInstallmentSnap(rail);},{passive:true});
@@ -6264,7 +6273,8 @@ function render(){
      activeInstallmentRailObserver.observe(rail);
      for(const card of rail.children)activeInstallmentRailObserver.observe(card);
      requestAnimationFrame(refreshInstallmentArrows);
-     rail.scrollLeft=priorRailScroll;
+     if(!restoringSearchRail)rail.scrollLeft=priorRailScroll;
+     else refreshInstallmentArrows();
      for(const arrow of screen.querySelectorAll('[data-inline-scroll]'))arrow.addEventListener('click',()=>{
 // One arrow click advances by exactly one discrete release, not a viewport fraction.
        const direction=Number(arrow.dataset.inlineScroll);
@@ -6464,6 +6474,7 @@ document.addEventListener('focusin',event=>{
 },true);
 function showDetail(id,fromHistory=false,installmentId=null){
  const x=demo.find(t=>t.id===id);if(!x)return;
+ if(searchOpen&&searchDetailReturn)closeInlineSearch(false);
  transitionGalleryStage(()=>{
   state.playback=null;state.detailReturnHistory=fromHistory;
   state.detailReturnView=state.view;state.detailReturnScroll=selectedTabScroll();
@@ -7979,6 +7990,28 @@ const searchClear=document.getElementById('header-search-clear');
 const searchClose=document.getElementById('header-search-close');
 let searchOpen=false;
 let searchScrollBefore=0;
+let searchDetailReturn=null;
+// Save only the detail route's context, not global preferences or catalogue data.
+function captureSearchDetailReturn(){
+ const keys=['detailId','detailSeason','detailRelated','detailEpisode','detailAudio','detailEpisodeFilter','detailReturnHistory','detailReturnView','detailReturnScroll'];
+ const rail=screen.querySelector('#inline-installment-rail');
+ return {view:state.view,fields:Object.fromEntries(keys.map(key=>[key,state[key]])),
+  scroll:workspace.scrollTop,railScroll:rail?.scrollLeft||0};
+}
+function restoreSearchDetail(saved){
+ transitionGalleryStage(()=>{
+  // The catalogue is now invisible; no pending Discover scroll animation may
+  // write into the detail route. The original Back destination is independent.
+  finishDiscoverSearchRestore();
+  state.view=saved.view;state.playback=null;
+  Object.assign(state,saved.fields);updateActiveTab(state.view);
+  // Pass the saved offset into reconstruction, before its first scroll write.
+  render({searchRailScroll:saved.railScroll});
+  workspace.scrollTo({top:saved.scroll,behavior:'instant'});
+  configureHeaderSearchContext();updateTabScrollOverlay();
+ });
+}
+
 // Use the retained shell's actual CSS transition as the scroll clock.
 const discoverSearchMotionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 let discoverSearchRestore=null;
@@ -8126,7 +8159,12 @@ function openInlineSearch(){
  if(searchOpen){searchInput.focus({preventScroll:true});return;}
  if(state.playback||modalHost.firstChild)return;
  const searchingSettings=document.body.classList.contains('settings-view');
- if(state.detailId&&!searchingSettings)setView(state.view); // Return to the active tab, not always Discover.
+ if(state.detailId&&!searchingSettings){
+  const saved=captureSearchDetailReturn();
+  // Open the ordinary contextual search only after the coordinated route midpoint.
+  transitionGalleryStage(()=>{searchDetailReturn=saved;setView(saved.view);openInlineSearch();});
+  return;
+ }
  const discoverScope=!searchingSettings&&!whOpen&&state.view==='discover';
  const reversing=discoverScope&&discoverSearchRestore&&!discoverSearchRestore.opening&&discoverSearchRestore.hold;
  searchScrollBefore=reversing?discoverSearchRestore.top:searchingSettings?workspace.scrollTop:tabPages[state.view].scrollTop;
@@ -8161,6 +8199,8 @@ function closeInlineSearch(restoreFocus=true){
  if(!searchOpen)return;
  const view=state.view;
  const searchingSettings=document.body.classList.contains('settings-view');
+ const saved=restoreFocus&&!searchingSettings&&!whOpen&&!state.detailId&&!state.playback&&searchDetailReturn?.view===view?searchDetailReturn:null;
+ searchDetailReturn=null; // Result selection, tab changes and other navigation discard the origin.
  const hadQuery=Boolean(state.query.trim());
  searchOpen=false;
  state.query='';
@@ -8188,6 +8228,7 @@ function closeInlineSearch(restoreFocus=true){
   }
  }
  if(restoreFocus)searchToggle.focus({preventScroll:true});
+ if(saved)restoreSearchDetail(saved);
  requestAnimationFrame(updateTabScrollOverlay);
 }
 function toggleInlineSearch(){if(searchOpen)closeInlineSearch();else openInlineSearch();}
