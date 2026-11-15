@@ -297,8 +297,9 @@ with sync_playwright() as pw:
 print('History row and hidden transfer regression tests passed')
 
 # Mandatory A1 storage recovery, persistence and safe-rendering regression (both HTML modes).
+# Run all immutable assertions on the diagnosed stable loopback origin.
 import subprocess
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-a1-watch-history-resilience-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-a1-watch-history-loopback-regression.py'),sys.argv[1]],check=True)
 
 # Mandatory Watch History animated progress geometry and status regression (both builds).
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-watch-history-animated-progress-retry-regression.py'),sys.argv[1]],check=True)
