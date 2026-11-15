@@ -4,6 +4,15 @@ Last updated: 2026-11-15. This is a handoff record, not a substitute for GitHub 
 
 ## Current verified HTML build
 - Active branch: `gallery/development-clean`.
+- Checkpoint: `2026-11-15-recently-watched-directional-stack`.
+- HTML build commit: `99a28e52ffab5ae89616c1fe2707b895414c2732`.
+- Full: 6,923,816 bytes; SHA-256 `ef824f1289993fe22f9bfbd6fd5c4d2f95d815edd987e9493665b77c5a7c810f`.
+- Lightweight: 608,126 bytes; SHA-256 `3cf6d91869f4269b947fdb028ed44215131c9c6e78d03ca0f6f69a7e222aac59`.
+- [Full HTML](https://github.com/zonetrooper90/StrawVerse-mac/blob/99a28e52ffab5ae89616c1fe2707b895414c2732/gallery/Gallery-current.html) · [Lightweight HTML](https://github.com/zonetrooper90/StrawVerse-mac/blob/99a28e52ffab5ae89616c1fe2707b895414c2732/gallery/Gallery-development.html) · [Build commit](https://github.com/zonetrooper90/StrawVerse-mac/commit/99a28e52ffab5ae89616c1fe2707b895414c2732). Use GitHub Download raw file.
+- [Publisher](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43713999978), [integrity](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43715344130) and [browser regression](https://github.com/zonetrooper90/StrawVerse-mac/actions/runs/43715346362) all passed. Recently Watched stacking awaits visual review; earlier pending visual reviews remain separate.
+
+## Prior verified HTML build — Anime Details Search return
+- Active branch: `gallery/development-clean`.
 - Checkpoint: `2026-11-15-anime-detail-search-return-verified-retry`.
 - HTML build commit: `05d7ae7f3226d9949afcab0af11f7b9d40b5c661`.
 - Full: 6,924,551 bytes; SHA-256 `c6a0cd867be620287cc21cc9ce8d2060635ae0be97f024c2fcd7b40d1a6fa2dd`.
@@ -393,8 +402,13 @@ Last updated: 2026-11-15. This is a handoff record, not a substitute for GitHub 
 ## Recently Watched directional stacking — approved pending (2026-11-15)
 - User approved the illustrated full-row, direction-aware temporary cover stack; reduced-motion and touch-only expansion disabled. Baseline `2026-11-15-anime-detail-search-return-verified-retry`, build `05d7ae7f3226d9949afcab0af11f7b9d40b5c661`, both independent checks passed. Head `4ae66f2cf49ca5cf3b4fcdf5f6d4330fb7ea375e` differs only by handoff documentation; pointer and manifest agree. Publisher re-verifies full/light bytes, deterministic assembly and immutable archive. Request `gallery/changes/pending/2026-11-15-recently-watched-directional-stack.py` modifies only Recently Watched controller/CSS and appends mandatory regression hook. Regression covers six themes, four widths, both motion preferences, stationary cover/History, exposed ordering, restored layout, Search and touch policy. Initial 18px exposed edge, right-aligned History, 55px minimum panel; visual review required. All other pending tests and historical checkpoints retained; no numbered version. Publication and independent verification pending.
 
+## Recently Watched directional stacking — verified publication (2026-11-15)
+- Request `224cc3b78ca9a87d26813b32bdfd9ab6ef328019`, publisher 43713999978: prepare, assets, full and lightweight regressions and publish all passed. Published `99a28e52ffab5ae89616c1fe2707b895414c2732`; independent integrity 43715344130 and browser 43715346362 (full 132815564289, lightweight 132815564509, assets 132815564455) passed on this exact build. Request commit checks 43714000029 and 43714000003 passed as well.
+- Pointer, 27-part immutable manifest, full HTML blob `f819c7cb5754ef243254ac80720b1bd25cd191d8`, lightweight blob `527044f1cc0483fadff3d3f7128191a7b062a067` and independent integrity logs agree; full 6,923,816 bytes, SHA-256 `ef824f1289993fe22f9bfbd6fd5c4d2f95d815edd987e9493665b77c5a7c810f`, light 608,126 bytes, SHA-256 `3cf6d91869f4269b947fdb028ed44215131c9c6e78d03ca0f6f69a7e222aac59`. Deterministic assembly and restored archive verified.
+- Mandatory directional stacking regression passed in both build modes: six themes, four widths, normal/reduced motion, touch policy, restored layout, stationary hovered cover and History geometry, Search isolation. Existing mandatory tests retained. Initial 18px stack pitch, right-aligned History and minimum 55px information panel are subject to visual review. No numbered version, native or artwork changes. Commit-pinned full/light links delivered for testing; no visual acceptance inferred.
+
 ## Pending / next step
-- Next: Search return published and independently verified; user visual review pending; A2 follows separate discussion. A1 ordinary visual review remains pending; Search return correction and A2 lifecycle audit separate. A3/A6/A7 remain proposals; A4/A5 held pending upstream. Preserve mandatory regressions and prior pending visual checks.
+- Next: Recently Watched directional stacking and Search return published and independently verified; user visual review pending; A2 follows separate discussion. A1 ordinary visual review remains pending; Search return correction and A2 lifecycle audit separate. A3/A6/A7 remain proposals; A4/A5 held pending upstream. Preserve mandatory regressions and prior pending visual checks.
 - C1 cleanup is retained in the current build; its user visual acceptance remains pending.
 - C2/C3 keyframe cleanup complete and verified; C3 duplicate cleanup complete and verified. See `gallery/audits/2026-11-12-maintainability-audit.md`. The audit's old migration and attachment requirements are superseded by current decisions.
 - After the agreed code cleanup, separately discuss/approve direct background dithering integration (Light preferred trial, Fine alternative). Keep all six themes and the stationary backdrop.
