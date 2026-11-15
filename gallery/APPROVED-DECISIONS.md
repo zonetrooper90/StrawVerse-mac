@@ -406,3 +406,6 @@ User recording of dense fixture demonstrated unacceptable cumulative displacemen
 
 ## 2026-11-15 — Approved hover activation-frame correction
 User directed fix after both candidate regressions failed the narrow-width rapid reversal anchor assertion. Capture real pointer-event geometry, keep the existing 1.1px tolerance, assert selected portrait is stationary throughout the transition and freeze only its transform at activation; preserve other cover/panel motion, previous layout assertions and all unrelated regressions. Retain failed request/test historically; use synchronized mandatory replacement regression, no weakening or new feature scope. Require both independent checks before delivery.
+
+## 2026-11-15 — Approved explicit verification runner versions
+User approved pinning after GitHub's `ubuntu-latest` migration notice. Preserve existing tested Ubuntu 24.04 browser/candidate/publisher/audit/diagnostic environment and explicitly pin independent integrity to Ubuntu 26.04, already verified successfully on that OS. Do not alter historical archive/native/macOS workflows or app, assets, HTML, checkpoints, tests, dependencies or permissions. Document that version labels receive image updates; future browser OS migration requires separate approval and verification. Require both independent checks on infrastructure commit.
