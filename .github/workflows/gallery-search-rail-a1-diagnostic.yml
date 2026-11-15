@@ -1,0 +1,62 @@
+name: Gallery Search rail and A1 reload diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-15-search-rail-and-a1-reload-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.variant }}, ${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [accepted, original, retry]
+        mode: [full, lightweight]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged authoritative baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Reconstruct exact historical input in disposable worktree
+        env:
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          set -euo pipefail
+          case "$VARIANT" in
+            accepted) ref=5af1e2e4d5825fc3f874500b72fee187053e62fe; request= ;;
+            original) ref=2d1d4a3cc3d76c34f848d01887f608c796285c33; request=2026-11-15-anime-detail-search-return ;;
+            retry) ref=0c7fa07b4954dfcfd1f63190c7a1c29b5c8b8c64; request=2026-11-15-anime-detail-search-return-rail-retry ;;
+            *) exit 1 ;;
+          esac
+          git worktree add --detach "$RUNNER_TEMP/diagnostic-input" "$ref"
+          cd "$RUNNER_TEMP/diagnostic-input"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          if [ -n "$request" ]; then
+            python3 -B "gallery/changes/pending/$request.py"
+            python3 gallery/tools/build-gallery.py --write-deliverables
+          fi
+      - name: Trace rail and isolated storage reloads
+        run: python3 -B gallery/audits/2026-11-15-search-rail-and-a1-reload-diagnostic.py "${{ matrix.variant }}" "${{ matrix.mode }}" "$RUNNER_TEMP/diagnostic-input" "$RUNNER_TEMP/diagnostic.json"
+      - name: Upload complete synthetic diagnostic traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rail-a1-${{ matrix.variant }}-${{ matrix.mode }}
+          path: ${{ runner.temp }}/diagnostic.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout untouched
+        if: always()
+        run: test -z "$(git status --porcelain)"

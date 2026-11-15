@@ -382,3 +382,6 @@ User approved restoring the original Anime Details on direct Search dismissal (X
 
 ## 2026-11-15 — Approved Anime Details Search release-rail correction
 Both original candidate modes failed exact rail restoration (115px discrepancy) while detail identity and other captured fields matched. User approved disabling native scroll snap before restoring the exact saved rail position and restoring snap on next intentional rail input, using the existing mechanism. Keep strict position equality and all existing tests; add stable pre-capture sampling and non-snap position/intentional input checks. No other application scope, native, asset or numbered-release change approved.
+
+## 2026-11-15 — Approved Search rail and A1 reload read-only investigation
+After retry failed before rail restoration in lightweight and at A1 recovery reload in full, user approved exact-build comparison and repeated synthetic diagnostics only. Separate moving pre-click rail from captured-to-restored offset; compare accepted and both failed candidates; reproduce A1 on accepted and retry. No application, original test, checkpoint or release changes; review evidence before next correction.
