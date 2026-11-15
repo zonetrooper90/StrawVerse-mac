@@ -373,3 +373,6 @@ User approved the animated transparent-overlap capsule preview and implementatio
 
 ## 2026-11-15 — Approved Watch History progress test-only retry
 After both candidate jobs timed out on the new History-exit assertion, user approved a byte-identical application retry. Existing navigation hides rather than destroys the secondary screen. Verify actual route visibility, no pending animation frames/entries, released observers and no restart; retain every other animation and regression assertion. Require exact original candidate full/light hashes and all candidate and independent checks. No design or application change beyond previously approved Option A.
+
+## 2026-11-15 — Watch History animated progress visually approved
+User confirmed verified build `5af1e2e4d5825fc3f874500b72fee187053e62fe` looks good. Accept Option A animation and completion transition as implemented in `2026-11-15-watch-history-animated-progress-retry`; preserve transparent endpoint overlap, fixed gap, theme accent, reversible progress changes, immediate status and saved playback positions, reduced motion and lifecycle cleanup. All 48 configurations, eight exit checks and both independent exact-build checks passed. No new checkpoint, numbered version or unrelated change authorized.
