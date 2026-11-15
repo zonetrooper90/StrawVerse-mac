@@ -32,7 +32,11 @@
 #wh-root .wh-completed{display:flex;gap:7px;align-items:center;color:var(--accent);font-size:12px;font-weight:650;margin-top:7px}
 #wh-root .wh-completed .icon{width:14px;height:14px}
 #wh-root .wh-progress{display:flex;align-items:center;gap:5px;width:min(350px,100%);height:5px;margin-top:8px}
-#wh-root .wh-progress-done{background:var(--accent);height:5px;border-radius:99px;flex:none}
+#wh-root .wh-progress-done{height:5px;flex:none;min-width:0}
+#wh-root .wh-progress-svg{display:block;width:100%;height:5px;color:var(--accent);overflow:hidden}
+#wh-root .wh-progress-arrived{animation:wh-progress-arrive .15s ease both}
+@keyframes wh-progress-arrive{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#wh-root .wh-progress-arrived{animation:none}}
 #wh-root .wh-progress-rest{height:5px;background:var(--line);border-radius:99px;flex:1}
 #wh-root .wh-actions{display:flex;gap:3px;align-items:center;flex:none}
 #wh-root .wh-action{width:35px;height:35px;display:grid;place-items:center;color:var(--muted);border:0;border-radius:9px;background:transparent;cursor:pointer}

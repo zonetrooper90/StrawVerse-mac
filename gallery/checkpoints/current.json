@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-15-a1-watch-history-resilience",
-  "sha256": "e85e8cc02cee9e68e3b65f602734a133381558ed1e5ac0c0a229b22a98026473",
-  "bytes": 6914736,
+  "folder": "2026-11-15-watch-history-animated-progress-retry",
+  "sha256": "dd93f30c2bc170d08f43ceaa459205bd4b157e8d40d2df8f29e0133de10134d3",
+  "bytes": 6922344,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

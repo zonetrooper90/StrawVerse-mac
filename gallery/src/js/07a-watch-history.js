@@ -266,14 +266,144 @@ function whEpisodeMarkup(r,ep){
  const status=whEpisodeStatus(ep),label=whEpisodeStatusLabel(status),next=whEpisodeStatusLabel(whEpisodeNextStatus(ep));
  return `<button type="button" class="wh-episode wh-episode-row" data-wh-episode="${escapeHTML(r.id)}:${ep.n}" aria-pressed="${whEpisodePress(status)}" aria-label="Episode ${ep.n}: ${label}. Next: ${next}" title="${label} — click to mark ${next}"><span class="wh-episode-main"><span class="wh-episode-number">Episode ${ep.n}</span>${status==='partial'&&ep.started&&ep.progressSeconds>0?`<span class="wh-episode-position">${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}</span>`:''}</span><span class="wh-episode-toggle"><span class="wh-status-icon is-${status}">${status==='watched'?whSmallIcon('check'):''}</span><span class="wh-episode-label">${label}</span></span></button>`;
 }
+/* Watch History only: a shared, visibility-scoped clock drives the approved
+ * capsule geometry and reversible 280ms progress changes. No playback or storage edits. */
+const whProgressMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const whProgressEntries=new Map();
+let whProgressFrame=0,whProgressResize=null,whProgressIntersection=null,whProgressMaskId=0;
+function whProgressCounts(r){
+ const watched=whCount(r),total=r.episodes.length;
+ const partial=r.episodes.reduce((n,e)=>n+(whEpisodeStatus(e)==='partial'?1:0),0);
+ return {watched,total,done:total?watched/total:0,started:total?(watched+partial)/total:0};
+}
+function whProgressMarkup(r,initialComplete=false){
+ const {watched,total,done,started}=whProgressCounts(r),last=whLastEpisode(r);
+ const d=initialComplete?1:done,s=initialComplete?1:started,id='wh-progress-mask-'+(++whProgressMaskId);
+ return '<div class="wh-meta wh-progress-episode">Episode '+(last?.n||1)+' · '+whFmt(last?.progressSeconds)+' / '+whFmt(last?.duration)+'</div>'+
+  '<div class="wh-meta wh-progress-count">'+watched+' of '+total+' episodes watched</div>'+
+  '<div class="wh-progress gallery-split-timeline" aria-hidden="true" data-wh-done="'+d+'" data-wh-started="'+s+'">'+
+  '<div class="wh-progress-done" style="flex-basis:'+galleryTimelineFill(s*100)+'"><svg class="wh-progress-svg" width="100%" height="5" aria-hidden="true">'+
+  '<defs><mask id="'+id+'" maskUnits="userSpaceOnUse" x="-2" y="-2" width="354" height="9"><rect x="-2" y="-2" width="354" height="9" fill="white"/><path class="wh-progress-cut" fill="black"/></mask></defs>'+
+  '<rect class="wh-progress-end" height="5" fill="currentColor" mask="url(#'+id+')"/><path class="wh-progress-capsules" fill="currentColor"/><rect class="wh-progress-solid" height="5" fill="currentColor"/></svg></div><div class="wh-progress-rest"></div></div>';
+}
+function whProgressCompleted(fade=false){return '<div class="wh-completed'+(fade?' wh-progress-arrived':'')+'">'+whSmallIcon('completed')+' Completed</div>';}
+function whProgressCapsule(x,w,y=0,h=5){
+ if(w<=0)return '';
+ const r=Math.min(w/2,h/2),right=x+w,bottom=y+h;
+ return 'M'+(x+r)+' '+y+' H'+(right-r)+' A'+r+' '+r+' 0 0 1 '+right+' '+(y+r)+' V'+(bottom-r)+' A'+r+' '+r+' 0 0 1 '+(right-r)+' '+bottom+' H'+(x+r)+' A'+r+' '+r+' 0 0 1 '+x+' '+(bottom-r)+' V'+(y+r)+' A'+r+' '+r+' 0 0 1 '+(x+r)+' '+y+' Z ';
+}
+function whProgressRect(node,x,w){
+ node.setAttribute('x',x);node.setAttribute('width',Math.max(0,w));node.setAttribute('rx',Math.min(2.5,Math.max(0,w)/2));
+}
+function whProgressPaint(e,now){
+ const {track,fill,solid,end,capsules,cut}=e;
+ const width=track.getBoundingClientRect().width,gap=parseFloat(getComputedStyle(track).columnGap)||5;
+ const usable=Math.max(0,width-gap),d=usable*e.done,s=usable*e.started,partial=Math.max(0,s-d);
+ const endpoint=Math.min(8,partial),edge=s-endpoint;
+ fill.style.flexBasis=galleryTimelineFill(e.started*100);
+ whProgressRect(solid,0,d);whProgressRect(end,edge,endpoint);
+ let moving='',holes='';
+ if(partial>8){
+  const phase=whProgressMotion.matches?0:(now/1100*13)%13;
+  // Begin underneath the solid fill. Stop when the moving capsule aligns with
+  // the fixed endpoint; only the underlying endpoint is masked by the 1px cutout.
+  for(let x=d-13+phase;x<edge;x+=13){
+   const left=Math.max(0,x),length=Math.min(8+x-left,s-left);
+   moving+=whProgressCapsule(left,length);
+   if(x+9>edge)holes+=whProgressCapsule(x-1,10,-1,7);
+  }
+ }
+ capsules.setAttribute('d',moving);cut.setAttribute('d',holes);
+ e.flow=partial>8;
+}
+function whProgressEase(p){
+ // CSS ease = cubic-bezier(.25,.1,.25,1), sampled on the same clock for both ends.
+ const bez=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t;
+ let lo=0,hi=1;for(let i=0;i<16;i++){const mid=(lo+hi)/2;if(bez(.25,.25,mid)<p)lo=mid;else hi=mid;}
+ return p<=0?0:p>=1?1:bez(.1,1,(lo+hi)/2);
+}
+function whProgressSample(e,now){
+ if(!e.motion)return;
+ const a=e.motion,p=whProgressMotion.matches?1:Math.min(1,Math.max(0,(now-a.time)/280)),v=whProgressEase(p);
+ e.done=a.fromDone+(a.done-a.fromDone)*v;e.started=a.fromStarted+(a.started-a.fromStarted)*v;
+ if(p===1){e.done=a.done;e.started=a.started;e.motion=null;}
+}
+function whProgressRemove(e){
+ whProgressResize?.unobserve(e.track);whProgressIntersection?.unobserve(e.track);whProgressEntries.delete(e.track);
+}
+function whProgressFinish(e){
+ if(e.motion||e.done!==1||e.started!==1||!e.track.isConnected)return;
+ const info=e.track.parentElement;
+ e.track.insertAdjacentHTML('afterend',whProgressCompleted(!whProgressMotion.matches));
+ info.querySelector('.wh-progress-episode')?.remove();info.querySelector('.wh-progress-count')?.remove();
+ whProgressRemove(e);e.track.remove();
+}
+function whProgressSchedule(){
+ if(!whOpen||document.hidden||whProgressFrame)return;
+ if([...whProgressEntries.values()].some(e=>e.motion||(e.visible&&e.flow&&!whProgressMotion.matches)))
+  whProgressFrame=requestAnimationFrame(whProgressTick);
+}
+function whProgressTick(now){
+ whProgressFrame=0;if(!whOpen){whProgressStop();return;}
+ for(const e of whProgressEntries.values()){
+  if(!e.track.isConnected){whProgressRemove(e);continue;}
+  if(e.motion||(e.visible&&e.flow)){
+   whProgressSample(e,now);whProgressPaint(e,now);whProgressFinish(e);
+  }
+ }
+ whProgressSchedule();
+}
+function whProgressMount(track){
+ if(!track)return null;
+ const e={track,fill:track.querySelector('.wh-progress-done'),solid:track.querySelector('.wh-progress-solid'),
+  end:track.querySelector('.wh-progress-end'),capsules:track.querySelector('.wh-progress-capsules'),cut:track.querySelector('.wh-progress-cut'),
+  done:Number(track.dataset.whDone),started:Number(track.dataset.whStarted),motion:null,flow:false,visible:true};
+ whProgressEntries.set(track,e);
+ if(!whProgressResize&&typeof ResizeObserver==='function')whProgressResize=new ResizeObserver(items=>{
+  for(const item of items){const e=whProgressEntries.get(item.target);if(e)whProgressPaint(e,performance.now());}whProgressSchedule();
+ });
+ if(!whProgressIntersection&&typeof IntersectionObserver==='function')whProgressIntersection=new IntersectionObserver(items=>{
+  for(const item of items){const e=whProgressEntries.get(item.target);if(e)e.visible=item.isIntersecting;}whProgressSchedule();
+ });
+ whProgressResize?.observe(track);whProgressIntersection?.observe(track);
+ whProgressPaint(e,performance.now());whProgressSchedule();return e;
+}
+function whProgressStop(){
+ if(whProgressFrame)cancelAnimationFrame(whProgressFrame);whProgressFrame=0;
+ whProgressResize?.disconnect();whProgressIntersection?.disconnect();whProgressResize=null;whProgressIntersection=null;
+ whProgressEntries.clear();
+}
+function whProgressUpdate(row,r){
+ const {watched,total,done,started}=whProgressCounts(r),info=row.querySelector('.wh-info');
+ let track=info.querySelector('.wh-progress'),e=whProgressEntries.get(track);
+ if(!track){
+  if(done===1)return;
+  const completed=info.querySelector('.wh-completed');
+  completed.insertAdjacentHTML('beforebegin',whProgressMarkup(r,true));completed.remove();
+  track=info.querySelector('.wh-progress');e=whProgressMount(track);
+ }else if(!e)e=whProgressMount(track);
+ info.querySelector('.wh-progress-count').textContent=watched+' of '+total+' episodes watched';
+ track.dataset.whDone=done;track.dataset.whStarted=started;
+ const now=performance.now();whProgressSample(e,now);
+ e.motion={time:now,fromDone:e.done,fromStarted:e.started,done,started};
+ whProgressSample(e,now);whProgressPaint(e,now);whProgressFinish(e);whProgressSchedule();
+}
+whProgressMotion.addEventListener('change',()=>{
+ const now=performance.now();
+ for(const e of whProgressEntries.values()){whProgressSample(e,now);whProgressPaint(e,now);whProgressFinish(e);}
+ whProgressSchedule();
+});
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden){if(whProgressFrame)cancelAnimationFrame(whProgressFrame);whProgressFrame=0;}
+ else whProgressSchedule();
+});
 function whSummaryMarkup(r){
- const watched=whCount(r),total=r.episodes.length,complete=whCompleted(r),open=whExpanded.has(r.id),pct=total?watched/total*100:0;
- const last=whLastEpisode(r);
+ const complete=whCompleted(r),open=whExpanded.has(r.id);
  return `<div class="wh-summary">
  <button class="wh-summary-hit" type="button" data-wh-expand="${escapeHTML(r.id)}" aria-expanded="${open}" aria-label="${open?'Collapse':'Expand'} episodes for ${escapeHTML(r.title)}" title="${open?'Collapse episodes':'View episodes'}"></button>
  <button class="wh-cover-button" type="button" data-wh-open="${escapeHTML(r.id)}" title="Open anime details"><span class="wh-cover" style="--cover:${escapeHTML(whCoverValue(r.cover))}"><span>${escapeHTML(r.short)}</span></span></button>
  <div class="wh-info"><button class="wh-anime-title" type="button" data-wh-open="${escapeHTML(r.id)}">${escapeHTML(r.title)}</button>
- ${complete?`<div class="wh-completed">${whSmallIcon('completed')} Completed</div>`:`<div class="wh-meta">Episode ${last?.n||1} · ${whFmt(last?.progressSeconds)} / ${whFmt(last?.duration)}</div><div class="wh-meta">${watched} of ${total} episodes watched</div><div class="wh-progress gallery-split-timeline" aria-hidden="true"><div class="wh-progress-done" style="flex-basis:${galleryTimelineFill(pct)}"></div><div class="wh-progress-rest"></div></div>`}
+ ${complete?whProgressCompleted():whProgressMarkup(r)}
  <div class="wh-meta">Last watched ${whFormatDate(r.last)}</div></div>
  <div class="wh-actions"><span class="wh-action wh-expand" aria-hidden="true">${whSmallIcon('chevron')}</span><button class="wh-action wh-trash" type="button" data-wh-remove="${escapeHTML(r.id)}" aria-label="Remove ${escapeHTML(r.title)} from history" title="Remove from history">${whSmallIcon('trash')}</button></div>
  </div>`;
@@ -309,7 +439,7 @@ function whAttachInner(area,overlay){
  thumb.addEventListener('pointerdown',down);thumb.addEventListener('pointermove',move);thumb.addEventListener('pointerup',up);thumb.addEventListener('pointercancel',up);thumb.addEventListener('lostpointercapture',up);
  return {area,update,destroy(){clearTimeout(timer);area.removeEventListener('wheel',intentScroll);area.removeEventListener('touchmove',intentScroll);area.removeEventListener('scroll',onScroll);area.removeEventListener('keydown',onKey);thumb.removeEventListener('pointerdown',down);thumb.removeEventListener('pointermove',move);thumb.removeEventListener('pointerup',up);thumb.removeEventListener('pointercancel',up);thumb.removeEventListener('lostpointercapture',up);}};
 }
-function whDestroyInner(){for(const scroller of whInnerScrollers.values())scroller.destroy();whInnerScrollers.clear();}
+function whDestroyInner(){whProgressStop();for(const scroller of whInnerScrollers.values())scroller.destroy();whInnerScrollers.clear();}
 /* Expand/collapse in place so DOM, scroll position and animated height remain stable. */
 function whToggleRow(id){
  const row=[...screen.querySelectorAll('[data-wh-row]')].find(el=>el.dataset.whRow===id);
@@ -346,6 +476,7 @@ function whRender({keepScroll=true}={}){
  const old=keepScroll?workspace.scrollTop:0;
  const prevPositions=new Map([...whInnerScrollers.entries()].map(([id,scroller])=>[id,scroller.area.scrollTop]));
  whDestroyInner();screen.innerHTML=whPageMarkup();
+ screen.querySelectorAll('#wh-root .wh-progress').forEach(whProgressMount);
  for(const id of whExpanded){
   const shell=[...screen.querySelectorAll('[data-wh-shell]')].find(x=>x.dataset.whShell===id);if(!shell)continue;
   const area=shell.querySelector('.wh-episode-scroll');const scroller=whAttachInner(area,shell.querySelector('.wh-inner-overlay'));whInnerScrollers.set(id,scroller);
@@ -363,7 +494,7 @@ function whUpdateEpisodeInPlace(button,r,ep){
  button.querySelector('.wh-episode-label').textContent=label;
  const main=button.closest('.wh-episode').querySelector('.wh-episode-main');let position=main.querySelector('.wh-episode-position');
  if(status==='partial'&&ep.started&&ep.progressSeconds>0){if(!position){position=document.createElement('span');position.className='wh-episode-position';main.append(position)}position.textContent=`${whFmt(ep.progressSeconds)} / ${whFmt(ep.duration)}`;}else position?.remove();
- const row=button.closest('.wh-season');const replacement=document.createElement('template');replacement.innerHTML=whSummaryMarkup(r);row.querySelector('.wh-summary').replaceWith(replacement.content.firstElementChild);
+ const row=button.closest('.wh-season');whProgressUpdate(row,r);
  row.querySelector('.wh-episode-head span').textContent=`${whCount(r)} / ${r.episodes.length} watched`;
  // No rebuild of episode panel; its scrollbar, selected control and scroll position stay stationary.
 }
