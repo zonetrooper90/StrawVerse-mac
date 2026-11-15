@@ -113,143 +113,113 @@ function whSmallIcon(name){const glyph={
  };
  return `<svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyph[name]||''}</svg>`;
 }
-/* v102: Soft Glide + Lab 03's coordinated space transfer and pointer targeting.
- * The row gains panel-width once, then *transfers* it between covers. This avoids
- * a bouncing View History tile and prevents covers sliding under a stationary
- * pointer from silently changing the active anime. */
+/* Recently Watched: pack covers at rest; temporarily compress the side
+ * with more room for a stationary portrait's directional detail panel. */
 let whRecentController=null;
 function whSetupRecentPreview(content){
  if(whRecentController){whRecentController.destroy();whRecentController=null;}
  const row=content.querySelector('.wh-recent-row');if(!row)return;
- const items=[...row.querySelectorAll('.wh-recent-item')];
- const historyTile=row.querySelector('#wh-view-history');
- if(!items.length)return;
- const options={open:550,close:375,delay:100};
- const easing={open:'cubic-bezier(.35,0,.13,1)',close:'cubic-bezier(.25,0,.22,1)'};
- const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
- let observer=null,pending=null,active=null,animation=null,frame=0,destroyed=false;
- let pointerInside=false,pointerX=0,pointerY=0,lastChosenX=null,lastChosenY=null;
- let lastMotionAt=-Infinity,panelWidth=188;
- let extras=items.map(()=>0);
- const sum=arr=>arr.reduce((total,n)=>total+n,0);
+ const items=[...row.querySelectorAll('.wh-recent-item')],historyTile=row.querySelector('#wh-view-history');
+ const motion=matchMedia('(prefers-reduced-motion: reduce)'),hover=matchMedia('(any-hover: hover) and (any-pointer: fine)');
+ const scope=row.closest('.tab-page'),pitch=76,stackPitch=18;
+ let count=0,limit=0,active=null,pending=null,observer=null,scopeObserver=null,destroyed=false;
+ let pointerX=0,pointerY=0,lastChosenX=null,lastChosenY=null,pointerInside=false;
+ const allowed=()=>!destroyed&&!motion.matches&&hover.matches&&!searchOpen;
  const cancelPending=()=>{if(pending){clearTimeout(pending.timer);pending=null;}};
- const bezier=(curve,progress)=>{
-  if(progress<=0)return 0;if(progress>=1)return 1;
-  const c=curve.match(/cubic-bezier\(([^)]+)\)/)[1].split(',').map(Number);
-  const bez=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t;
-  let lo=0,hi=1;for(let i=0;i<18;i++){const mid=(lo+hi)/2;if(bez(c[0],c[2],mid)<progress)lo=mid;else hi=mid;}
-  return Math.max(0,Math.min(1,bez(c[1],c[3],(lo+hi)/2)));
- };
- const paint=()=>items.forEach((item,i)=>{item.style.flexBasis=(66+Math.max(0,extras[i])).toFixed(3)+'px';});
- function sample(time,repeat=true){
-  if(!animation||destroyed)return;
-  const a=animation;
-  const p=a.duration>0?Math.min(1,(time-a.time)/a.duration):1;
-  const ease=bezier(a.toTotal>=a.fromTotal?easing.open:easing.close,p);
-  const transfer=bezier(easing.open,p);
-  const total=a.fromTotal+(a.toTotal-a.fromTotal)*ease;
-  let weights=a.fromWeights.map((w,i)=>w+(a.toWeights[i]-w)*transfer);
-  const weightSum=sum(weights);
-  if(weightSum>1e-8)weights=weights.map(w=>Math.max(0,w/weightSum));
-  extras=weights.map(w=>w*total);paint();
-  if(p>=1){animation=null;frame=0;if(active===null)row.classList.remove('is-switching');}
-  else if(repeat)frame=requestAnimationFrame(t=>sample(t));
+ const visible=()=>items.slice(0,count);
+ function paint(positions){
+  visible().forEach((item,i)=>{
+   item.style.transform='translate3d('+(positions[i]-i*pitch)+'px,0,0)';
+   item.style.zIndex=item===active?'1000':String(i+1);
+  });
  }
- function stop(){if(frame){cancelAnimationFrame(frame);frame=0;}if(animation)sample(performance.now(),false);}
- function activate(item){
-  if(destroyed)return;
+ function close(){
+  cancelPending();active=null;lastChosenX=lastChosenY=null;row.classList.remove('is-stacking');
+  items.forEach(item=>item.classList.remove('is-active'));
+  paint(visible().map((_,i)=>i*pitch));
+ }
+ function reset(){
+  row.classList.add('is-fitting');close();void row.offsetWidth;row.classList.remove('is-fitting');
+ }
+ function activate(item,pointer=null){
   cancelPending();
+  if(!allowed()||!item||item.classList.contains('is-preview-hidden')){close();return;}
   if(active===item)return;
-  stop();
-  const previous=active;active=item;
-  lastMotionAt=performance.now();
-  const total=sum(extras);
-  const from=total>1e-6?extras.map(w=>w/total):items.map(x=>x===previous?1:0);
-  const to=item?items.map(x=>x===item?1:0):from;
-  const switching=Boolean(item&&(previous||total>1e-6));
-  row.classList.toggle('is-switching',switching);
-  row.style.setProperty('--wh-hover-ms',options.open+'ms');
-  items.forEach(x=>x.classList.toggle('is-active',x===item));
-  if(reducedMotion.matches){animation=null;extras=items.map(x=>x===item?panelWidth:0);paint();return;}
-  animation={time:performance.now(),duration:item?options.open:options.close,
-    fromTotal:total,toTotal:item?panelWidth:0,fromWeights:from,toWeights:to};
-  frame=requestAnimationFrame(t=>sample(t));
- }
- function enter(item,x,y){
-  if(item===active){cancelPending();return;}
-  const inMotion=performance.now()-lastMotionAt<Math.max(options.open,options.close)+110;
-  if(active||inMotion||options.delay===0){
-   cancelPending();activate(item);lastChosenX=x;lastChosenY=y;return;
-  }
-  if(pending?.item===item)return;
-  cancelPending();
-  const request={item,timer:null};pending=request;
-  request.timer=setTimeout(()=>{
-   if(destroyed||pending!==request||!pointerInside)return;
-   const target=document.elementFromPoint(pointerX,pointerY);
-   if(target?.closest('.wh-recent-item')!==item||!target?.closest('.wh-recent-card')){cancelPending();return;}
-   pending=null;activate(item);lastChosenX=pointerX;lastChosenY=pointerY;
-  },options.delay);
+  const i=items.indexOf(item),left=i,right=count-i-1;
+  if(i<0||i>=count)return;
+  const required=k=>k?pitch+(k-1)*stackPitch:0;
+  const low=required(left),high=limit-required(right);if(high<low)return;
+  const current=item.getBoundingClientRect().left-row.getBoundingClientRect().left;
+  const anchor=Math.max(low,Math.min(high,current));
+  if(pointer!==null&&(pointer<anchor||pointer>anchor+66))return;
+  const leftRoom=anchor-required(left),rightRoom=limit-anchor-required(right);
+  const side=rightRoom>=leftRoom?'right':'left';
+  const panel=Math.min(188,Math.floor(Math.max(leftRoom,rightRoom)));
+  if(panel<55){close();return;}
+  const positions=visible().map((_,j)=>j*pitch);positions[i]=anchor;
+  let edge=anchor-pitch-(side==='left'?panel:0);
+  for(let j=i-1;j>=0;j--){positions[j]=Math.min(positions[j],edge);edge=positions[j]-stackPitch;}
+  edge=anchor+pitch+(side==='right'?panel:0);
+  for(let j=i+1;j<count;j++){positions[j]=Math.max(positions[j],edge);edge=positions[j]+stackPitch;}
+  active=item;item.dataset.whSide=side;item.style.setProperty('--wh-panel-width',panel+'px');
+  row.classList.add('is-stacking');items.forEach(x=>x.classList.toggle('is-active',x===item));paint(positions);
  }
  function onPointerMove(event){
-  if(event.pointerType==='touch'||!event.isPrimary||destroyed)return;
+  if(event.pointerType!=='mouse'||!event.isPrimary||!allowed())return;
   pointerInside=true;pointerX=event.clientX;pointerY=event.clientY;
-  const cover=event.target.closest('.wh-recent-card');
-  const item=cover?.closest('.wh-recent-item');
-  if(item&&!item.classList.contains('is-preview-hidden')){
-   if(active&&active!==item&&lastChosenX!==null){
-    // Moving covers must not steal selection when the cursor itself hardly moved.
-    if(Math.hypot(event.clientX-lastChosenX,event.clientY-lastChosenY)<18)return;
-   }
-   enter(item,event.clientX,event.clientY);
-  }else if(event.target.closest('#wh-view-history')){cancelPending();activate(null);}
+  const item=event.target.closest('.wh-recent-card')?.closest('.wh-recent-item');
+  if(!item||item.classList.contains('is-preview-hidden')){
+   cancelPending();if(event.target.closest('#wh-view-history'))close();return;
+  }
+  if(item===active){cancelPending();return;}
+  if(active&&lastChosenX!==null&&Math.hypot(pointerX-lastChosenX,pointerY-lastChosenY)<18)return;
+  const choose=()=>{
+   activate(item,pointerX-row.getBoundingClientRect().left);
+   if(active===item){lastChosenX=pointerX;lastChosenY=pointerY;}
+  };
+  if(active){choose();return;}
+  if(pending?.item===item)return;
+  cancelPending();const request={item,timer:null};pending=request;
+  request.timer=setTimeout(()=>{
+   if(destroyed||pending!==request||!pointerInside||!allowed()){cancelPending();return;}
+   if(document.elementFromPoint(pointerX,pointerY)?.closest('.wh-recent-card')?.closest('.wh-recent-item')!==item){cancelPending();return;}
+   pending=null;choose();
+  },100);
  }
- function onPointerLeave(event){
-  if(event.pointerType==='touch'||destroyed)return;
-  pointerInside=false;lastChosenX=lastChosenY=null;cancelPending();activate(null);
- }
- row.addEventListener('pointermove',onPointerMove);
- row.addEventListener('pointerleave',onPointerLeave);
+ function onPointerLeave(event){if(event.pointerType==='mouse'){pointerInside=false;close();}}
+ row.addEventListener('pointermove',onPointerMove);row.addEventListener('pointerleave',onPointerLeave);
  const focusHandlers=[];
  for(const item of items){
   const button=item.querySelector('.wh-recent-card');
-  const onFocus=()=>activate(item);
-  const onFocusOut=event=>{if(!item.contains(event.relatedTarget)&&active===item)activate(null);};
+  const onFocus=()=>{if(button.matches(':focus-visible')&&allowed())activate(item);};
+  const onFocusOut=event=>{if(!item.contains(event.relatedTarget)&&active===item)close();};
   button.addEventListener('focus',onFocus);item.addEventListener('focusout',onFocusOut);
   focusHandlers.push({item,button,onFocus,onFocusOut});
  }
  function fit(){
   if(destroyed)return;
   const width=row.clientWidth;if(width<1)return;
-  // Leave room for the widest active panel plus the final View History tile.
-  const panel=Math.min(188,Math.max(55,width-66*2-10));
-  row.style.setProperty('--wh-panel-width',panel+'px');
-  const maximum=Math.max(1,Math.floor((width-66-panel)/(66+10)));
+  count=Math.max(0,Math.min(items.length,Math.floor((width-66)/pitch)));
+  limit=Math.max(0,width-142);
   items.forEach((item,i)=>{
-   const hidden=i>=maximum;item.classList.toggle('is-preview-hidden',hidden);
-   if(hidden&&item===active)activate(null);
+   const hidden=i>=count;
+   if(hidden&&item.contains(document.activeElement))historyTile.focus({preventScroll:true});
+   item.classList.toggle('is-preview-hidden',hidden);item.style.left=(i*pitch)+'px';
   });
-  if(Math.abs(panel-panelWidth)>.1){
-   stop();const ratio=panelWidth>0?panel/panelWidth:1;
-   extras=extras.map(x=>x*ratio);panelWidth=panel;paint();
-   if(active){
-    const total=sum(extras);
-    const from=total>0?extras.map(x=>x/total):items.map(x=>x===active?1:0);
-    animation={time:performance.now(),duration:options.open,fromTotal:total,toTotal:panelWidth,
-      fromWeights:from,toWeights:items.map(x=>x===active?1:0)};
-    frame=requestAnimationFrame(t=>sample(t));
-   }
-  }
+  reset();
  }
- if(typeof ResizeObserver==='function'){
-  observer=new ResizeObserver(fit);observer.observe(row);
- }else window.addEventListener('resize',fit,{passive:true});
- fit();
+ if(typeof ResizeObserver==='function'){observer=new ResizeObserver(fit);observer.observe(row);}
+ else window.addEventListener('resize',fit,{passive:true});
+ if(scope&&typeof MutationObserver==='function'){
+  scopeObserver=new MutationObserver(()=>{if(searchOpen||scope.classList.contains('search-scope-open'))reset();});
+  scopeObserver.observe(scope,{attributes:true,attributeFilter:['class']});
+ }
+ motion.addEventListener('change',reset);hover.addEventListener('change',reset);fit();
  whRecentController={destroy(){
-  destroyed=true;cancelPending();stop();observer?.disconnect();
+  reset();destroyed=true;observer?.disconnect();scopeObserver?.disconnect();
   if(!observer)window.removeEventListener('resize',fit);
-  row.removeEventListener('pointermove',onPointerMove);
-  row.removeEventListener('pointerleave',onPointerLeave);
+  motion.removeEventListener('change',reset);hover.removeEventListener('change',reset);
+  row.removeEventListener('pointermove',onPointerMove);row.removeEventListener('pointerleave',onPointerLeave);
   focusHandlers.forEach(({item,button,onFocus,onFocusOut})=>{
    button.removeEventListener('focus',onFocus);item.removeEventListener('focusout',onFocusOut);
   });

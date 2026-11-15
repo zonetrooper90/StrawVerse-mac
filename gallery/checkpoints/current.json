@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-15-anime-detail-search-return-verified-retry",
-  "sha256": "c6a0cd867be620287cc21cc9ce8d2060635ae0be97f024c2fcd7b40d1a6fa2dd",
-  "bytes": 6924551,
+  "folder": "2026-11-15-recently-watched-directional-stack",
+  "sha256": "ef824f1289993fe22f9bfbd6fd5c4d2f95d815edd987e9493665b77c5a7c810f",
+  "bytes": 6923816,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
