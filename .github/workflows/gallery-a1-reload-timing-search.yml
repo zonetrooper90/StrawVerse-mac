@@ -1,0 +1,83 @@
+name: Gallery A1 reload timing and synchronized Search tests
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-15-a1-reload-origin-timing-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  storage:
+    name: A1 timing (${{ matrix.mode }}, ${{ matrix.origin }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+        origin: [file, http]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Compare immediate and delayed reloads with browser control
+        run: python3 -B gallery/audits/2026-11-15-a1-reload-origin-timing-diagnostic.py "${{ matrix.mode }}" "${{ matrix.origin }}" "$RUNNER_TEMP/a1-timing.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: a1-timing-${{ matrix.mode }}-${{ matrix.origin }}
+          path: ${{ runner.temp }}/a1-timing.json
+          if-no-files-found: error
+      - name: Verify checkout untouched
+        if: always()
+        run: test -z "$(git status --porcelain)"
+  search:
+    name: Synchronized Search (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Reconstruct exact approved retry in disposable worktree
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/search-candidate" 0c7fa07b4954dfcfd1f63190c7a1c29b5c8b8c64
+          cd "$RUNNER_TEMP/search-candidate"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          python3 -B gallery/changes/pending/2026-11-15-anime-detail-search-return-rail-retry.py
+          python3 gallery/tools/build-gallery.py --write-deliverables
+          printf '%s\n' 'c6a0cd867be620287cc21cc9ce8d2060635ae0be97f024c2fcd7b40d1a6fa2dd  gallery/Gallery-current.html' '772f46684ccdd99ddbd4196eefdac73f942c4ad63d03bc64316e35275ec6b0e1  gallery/Gallery-development.html' | sha256sum -c -
+      - name: Run corrected strict regression independently of A1
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = full ]; then name=Gallery-current.html; else name=Gallery-development.html; fi
+          python3 -B gallery/audits/2026-11-15-anime-detail-search-return-synchronized-regression.py "$RUNNER_TEMP/search-candidate/gallery/$name"
+      - name: Verify checkout untouched
+        if: always()
+        run: test -z "$(git status --porcelain)"

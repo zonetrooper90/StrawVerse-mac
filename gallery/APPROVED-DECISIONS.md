@@ -385,3 +385,6 @@ Both original candidate modes failed exact rail restoration (115px discrepancy) 
 
 ## 2026-11-15 — Approved Search rail and A1 reload read-only investigation
 After retry failed before rail restoration in lightweight and at A1 recovery reload in full, user approved exact-build comparison and repeated synthetic diagnostics only. Separate moving pre-click rail from captured-to-restored offset; compare accepted and both failed candidates; reproduce A1 on accepted and retry. No application, original test, checkpoint or release changes; review evidence before next correction.
+
+## 2026-11-15 — Approved A1 timing/origin investigation and synchronized Search regression
+User approved the follow-up after exact diagnostics. Test accepted full/light file-origin and loopback HTTP storage with immediate/delayed reload and a minimal browser-only control; retain exact fixture, fail-closed recovery semantics and original mandatory tests. Correct Search test synchronization and assert real click capture during ongoing motion without changing the approved retry HTML bytes. Run complete verification only after A1 evidence is assessed; no new application behavior, numbered release or checkpoint authorized by this investigation.
