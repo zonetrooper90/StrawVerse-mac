@@ -397,3 +397,6 @@ User approved the illustrated interaction: fill the bounded non-scrolling Recent
 
 ## 2026-11-15 — Approved dense Recently Watched test data
 User requested more entries to test the stack. Implement a clearly labeled opt-in dense fixture, not a permanent alteration of real history or normal seed. 24 unique shows using existing demo catalogue and fictional sample entries with existing gradient artwork; activate with `#recently-watched-test` and reload, leave by removing fragment and reloading. Test records isolated in memory; normal storage and recovery keys untouched. Preserve actual stacking behavior, all themes, and all prior regressions; require both independent checks. No native, numbered release or image changes. Visual review pending.
+
+## 2026-11-15 — Dense fixture exact retry
+After the full candidate and both baseline independent checks passed, user directed continuation following the isolated lightweight failure in the existing progress-animation assertion. Submit one checksum-guarded byte-identical retry with all original tests intact, requiring both exact candidate HTML hashes and both independent verification workflows. No animation or test changes; if the failure recurs, diagnose before further publication attempts. No new feature scope.
