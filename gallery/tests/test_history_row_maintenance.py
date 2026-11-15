@@ -315,3 +315,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory continuous Recently Watched transfer regression with event-time anchor and frame pinning.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-coordinated-switch-anchor-retry-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory local handoff trial: fixed-edge pane and outgoing-pane frame regression.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-local-handoff-trial-regression.py'),sys.argv[1]],check=True)

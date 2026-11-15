@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-15-recently-watched-coordinated-switch-anchor-retry",
-  "sha256": "9f7399e7fe43db0fcc92db5e30fb53fe9e83efde051180aeaed9df0b074c9c11",
-  "bytes": 6927444,
+  "folder": "2026-11-15-recently-watched-local-handoff-trial",
+  "sha256": "88762177e62e8fd2eeaf4c0016cbf4fb32ecfc0179bd40c53f0df72e52a50250",
+  "bytes": 6928178,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

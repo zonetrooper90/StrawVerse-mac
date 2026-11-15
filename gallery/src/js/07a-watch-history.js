@@ -166,7 +166,7 @@ function whSetupRecentPreview(content){
   });
  }
  function close(){
-  cancelPending();active=null;side=null;lastChosenX=lastChosenY=null;row.classList.remove('is-stacking');
+  cancelPending();active=null;side=null;lastChosenX=lastChosenY=null;row.classList.remove('is-stacking','is-transferring');
   items.forEach(item=>item.classList.remove('is-active','is-overlapped'));
   paint(visible().map((_,i)=>base(i)));
  }
@@ -193,14 +193,19 @@ function whSetupRecentPreview(content){
    chosen=layout(i,anchor,rightRoom>=leftRoom?'right':'left');
   }else{
    const choices=['left','right'].map(d=>layout(i,anchor,d)).filter(Boolean);
-   // Avoid large holes at the ends. When equally packed, prefer a full panel
-   // and then retain its previous direction rather than flipping needlessly.
-   choices.sort((a,b)=>a.waste-b.waste||b.panel-a.panel||Number(b.direction===side)-Number(a.direction===side));
+   // Solve this card independently of the previous panel's direction.
+   // Preserve compactness and usable panel width; break ties by available room.
+   const preferred=rightRoom>=leftRoom?'right':'left';
+   choices.sort((a,b)=>a.waste-b.waste||b.panel-a.panel||Number(b.direction===preferred)-Number(a.direction===preferred));
    chosen=choices[0];
   }
   if(!chosen){close();return;}
+  // A new pane never inherits an outgoing pane's opacity or side transition.
+  // Keep the old portrait anchored until the new layout is applied in this frame.
+  item.dataset.whSide=chosen.direction;item.style.setProperty('--wh-panel-width',chosen.panel+'px');
+  void item.querySelector('.wh-recent-info').offsetWidth;
   active=item;side=chosen.direction;
-  item.dataset.whSide=side;item.style.setProperty('--wh-panel-width',chosen.panel+'px');
+  row.classList.toggle('is-transferring',switching);
   row.classList.add('is-stacking');items.forEach(x=>x.classList.toggle('is-active',x===item));paint(chosen.positions);
  }
  function onPointerMove(event){
