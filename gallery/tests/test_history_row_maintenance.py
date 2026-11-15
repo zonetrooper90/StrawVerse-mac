@@ -312,3 +312,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory dense Recently Watched opt-in fixture isolation and packing regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-dense-test-fixture-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory continuous Recently Watched transfer regression with event-time anchor and frame pinning.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-coordinated-switch-anchor-retry-regression.py'),sys.argv[1]],check=True)

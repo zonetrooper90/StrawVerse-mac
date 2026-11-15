@@ -98,12 +98,17 @@
 .wh-recent-item{position:absolute;top:0;left:0;display:block;width:66px;height:96px;min-width:0;overflow:visible;transition:transform var(--wh-close-ms) var(--wh-close-curve);isolation:isolate}
 .wh-recent-item.is-preview-hidden{display:none!important}
 .wh-recent-row.is-stacking .wh-recent-item{transition:transform var(--wh-open-ms) var(--wh-open-curve)}
+/* A moving portrait must stop on the activation frame, not ease toward the sampled anchor. */
+.wh-recent-row.is-stacking .wh-recent-item.is-active{transition:none}
 .wh-recent-row.is-fitting .wh-recent-item,.wh-recent-row.is-fitting .wh-recent-info{transition:none!important}
 .wh-recent-card{position:absolute;z-index:2;top:0;left:0;width:66px;height:96px;box-sizing:border-box;display:block;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:var(--cover);overflow:hidden;color:white;cursor:pointer;padding:0;text-align:left}
 .wh-recent-card:before{content:"";position:absolute;border:1px solid rgba(255,255,255,.35);border-radius:50%;width:77px;height:77px;top:4px;left:-25px}
 .wh-recent-card:after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(0deg,rgba(0,0,0,.72),transparent);pointer-events:none}
 .wh-recent-card:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
-.wh-recent-card-label{position:absolute;z-index:1;bottom:5px;left:5px;right:5px;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px #000;line-height:1.2;overflow:hidden;max-height:3.6em}
+.wh-recent-card-label{position:absolute;z-index:1;bottom:5px;left:5px;right:5px;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 4px #000;line-height:1.2;overflow:hidden;max-height:3.6em;transition:opacity 130ms ease var(--wh-close-ms)}
+.wh-recent-item.is-overlapped .wh-recent-card-label{opacity:0;transition:opacity 100ms ease}
+.wh-recent-item.is-active .wh-recent-card-label{opacity:1;transition:opacity 100ms ease}
+.wh-recent-row.is-fitting .wh-recent-card-label{transition:none!important}
 /* 84px card sits 6px below top of the 96px foreground cover. */
 .wh-recent-info{position:absolute;z-index:1;top:6px;left:66px;width:var(--wh-panel-width);height:84px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:7px;min-width:0;padding:9px 12px 9px 13px;border:1px solid var(--line);border-left:0;border-radius:0 10px 10px 0;background:var(--surface);color:var(--ink);box-shadow:3px 4px 12px rgba(0,0,0,.1);transform:translate3d(-100%,0,0);opacity:0;transition:transform var(--wh-close-ms) var(--wh-close-curve),opacity 130ms ease;pointer-events:none}
 .wh-recent-item[data-wh-side="left"] .wh-recent-info{left:auto;right:66px;border-left:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px;box-shadow:-3px 4px 12px rgba(0,0,0,.1);transform:translate3d(100%,0,0)}
@@ -113,7 +118,7 @@
 .wh-recent-view{position:absolute;right:0;top:0;z-index:1001;margin:0;width:66px;height:96px;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:10px;font-weight:690;cursor:pointer;padding:7px 4px;text-align:center;white-space:normal}
 .wh-recent-view:hover,.wh-recent-view:focus-visible{background:var(--hover);color:var(--ink)}
 .wh-recent-view .icon{width:21px;height:21px;color:var(--accent)}
-@media(prefers-reduced-motion:reduce),(any-hover:none){.wh-recent-row .wh-recent-item{transform:none!important;transition:none!important}.wh-recent-row .wh-recent-info{display:none!important}}
+@media(prefers-reduced-motion:reduce),(any-hover:none){.wh-recent-row .wh-recent-item{transform:none!important;transition:none!important}.wh-recent-row .wh-recent-info{display:none!important}.wh-recent-row .wh-recent-card-label{transition:none!important;opacity:1}}
 @media(max-width:820px){#wh-root .wh-episode-scroll{grid-template-columns:minmax(0,1fr)}#wh-root .wh-episode-shell:before{display:none}#wh-root .wh-episode:nth-child(n){padding:0 10px}}
 @media(max-width:750px){#wh-root .wh-summary{gap:10px;padding:11px 10px}#wh-root .wh-cover{width:48px;height:68px}#wh-root .wh-episodes-content{padding-left:14px}#wh-root .wh-anime-title{font-size:13px}#wh-root .wh-actions{gap:0}#wh-root .wh-action{width:30px;height:32px}}
 @media(max-width:430px){#wh-root .wh-controls{align-items:stretch}#wh-root .wh-segmented{flex:1;justify-content:space-between}#wh-root .wh-segmented button{padding:8px 9px;flex:1}#wh-root .wh-sort{margin-left:auto}#wh-root .wh-cover{width:42px;height:61px}#wh-root .wh-summary{gap:8px}#wh-root .wh-episode-toggle{font-size:10px;gap:5px;padding:5px 3px}#wh-root .wh-episode-number{min-width:63px}#wh-root .wh-episode-position{font-size:10px}}

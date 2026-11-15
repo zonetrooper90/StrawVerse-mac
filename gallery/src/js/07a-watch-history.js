@@ -115,8 +115,8 @@ function whSmallIcon(name){const glyph={
  };
  return `<svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${glyph[name]||''}</svg>`;
 }
-/* Recently Watched: pack covers at rest; temporarily compress the side
- * with more room for a stationary portrait's directional detail panel. */
+/* Recently Watched: each hover target is solved against the immutable packed
+ * grid, with the live selected portrait anchored under the pointer. */
 let whRecentController=null;
 function whSetupRecentPreview(content){
  if(whRecentController){whRecentController.destroy();whRecentController=null;}
@@ -129,16 +129,46 @@ function whSetupRecentPreview(content){
  const allowed=()=>!destroyed&&!motion.matches&&hover.matches&&!searchOpen;
  const cancelPending=()=>{if(pending){clearTimeout(pending.timer);pending=null;}};
  const visible=()=>items.slice(0,count);
+ // Each layout starts from the original packed grid, never a previous target.
+ const base=i=>i*pitch,clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+ const required=k=>k?pitch+(k-1)*stackPitch:0;
+ let side=null;
+ function layout(i,anchor,direction){
+  const room=direction==='left'?anchor-required(i):limit-anchor-required(count-i-1);
+  const panel=Math.min(188,Math.floor(room));if(panel<55)return null;
+  const positions=visible().map((_,j)=>base(j));positions[i]=anchor;
+  let next=anchor;
+  for(let j=i-1;j>=0;j--){
+   const adjacent=j===i-1&&direction==='left';
+   const minGap=adjacent?pitch+panel:stackPitch,maxGap=adjacent?pitch+panel:pitch;
+   positions[j]=clamp(base(j),Math.max(j*stackPitch,next-maxGap),next-minGap);
+   next=positions[j];
+  }
+  next=anchor;
+  for(let j=i+1;j<count;j++){
+   const adjacent=j===i+1&&direction==='right';
+   const minGap=adjacent?pitch+panel:stackPitch,maxGap=adjacent?pitch+panel:pitch;
+   positions[j]=clamp(base(j),next+minGap,Math.min(limit-(count-1-j)*stackPitch,next+maxGap));
+   next=positions[j];
+  }
+  // Penalize unused space at either end beyond the original packed grid.
+  const waste=Math.max(0,positions[0])+Math.max(0,base(count-1)-positions[count-1]);
+  return {direction,panel,positions,waste};
+ }
  function paint(positions){
+  const selected=items.indexOf(active);
   visible().forEach((item,i)=>{
-   item.style.transform='translate3d('+(positions[i]-i*pitch)+'px,0,0)';
-   item.style.zIndex=item===active?'1000':String(i+1);
+   item.style.transform='translate3d('+(positions[i]-base(i))+'px,0,0)';
+   // Layer toward the active portrait, exposing the outward edges on both sides.
+   item.style.zIndex=item===active?'1000':String(selected<0||i<selected?i+1:count-i);
+   const overlaps=(i>0&&positions[i]-positions[i-1]<65.5)||(i+1<count&&positions[i+1]-positions[i]<65.5);
+   item.classList.toggle('is-overlapped',item!==active&&overlaps);
   });
  }
  function close(){
-  cancelPending();active=null;lastChosenX=lastChosenY=null;row.classList.remove('is-stacking');
-  items.forEach(item=>item.classList.remove('is-active'));
-  paint(visible().map((_,i)=>i*pitch));
+  cancelPending();active=null;side=null;lastChosenX=lastChosenY=null;row.classList.remove('is-stacking');
+  items.forEach(item=>item.classList.remove('is-active','is-overlapped'));
+  paint(visible().map((_,i)=>base(i)));
  }
  function reset(){
   row.classList.add('is-fitting');close();void row.offsetWidth;row.classList.remove('is-fitting');
@@ -147,24 +177,31 @@ function whSetupRecentPreview(content){
   cancelPending();
   if(!allowed()||!item||item.classList.contains('is-preview-hidden')){close();return;}
   if(active===item)return;
-  const i=items.indexOf(item),left=i,right=count-i-1;
-  if(i<0||i>=count)return;
-  const required=k=>k?pitch+(k-1)*stackPitch:0;
-  const low=required(left),high=limit-required(right);if(high<low)return;
+  const i=items.indexOf(item);if(i<0||i>=count)return;
+  const switching=Boolean(active);
   const current=item.getBoundingClientRect().left-row.getBoundingClientRect().left;
-  const anchor=Math.max(low,Math.min(high,current));
-  if(pointer!==null&&(pointer<anchor||pointer>anchor+66))return;
-  const leftRoom=anchor-required(left),rightRoom=limit-anchor-required(right);
-  const side=rightRoom>=leftRoom?'right':'left';
-  const panel=Math.min(188,Math.floor(Math.max(leftRoom,rightRoom)));
-  if(panel<55){close();return;}
-  const positions=visible().map((_,j)=>j*pitch);positions[i]=anchor;
-  let edge=anchor-pitch-(side==='left'?panel:0);
-  for(let j=i-1;j>=0;j--){positions[j]=Math.min(positions[j],edge);edge=positions[j]-stackPitch;}
-  edge=anchor+pitch+(side==='right'?panel:0);
-  for(let j=i+1;j<count;j++){positions[j]=Math.max(positions[j],edge);edge=positions[j]+stackPitch;}
-  active=item;item.dataset.whSide=side;item.style.setProperty('--wh-panel-width',panel+'px');
-  row.classList.add('is-stacking');items.forEach(x=>x.classList.toggle('is-active',x===item));paint(positions);
+  // A compressed cover is already at a legal anchor. Do not move it to its
+  // old slot or inherit its previous neighbors' displacement.
+  const low=i*stackPitch,high=limit-(count-i-1)*stackPitch;
+  if(high<low)return;
+  const anchor=clamp(current,low,high);
+  if(pointer!==null&&(pointer<anchor-1||pointer>anchor+67))return;
+  const leftRoom=anchor-required(i),rightRoom=limit-anchor-required(count-i-1);
+  let chosen;
+  if(!switching){
+   // Retain the original first-hover direction and minimum-panel behavior.
+   chosen=layout(i,anchor,rightRoom>=leftRoom?'right':'left');
+  }else{
+   const choices=['left','right'].map(d=>layout(i,anchor,d)).filter(Boolean);
+   // Avoid large holes at the ends. When equally packed, prefer a full panel
+   // and then retain its previous direction rather than flipping needlessly.
+   choices.sort((a,b)=>a.waste-b.waste||b.panel-a.panel||Number(b.direction===side)-Number(a.direction===side));
+   chosen=choices[0];
+  }
+  if(!chosen){close();return;}
+  active=item;side=chosen.direction;
+  item.dataset.whSide=side;item.style.setProperty('--wh-panel-width',chosen.panel+'px');
+  row.classList.add('is-stacking');items.forEach(x=>x.classList.toggle('is-active',x===item));paint(chosen.positions);
  }
  function onPointerMove(event){
   if(event.pointerType!=='mouse'||!event.isPrimary||!allowed())return;
@@ -174,7 +211,7 @@ function whSetupRecentPreview(content){
    cancelPending();if(event.target.closest('#wh-view-history'))close();return;
   }
   if(item===active){cancelPending();return;}
-  if(active&&lastChosenX!==null&&Math.hypot(pointerX-lastChosenX,pointerY-lastChosenY)<18)return;
+  if(active&&lastChosenX!==null&&Math.hypot(pointerX-lastChosenX,pointerY-lastChosenY)<6)return;
   const choose=()=>{
    activate(item,pointerX-row.getBoundingClientRect().left);
    if(active===item){lastChosenX=pointerX;lastChosenY=pointerY;}
