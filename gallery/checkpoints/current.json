@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-15-recently-watched-local-handoff-trial",
-  "sha256": "88762177e62e8fd2eeaf4c0016cbf4fb32ecfc0179bd40c53f0df72e52a50250",
-  "bytes": 6928178,
+  "folder": "2026-11-16-global-watch-history-scroll-restore",
+  "sha256": "9e5366a1e54a7719eeff8c7127298bf9371808a2c2749a704fcacc2634dbc37a",
+  "bytes": 6932426,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

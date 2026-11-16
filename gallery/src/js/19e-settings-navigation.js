@@ -63,7 +63,7 @@ function galleryOpenSettingsNow(){
  document.querySelector('.tabs').inert=true;
  workspace.scrollTop=0;
  const settingsButton=document.getElementById('settings');
- configureHeaderSearchContext();
+ syncHeaderWatchHistory();configureHeaderSearchContext();
  settingsButton.setAttribute('aria-label','Close settings');
  settingsButton.setAttribute('title','Close settings');
  settingsButton.setAttribute('aria-expanded','true');
@@ -192,6 +192,7 @@ function closeSettings(){
   button.setAttribute('aria-label','Open settings');
   button.setAttribute('title','Settings');
   button.setAttribute('aria-expanded','false');
+  syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
   settingsClosing=false;
   requestAnimationFrame(updateTabScrollOverlay);
  });

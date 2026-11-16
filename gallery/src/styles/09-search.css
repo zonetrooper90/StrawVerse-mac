@@ -42,7 +42,7 @@ html[data-focus-modality="keyboard"] .header-search.is-open:focus-within{border-
   border:1px solid transparent;border-radius:11px;background:var(--raised);
   opacity:0;visibility:hidden;overflow:hidden;
   transition:width .32s cubic-bezier(.2,.72,.2,1),opacity .2s ease,visibility 0s .32s,padding .32s cubic-bezier(.2,.72,.2,1),border-color .2s ease}
-.header-search.is-open .header-search-field{width:min(420px,calc(100vw - 320px));max-width:none;padding:0 4px 0 10px;
+.header-search.is-open .header-search-field{width:min(420px,calc(100vw - 320px - var(--wh-toolbar-extra,48px)));max-width:none;padding:0 4px 0 10px;
   border-color:var(--line);opacity:1;visibility:visible;transition-delay:0s,0s,0s,0s,0s}
 .header-search-field input{height:34px;min-width:0;padding:0 1px}
 .header-search.is-open .header-search-trigger:hover{background:var(--hover)}
@@ -54,7 +54,7 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
  .brand-row.is-searching .brand{max-width:none;flex:0 1 auto;opacity:0;pointer-events:none}
  .brand-row.is-searching .toolbar{flex:none}
  .brand-row.is-searching .header-search{flex:0 0 38px}
- .header-search.is-open .header-search-field{width:min(420px,calc(100vw - 140px))}
+ .header-search.is-open .header-search-field{width:min(420px,calc(100vw - 140px - var(--wh-toolbar-extra,48px)))}
 }
 @media(max-width:480px){.brand-row.is-searching .brand{max-width:none;flex-basis:auto;opacity:0}.brand-row.is-searching{gap:15px}}
 /* Discover: collapse the existing Continue Watching element without removing its
@@ -72,3 +72,11 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
 @media(prefers-reduced-motion:reduce){.continue-shell,.header-search-field{transition:none!important}}
 
 
+
+/* Global Watch History shortcut — keep the existing Search/Settings geometry. */
+body.recently-watched-legacy{--wh-toolbar-extra:0px}
+#header-watch-history[hidden]{display:none!important}
+#header-watch-history{flex:none}
+#header-watch-history .icon{width:21px;height:21px}
+body[data-theme] #header-watch-history[aria-pressed="true"]:not(:disabled){color:var(--accent);border-color:var(--accent)}
+body[data-theme] #header-watch-history:disabled{opacity:.45;cursor:default;pointer-events:none}

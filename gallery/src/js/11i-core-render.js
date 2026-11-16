@@ -4,6 +4,7 @@ function render(options={}){
  // Both the Anime detail and Watch History are secondary pages: hide main
  // navigation, but retain the standard Gallery brand header and back buttons.
  document.body.classList.toggle('detail-view',Boolean(state.detailId&&!state.playback&&!whOpen));
+ syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
  if(whOpen){
   freezeTabTrack();hideTabScrollOverlay();workspace.classList.remove('tab-pages-visible','library-view');tabPagesViewport.hidden=true;screen.hidden=false;screen.dataset.surfaceKey='watch-history';whRender({keepScroll:false});return;
  }

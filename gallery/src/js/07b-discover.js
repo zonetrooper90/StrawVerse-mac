@@ -7,7 +7,7 @@ function discover(){
  const title=isSearching&&state.query.trim()?'Search results':'Explore the universe';
  const cards=model.titles.length?(matching.length?gallery(matching):'<div class="search-empty">No matching titles in this sample catalogue.</div>'):sourceCatalogueEmptyMarkup(model);
  const note=model.catalogSources.length>1?`<p class="discover-source-note">Shared sample titles are combined into one catalogue entry, even when both sources list them.</p>`:model.cached?`<p class="discover-source-note">Previously known titles from an unavailable provider are kept visible in this simulation; availability has not been rechecked.</p>`:'';
- return `<div class="sf-discover-page">
+ return `<div class="sf-discover-page${whRecentLegacyMode?' has-recently-watched':''}">
  ${pageHeader('Discover','','','discover')}
  ${whPreviewMarkup()}
  <section class="gallery-section sf-discover-explore" id="sf-discover-explore" aria-label="Explore anime">

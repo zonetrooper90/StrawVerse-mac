@@ -311,10 +311,16 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-legacy-audit.py'),'2026-11-15-recently-watched-directional-stack-regression.py',sys.argv[1]],check=True)
 
 # Mandatory dense Recently Watched opt-in fixture isolation and packing regression.
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-dense-test-fixture-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-retry-dense-legacy-audit.py'),sys.argv[1]],check=True)
 
 # Mandatory continuous Recently Watched transfer regression with event-time anchor and frame pinning.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-coordinated-switch-anchor-retry-regression.py'),sys.argv[1]],check=True)
 
 # Mandatory local handoff trial: fixed-edge pane and outgoing-pane frame regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-local-handoff-trial-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory default-layout global Watch History navigation trial (both builds).
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory global Watch History primary scroll and nested Downloads restoration.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-scroll-restore-regression.py'),sys.argv[1]],check=True)

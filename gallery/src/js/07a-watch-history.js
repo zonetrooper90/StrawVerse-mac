@@ -58,7 +58,7 @@ function whLoadRecords(){
  return records;
 }
 let whRecords=whLoadRecords();let whOpen=false,whFilter='all',whSort='newest',whSearch='',whExpanded=new Set(),whPending=new Set();
-let whSuspended=null,whParentView='discover';
+let whSuspended=null,whParentView='discover',whOriginDetail=null,whOriginTabs=null;
 let whInnerScrollers=new Map();
 function whSave(){
  // Do not overwrite unreadable storage or changes from another open preview.
@@ -270,6 +270,7 @@ function whSetupRecentPreview(content){
  }};
 }
 function whPreviewMarkup(){
+ if(!whRecentLegacyMode)return '';
  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
  <div class="wh-recent-header">Recently Watched${whRecentTestMode?' · Test data':''}</div>
@@ -428,7 +429,7 @@ function whPageMarkup(){
  return `<section id="wh-root" aria-label="Watch History">
  <header class="detail-page-header wh-page-header">
   <h1 class="detail-title sf-optical-title">Watch History</h1>
-  <button type="button" class="detail-back" data-wh-exit>${icon('back',18)} Back to Discover</button>
+  <button type="button" class="detail-back" data-wh-exit>${icon('back',18)} Back to ${whOriginDetail?'Anime Details':whParentView==='library'?'Library':whParentView==='downloads'?'Downloads':'Discover'}</button>
  </header>
  <div class="wh-controls"><div class="wh-segmented" role="group" aria-label="Filter Watch History">${[['all','All'],['progress','In Progress'],['completed','Completed']].map(([name,label])=>`<button type="button" data-wh-filter="${name}" aria-pressed="${whFilter===name}">${label}</button>`).join('')}</div>
  <button type="button" class="wh-sort" data-wh-sort title="Reverse watch history sorting">${whSmallIcon('sort')} ${whSort==='newest'?'Newest First':'Oldest First'}</button></div>
@@ -512,11 +513,46 @@ function whUpdateEpisodeInPlace(button,r,ep){
  row.querySelector('.wh-episode-head span').textContent=`${whCount(r)} / ${r.episodes.length} watched`;
  // No rebuild of episode panel; its scrollbar, selected control and scroll position stay stationary.
 }
+function syncHeaderWatchHistory(){
+ const button=document.getElementById('header-watch-history');
+ const settings=document.body.classList.contains('settings-view');
+ button.hidden=whRecentLegacyMode;
+ button.disabled=settings||Boolean(state.playback);
+ button.setAttribute('aria-pressed',String(whOpen&&!settings));
+}
+function toggleHeaderWatchHistory(){
+ if(whRecentLegacyMode||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
+ if(whOpen){whExit();return;}
+ if(state.detailId&&state.detailReturnHistory&&whSuspended){backFromDetail();return;}
+ whEnter();
+}
+// Capture the real primary-page positions before hiding tabs or changing
+// header height; hidden DOM and the expanded History viewport can clamp them.
+function whCapturePrimaryScroll(){
+ if(tabPagesViewport.hidden||!workspace.classList.contains('tab-pages-visible'))return null;
+ captureDownloadScroll();
+ return {tops:new Map(tabOrder.map(view=>[view,tabPages[view].scrollTop])),
+  libraryRail:tabPages.library.querySelector('.tagbar')?.scrollLeft||0,
+  downloads:new Map(sfDownloadScrollPositions)};
+}
+function whRestorePrimaryScroll(saved){
+ if(!saved)return;
+ // render() has restored the normal header, all tab DOM and track position.
+ // Reapply only saved positions, at the fully transparent route midpoint.
+ const rail=tabPages.library.querySelector('.tagbar');
+ if(rail){rail.scrollLeft=saved.libraryRail;rail.galleryRefresh?.();}
+ for(const [id,top] of saved.downloads)sfDownloadScrollPositions.set(id,top);
+ restoreDownloadScroll();
+ for(const [view,top] of saved.tops)tabPages[view].scrollTo({top,behavior:'instant'});
+}
 function whEnter(){
- if(whOpen)return;
+ if(whOpen||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
  transitionGalleryStage(()=>{
   if(searchOpen)closeInlineSearch(false);
+  whOriginDetail=state.detailId?captureSearchDetailReturn():null;
+  whOriginTabs=whOriginDetail?null:whCapturePrimaryScroll();
   whParentView=state.view;whSuspended=null;whOpen=true;
+  state.detailId=null;state.detailReturnHistory=false;
   document.body.classList.add('watch-history-view');
   whFilter='all';whSort='newest';whSearch='';whExpanded.clear();whPending.clear();
   hideTabScrollOverlay();render();workspace.scrollTop=0;
@@ -538,11 +574,20 @@ function whResumeFromDetail(){
 function whExit({renderAfter=true}={}){
  if(!whOpen)return;
  const exit=()=>{
+  if(searchOpen)closeInlineSearch(false);
+  const origin=whOriginDetail,primaryScroll=whOriginTabs;whOriginDetail=null;whOriginTabs=null;
   whOpen=false;whSuspended=null;document.body.classList.remove('watch-history-view');
   whDestroyInner();if(whPending.size){whRecords=whRecords.filter(r=>!whPending.has(r.id));whSave();}
   whPending.clear();whExpanded.clear();whFilter='all';whSort='newest';whSearch='';
-  if(searchOpen)closeInlineSearch(false);
-  if(renderAfter){state.view=whParentView;updateActiveTab(state.view);render();requestAnimationFrame(updateTabScrollOverlay);}
+  if(renderAfter){
+   state.view=whParentView;updateActiveTab(state.view);
+   if(origin){
+    state.view=origin.view;Object.assign(state,origin.fields);
+    updateActiveTab(state.view);render({searchRailScroll:origin.railScroll});
+    workspace.scrollTo({top:origin.scroll,behavior:'instant'});
+   }else{state.detailId=null;render();whRestorePrimaryScroll(primaryScroll);}
+   requestAnimationFrame(updateTabScrollOverlay);
+  }
  };
  if(renderAfter)transitionGalleryStage(exit);else exit();
 }

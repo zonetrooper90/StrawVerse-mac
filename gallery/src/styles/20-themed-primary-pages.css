@@ -218,3 +218,6 @@ body[data-theme] :is(.page-header-library,.page-header-downloads) .page-header-a
   }
 }
 
+
+/* Without the optional history strip there is no search-collapse spacing to animate. */
+body[data-theme] .sf-discover-page:not(.has-recently-watched) .sf-discover-explore{margin-top:5px;transition:none}

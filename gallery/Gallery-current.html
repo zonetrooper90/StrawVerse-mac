@@ -959,7 +959,7 @@ html[data-focus-modality="keyboard"] .header-search.is-open:focus-within{border-
   border:1px solid transparent;border-radius:11px;background:var(--raised);
   opacity:0;visibility:hidden;overflow:hidden;
   transition:width .32s cubic-bezier(.2,.72,.2,1),opacity .2s ease,visibility 0s .32s,padding .32s cubic-bezier(.2,.72,.2,1),border-color .2s ease}
-.header-search.is-open .header-search-field{width:min(420px,calc(100vw - 320px));max-width:none;padding:0 4px 0 10px;
+.header-search.is-open .header-search-field{width:min(420px,calc(100vw - 320px - var(--wh-toolbar-extra,48px)));max-width:none;padding:0 4px 0 10px;
   border-color:var(--line);opacity:1;visibility:visible;transition-delay:0s,0s,0s,0s,0s}
 .header-search-field input{height:34px;min-width:0;padding:0 1px}
 .header-search.is-open .header-search-trigger:hover{background:var(--hover)}
@@ -971,7 +971,7 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
  .brand-row.is-searching .brand{max-width:none;flex:0 1 auto;opacity:0;pointer-events:none}
  .brand-row.is-searching .toolbar{flex:none}
  .brand-row.is-searching .header-search{flex:0 0 38px}
- .header-search.is-open .header-search-field{width:min(420px,calc(100vw - 140px))}
+ .header-search.is-open .header-search-field{width:min(420px,calc(100vw - 140px - var(--wh-toolbar-extra,48px)))}
 }
 @media(max-width:480px){.brand-row.is-searching .brand{max-width:none;flex-basis:auto;opacity:0}.brand-row.is-searching{gap:15px}}
 /* Discover: collapse the existing Continue Watching element without removing its
@@ -989,6 +989,14 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
 @media(prefers-reduced-motion:reduce){.continue-shell,.header-search-field{transition:none!important}}
 
 
+
+/* Global Watch History shortcut — keep the existing Search/Settings geometry. */
+body.recently-watched-legacy{--wh-toolbar-extra:0px}
+#header-watch-history[hidden]{display:none!important}
+#header-watch-history{flex:none}
+#header-watch-history .icon{width:21px;height:21px}
+body[data-theme] #header-watch-history[aria-pressed="true"]:not(:disabled){color:var(--accent);border-color:var(--accent)}
+body[data-theme] #header-watch-history:disabled{opacity:.45;cursor:default;pointer-events:none}
 /* v57 — Settings is a full page; main navigation disappears entirely. */
 .settings-page[hidden],.settings-panel[hidden]{display:none!important}
 body.settings-view .tabs{display:none!important}
@@ -2665,6 +2673,9 @@ body[data-theme] :is(.page-header-library,.page-header-downloads) .page-header-a
   }
 }
 
+
+/* Without the optional history strip there is no search-collapse spacing to animate. */
+body[data-theme] .sf-discover-page:not(.has-recently-watched) .sf-discover-explore{margin-top:5px;transition:none}
 /* Soft Futuristic Downloads integration (design experiment, after the approved title-only headers).
    Scoped to Downloads only; the player seek bar and other page cards are unchanged. */
 body[data-theme] .sf-dl-list-heading{
@@ -3676,6 +3687,7 @@ body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .deta
           </div>
 
         </div>
+        <button class="iconbtn" id="header-watch-history" type="button" aria-label="Watch History" title="Watch History" aria-pressed="false" hidden></button>
         <button class="iconbtn" id="settings" aria-label="Open settings" title="Settings" aria-expanded="false" aria-controls="settings-page"></button>
       </div>
     </div>
@@ -4287,6 +4299,8 @@ const whSeed=[
 /* Opt-in dense sample history for Recently Watched visual testing only.
  * Keep the ordinary seed and stored preview history unchanged. */
 const whRecentTestMode=location.hash==='#recently-watched-test';
+// Explicit diagnostic mode retains the old banner and toolbar for comparisons.
+const whRecentLegacyMode=whRecentTestMode||location.hash==='#recently-watched-legacy';
 function whRecentTestRecords(){
  const extraTitles=['demo:long','demo:03','demo:04','demo:05','demo:06','demo:07','demo:08','demo:09','demo:10'].map(id=>demo.find(x=>x.id===id));
  const extraSamples=['Amber Horizon','Cloudbound','Midnight Archive','Copper Moon','Ocean Echoes','Starfall Garden','Winter Lanterns'].map((name,i)=>({name,art:extraTitles[i].art,episodes:12,id:null}));
@@ -4358,7 +4372,7 @@ function whLoadRecords(){
  return records;
 }
 let whRecords=whLoadRecords();let whOpen=false,whFilter='all',whSort='newest',whSearch='',whExpanded=new Set(),whPending=new Set();
-let whSuspended=null,whParentView='discover';
+let whSuspended=null,whParentView='discover',whOriginDetail=null,whOriginTabs=null;
 let whInnerScrollers=new Map();
 function whSave(){
  // Do not overwrite unreadable storage or changes from another open preview.
@@ -4570,6 +4584,7 @@ function whSetupRecentPreview(content){
  }};
 }
 function whPreviewMarkup(){
+ if(!whRecentLegacyMode)return '';
  const seen=new Set();const recent=[...whRecords].sort((a,b)=>b.last.localeCompare(a.last)).filter(r=>{if(seen.has(r.group))return false;seen.add(r.group);return true;});
  return `<div class="continue-shell"><div class="continue-clip"><section class="continue wh-recent" aria-label="Recently Watched">
  <div class="wh-recent-header">Recently Watched${whRecentTestMode?' · Test data':''}</div>
@@ -4728,7 +4743,7 @@ function whPageMarkup(){
  return `<section id="wh-root" aria-label="Watch History">
  <header class="detail-page-header wh-page-header">
   <h1 class="detail-title sf-optical-title">Watch History</h1>
-  <button type="button" class="detail-back" data-wh-exit>${icon('back',18)} Back to Discover</button>
+  <button type="button" class="detail-back" data-wh-exit>${icon('back',18)} Back to ${whOriginDetail?'Anime Details':whParentView==='library'?'Library':whParentView==='downloads'?'Downloads':'Discover'}</button>
  </header>
  <div class="wh-controls"><div class="wh-segmented" role="group" aria-label="Filter Watch History">${[['all','All'],['progress','In Progress'],['completed','Completed']].map(([name,label])=>`<button type="button" data-wh-filter="${name}" aria-pressed="${whFilter===name}">${label}</button>`).join('')}</div>
  <button type="button" class="wh-sort" data-wh-sort title="Reverse watch history sorting">${whSmallIcon('sort')} ${whSort==='newest'?'Newest First':'Oldest First'}</button></div>
@@ -4812,11 +4827,46 @@ function whUpdateEpisodeInPlace(button,r,ep){
  row.querySelector('.wh-episode-head span').textContent=`${whCount(r)} / ${r.episodes.length} watched`;
  // No rebuild of episode panel; its scrollbar, selected control and scroll position stay stationary.
 }
+function syncHeaderWatchHistory(){
+ const button=document.getElementById('header-watch-history');
+ const settings=document.body.classList.contains('settings-view');
+ button.hidden=whRecentLegacyMode;
+ button.disabled=settings||Boolean(state.playback);
+ button.setAttribute('aria-pressed',String(whOpen&&!settings));
+}
+function toggleHeaderWatchHistory(){
+ if(whRecentLegacyMode||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
+ if(whOpen){whExit();return;}
+ if(state.detailId&&state.detailReturnHistory&&whSuspended){backFromDetail();return;}
+ whEnter();
+}
+// Capture the real primary-page positions before hiding tabs or changing
+// header height; hidden DOM and the expanded History viewport can clamp them.
+function whCapturePrimaryScroll(){
+ if(tabPagesViewport.hidden||!workspace.classList.contains('tab-pages-visible'))return null;
+ captureDownloadScroll();
+ return {tops:new Map(tabOrder.map(view=>[view,tabPages[view].scrollTop])),
+  libraryRail:tabPages.library.querySelector('.tagbar')?.scrollLeft||0,
+  downloads:new Map(sfDownloadScrollPositions)};
+}
+function whRestorePrimaryScroll(saved){
+ if(!saved)return;
+ // render() has restored the normal header, all tab DOM and track position.
+ // Reapply only saved positions, at the fully transparent route midpoint.
+ const rail=tabPages.library.querySelector('.tagbar');
+ if(rail){rail.scrollLeft=saved.libraryRail;rail.galleryRefresh?.();}
+ for(const [id,top] of saved.downloads)sfDownloadScrollPositions.set(id,top);
+ restoreDownloadScroll();
+ for(const [view,top] of saved.tops)tabPages[view].scrollTo({top,behavior:'instant'});
+}
 function whEnter(){
- if(whOpen)return;
+ if(whOpen||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
  transitionGalleryStage(()=>{
   if(searchOpen)closeInlineSearch(false);
+  whOriginDetail=state.detailId?captureSearchDetailReturn():null;
+  whOriginTabs=whOriginDetail?null:whCapturePrimaryScroll();
   whParentView=state.view;whSuspended=null;whOpen=true;
+  state.detailId=null;state.detailReturnHistory=false;
   document.body.classList.add('watch-history-view');
   whFilter='all';whSort='newest';whSearch='';whExpanded.clear();whPending.clear();
   hideTabScrollOverlay();render();workspace.scrollTop=0;
@@ -4838,11 +4888,20 @@ function whResumeFromDetail(){
 function whExit({renderAfter=true}={}){
  if(!whOpen)return;
  const exit=()=>{
+  if(searchOpen)closeInlineSearch(false);
+  const origin=whOriginDetail,primaryScroll=whOriginTabs;whOriginDetail=null;whOriginTabs=null;
   whOpen=false;whSuspended=null;document.body.classList.remove('watch-history-view');
   whDestroyInner();if(whPending.size){whRecords=whRecords.filter(r=>!whPending.has(r.id));whSave();}
   whPending.clear();whExpanded.clear();whFilter='all';whSort='newest';whSearch='';
-  if(searchOpen)closeInlineSearch(false);
-  if(renderAfter){state.view=whParentView;updateActiveTab(state.view);render();requestAnimationFrame(updateTabScrollOverlay);}
+  if(renderAfter){
+   state.view=whParentView;updateActiveTab(state.view);
+   if(origin){
+    state.view=origin.view;Object.assign(state,origin.fields);
+    updateActiveTab(state.view);render({searchRailScroll:origin.railScroll});
+    workspace.scrollTo({top:origin.scroll,behavior:'instant'});
+   }else{state.detailId=null;render();whRestorePrimaryScroll(primaryScroll);}
+   requestAnimationFrame(updateTabScrollOverlay);
+  }
  };
  if(renderAfter)transitionGalleryStage(exit);else exit();
 }
@@ -4911,7 +4970,7 @@ function discover(){
  const title=isSearching&&state.query.trim()?'Search results':'Explore the universe';
  const cards=model.titles.length?(matching.length?gallery(matching):'<div class="search-empty">No matching titles in this sample catalogue.</div>'):sourceCatalogueEmptyMarkup(model);
  const note=model.catalogSources.length>1?`<p class="discover-source-note">Shared sample titles are combined into one catalogue entry, even when both sources list them.</p>`:model.cached?`<p class="discover-source-note">Previously known titles from an unavailable provider are kept visible in this simulation; availability has not been rechecked.</p>`:'';
- return `<div class="sf-discover-page">
+ return `<div class="sf-discover-page${whRecentLegacyMode?' has-recently-watched':''}">
  ${pageHeader('Discover','','','discover')}
  ${whPreviewMarkup()}
  <section class="gallery-section sf-discover-explore" id="sf-discover-explore" aria-label="Explore anime">
@@ -6258,6 +6317,7 @@ function render(options={}){
  // Both the Anime detail and Watch History are secondary pages: hide main
  // navigation, but retain the standard Gallery brand header and back buttons.
  document.body.classList.toggle('detail-view',Boolean(state.detailId&&!state.playback&&!whOpen));
+ syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
  if(whOpen){
   freezeTabTrack();hideTabScrollOverlay();workspace.classList.remove('tab-pages-visible','library-view');tabPagesViewport.hidden=true;screen.hidden=false;screen.dataset.surfaceKey='watch-history';whRender({keepScroll:false});return;
  }
@@ -7847,7 +7907,7 @@ function galleryOpenSettingsNow(){
  document.querySelector('.tabs').inert=true;
  workspace.scrollTop=0;
  const settingsButton=document.getElementById('settings');
- configureHeaderSearchContext();
+ syncHeaderWatchHistory();configureHeaderSearchContext();
  settingsButton.setAttribute('aria-label','Close settings');
  settingsButton.setAttribute('title','Close settings');
  settingsButton.setAttribute('aria-expanded','true');
@@ -7976,6 +8036,7 @@ function closeSettings(){
   button.setAttribute('aria-label','Open settings');
   button.setAttribute('title','Settings');
   button.setAttribute('aria-expanded','false');
+  syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
   settingsClosing=false;
   requestAnimationFrame(updateTabScrollOverlay);
  });
@@ -8229,7 +8290,7 @@ function openInlineSearch(){
  }
  // Opening Search does not rerender or move Library/Downloads. Only Discover
  // animates Continue Watching, as agreed in the existing search design.
- if(discoverScope)startDiscoverSearchMotion(discoverMotion);
+ if(discoverScope){if(discoverMotion)startDiscoverSearchMotion(discoverMotion);else tabPages.discover.scrollTop=0;}
  hideTabScrollOverlay();
  searchInput.focus({preventScroll:true});
 }
@@ -8252,14 +8313,14 @@ function closeInlineSearch(restoreFocus=true){
  searchInput.value='';
  searchClear.hidden=true;
  searchClose.hidden=false;
- if(whOpen){whSearch='';whRender();if(restoreFocus)searchToggle.focus({preventScroll:true});return;}
+ if(whOpen){whSearch='';whRender();if(!whRecentLegacyMode)configureHeaderSearchContext();if(restoreFocus)searchToggle.focus({preventScroll:true});return;}
  if(searchingSettings){renderSettingsSearchResults();workspace.scrollTop=searchScrollBefore;}
  else if(!state.detailId&&!state.playback){
   if(view==='discover'){
    const discoverMotion=beginDiscoverSearchMotion(searchScrollBefore,false);
    tabPages.discover.classList.remove('search-scope-open');
    updateDiscoverSearchResults();
-   startDiscoverSearchMotion(discoverMotion,!restoreFocus);
+   if(discoverMotion)startDiscoverSearchMotion(discoverMotion,!restoreFocus);else tabPages.discover.scrollTop=searchScrollBefore;
   }else {
    if(hadQuery)renderTabPage(view);
    tabPages[view].scrollTop=searchScrollBefore;
@@ -8338,6 +8399,6 @@ document.addEventListener('keydown',event=>{
  const menu=tabPages.library?.querySelector('#tag-options-menu');
  if(menu&&!menu.hidden){menu.hidden=true;const button=tabPages.library.querySelector('#tag-options');button?.setAttribute('aria-expanded','false');button?.focus();event.preventDefault();}
 });
-for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.getElementById('settings').innerHTML=icon('settings',23);document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML=icon('close',15);searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});document.body.dataset.theme=state.theme;render();setupDesktopSettings();
+for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.body.classList.toggle('recently-watched-legacy',whRecentLegacyMode);const headerWatchHistory=document.getElementById('header-watch-history');headerWatchHistory.innerHTML=whSmallIcon('history');headerWatchHistory.onclick=toggleHeaderWatchHistory;document.getElementById('settings').innerHTML=icon('settings',23);document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML=icon('close',15);searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});document.body.dataset.theme=state.theme;render();setupDesktopSettings();
 window.addEventListener('resize',()=>tabPages.library?.querySelector('.tagbar')?.galleryRefresh?.(true));
 </script></body></html>

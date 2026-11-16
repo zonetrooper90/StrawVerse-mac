@@ -214,7 +214,7 @@ function openInlineSearch(){
  }
  // Opening Search does not rerender or move Library/Downloads. Only Discover
  // animates Continue Watching, as agreed in the existing search design.
- if(discoverScope)startDiscoverSearchMotion(discoverMotion);
+ if(discoverScope){if(discoverMotion)startDiscoverSearchMotion(discoverMotion);else tabPages.discover.scrollTop=0;}
  hideTabScrollOverlay();
  searchInput.focus({preventScroll:true});
 }
@@ -237,14 +237,14 @@ function closeInlineSearch(restoreFocus=true){
  searchInput.value='';
  searchClear.hidden=true;
  searchClose.hidden=false;
- if(whOpen){whSearch='';whRender();if(restoreFocus)searchToggle.focus({preventScroll:true});return;}
+ if(whOpen){whSearch='';whRender();if(!whRecentLegacyMode)configureHeaderSearchContext();if(restoreFocus)searchToggle.focus({preventScroll:true});return;}
  if(searchingSettings){renderSettingsSearchResults();workspace.scrollTop=searchScrollBefore;}
  else if(!state.detailId&&!state.playback){
   if(view==='discover'){
    const discoverMotion=beginDiscoverSearchMotion(searchScrollBefore,false);
    tabPages.discover.classList.remove('search-scope-open');
    updateDiscoverSearchResults();
-   startDiscoverSearchMotion(discoverMotion,!restoreFocus);
+   if(discoverMotion)startDiscoverSearchMotion(discoverMotion,!restoreFocus);else tabPages.discover.scrollTop=searchScrollBefore;
   }else {
    if(hadQuery)renderTabPage(view);
    tabPages[view].scrollTop=searchScrollBefore;

@@ -20,6 +20,8 @@ const whSeed=[
 /* Opt-in dense sample history for Recently Watched visual testing only.
  * Keep the ordinary seed and stored preview history unchanged. */
 const whRecentTestMode=location.hash==='#recently-watched-test';
+// Explicit diagnostic mode retains the old banner and toolbar for comparisons.
+const whRecentLegacyMode=whRecentTestMode||location.hash==='#recently-watched-legacy';
 function whRecentTestRecords(){
  const extraTitles=['demo:long','demo:03','demo:04','demo:05','demo:06','demo:07','demo:08','demo:09','demo:10'].map(id=>demo.find(x=>x.id===id));
  const extraSamples=['Amber Horizon','Cloudbound','Midnight Archive','Copper Moon','Ocean Echoes','Starfall Garden','Winter Lanterns'].map((name,i)=>({name,art:extraTitles[i].art,episodes:12,id:null}));
