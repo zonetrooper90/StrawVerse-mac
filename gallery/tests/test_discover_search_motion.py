@@ -103,6 +103,8 @@ def run(mode,motion,smoke=False):
             for width in ((1440,) if smoke else (1440,370)):
                 page=browser.new_page(viewport={"width":width,"height":950},reduced_motion=motion)
                 errors=[];page.on("pageerror",lambda e:errors.append(str(e)))
+                # Explicitly exercise the retained banner and its original Search animation.
+                page.goto("about:blank#recently-watched-legacy")
                 page.set_content(html,wait_until="domcontentloaded")
                 page.evaluate("""theme=>{state.theme=theme;document.body.dataset.theme=theme;window.__scrollShell=tabPages.discover.querySelector('.continue-shell');}""",theme)
                 wait(page)
