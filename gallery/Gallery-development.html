@@ -3552,10 +3552,10 @@ body.player-view .playback-compactbar {
    beginning a short 56px flex band. This created an uneven 81px content band
    and an off-center title. Draw the new 94px/86px row back over that inset,
    matching the reference header's divider position and mathematical center.
-   Only the page-specific rows change; the approved .top brand stays intact.
+   Only the standard page-specific rows change; the approved .top brand stays intact.
+   The Player is an approved compact, divider-free exception (see below).
    ===================================================================== */
-body[data-theme] :is(.detail-page-header, .settings-page-head),
-body[data-theme].player-view .playback-compactbar {
+body[data-theme] :is(.detail-page-header, .settings-page-head) {
   --sf-header-top-space:32px;
   box-sizing:border-box;
   min-height:calc(62px + var(--sf-header-top-space));
@@ -3569,8 +3569,7 @@ body[data-theme].player-view .playback-compactbar {
 /* Library uses a separate 1px divider immediately after its 94px title band.
    Draw that divider at the same pixel, rather than using the last pixel of
    the flex row as a border (which was shifting action centers by 0.5px). */
-body[data-theme] :is(.detail-page-header, .settings-page-head)::after,
-body[data-theme].player-view .playback-compactbar::after {
+body[data-theme] :is(.detail-page-header, .settings-page-head)::after {
   content:'';
   position:absolute;
   left:0;
@@ -3586,16 +3585,20 @@ body[data-theme] .detail-page-header {
 body[data-theme] .settings-page-head {
   margin-top:-25px; /* .workspace.settings-mode top padding = 25px */
 }
+/* Approved Player exception: retain the original 45px flex band, existing
+   title/Back alignment and page gutters; the video frame is the boundary. */
 body[data-theme].player-view .playback-compactbar {
+  height:45px;
+  min-height:45px;
+  border-bottom:0;
   margin-top:-5px; /* player .workspace top padding = 5px */
-  padding-inline:0; /* margin alone aligns the title + button + divider to the page inset */
+  padding-inline:0; /* margin alone aligns title and Back to the page inset */
   margin-inline:15px;
   width:calc(100% - 30px);
 }
 /* Gallery's Library/Downloads header row becomes 86px below 750px. */
 @media(max-width:750px){
-  body[data-theme] :is(.detail-page-header, .settings-page-head),
-  body[data-theme].player-view .playback-compactbar {
+  body[data-theme] :is(.detail-page-header, .settings-page-head) {
     --sf-header-top-space:24px;
   }
   body[data-theme] .detail-page-header {margin-top:-19px}
@@ -3612,19 +3615,8 @@ body[data-theme].player-view .playback-compactbar {
   /* Library/Downloads keep their narrow insets, even on very small screens. */
   body.settings-view .workspace.settings-mode {padding-left:17px!important; padding-right:17px!important}
 }
-/* The taller header must not push the player controls below the viewport.
-   Account for the extra 49px (94px Library band minus old 45px Player band)
-   only when the viewport height, rather than content width, limits the video. */
-body.player-view .playback-page {
-  --player-frame-width:min(100%,calc((100dvh - 231px) * 16 / 9));
-}
-body.player-view .player-area {max-height:calc(100dvh - 231px)}
-@media(max-width:740px){
-  body.player-view .playback-page {
-    --player-frame-width:min(100%,calc((100dvh - 218px) * 16 / 9));
-  }
-  body.player-view .player-area {max-height:calc(100dvh - 218px)}
-}
+/* The original compact Player video budget lives in 03-player-and-desktop-frame.css
+   (182px desktop / 169px narrow). No tall-header override is needed. */
 
 /* Shared full-width list frame: Downloads and Watch History use the available
    page content width and existing page gutters. Keep feature-specific display,

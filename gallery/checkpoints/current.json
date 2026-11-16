@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-16-a2-player-session-ownership",
-  "sha256": "dd001064ace865a2ee5f0173e126acc689deafc80c3de44843477f401c0afb35",
-  "bytes": 6934747,
+  "folder": "2026-11-16-compact-player-header",
+  "sha256": "96892058b0ef577c3fc0d0358841164f2d9e807eb52cad606921be5f24f1e501",
+  "bytes": 6934417,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
