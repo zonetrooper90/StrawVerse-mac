@@ -35,6 +35,7 @@ function openPlayerSettings(video){
   :'<p class="tip">No selectable subtitle tracks are available in this video. External subtitle imports are not connected in this HTML build.</p>';
  modal('Player settings',`<div class="field"><label for="video-rate">Playback speed</label><select id="video-rate">${[0.5,0.75,1,1.25,1.5,2].map(r=>`<option value="${r}" ${video.playbackRate===r?'selected':''}>${r}×</option>`).join('')}</select></div><div class="field"><label for="player-subtitle-track">Subtitles</label><select id="player-subtitle-track"><option value="off" ${selectedValue==='off'?'selected':''}>Off</option>${choices}</select>${trackInfo}</div>`,`<button class="btn primary" id="save-player-settings">Apply</button>`);
  document.getElementById('save-player-settings').onclick=()=>{
+  if(!sfPlayerOwnsVideo(video))return;
   video.playbackRate=Number(document.getElementById('video-rate').value);
   const value=document.getElementById('player-subtitle-track').value;
   if(value==='off')playerSubtitleState.enabled=false;

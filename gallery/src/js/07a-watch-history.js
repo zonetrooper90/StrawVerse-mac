@@ -623,7 +623,7 @@ screen.addEventListener('click',event=>{
 let whPlayerSession=null;
 function whInitPlayerSession(){whPlayerSession={lastTime:0,hasPlayedOutsideFinal:false,lastSavedAt:0};}
 function whRecordLocalPlayback(video,markWatched=false){
- if(!state.playback||!state.detailId||!Number.isFinite(video.duration)||video.duration<=0)return;
+ if(!sfPlayerOwnsVideo(video)||!state.playback||!state.detailId||!Number.isFinite(video.duration)||video.duration<=0)return;
  const anime=demo.find(x=>x.id===state.detailId),installment=anime&&activeInstallment(anime);if(!anime||!installment)return;
  const id='local:'+anime.id+':'+String(installment.id||installment.label||'s1');let rec=whRecords.find(r=>r.galleryId===anime.id&&r.installmentId===(installment.id||null))||whRecords.find(r=>r.id===id);
  if(!rec){
@@ -638,12 +638,12 @@ function whRecordLocalPlayback(video,markWatched=false){
  whSave();
 }
 function whOnVideoTick(video){
- if(!whPlayerSession||video.paused||video.seeking||!Number.isFinite(video.duration)||video.duration<=0)return;
+ if(!sfPlayerOwnsVideo(video)||!whPlayerSession||video.paused||video.seeking||!Number.isFinite(video.duration)||video.duration<=0)return;
  const current=video.currentTime,threshold=Math.max(0,video.duration-20),past=whPlayerSession.lastTime;
  if(current<threshold)whPlayerSession.hasPlayedOutsideFinal=true;
  const completed=whPlayerSession.hasPlayedOutsideFinal&&past<threshold&&current>=threshold&&current-past<3;
  if(completed||current-whPlayerSession.lastSavedAt>=3||!whPlayerSession.lastSavedAt){whRecordLocalPlayback(video,completed);whPlayerSession.lastSavedAt=current;}
  whPlayerSession.lastTime=current;
 }
-function whOnVideoSeek(video){if(!whPlayerSession)return;whPlayerSession.lastTime=video.currentTime;whPlayerSession.hasPlayedOutsideFinal=false;}
+function whOnVideoSeek(video){if(!sfPlayerOwnsVideo(video)||!whPlayerSession)return;whPlayerSession.lastTime=video.currentTime;whPlayerSession.hasPlayedOutsideFinal=false;}
 

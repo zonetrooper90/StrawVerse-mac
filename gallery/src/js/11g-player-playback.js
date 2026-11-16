@@ -58,8 +58,10 @@ function sfPlayerReleaseBrowserVideo(){
 }
 function sfPlayerPickBrowserVideo(file){
  if(!file)return;
- const video=document.getElementById('local-video');if(!video)return;
+ const owner=sfPlayerSession,video=owner?.video;if(!sfPlayerOwnsVideo(video))return;
+ ++owner.request;
  sfPlayerDemoStop();video.pause();sfPlayerReleaseBrowserVideo();
+ isLocalVideoReady=false;
  sfPlayerLocalObjectURL=URL.createObjectURL(file);
  video.src=sfPlayerLocalObjectURL;video.load();
  document.getElementById('player-empty').hidden=true;
@@ -137,12 +139,13 @@ function updatePlaybackUI(){
 }
 function showPlayerNotice(text){const n=document.getElementById('player-notice');if(n)n.textContent=text;}
 async function openLocalForPlayer(){
+ const owner=sfPlayerSession,video=owner?.video;if(!sfPlayerOwnsVideo(video))return;
+ const request=++owner.request;
  if(!window.galleryDesktop){document.getElementById('sf-player-browser-file')?.click();return;}
  let chosen;
  try{chosen=await window.galleryDesktop.openVideo();}
- catch(error){showPlayerNotice(`Unable to open file: ${error.message}`);return;}
- if(!chosen)return;
- const video=document.getElementById('local-video');if(!video)return;
+ catch(error){if(sfPlayerOwnsRequest(owner,request))showPlayerNotice(`Unable to open file: ${error.message}`);return;}
+ if(!chosen||!sfPlayerOwnsRequest(owner,request))return;
  sfPlayerDemoStop();sfPlayerReleaseBrowserVideo();
  video.pause();isLocalVideoReady=false;localVideoName=chosen.name;
  video.src=chosen.fileURL;video.load();
@@ -151,7 +154,10 @@ async function openLocalForPlayer(){
  document.getElementById('open-external-vlc').disabled=false;
  showPlayerNotice(`Selected local file: ${chosen.name}. The codec must be supported by Electron for in-app playback. Subtitles and streaming providers are not wired in this milestone.`);
  if(state.playerPreference==='vlc'){
-  const result=await window.galleryDesktop.openInVLC();
+  let result;
+  try{result=await window.galleryDesktop.openInVLC();}
+  catch(error){result={ok:false,message:error.message};}
+  if(!sfPlayerOwnsRequest(owner,request))return;
   if(result.ok){
    video.pause();showPlayerNotice(`Opened ${chosen.name} in VLC as requested. Gallery cannot reliably track external playback progress; player compatibility is not guaranteed.`);
   }else{
@@ -163,9 +169,7 @@ async function openLocalForPlayer(){
 function advanceEpisode(step,{sameInstallmentOnly=false}={}){
  const destination=playbackNeighbor(step,{sameInstallmentOnly});
  if(!destination)return;
- sfPlayerDemoStop();sfPlayerReleaseBrowserVideo();
- clearTimeout(playerControlsTimer);playerControlsTimer=null;
- resetPlayNextState();
+ sfPlayerTeardown();
  const p=state.playback;
  state.detailSeason=destination.seasonIndex;
  state.detailRelated=destination.relatedId;

@@ -325,3 +325,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory global Watch History primary scroll and nested Downloads restoration.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-scroll-restore-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A2.1 ownership and teardown regression in both motion modes.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-a2-player-session-ownership-regression.py'),sys.argv[1]],check=True)

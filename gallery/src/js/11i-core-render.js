@@ -1,5 +1,7 @@
 function render(options={}){
- if(!state.playback){clearTimeout(playerControlsTimer);playerControlsTimer=null;playerEventController?.abort();playerEventController=null;resetPlayNextState();}
+ // Retire any mounted player before replacing its DOM.
+ sfPlayerTeardown();
+ if(!state.playback){clearTimeout(playerControlsTimer);playerControlsTimer=null;resetPlayNextState();}
  document.body.classList.toggle('player-view',Boolean(state.playback));
  // Both the Anime detail and Watch History are secondary pages: hide main
  // navigation, but retain the standard Gallery brand header and back buttons.
@@ -31,8 +33,10 @@ function render(options={}){
   }
  }
  if(state.playback){
-   document.getElementById('back-from-playback')?.addEventListener('click',backFromPlayback);
-   initializePlayer();requestAnimationFrame(updateTabScrollOverlay);return;
+   initializePlayer();
+   const video=document.getElementById('local-video');
+   document.getElementById('back-from-playback')?.addEventListener('click',()=>{if(sfPlayerOwnsVideo(video))backFromPlayback();},{signal:playerEventController.signal});
+   requestAnimationFrame(updateTabScrollOverlay);return;
  }
  if(state.detailId){
    document.getElementById('detail-back')?.addEventListener('click',backFromDetail);

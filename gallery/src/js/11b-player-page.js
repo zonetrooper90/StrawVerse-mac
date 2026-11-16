@@ -48,9 +48,8 @@ function playbackPage(){
  </section>`;
 }
 function backFromPlayback(){
- sfPlayerDemoStop();sfPlayerReleaseBrowserVideo();
- clearTimeout(playerControlsTimer);playerControlsTimer=null;
- document.getElementById("local-video")?.pause();resetPlayNextState();isLocalVideoReady=false;
+ // Retire callbacks immediately; preserve the paused outgoing snapshot.
+ sfPlayerRetire();
  transitionGalleryPlayer(()=>{
   state.playback=null;render();workspace.scrollTop=state.playbackReturnScroll;
  });
