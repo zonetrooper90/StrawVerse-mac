@@ -20,7 +20,7 @@ with sync_playwright() as p:
  for width,height,reduced in [(1440,900,'no-preference'),(620,750,'no-preference'),(1440,900,'reduce')]:
   page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=reduced)
   err=[];page.on('pageerror', lambda e:err.append(str(e)))
-  page.set_content(PATH.read_text(),wait_until='load')
+  page.goto("about:blank#recently-watched-legacy");page.set_content(PATH.read_text(),wait_until='load')
   page.wait_for_timeout(350)
   print('\n======',width,reduced,'======')
   def stat():return page.evaluate('''() => ({detail:state.detailId,returnHistory:state.detailReturnHistory,wh:whOpen,view:state.view,screen:!screen.hidden,settings:document.body.classList.contains('settings-view'),key:screen.dataset.surfaceKey,animations:document.getAnimations().map(a=>a.animationName||'WAAPI'),historyFilter:whFilter,expanded:[...whExpanded],transition:!!galleryStageTransition})''')

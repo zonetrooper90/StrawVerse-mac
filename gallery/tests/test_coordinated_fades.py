@@ -59,7 +59,7 @@ with sync_playwright() as p:
   page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=reduced)
   errors=[]
   page.on('pageerror',lambda e:errors.append(str(e)))
-  page.set_content(src,wait_until='load')
+  page.goto("about:blank#recently-watched-legacy");page.set_content(src,wait_until='load')
   page.wait_for_timeout(250)
   mode='instant' if reduced=='reduce' else 'fade'
   def stat():

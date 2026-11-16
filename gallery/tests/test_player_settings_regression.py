@@ -98,7 +98,7 @@ with sync_playwright() as pw:
   pg=browser.new_page(viewport={'width':1440,'height':900},reduced_motion=motion)
   ds02_errors=[]
   pg.on('pageerror',lambda e:ds02_errors.append(str(e)))
-  pg.set_content(html,wait_until='domcontentloaded')
+  pg.goto("about:blank#recently-watched-legacy");pg.set_content(html,wait_until='domcontentloaded')
   pg.wait_for_selector('#wh-view-history')
   pg.locator('[data-detail]').first.click()
   pg.wait_for_selector('#detail-back')

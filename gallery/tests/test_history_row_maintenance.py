@@ -29,7 +29,7 @@ with sync_playwright() as pw:
         width_page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=motion)
         width_errors=[]
         width_page.on('pageerror',lambda exc: width_errors.append(str(exc)))
-        width_page.set_content(source,wait_until='domcontentloaded')
+        width_page.goto("about:blank#recently-watched-legacy");width_page.set_content(source,wait_until='domcontentloaded')
         width_page.wait_for_selector('#wh-view-history')
         width_page.locator('.tab[data-view="downloads"]').click()
         width_page.wait_for_function('() => state.view==="downloads" && !galleryStageTransition && !galleryStageFadeInProgress',timeout=6000)
@@ -59,7 +59,7 @@ with sync_playwright() as pw:
         search_page=browser.new_page(viewport={'width':width,'height':height},reduced_motion=motion)
         search_errors=[]
         search_page.on('pageerror',lambda exc: search_errors.append(str(exc)))
-        search_page.set_content(source,wait_until='domcontentloaded')
+        search_page.goto("about:blank#recently-watched-legacy");search_page.set_content(source,wait_until='domcontentloaded')
         search_page.wait_for_selector('.sf-discover-page .continue-shell')
         search_page.wait_for_timeout(200)
         shell=search_page.locator('.sf-discover-page .continue-shell')
@@ -109,7 +109,7 @@ with sync_playwright() as pw:
     page=browser.new_page(viewport={'width':1200,'height':850})
     errors=[]
     page.on('pageerror', lambda exc: errors.append(str(exc)))
-    page.set_content(source, wait_until='domcontentloaded')
+    page.goto("about:blank#recently-watched-legacy");page.set_content(source, wait_until='domcontentloaded')
     page.wait_for_timeout(160)
     assert page.locator('#wh-view-history').count()==1
     page.locator('[data-view="library"]').first.click()
@@ -299,16 +299,16 @@ print('History row and hidden transfer regression tests passed')
 # Mandatory A1 storage recovery, persistence and safe-rendering regression (both HTML modes).
 # Run all immutable assertions on the diagnosed stable loopback origin.
 import subprocess
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-a1-watch-history-loopback-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-legacy-audit.py'),'2026-11-15-a1-watch-history-loopback-regression.py',sys.argv[1]],check=True)
 
 # Mandatory Watch History animated progress geometry and status regression (both builds).
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-watch-history-animated-progress-retry-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-legacy-audit.py'),'2026-11-15-watch-history-animated-progress-retry-regression.py',sys.argv[1]],check=True)
 
 # Mandatory Anime Details Search return and navigation isolation regression (both builds).
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-anime-detail-search-return-synchronized-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-legacy-audit.py'),'2026-11-15-anime-detail-search-return-synchronized-regression.py',sys.argv[1]],check=True)
 
 # Mandatory directional Recently Watched packing and hover regression (both builds).
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-directional-stack-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-global-watch-history-trial-legacy-audit.py'),'2026-11-15-recently-watched-directional-stack-regression.py',sys.argv[1]],check=True)
 
 # Mandatory dense Recently Watched opt-in fixture isolation and packing regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-15-recently-watched-dense-test-fixture-regression.py'),sys.argv[1]],check=True)
