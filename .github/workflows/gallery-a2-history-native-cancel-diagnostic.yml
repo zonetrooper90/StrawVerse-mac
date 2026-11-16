@@ -1,0 +1,60 @@
+name: Gallery A2.3 native cancellation diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-16-a2-history-native-cancel-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.variant }}, ${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+        mode: [full, lightweight]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged authoritative baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Reconstruct exact historical candidate in disposable checkout
+        env:
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/cancel-input" 21a7d2e1446c871ed500a3a427075f8d45e66c6c
+          cd "$RUNNER_TEMP/cancel-input"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          if [ "$VARIANT" = candidate ]; then
+            request=gallery/changes/pending/2026-11-16-a2-history-expansion-listener-ownership.py
+            test "$(git hash-object "$request")" = 546da0c36211375e59efc5b47b7023139c492370
+            python3 -B "$request"
+            python3 gallery/tools/build-gallery.py --write-deliverables
+            git add -u
+            test "$(git write-tree)" = 170e1f605263b86bef6698c37647c7ff781b18ba
+          fi
+      - name: Trace native transition delivery and browser-only control
+        run: python3 -B gallery/audits/2026-11-16-a2-history-native-cancel-diagnostic.py "${{ matrix.variant }}" "${{ matrix.mode }}" "$RUNNER_TEMP/cancel-input" "$RUNNER_TEMP/cancel.json"
+      - name: Upload complete event and frame traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a23-cancel-${{ matrix.variant }}-${{ matrix.mode }}
+          path: ${{ runner.temp }}/cancel.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
