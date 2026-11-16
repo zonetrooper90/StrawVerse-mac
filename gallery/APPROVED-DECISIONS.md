@@ -421,3 +421,6 @@ User approved correcting the identical Downloads scroll-return failure in both t
 
 ## 2026-11-16 — Global Watch History visually approved
 User confirmed verified build `23bf686abe8d2b58b74def4692cd46e55982a09f` looks fine. Accept global History shortcut, banner-free Discover and preserved scroll/return routes as implemented. Both exact-build independent checks passed. Preserve legacy/dense diagnostics and previous immutable checkpoints. No new HTML, numbered release or unrelated implementation authorized. Later documentation-only lightweight regression failure remains unresolved in DEVELOPMENT-STATE.md.
+
+## 2026-11-16 — Approved History episode visibility test synchronization
+User approved replacing the fixed 400ms wait after the second legacy History entry with a bounded route-settled wait in the existing mandatory test. Diagnostic 43829784242 passed all 48 cases; 5/24 original-timing pre-expand observations still had active fades, versus 0/24 synchronized. Exact prior failure not reproduced; timing vulnerability established, precise cause unconfirmed. Preserve all existing assertions, real clicks, application code and exact accepted HTML/checkpoint. Both independent checks required; no new numbered version or application changes.

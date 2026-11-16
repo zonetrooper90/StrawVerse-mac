@@ -221,7 +221,8 @@ with sync_playwright() as pw:
     page.locator('[data-view="discover"]').first.click()
     page.wait_for_timeout(400)
     page.locator('#wh-view-history').click()
-    page.wait_for_timeout(400)
+    # Wait for the actual route rather than a fixed delay: input is gated during fades.
+    page.wait_for_function("()=>whOpen&&!galleryStageFadeInProgress&&!galleryStageTransition&&!galleryStagePending",timeout=8000)
     history=page.locator('.wh-season').nth(1)
     history.locator('[data-wh-expand]').click()
     page.wait_for_timeout(330)
