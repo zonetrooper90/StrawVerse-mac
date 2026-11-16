@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-16-player-header-centerline",
-  "sha256": "0fcf22fa2a3d391203f5dd1f3e5cce16c63c605798570d61b2904607b76e6173",
-  "bytes": 6934563,
+  "folder": "2026-11-16-a2-detail-rail-ownership",
+  "sha256": "8d5f336085058725f49d4fd97cdbc6cddf1a1d9b1afe19f643bdca062c7297f4",
+  "bytes": 6935655,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

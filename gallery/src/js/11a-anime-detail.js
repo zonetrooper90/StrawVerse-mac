@@ -52,8 +52,41 @@ function installmentRail(x){
  return `<nav class="inline-installments" aria-label="Releases in chronological order"><div class="inline-release-viewport"><div class="inline-installment-rail" id="inline-installment-rail" aria-label="Releases in chronological order" tabindex="0">${cards}</div><div class="inline-release-fade inline-release-fade-left" aria-hidden="false"><button type="button" class="inline-arrow previous" data-inline-scroll="-1" aria-label="Scroll releases one card left" title="Previous release" disabled>${icon('chevron',17)}</button></div><div class="inline-release-fade inline-release-fade-right" aria-hidden="false"><button type="button" class="inline-arrow" data-inline-scroll="1" aria-label="Scroll releases one card right" title="Next release" disabled>${icon('chevron',17)}</button></div></div></nav>`;
 }
 let activeInstallmentRailObserver=null;
-function refreshInstallmentArrows(){
- const rail=screen.querySelector('#inline-installment-rail');
+let activeInstallmentRailFrame=null;
+let activeInstallmentRailEvents=null;
+// A rail owns its observer, initial refresh frame and refresh listeners.
+// Retire at actual render/departure, not when Settings suspends the same DOM.
+function retireInstallmentRail(){
+ const observer=activeInstallmentRailObserver;
+ activeInstallmentRailObserver=null;
+ if(activeInstallmentRailFrame!==null)cancelAnimationFrame(activeInstallmentRailFrame);
+ activeInstallmentRailFrame=null;
+ activeInstallmentRailEvents?.abort();
+ activeInstallmentRailEvents=null;
+ observer?.disconnect();
+}
+function mountInstallmentRail(rail){
+ const events=new AbortController();
+ const refresh=()=>{
+   if(activeInstallmentRailObserver!==observer||!rail.isConnected||
+      !screen.contains(rail)||screen.hidden||!state.detailId||state.playback||whOpen)return;
+   refreshInstallmentArrows(rail);
+ };
+ const observer=new ResizeObserver(refresh);
+ activeInstallmentRailObserver=observer;
+ activeInstallmentRailEvents=events;
+ rail.addEventListener('scroll',refresh,{passive:true,signal:events.signal});
+ setupInstallmentEdgeGuards(rail.closest('.inline-release-viewport'),refresh,events.signal);
+ observer.observe(rail);
+ for(const card of rail.children)observer.observe(card);
+ activeInstallmentRailFrame=requestAnimationFrame(()=>{
+   if(activeInstallmentRailObserver!==observer)return;
+   activeInstallmentRailFrame=null;
+   refresh();
+ });
+ return refresh;
+}
+function refreshInstallmentArrows(rail){
  const viewport=rail?.closest('.inline-release-viewport');
  if(!rail||!viewport)return;
  const maxScroll=Math.max(0,rail.scrollWidth-rail.clientWidth);
@@ -72,7 +105,7 @@ viewport.classList.toggle('guard-left',guardLeft);
  if(previous)previous.disabled=!(left||guardLeft);
  if(next)next.disabled=!(right||guardRight);
 }
-function setupInstallmentEdgeGuards(viewport){
+function setupInstallmentEdgeGuards(viewport,refresh,signal){
  if(!viewport)return;
  for(const side of ['left','right']){
    const fade=viewport.querySelector('.inline-release-fade-'+side);
@@ -81,12 +114,12 @@ function setupInstallmentEdgeGuards(viewport){
    fade.addEventListener('pointerenter',event=>{
      if(event.pointerType==='touch')return;
      viewport.dataset[prop]='true';
-     refreshInstallmentArrows();
-   });
+     refresh();
+   },{signal});
    fade.addEventListener('pointerleave',()=>{
      viewport.dataset[prop]='false';
-     refreshInstallmentArrows();
-   });
+     refresh();
+   },{signal});
  }
 }
 /* Reveal a selected release inside the unobstructed part of the rail.

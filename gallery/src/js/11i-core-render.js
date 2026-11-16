@@ -1,4 +1,7 @@
 function render(options={}){
+ // Retire the rail at the actual route midpoint, before hiding or replacing its DOM.
+ // Settings and in-place release selection do not call render to suspend/update the rail.
+ retireInstallmentRail();
  // Retire any mounted player before replacing its DOM.
  sfPlayerTeardown();
  if(!state.playback){clearTimeout(playerControlsTimer);playerControlsTimer=null;resetPlayNextState();}
@@ -40,8 +43,6 @@ function render(options={}){
  }
  if(state.detailId){
    document.getElementById('detail-back')?.addEventListener('click',backFromDetail);
-   activeInstallmentRailObserver?.disconnect();
-   activeInstallmentRailObserver=null;
    const rail=document.getElementById('inline-installment-rail');
    if(rail){
      // Search return alone must restore the exact offset, not the nearest snap point.
@@ -53,17 +54,12 @@ function render(options={}){
        void rail.offsetWidth;
        rail.scrollTo({left:searchRailScroll,behavior:'instant'});
      }
-     rail.addEventListener('scroll',refreshInstallmentArrows,{passive:true});
      rail.addEventListener('wheel',event=>{if(event.deltaX||event.shiftKey&&event.deltaY)restoreInstallmentSnap(rail);},{passive:true});
      rail.addEventListener('pointerdown',event=>{if(event.pointerType!=='mouse'||event.button===1)restoreInstallmentSnap(rail);},{passive:true});
      rail.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(event.key))restoreInstallmentSnap(rail);});
-     setupInstallmentEdgeGuards(rail.closest('.inline-release-viewport'));
-     activeInstallmentRailObserver=new ResizeObserver(refreshInstallmentArrows);
-     activeInstallmentRailObserver.observe(rail);
-     for(const card of rail.children)activeInstallmentRailObserver.observe(card);
-     requestAnimationFrame(refreshInstallmentArrows);
+     const refresh=mountInstallmentRail(rail);
      if(!restoringSearchRail)rail.scrollLeft=priorRailScroll;
-     else refreshInstallmentArrows();
+     else refresh();
      for(const arrow of screen.querySelectorAll('[data-inline-scroll]'))arrow.addEventListener('click',()=>{
 // One arrow click advances by exactly one discrete release, not a viewport fraction.
        const direction=Number(arrow.dataset.inlineScroll);
