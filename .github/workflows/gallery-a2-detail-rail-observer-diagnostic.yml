@@ -1,0 +1,42 @@
+name: Gallery A2.2 Details rail observer diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-16-a2-detail-rail-observer-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.mode }}, ${{ matrix.motion }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+        motion: [no-preference, reduce]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify exact immutable baseline and source assembly
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Observe native rail ResizeObserver registration and delivery
+        run: python3 -B gallery/audits/2026-11-16-a2-detail-rail-observer-diagnostic.py "${{ matrix.mode }}" "${{ matrix.motion }}" "$RUNNER_TEMP/a22.json"
+      - name: Upload complete diagnostic traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a22-rail-${{ matrix.mode }}-${{ matrix.motion }}
+          path: ${{ runner.temp }}/a22.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
