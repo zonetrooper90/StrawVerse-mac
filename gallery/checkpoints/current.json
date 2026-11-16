@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-16-a2-detail-rail-ownership",
-  "sha256": "8d5f336085058725f49d4fd97cdbc6cddf1a1d9b1afe19f643bdca062c7297f4",
-  "bytes": 6935655,
+  "folder": "2026-11-16-a2-history-expansion-listener-ownership-retry",
+  "sha256": "6f558d22ec21047a978af0d262277c508366a37e6d3d63f8bf1952016aa33ae5",
+  "bytes": 6936422,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

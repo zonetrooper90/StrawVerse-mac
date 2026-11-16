@@ -481,9 +481,6 @@ function whToggleRow(id){
    area.scrollTop=Math.max(0,(Math.floor((last.n-1)/columns)-2)*42);
  }
  if(opening)requestAnimationFrame(()=>{if(whExpanded.has(id))whInnerScrollers.get(id)?.update();});
- row.querySelector('.wh-episodes').addEventListener('transitionend',event=>{
-  if(event.propertyName==='grid-template-rows')updateTabScrollOverlay();
- },{once:true});
  requestAnimationFrame(updateTabScrollOverlay);
 }
 function whRender({keepScroll=true}={}){
@@ -604,6 +601,21 @@ function whOpenTitle(r){
   if(index>=0){state.detailSeason=index;state.detailRelated=null;render();}
  });
 }
+/* The persistent screen owns transition completion, not individual toggles.
+ * Reversals and reduced motion cannot accumulate row listeners. Ignore events
+ * from descendants, replaced panels and intentionally suspended History. */
+function whHandleExpansionTransition(event){
+ if(!whOpen||screen.hidden||document.body.classList.contains('settings-view')||
+    event.propertyName!=='grid-template-rows'||event.pseudoElement)return;
+ const panel=event.target;
+ if(!(panel instanceof Element)||!panel.matches('.wh-episodes')||!panel.isConnected)return;
+ const root=screen.querySelector('#wh-root'),row=panel.parentElement;
+ if(!root||!row?.matches('.wh-season[data-wh-row]')||row.closest('#wh-root')!==root||
+    row.querySelector('.wh-episodes')!==panel)return;
+ updateTabScrollOverlay();
+}
+screen.addEventListener('transitionend',whHandleExpansionTransition);
+screen.addEventListener('transitioncancel',whHandleExpansionTransition);
 /* All page actions live in one delegated listener; episode toggles don't rebuild their list. */
 screen.addEventListener('click',event=>{
  if(!whOpen)return;const b=event.target.closest('button');if(!b)return;

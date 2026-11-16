@@ -378,3 +378,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A2.2 rail ownership and departure/return regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-a2-detail-rail-ownership-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A2.3 History expansion transition ownership regression.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-a2-history-expansion-listener-ownership-retry-regression.py'),sys.argv[1]],check=True)
