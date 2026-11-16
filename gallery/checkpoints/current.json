@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-16-compact-player-header",
-  "sha256": "96892058b0ef577c3fc0d0358841164f2d9e807eb52cad606921be5f24f1e501",
-  "bytes": 6934417,
+  "folder": "2026-11-16-player-header-centerline",
+  "sha256": "0fcf22fa2a3d391203f5dd1f3e5cce16c63c605798570d61b2904607b76e6173",
+  "bytes": 6934563,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

@@ -41,13 +41,15 @@ body[data-theme] .detail-page-header {
 body[data-theme] .settings-page-head {
   margin-top:-25px; /* .workspace.settings-mode top padding = 25px */
 }
-/* Approved Player exception: retain the original 45px flex band, existing
-   title/Back alignment and page gutters; the video frame is the boundary. */
+/* Approved Player exception: even 46px flex band with equal 3px gaps
+   between the global header and video frame. Back is mathematically centered;
+   the title alone retains the shared 1px optical correction. */
 body[data-theme].player-view .playback-compactbar {
-  height:45px;
-  min-height:45px;
+  height:46px;
+  min-height:46px;
   border-bottom:0;
-  margin-top:-5px; /* player .workspace top padding = 5px */
+  padding-block:0;
+  margin-block:0 3px; /* match the 3px Player workspace top padding */
   padding-inline:0; /* margin alone aligns title and Back to the page inset */
   margin-inline:15px;
   width:calc(100% - 30px);
@@ -71,8 +73,9 @@ body[data-theme].player-view .playback-compactbar {
   /* Library/Downloads keep their narrow insets, even on very small screens. */
   body.settings-view .workspace.settings-mode {padding-left:17px!important; padding-right:17px!important}
 }
-/* The original compact Player video budget lives in 03-player-and-desktop-frame.css
-   (182px desktop / 169px narrow). No tall-header override is needed. */
+/* The compact Player video budget lives in 03-player-and-desktop-frame.css
+   (183px desktop / 170px narrow, accounting for the 1px taller row).
+   No tall-header override is needed. */
 
 /* Shared full-width list frame: Downloads and Watch History use the available
    page content width and existing page gutters. Keep feature-specific display,

@@ -138,8 +138,7 @@ body.player-view .playback-compactbar .playback-title-inline strong{position:sta
 }
 body.player-view .playback-compactbar {
   box-sizing: border-box;
-  height: 45px;
-  min-height: 45px;
+  /* Compact height is owned by the Player exception in 28. */
   padding-top: 0;
   padding-bottom: 0;
   align-items: center;

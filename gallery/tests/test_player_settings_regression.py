@@ -374,4 +374,4 @@ print("Player and Settings regression suite passed:",n,"checks")
 
 # Mandatory compact Player header exception and retained standard page headers.
 import subprocess
-subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-compact-player-header-regression.py'),sys.argv[1]],check=True)
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-player-header-centerline-regression.py'),sys.argv[1]],check=True)

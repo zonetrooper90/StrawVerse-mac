@@ -399,8 +399,8 @@ body.desktop-build .brand-row{padding-left:66px}
 @media(max-width:750px){body.desktop-build .brand-row{padding-left:66px}}
 
 /* v0.2.2: Give the player maximum space without covering macOS traffic lights. */
-body.player-view .playback-page{max-width:none;margin:0 auto;width:100%;min-width:0;--player-frame-width:min(100%,calc((100dvh - 182px) * 16 / 9))}
-body.player-view .workspace{padding:5px 13px 15px;scrollbar-gutter:auto}
+body.player-view .playback-page{max-width:none;margin:0 auto;width:100%;min-width:0;--player-frame-width:min(100%,calc((100dvh - 183px) * 16 / 9))}
+body.player-view .workspace{padding:3px 13px 15px;scrollbar-gutter:auto}
 body.desktop-build.player-view .top{height:38px;min-height:38px;flex:0 0 38px;padding:0!important;border-bottom:0;-webkit-app-region:drag}
 body.desktop-build.player-view .top .brand-row,body.desktop-build.player-view .top .tabs{display:none}
 .playback-compactbar{display:flex;align-items:center;gap:16px;min-height:42px;margin:0 0 9px;padding:2px 3px}
@@ -410,7 +410,7 @@ body.desktop-build.player-view .top .brand-row,body.desktop-build.player-view .t
 .playback-title-inline span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .playback-compactbar .playback-audio{font-size:11px;padding:6px 10px;flex:none}
 body.player-view .player-area,body.player-view .player-episode-nav{width:var(--player-frame-width)}
-body.player-view .player-area{max-height:calc(100dvh - 182px);margin-inline:auto}
+body.player-view .player-area{max-height:calc(100dvh - 183px);margin-inline:auto}
 body.player-view .player-episode-nav{margin:8px auto 0;max-width:none;padding:9px 13px}
 body.player-view .player-dev-tools{margin:8px auto 0;max-width:1120px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:11px;background:var(--surface);padding:0 11px}
 .player-dev-tools summary{cursor:pointer;padding:7px 2px;outline-offset:3px}
@@ -421,7 +421,7 @@ body.player-view .player-dev-tools{margin:8px auto 0;max-width:1120px;border:1px
 .player-area.controls-hidden .player-overlay,.player-area.controls-hidden .player-overlay *{pointer-events:none}
 .player-area:fullscreen{width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;aspect-ratio:auto;border:0;margin:0;border-radius:0}
 .player-area:fullscreen video{width:100%;height:100%;object-fit:contain}
-@media(max-width:740px){.playback-compactbar{gap:6px;min-height:40px}.playback-title-inline{justify-content:flex-start;flex-direction:column;align-items:flex-start;gap:0}.playback-title-inline strong{font-size:13px}.playback-title-inline span{font-size:10px}.playback-compactbar .playback-audio{font-size:10px}.playback-compactbar .detail-back{font-size:11px}.playback-compactbar .detail-back .icon{width:15px;height:15px}body.player-view .workspace{padding:5px 8px 14px}body.player-view .playback-page{--player-frame-width:min(100%,calc((100dvh - 169px) * 16 / 9))}body.player-view .player-area{max-height:calc(100dvh - 169px)}}
+@media(max-width:740px){.playback-compactbar{gap:6px;min-height:40px}.playback-title-inline{justify-content:flex-start;flex-direction:column;align-items:flex-start;gap:0}.playback-title-inline strong{font-size:13px}.playback-title-inline span{font-size:10px}.playback-compactbar .playback-audio{font-size:10px}.playback-compactbar .detail-back{font-size:11px}.playback-compactbar .detail-back .icon{width:15px;height:15px}body.player-view .workspace{padding:3px 8px 14px}body.player-view .playback-page{--player-frame-width:min(100%,calc((100dvh - 170px) * 16 / 9))}body.player-view .player-area{max-height:calc(100dvh - 170px)}}
 @media(prefers-reduced-motion:reduce){.player-overlay{transition:none}}
 
 /* v0.2.3 — softer cinematic fade-out, but quick response when controls return. */
@@ -3529,8 +3529,7 @@ body.player-view .playback-compactbar .playback-title-inline strong{position:sta
 }
 body.player-view .playback-compactbar {
   box-sizing: border-box;
-  height: 45px;
-  min-height: 45px;
+  /* Compact height is owned by the Player exception in 28. */
   padding-top: 0;
   padding-bottom: 0;
   align-items: center;
@@ -3585,13 +3584,15 @@ body[data-theme] .detail-page-header {
 body[data-theme] .settings-page-head {
   margin-top:-25px; /* .workspace.settings-mode top padding = 25px */
 }
-/* Approved Player exception: retain the original 45px flex band, existing
-   title/Back alignment and page gutters; the video frame is the boundary. */
+/* Approved Player exception: even 46px flex band with equal 3px gaps
+   between the global header and video frame. Back is mathematically centered;
+   the title alone retains the shared 1px optical correction. */
 body[data-theme].player-view .playback-compactbar {
-  height:45px;
-  min-height:45px;
+  height:46px;
+  min-height:46px;
   border-bottom:0;
-  margin-top:-5px; /* player .workspace top padding = 5px */
+  padding-block:0;
+  margin-block:0 3px; /* match the 3px Player workspace top padding */
   padding-inline:0; /* margin alone aligns title and Back to the page inset */
   margin-inline:15px;
   width:calc(100% - 30px);
@@ -3615,8 +3616,9 @@ body[data-theme].player-view .playback-compactbar {
   /* Library/Downloads keep their narrow insets, even on very small screens. */
   body.settings-view .workspace.settings-mode {padding-left:17px!important; padding-right:17px!important}
 }
-/* The original compact Player video budget lives in 03-player-and-desktop-frame.css
-   (182px desktop / 169px narrow). No tall-header override is needed. */
+/* The compact Player video budget lives in 03-player-and-desktop-frame.css
+   (183px desktop / 170px narrow, accounting for the 1px taller row).
+   No tall-header override is needed. */
 
 /* Shared full-width list frame: Downloads and Watch History use the available
    page content width and existing page gutters. Keep feature-specific display,
