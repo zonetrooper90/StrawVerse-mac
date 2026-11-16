@@ -418,3 +418,6 @@ User approved hiding the Recently Watched banner from normal Discover and adding
 
 ## 2026-11-16 — Approved global History scroll restoration correction
 User approved correcting the identical Downloads scroll-return failure in both trial candidate modes. Save primary-page scroll positions before hiding or resizing the tabs, restore at the invisible route midpoint after rebuilding the originating page, including existing Download inner and Library rail offsets. Keep original strict scroll assertions, all legacy tests, History/detail/Settings provenance and motion. Add both-mode scroll regression, preserve prior checkpoint, no numbered release or unrelated visual changes. Both independent checks required.
+
+## 2026-11-16 — Global Watch History visually approved
+User confirmed verified build `23bf686abe8d2b58b74def4692cd46e55982a09f` looks fine. Accept global History shortcut, banner-free Discover and preserved scroll/return routes as implemented. Both exact-build independent checks passed. Preserve legacy/dense diagnostics and previous immutable checkpoints. No new HTML, numbered release or unrelated implementation authorized. Later documentation-only lightweight regression failure remains unresolved in DEVELOPMENT-STATE.md.
