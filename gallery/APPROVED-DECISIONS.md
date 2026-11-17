@@ -448,3 +448,6 @@ After diagnostic 43957485053 reproduced the failure on baseline and candidate be
 
 ## 2026-11-17 — A2.3 initial visual acceptance
 User reported the delivered A2.3 build `51b6067a37b83aa4bd9d4e81e21abde0fd91e271` looks fine. Preserve the verified Watch History episode expansion/collapse listener ownership and existing presentation/scroll behavior. Acceptance limited to reported review; no inferred comprehensive/native or other pending milestone acceptance. No new application change or numbered release authorized.
+
+## 2026-11-17 — Approved A2.4 Dialog and Settings resource ownership
+User approved narrow cleanup after verified diagnostic 44093274133. Retire dialog keyboard scroll and queued focus reveal on replacement/close; unobserve outgoing subtitle stage, guard current mounted observer callbacks; cancel Settings highlight timer/target and pending reveal, guard scroll start/steps by active owner and close state. Preserve existing focus return, 150ms close fade, 2200ms live highlight, scrolling/motion, subtitle scale and scene, popover, all themes and presentation. Mandatory strict both-build/both-motion regression across all seven scenarios and positive behavior controls; existing suites and both independent checks required. No CSS/assets/native changes, heap claim or numbered release. Visual review pending.
