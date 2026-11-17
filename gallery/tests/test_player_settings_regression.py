@@ -381,3 +381,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A2.3 History expansion transition ownership regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-a2-history-expansion-listener-ownership-retry-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A2.4 Dialog and Settings lifecycle regression.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-17-a2-dialog-settings-ownership-retry-regression.py'),sys.argv[1]],check=True)

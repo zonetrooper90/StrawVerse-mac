@@ -6510,12 +6510,14 @@ function visibleModalControls(){
  return dialog?Array.from(dialog.querySelectorAll(modalFocusable)).filter(el=>!el.closest('[hidden]')&&el.getClientRects().length>0&&!el.inert):[];
 }
 function modal(title,inner,actions=''){
- const previouslyOpen=!!modalHost.querySelector('.overlay');
+ const outgoing=modalHost.querySelector('.overlay');
+ const previouslyOpen=!!outgoing;
  if(!previouslyOpen){
   const opener=document.activeElement;
   modalReturnFocus=opener instanceof HTMLElement&&opener!==document.body&&!modalHost.contains(opener)?opener:null;
  }
  clearTimeout(modalExitTimer);modalExitTimer=null;
+ if(outgoing)retireModalWork(outgoing);
  modalHost.innerHTML=`<div class="overlay" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-label="${escapeHTML(title)}" tabindex="-1"><div class="dialog-scroll"><div class="dialog-head"><h2>${escapeHTML(title)}</h2><button class="iconbtn" aria-label="Close dialog" id="close-dialog">${icon('close',20)}</button></div>${inner}${actions?`<div class="dialog-actions">${actions}</div>`:''}</div></div></div>`;
  galleryApp.inert=true;
  modalHost.querySelector('.overlay').addEventListener('click',e=>{if(e.target.classList.contains('overlay'))closeModal()});
@@ -6524,8 +6526,7 @@ function modal(title,inner,actions=''){
 }
 function finishModalClose(overlay){
  if(modalHost.firstElementChild!==overlay)return;
- const expandedStage=overlay.querySelector('#subtitle-expanded-stage');
- if(expandedStage)subtitleResizeObserver?.unobserve(expandedStage);
+ retireModalWork(overlay);
  modalHost.innerHTML='';
  galleryApp.inert=false;
  const target=modalReturnFocus;
@@ -6536,7 +6537,8 @@ function finishModalClose(overlay){
 function closeModal(){
  const overlay=modalHost.querySelector('.overlay');
  if(!overlay||overlay.classList.contains('is-closing'))return;
-clearTimeout(modalExitTimer);
+ clearTimeout(modalExitTimer);
+ retireModalWork(overlay);
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){finishModalClose(overlay);return;}
  overlay.classList.add('is-closing');
  modalExitTimer=setTimeout(()=>{
@@ -6551,13 +6553,24 @@ clearTimeout(modalExitTimer);
 let modalScrollFrame=null;
 let modalScrollGoal=null;
 let modalScrollContainer=null;
+let modalScrollGeneration=0;
+let modalFocusRevealFrame=null;
+function retireModalWork(overlay){
+ cancelModalKeyboardScroll();
+ if(modalFocusRevealFrame!==null)cancelAnimationFrame(modalFocusRevealFrame);
+ modalFocusRevealFrame=null;modalKeyboardFocusTarget=null;
+ const stage=overlay.querySelector('#subtitle-expanded-stage');
+ if(stage)subtitleResizeObserver?.unobserve(stage);
+}
 function cancelModalKeyboardScroll(){
+ modalScrollGeneration++;
  if(modalScrollFrame!==null)cancelAnimationFrame(modalScrollFrame);
  modalScrollFrame=null;modalScrollGoal=null;modalScrollContainer=null;
 }
 function revealModalControl(control,edge='nearest'){
- const scroller=modalHost.querySelector('.dialog-scroll');
- if(!scroller||!control||!scroller.contains(control))return;
+ const overlay=modalHost.querySelector('.overlay');
+ const scroller=overlay?.querySelector('.dialog-scroll');
+ if(!scroller||overlay.classList.contains('is-closing')||!control||!scroller.contains(control))return;
  // Compute visibility relative to the *intended* destination of any in-flight
  // keyboard scroll, not an intermediate animation frame. Repeated Tab presses
  // can therefore redirect the scroll without piling up contradictory requests.
@@ -6588,8 +6601,10 @@ function revealModalControl(control,edge='nearest'){
  const distance=Math.abs(target-start);
  const duration=Math.min(410,Math.max(220,180+Math.sqrt(distance)*7));
  let started=null;
+ const generation=modalScrollGeneration;
  function step(time){
-  if(modalScrollContainer!==scroller)return;
+  if(generation!==modalScrollGeneration||modalScrollContainer!==scroller)return;
+  if(modalHost.firstElementChild!==overlay||overlay.classList.contains('is-closing')||!scroller.isConnected){cancelModalKeyboardScroll();return;}
   if(started===null)started=time;
   const fraction=Math.min(1,(time-started)/duration);
   const eased=1-Math.pow(1-fraction,3);
@@ -6649,9 +6664,13 @@ document.addEventListener('focusin',event=>{
   const focused=event.target;
   if(focused===modalKeyboardFocusTarget){modalKeyboardFocusTarget=null;return;}
   // Mouse/programmatic focus outside Tab should still reveal hidden controls.
-  requestAnimationFrame(()=>{
-   if(document.activeElement===focused)revealModalControl(focused);
+  if(modalFocusRevealFrame!==null)cancelAnimationFrame(modalFocusRevealFrame);
+  const frame=requestAnimationFrame(()=>{
+   if(modalFocusRevealFrame!==frame)return;
+   modalFocusRevealFrame=null;
+   if(modalHost.firstElementChild===overlay&&!overlay.classList.contains('is-closing')&&overlay.contains(focused)&&document.activeElement===focused)revealModalControl(focused);
   });
+  modalFocusRevealFrame=frame;
   return;
  }
  const first=visibleModalControls()[0]||overlay.querySelector('.dialog');
@@ -7461,7 +7480,7 @@ function showExpandedSubtitlePreview(){
  subtitleResizeObserver?.observe(stage);
  renderSubtitlePreview();
  (actual.hidden?dialog.querySelector('.sf-subtitle-scene-toggle [aria-pressed="true"]'):actual)?.focus({preventScroll:true});
- requestAnimationFrame(renderSubtitlePreview);
+ requestAnimationFrame(()=>{if(modalHost.querySelector('.overlay:not(.is-closing) #subtitle-expanded-stage')===stage&&!settingsClosing)renderSubtitlePreview();});
 }
 /* A12: Small, theme-aware color editor with live preview, explicit commit and
    cancel, pointer and keyboard access. Kept outside Gallery's clipped .app. */
@@ -7719,8 +7738,15 @@ openGalleryColorPopover(button,'text');return;
   settingsPage.querySelector('#subtitle-saved-status').textContent='Subtitle preview settings reset to defaults.';
  });
  subtitleResizeObserver?.disconnect();
- if('ResizeObserver' in window){subtitleResizeObserver=new ResizeObserver(()=>renderSubtitlePreview());subtitleResizeObserver.observe(stage);}
- updateSubtitleControls();requestAnimationFrame(renderSubtitlePreview);
+ if('ResizeObserver' in window){
+  const observer=new ResizeObserver(entries=>{
+   if(subtitleResizeObserver!==observer||settingsClosing||!settingsPage.contains(stage))return;
+   const expanded=modalHost.querySelector('.overlay:not(.is-closing) #subtitle-expanded-stage');
+   if(entries.some(entry=>entry.target===stage||entry.target===expanded))renderSubtitlePreview();
+  });
+  subtitleResizeObserver=observer;observer.observe(stage);
+ }
+ updateSubtitleControls();requestAnimationFrame(()=>{if(!settingsClosing&&settingsPage.contains(stage))renderSubtitlePreview();});
 }
 function updateSubtitleControls(){
  const fields={font:'subtitle-font'};
@@ -7908,7 +7934,16 @@ function renderSettingsSearchResults(){
  for(const button of container.querySelectorAll('[data-settings-search-key]'))button.addEventListener('click',()=>navigateToSettingsResult(button.dataset.settingsSearchKey));
 }
 let settingsJumpTimer=null;
+let settingsJumpTarget=null;
+let settingsJumpFrame=null;
+function cancelSettingsJump(){
+ if(settingsJumpTimer!==null)clearTimeout(settingsJumpTimer);
+ if(settingsJumpFrame!==null)cancelAnimationFrame(settingsJumpFrame);
+ settingsJumpTimer=null;settingsJumpFrame=null;
+ settingsJumpTarget?.classList.remove('settings-search-target');settingsJumpTarget=null;
+}
 function navigateToSettingsResult(key){
+ if(settingsClosing||!document.body.classList.contains('settings-view'))return;
  const item=settingsSearchIndex.find(x=>x.key===key);
  if(!item)return;
  closeInlineSearch(false);
@@ -7919,14 +7954,24 @@ function navigateToSettingsResult(key){
  if(item.section==='about')setAboutView(item.aboutView||'overview',false);
  const el=document.getElementById(item.target);
  if(!el)return;
+ cancelSettingsJump();
+ settingsJumpTarget=el;
  el.focus({preventScroll:true});
  el.classList.remove('settings-search-target');
  void el.offsetWidth;
  el.classList.add('settings-search-target');
- clearTimeout(settingsJumpTimer);
- settingsJumpTimer=setTimeout(()=>el.classList.remove('settings-search-target'),2200);
+ const timer=setTimeout(()=>{
+  if(settingsJumpTimer!==timer||settingsJumpTarget!==el)return;
+  el.classList.remove('settings-search-target');settingsJumpTimer=null;settingsJumpTarget=null;
+ },2200);
+ settingsJumpTimer=timer;
  // Content is already mounted: move only the Settings scroll container.
- requestAnimationFrame(()=>revealSettingsControl(el));
+ const frame=requestAnimationFrame(()=>{
+  if(settingsJumpFrame!==frame)return;
+  settingsJumpFrame=null;
+  if(settingsJumpTarget===el&&!settingsClosing&&settingsPage.contains(el))revealSettingsControl(el);
+ });
+ settingsJumpFrame=frame;
 }
 function settingsResultButtons(){return [...settingsPage.querySelectorAll('.settings-result-item')];}
 
@@ -8102,9 +8147,10 @@ function closeSettings(){
  cancelGalleryTextColorPopover(false);
  hideTabScrollOverlay();
  if(searchOpen)closeInlineSearch(false);
- if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}
- subtitleResizeObserver?.disconnect();
  settingsClosing=true;
+ cancelSettingsJump();
+ cancelSettingsKeyboardScroll();
+ subtitleResizeObserver?.disconnect();subtitleResizeObserver=null;
  settingsPage.inert=true;
  const button=document.getElementById('settings');
  button.focus({preventScroll:true});
@@ -8132,24 +8178,38 @@ function closeSettings(){
 // Deliberate keyboard focus and scroll: Chrome must not jump-cut to an off-screen
 // Settings control on Tab/Shift+Tab. Unrelated dialogs keep their existing trap.
 let settingsScrollFrame=null;
+let settingsScrollGeneration=0;
+function cancelSettingsKeyboardScroll(){
+ settingsScrollGeneration++;
+ if(settingsScrollFrame!==null)cancelAnimationFrame(settingsScrollFrame);
+ settingsScrollFrame=null;
+}
+function ownsSettingsControl(el){
+ return !settingsClosing&&document.body.classList.contains('settings-view')&&!settingsPage.inert&&settingsPage.contains(el)&&!!settingsPage.offsetParent;
+}
 function revealSettingsControl(el){
- if(!settingsPage.contains(el)||!settingsPage.offsetParent)return;
+ if(!ownsSettingsControl(el))return;
  const view=workspace.getBoundingClientRect(),rect=el.getBoundingClientRect();
  const margin=20;
  let target=workspace.scrollTop;
  if(rect.top<view.top+margin)target+=rect.top-(view.top+margin);
  else if(rect.bottom>view.bottom-margin)target+=rect.bottom-(view.bottom-margin);
  target=Math.max(0,Math.min(target,workspace.scrollHeight-workspace.clientHeight));
- if(settingsScrollFrame!==null)cancelAnimationFrame(settingsScrollFrame);
+ cancelSettingsKeyboardScroll();
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){workspace.scrollTop=target;settingsScrollFrame=null;return;}
  const from=workspace.scrollTop;const distance=target-from;if(Math.abs(distance)<1){settingsScrollFrame=null;return;}
  let started=null;const duration=Math.min(380,Math.max(190,190+Math.sqrt(Math.abs(distance))*5));
- function step(time){if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;}
+ const generation=settingsScrollGeneration;
+ function step(time){
+  if(generation!==settingsScrollGeneration)return;
+  if(!ownsSettingsControl(el)){cancelSettingsKeyboardScroll();return;}
+  if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
+ }
  settingsScrollFrame=requestAnimationFrame(step);
 }
-workspace.addEventListener('wheel',()=>{if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}},{passive:true});
+workspace.addEventListener('wheel',cancelSettingsKeyboardScroll,{passive:true});
 document.addEventListener('keydown',event=>{
-if(!document.body.classList.contains('settings-view')||modalHost.firstChild||document.querySelector('.gallery-color-popover'))return;
+if(!document.body.classList.contains('settings-view')||settingsClosing||modalHost.firstChild||document.querySelector('.gallery-color-popover'))return;
  if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(searchOpen)closeInlineSearch();else closeSettings();return;}
  if(event.key!=='Tab'||event.altKey||event.ctrlKey||event.metaKey)return;
  const controls=[searchToggle,searchInput,searchClear,searchClose,document.getElementById('settings'),...settingsPage.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden]')&&!el.hidden&&!el.closest('[inert]'));

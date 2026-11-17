@@ -170,9 +170,10 @@ function closeSettings(){
  cancelGalleryTextColorPopover(false);
  hideTabScrollOverlay();
  if(searchOpen)closeInlineSearch(false);
- if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}
- subtitleResizeObserver?.disconnect();
  settingsClosing=true;
+ cancelSettingsJump();
+ cancelSettingsKeyboardScroll();
+ subtitleResizeObserver?.disconnect();subtitleResizeObserver=null;
  settingsPage.inert=true;
  const button=document.getElementById('settings');
  button.focus({preventScroll:true});
@@ -200,24 +201,38 @@ function closeSettings(){
 // Deliberate keyboard focus and scroll: Chrome must not jump-cut to an off-screen
 // Settings control on Tab/Shift+Tab. Unrelated dialogs keep their existing trap.
 let settingsScrollFrame=null;
+let settingsScrollGeneration=0;
+function cancelSettingsKeyboardScroll(){
+ settingsScrollGeneration++;
+ if(settingsScrollFrame!==null)cancelAnimationFrame(settingsScrollFrame);
+ settingsScrollFrame=null;
+}
+function ownsSettingsControl(el){
+ return !settingsClosing&&document.body.classList.contains('settings-view')&&!settingsPage.inert&&settingsPage.contains(el)&&!!settingsPage.offsetParent;
+}
 function revealSettingsControl(el){
- if(!settingsPage.contains(el)||!settingsPage.offsetParent)return;
+ if(!ownsSettingsControl(el))return;
  const view=workspace.getBoundingClientRect(),rect=el.getBoundingClientRect();
  const margin=20;
  let target=workspace.scrollTop;
  if(rect.top<view.top+margin)target+=rect.top-(view.top+margin);
  else if(rect.bottom>view.bottom-margin)target+=rect.bottom-(view.bottom-margin);
  target=Math.max(0,Math.min(target,workspace.scrollHeight-workspace.clientHeight));
- if(settingsScrollFrame!==null)cancelAnimationFrame(settingsScrollFrame);
+ cancelSettingsKeyboardScroll();
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){workspace.scrollTop=target;settingsScrollFrame=null;return;}
  const from=workspace.scrollTop;const distance=target-from;if(Math.abs(distance)<1){settingsScrollFrame=null;return;}
  let started=null;const duration=Math.min(380,Math.max(190,190+Math.sqrt(Math.abs(distance))*5));
- function step(time){if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;}
+ const generation=settingsScrollGeneration;
+ function step(time){
+  if(generation!==settingsScrollGeneration)return;
+  if(!ownsSettingsControl(el)){cancelSettingsKeyboardScroll();return;}
+  if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
+ }
  settingsScrollFrame=requestAnimationFrame(step);
 }
-workspace.addEventListener('wheel',()=>{if(settingsScrollFrame!==null){cancelAnimationFrame(settingsScrollFrame);settingsScrollFrame=null;}},{passive:true});
+workspace.addEventListener('wheel',cancelSettingsKeyboardScroll,{passive:true});
 document.addEventListener('keydown',event=>{
-if(!document.body.classList.contains('settings-view')||modalHost.firstChild||document.querySelector('.gallery-color-popover'))return;
+if(!document.body.classList.contains('settings-view')||settingsClosing||modalHost.firstChild||document.querySelector('.gallery-color-popover'))return;
  if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(searchOpen)closeInlineSearch();else closeSettings();return;}
  if(event.key!=='Tab'||event.altKey||event.ctrlKey||event.metaKey)return;
  const controls=[searchToggle,searchInput,searchClear,searchClose,document.getElementById('settings'),...settingsPage.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden]')&&!el.hidden&&!el.closest('[inert]'));

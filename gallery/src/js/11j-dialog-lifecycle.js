@@ -8,12 +8,14 @@ function visibleModalControls(){
  return dialog?Array.from(dialog.querySelectorAll(modalFocusable)).filter(el=>!el.closest('[hidden]')&&el.getClientRects().length>0&&!el.inert):[];
 }
 function modal(title,inner,actions=''){
- const previouslyOpen=!!modalHost.querySelector('.overlay');
+ const outgoing=modalHost.querySelector('.overlay');
+ const previouslyOpen=!!outgoing;
  if(!previouslyOpen){
   const opener=document.activeElement;
   modalReturnFocus=opener instanceof HTMLElement&&opener!==document.body&&!modalHost.contains(opener)?opener:null;
  }
  clearTimeout(modalExitTimer);modalExitTimer=null;
+ if(outgoing)retireModalWork(outgoing);
  modalHost.innerHTML=`<div class="overlay" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-label="${escapeHTML(title)}" tabindex="-1"><div class="dialog-scroll"><div class="dialog-head"><h2>${escapeHTML(title)}</h2><button class="iconbtn" aria-label="Close dialog" id="close-dialog">${icon('close',20)}</button></div>${inner}${actions?`<div class="dialog-actions">${actions}</div>`:''}</div></div></div>`;
  galleryApp.inert=true;
  modalHost.querySelector('.overlay').addEventListener('click',e=>{if(e.target.classList.contains('overlay'))closeModal()});
@@ -22,8 +24,7 @@ function modal(title,inner,actions=''){
 }
 function finishModalClose(overlay){
  if(modalHost.firstElementChild!==overlay)return;
- const expandedStage=overlay.querySelector('#subtitle-expanded-stage');
- if(expandedStage)subtitleResizeObserver?.unobserve(expandedStage);
+ retireModalWork(overlay);
  modalHost.innerHTML='';
  galleryApp.inert=false;
  const target=modalReturnFocus;
@@ -34,7 +35,8 @@ function finishModalClose(overlay){
 function closeModal(){
  const overlay=modalHost.querySelector('.overlay');
  if(!overlay||overlay.classList.contains('is-closing'))return;
-clearTimeout(modalExitTimer);
+ clearTimeout(modalExitTimer);
+ retireModalWork(overlay);
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){finishModalClose(overlay);return;}
  overlay.classList.add('is-closing');
  modalExitTimer=setTimeout(()=>{
@@ -49,13 +51,24 @@ clearTimeout(modalExitTimer);
 let modalScrollFrame=null;
 let modalScrollGoal=null;
 let modalScrollContainer=null;
+let modalScrollGeneration=0;
+let modalFocusRevealFrame=null;
+function retireModalWork(overlay){
+ cancelModalKeyboardScroll();
+ if(modalFocusRevealFrame!==null)cancelAnimationFrame(modalFocusRevealFrame);
+ modalFocusRevealFrame=null;modalKeyboardFocusTarget=null;
+ const stage=overlay.querySelector('#subtitle-expanded-stage');
+ if(stage)subtitleResizeObserver?.unobserve(stage);
+}
 function cancelModalKeyboardScroll(){
+ modalScrollGeneration++;
  if(modalScrollFrame!==null)cancelAnimationFrame(modalScrollFrame);
  modalScrollFrame=null;modalScrollGoal=null;modalScrollContainer=null;
 }
 function revealModalControl(control,edge='nearest'){
- const scroller=modalHost.querySelector('.dialog-scroll');
- if(!scroller||!control||!scroller.contains(control))return;
+ const overlay=modalHost.querySelector('.overlay');
+ const scroller=overlay?.querySelector('.dialog-scroll');
+ if(!scroller||overlay.classList.contains('is-closing')||!control||!scroller.contains(control))return;
  // Compute visibility relative to the *intended* destination of any in-flight
  // keyboard scroll, not an intermediate animation frame. Repeated Tab presses
  // can therefore redirect the scroll without piling up contradictory requests.
@@ -86,8 +99,10 @@ function revealModalControl(control,edge='nearest'){
  const distance=Math.abs(target-start);
  const duration=Math.min(410,Math.max(220,180+Math.sqrt(distance)*7));
  let started=null;
+ const generation=modalScrollGeneration;
  function step(time){
-  if(modalScrollContainer!==scroller)return;
+  if(generation!==modalScrollGeneration||modalScrollContainer!==scroller)return;
+  if(modalHost.firstElementChild!==overlay||overlay.classList.contains('is-closing')||!scroller.isConnected){cancelModalKeyboardScroll();return;}
   if(started===null)started=time;
   const fraction=Math.min(1,(time-started)/duration);
   const eased=1-Math.pow(1-fraction,3);
@@ -147,9 +162,13 @@ document.addEventListener('focusin',event=>{
   const focused=event.target;
   if(focused===modalKeyboardFocusTarget){modalKeyboardFocusTarget=null;return;}
   // Mouse/programmatic focus outside Tab should still reveal hidden controls.
-  requestAnimationFrame(()=>{
-   if(document.activeElement===focused)revealModalControl(focused);
+  if(modalFocusRevealFrame!==null)cancelAnimationFrame(modalFocusRevealFrame);
+  const frame=requestAnimationFrame(()=>{
+   if(modalFocusRevealFrame!==frame)return;
+   modalFocusRevealFrame=null;
+   if(modalHost.firstElementChild===overlay&&!overlay.classList.contains('is-closing')&&overlay.contains(focused)&&document.activeElement===focused)revealModalControl(focused);
   });
+  modalFocusRevealFrame=frame;
   return;
  }
  const first=visibleModalControls()[0]||overlay.querySelector('.dialog');

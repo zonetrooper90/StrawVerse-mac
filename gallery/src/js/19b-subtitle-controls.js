@@ -51,8 +51,15 @@ openGalleryColorPopover(button,'text');return;
   settingsPage.querySelector('#subtitle-saved-status').textContent='Subtitle preview settings reset to defaults.';
  });
  subtitleResizeObserver?.disconnect();
- if('ResizeObserver' in window){subtitleResizeObserver=new ResizeObserver(()=>renderSubtitlePreview());subtitleResizeObserver.observe(stage);}
- updateSubtitleControls();requestAnimationFrame(renderSubtitlePreview);
+ if('ResizeObserver' in window){
+  const observer=new ResizeObserver(entries=>{
+   if(subtitleResizeObserver!==observer||settingsClosing||!settingsPage.contains(stage))return;
+   const expanded=modalHost.querySelector('.overlay:not(.is-closing) #subtitle-expanded-stage');
+   if(entries.some(entry=>entry.target===stage||entry.target===expanded))renderSubtitlePreview();
+  });
+  subtitleResizeObserver=observer;observer.observe(stage);
+ }
+ updateSubtitleControls();requestAnimationFrame(()=>{if(!settingsClosing&&settingsPage.contains(stage))renderSubtitlePreview();});
 }
 function updateSubtitleControls(){
  const fields={font:'subtitle-font'};

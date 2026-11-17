@@ -112,5 +112,5 @@ function showExpandedSubtitlePreview(){
  subtitleResizeObserver?.observe(stage);
  renderSubtitlePreview();
  (actual.hidden?dialog.querySelector('.sf-subtitle-scene-toggle [aria-pressed="true"]'):actual)?.focus({preventScroll:true});
- requestAnimationFrame(renderSubtitlePreview);
+ requestAnimationFrame(()=>{if(modalHost.querySelector('.overlay:not(.is-closing) #subtitle-expanded-stage')===stage&&!settingsClosing)renderSubtitlePreview();});
 }

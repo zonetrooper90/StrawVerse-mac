@@ -73,7 +73,16 @@ function renderSettingsSearchResults(){
  for(const button of container.querySelectorAll('[data-settings-search-key]'))button.addEventListener('click',()=>navigateToSettingsResult(button.dataset.settingsSearchKey));
 }
 let settingsJumpTimer=null;
+let settingsJumpTarget=null;
+let settingsJumpFrame=null;
+function cancelSettingsJump(){
+ if(settingsJumpTimer!==null)clearTimeout(settingsJumpTimer);
+ if(settingsJumpFrame!==null)cancelAnimationFrame(settingsJumpFrame);
+ settingsJumpTimer=null;settingsJumpFrame=null;
+ settingsJumpTarget?.classList.remove('settings-search-target');settingsJumpTarget=null;
+}
 function navigateToSettingsResult(key){
+ if(settingsClosing||!document.body.classList.contains('settings-view'))return;
  const item=settingsSearchIndex.find(x=>x.key===key);
  if(!item)return;
  closeInlineSearch(false);
@@ -84,14 +93,24 @@ function navigateToSettingsResult(key){
  if(item.section==='about')setAboutView(item.aboutView||'overview',false);
  const el=document.getElementById(item.target);
  if(!el)return;
+ cancelSettingsJump();
+ settingsJumpTarget=el;
  el.focus({preventScroll:true});
  el.classList.remove('settings-search-target');
  void el.offsetWidth;
  el.classList.add('settings-search-target');
- clearTimeout(settingsJumpTimer);
- settingsJumpTimer=setTimeout(()=>el.classList.remove('settings-search-target'),2200);
+ const timer=setTimeout(()=>{
+  if(settingsJumpTimer!==timer||settingsJumpTarget!==el)return;
+  el.classList.remove('settings-search-target');settingsJumpTimer=null;settingsJumpTarget=null;
+ },2200);
+ settingsJumpTimer=timer;
  // Content is already mounted: move only the Settings scroll container.
- requestAnimationFrame(()=>revealSettingsControl(el));
+ const frame=requestAnimationFrame(()=>{
+  if(settingsJumpFrame!==frame)return;
+  settingsJumpFrame=null;
+  if(settingsJumpTarget===el&&!settingsClosing&&settingsPage.contains(el))revealSettingsControl(el);
+ });
+ settingsJumpFrame=frame;
 }
 function settingsResultButtons(){return [...settingsPage.querySelectorAll('.settings-result-item')];}
 

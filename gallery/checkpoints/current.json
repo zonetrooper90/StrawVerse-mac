@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-16-a2-history-expansion-listener-ownership-retry",
-  "sha256": "6f558d22ec21047a978af0d262277c508366a37e6d3d63f8bf1952016aa33ae5",
-  "bytes": 6936422,
+  "folder": "2026-11-17-a2-dialog-settings-ownership-retry",
+  "sha256": "c52a8c8a8a75c1ae5187fbb577c0ea146a36db9d45aae97320d6638c598be009",
+  "bytes": 6939095,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
