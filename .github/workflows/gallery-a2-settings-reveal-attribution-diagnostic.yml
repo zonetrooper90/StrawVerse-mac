@@ -1,0 +1,60 @@
+name: Gallery A2.4 Settings reveal attribution diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-17-a2-settings-reveal-attribution-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.variant }}, ${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+        mode: [full, lightweight]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged authoritative baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Reconstruct exact historical candidate in disposable checkout
+        env:
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/attribution-input" bbf1b2824b0c2d917ed20ccae23552572eeee009
+          cd "$RUNNER_TEMP/attribution-input"
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          if [ "$VARIANT" = candidate ]; then
+            request=gallery/changes/pending/2026-11-17-a2-dialog-settings-ownership.py
+            test "$(git hash-object "$request")" = 42383cb4a5c09f42810f4ea17022bb8ca62a97b1
+            python3 -B "$request"
+            python3 gallery/tools/build-gallery.py --write-deliverables
+            git add -u
+            test "$(git write-tree)" = 307b454d54048b0efb9b92d1dd0234e90c20ccb3
+          fi
+      - name: Trace precise callback attribution and direct reveal invocation
+        run: python3 -B gallery/audits/2026-11-17-a2-settings-reveal-attribution-diagnostic.py "${{ matrix.variant }}" "${{ matrix.mode }}" "$RUNNER_TEMP/attribution-input" "$RUNNER_TEMP/attribution.json"
+      - name: Upload complete scheduling and delivery traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a24-attribution-${{ matrix.variant }}-${{ matrix.mode }}
+          path: ${{ runner.temp }}/attribution.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
