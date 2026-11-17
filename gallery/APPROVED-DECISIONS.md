@@ -445,3 +445,6 @@ User approved targeted correction after verified 32-context diagnostic 439351520
 
 ## 2026-11-16 — Approved A2.3 synchronized retry
 After diagnostic 43957485053 reproduced the failure on baseline and candidate before actual transitionstart, user approved byte-identical application replay with strict regression synchronization on trusted closing grid transitionstart and real cancellation delivery. Keep original assertions and contexts, add exact historical candidate hash gates and positive native cancellation comparisons (including early-change control, reversal and explicit native cancellation). Preserve historical request/tests; no extra application changes, CSS, progress scheduling, asset/native or numbered release. Both independent checks required after publication.
+
+## 2026-11-17 — A2.3 initial visual acceptance
+User reported the delivered A2.3 build `51b6067a37b83aa4bd9d4e81e21abde0fd91e271` looks fine. Preserve the verified Watch History episode expansion/collapse listener ownership and existing presentation/scroll behavior. Acceptance limited to reported review; no inferred comprehensive/native or other pending milestone acceptance. No new application change or numbered release authorized.
