@@ -16,6 +16,15 @@ For each user-approved HTML change:
 4. Only after verification, deliver a GitHub file-page permalink to `gallery/Gallery-current.html` at the exact verified build commit (use GitHub's Download raw file control), plus the build commit URL. The pinned file bytes must match the immutable checkpoint. ChatGPT attachments are optional, not required; never transfer the large HTML just to attach it.
 5. Update `gallery/DEVELOPMENT-STATE.md` with the latest verified build, task outcome, pending user testing and next proposed step. Record pending approved work before starting it; reconcile state with the actual remote pointer, commits and CI after any interruption. Do not repeat a publisher request or commit based on an Unknown Error alone.
 
+## Permanent design rule — optical icon alignment
+
+- Keep button/container geometry, spacing, centerlines, focus outlines and interaction areas mathematically aligned. Do not alter structural spacing to compensate for a glyph's visual imbalance.
+- Icons must be optically (visually) centered within their intended containers or alignment boxes, accounting for shape, asymmetry and perceived visual weight, rather than merely centering the SVG viewBox or bounding box.
+- Icons within a shared control group should have consistent perceived size and stroke weight; identical numeric glyph dimensions are not required when a deliberate optical correction is needed.
+- Maintain optical centering and visual balance throughout animations and morph transitions, including interrupted/reversed motion and reduced-motion states; preserve approved interaction and accessibility behavior.
+- Define optical corrections at the shared icon level wherever practical, not as conflicting page-specific layout offsets. Review rendered appearance at actual display sizes across relevant themes, states and widths; use geometry checks for structural alignment and visual review for optical alignment.
+- Apply this rule to new or explicitly approved icon refinements. Do not interpret it as authorization to redesign existing approved icons, change unrelated UI, or start the deferred icon/Search-bar motion-polish milestone before maintenance is complete. Existing mathematically centered button/header rules remain in force.
+
 Infrastructure/documentation-only edits require a verified development-branch commit and passing checks, but no new HTML checkpoint or downloadable build.
 If GitHub or verification fails, report exactly what failed; never claim a build was backed up.
 
