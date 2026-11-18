@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-18-a2-background-operation-ownership",
-  "sha256": "f4d7d67df2f04ff9835c800b2fcd7138d1a1274ef94ab17e9ac3f5858b22ea94",
-  "bytes": 6938822,
+  "folder": "2026-11-18-global-toolbar-spacing",
+  "sha256": "e7ebd13cb49423448f3878e5f163d74840a7c5691f65708d036028cb8dd7650d",
+  "bytes": 6938816,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

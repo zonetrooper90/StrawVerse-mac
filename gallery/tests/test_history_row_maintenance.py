@@ -328,3 +328,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A2.1 ownership and teardown regression in both motion modes.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-16-a2-player-session-ownership-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory shared global toolbar spacing and fixed Search geometry regression.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-18-global-toolbar-spacing-regression.py'),sys.argv[1]],check=True)

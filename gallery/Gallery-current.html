@@ -952,9 +952,9 @@ html[data-focus-modality="keyboard"] .header-search.is-open:focus-within{border-
    The field grows to the LEFT of the button, so opening it moves no controls. */
 .brand-row.is-searching .toolbar{flex:none;min-width:0}
 .brand-row.is-searching .brand{flex:none;min-width:0}
-.header-search,.header-search.is-open{flex:0 0 38px;width:38px;min-width:38px;background:transparent;border-color:transparent;box-shadow:none}
+.header-search,.header-search.is-open{flex:0 0 40px;width:40px;min-width:40px;height:40px;background:transparent;border:0;box-shadow:none}
 .header-search:focus-within{background:transparent}
-.header-search-field{position:absolute;top:1px;right:calc(100% + 7px);left:auto;
+.header-search-field{position:absolute;top:1px;right:calc(100% + 8px);left:auto;
   flex:none;width:0;max-width:none;height:38px;min-width:0;gap:3px;padding:0;
   border:1px solid transparent;border-radius:11px;background:var(--raised);
   opacity:0;visibility:hidden;overflow:hidden;
@@ -970,7 +970,7 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
 @media(max-width:720px){
  .brand-row.is-searching .brand{max-width:none;flex:0 1 auto;opacity:0;pointer-events:none}
  .brand-row.is-searching .toolbar{flex:none}
- .brand-row.is-searching .header-search{flex:0 0 38px}
+ .brand-row.is-searching .header-search{flex:0 0 40px}
  .header-search.is-open .header-search-field{width:min(420px,calc(100vw - 140px - var(--wh-toolbar-extra,48px)))}
 }
 @media(max-width:480px){.brand-row.is-searching .brand{max-width:none;flex-basis:auto;opacity:0}.brand-row.is-searching{gap:15px}}
@@ -990,7 +990,7 @@ html[data-focus-modality="pointer"] .header-search.is-open .header-search-field:
 
 
 
-/* Global Watch History shortcut — keep the existing Search/Settings geometry. */
+/* Global Watch History shortcut — shared 40px utility buttons and 8px gaps. */
 body.recently-watched-legacy{--wh-toolbar-extra:0px}
 #header-watch-history[hidden]{display:none!important}
 #header-watch-history{flex:none}
