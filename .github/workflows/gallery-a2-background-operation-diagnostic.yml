@@ -1,0 +1,42 @@
+name: Gallery A2.5 background operation ownership diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-18-a2-background-operation-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.mode }}, ${{ matrix.motion }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+        motion: [no-preference, reduce]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged authoritative baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Trace simulated operation ownership
+        run: python3 -B gallery/audits/2026-11-18-a2-background-operation-diagnostic.py "${{ matrix.mode }}" "${{ matrix.motion }}" "$RUNNER_TEMP/background.json"
+      - name: Upload complete timer and state traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a25-background-${{ matrix.mode }}-${{ matrix.motion }}
+          path: ${{ runner.temp }}/background.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
