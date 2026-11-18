@@ -384,3 +384,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A2.4 Dialog and Settings lifecycle regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-17-a2-dialog-settings-ownership-retry-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A2.5 background operation ownership regression.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-18-a2-background-operation-ownership-regression.py'),sys.argv[1]],check=True)

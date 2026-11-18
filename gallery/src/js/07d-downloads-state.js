@@ -1,8 +1,6 @@
-// One fictional transfer is controllable to test the completion moment.
-// The existing completed download starts with its percentage hidden.
+// Fictional transfers are controllable to test progress and completion.
 const DOWNLOAD_ACTION_SVG={"cancel": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>', "dismiss": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>', "retry": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" /></svg>'};
 function downloadActionIcon(action){return DOWNLOAD_ACTION_SVG[action]||'';}
-const DEMO_COMPLETION_HOLD_MS=3000;
 // Browser-only illustration of grouped downloads. No real transfers, files, or path reads.
 function makeDemoDownloadEntries(){
  const items=[];
@@ -18,7 +16,7 @@ function makeDemoDownloadEntries(){
  );
  return items;
 }
-const downloadDemo={entries:makeDemoDownloadEntries(),expanded:new Set(),dismissed:new Set(),fullAt:new Map(),timers:new Map()};
+const downloadDemo={entries:makeDemoDownloadEntries(),expanded:new Set(),dismissed:new Set()};
 const downloadTerminalStates=new Set(['Completed','Failed','Canceled']);
 function visibleDownloadEntries(){return downloadDemo.entries.filter(entry=>!downloadDemo.dismissed.has(entry.id));}
 function animeDownloadEntries(id){return visibleDownloadEntries().filter(entry=>entry.animeId===id);}

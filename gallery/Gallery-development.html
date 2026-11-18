@@ -5019,11 +5019,9 @@ function librarySearchCard(item){
  const pills=unique.length?unique.map(tag=>`<span>${escapeHTML(tag)}</span>`).join(''):'<span>Untagged</span>';
  return artCard(item).replace('</article>',`<div class="library-search-tags" aria-label="Tags for ${escapeHTML(item.name)}">${pills}</div></article>`);
 }
-// One fictional transfer is controllable to test the completion moment.
-// The existing completed download starts with its percentage hidden.
+// Fictional transfers are controllable to test progress and completion.
 const DOWNLOAD_ACTION_SVG={"cancel": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>', "dismiss": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>', "retry": '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon download-action-icon" aria-hidden="true" focusable="false"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" /></svg>'};
 function downloadActionIcon(action){return DOWNLOAD_ACTION_SVG[action]||'';}
-const DEMO_COMPLETION_HOLD_MS=3000;
 // Browser-only illustration of grouped downloads. No real transfers, files, or path reads.
 function makeDemoDownloadEntries(){
  const items=[];
@@ -5039,7 +5037,7 @@ function makeDemoDownloadEntries(){
  );
  return items;
 }
-const downloadDemo={entries:makeDemoDownloadEntries(),expanded:new Set(),dismissed:new Set(),fullAt:new Map(),timers:new Map()};
+const downloadDemo={entries:makeDemoDownloadEntries(),expanded:new Set(),dismissed:new Set()};
 const downloadTerminalStates=new Set(['Completed','Failed','Canceled']);
 function visibleDownloadEntries(){return downloadDemo.entries.filter(entry=>!downloadDemo.dismissed.has(entry.id));}
 function animeDownloadEntries(id){return visibleDownloadEntries().filter(entry=>entry.animeId===id);}
@@ -5188,28 +5186,16 @@ function dismissAllFinishedDownloads(){
 function simulateNextDownload(){
  const target=visibleDownloadEntries().find(e=>e.status==='Downloading')||visibleDownloadEntries().find(e=>e.status==='Queued');
  if(!target)return;
- const before=downloadProgress(allAnimeDownloadEntries(target.animeId));
  if(target.status==='Downloading'){
   target.status='Completed';target.progress=100;
  }else{
   target.status='Downloading';target.progress=12;
  }
- const after=downloadProgress(allAnimeDownloadEntries(target.animeId));
- if(before<100&&after===100){
-  downloadDemo.fullAt.set(target.animeId,Date.now());
-  clearTimeout(downloadDemo.timers.get(target.animeId));
-  const timer=setTimeout(()=>{
-   const group=Array.from(tabPages.downloads.querySelectorAll('[data-download-group]')).find(el=>el.dataset.downloadGroup===target.animeId);
-   group?.querySelector('.download-group-percent')?.classList.add('is-hidden');
-  },DEMO_COMPLETION_HOLD_MS);
-  downloadDemo.timers.set(target.animeId,timer);
- }
  refreshDownloadDemo();
 }
 function resetDownloadDemo(){
- for(const timer of downloadDemo.timers.values())clearTimeout(timer);
  downloadDemo.entries=makeDemoDownloadEntries();
- downloadDemo.expanded.clear();downloadDemo.dismissed.clear();downloadDemo.fullAt.clear();downloadDemo.timers.clear();
+ downloadDemo.expanded.clear();downloadDemo.dismissed.clear();
  state.downloadStatus='All';sfDownloadUndo=null;sfDownloadScrollPositions.clear();refreshDownloadDemo();
 }
 function downloads(){
@@ -6799,8 +6785,25 @@ let sourceDemoBusy=null;
 let sourceDemoBusyAction=null;
 let sourceDemoPhase=-1;
 let sourceDemoOpToken=0;
+let sourceDemoTimer=null;
+function cancelSourceOperationTimer(){
+ const handle=sourceDemoTimer;
+ sourceDemoTimer=null;
+ if(handle!==null)clearTimeout(handle);
+}
+function scheduleSourceOperation(token,callback,delay){
+ if(token!==sourceDemoOpToken)return;
+ cancelSourceOperationTimer();
+ const handle=setTimeout(()=>{
+  if(sourceDemoTimer!==handle||token!==sourceDemoOpToken)return;
+  sourceDemoTimer=null;
+  callback();
+ },delay);
+ sourceDemoTimer=handle;
+}
 function resetSourcesPreview(){
  sourceDemoOpToken++;
+ cancelSourceOperationTimer();
  sourceDemoState=Object.fromEntries(SOURCES_PREVIEW_CATALOG.map(p=>[p.id,{installed:p.initialVersion,health:p.initialHealth,nextOutcome:'working',notice:null,backup:null}]));
  sourceDemoRepos=[];sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;sourcesExpanded.clear();
  sourcesFeedback='Demo restored: sample source versions and states reset.';
@@ -6965,7 +6968,7 @@ function setSourcesTab(next,resetScroll=true){
   const el=settingsPage.querySelector('.sources-subnav');if(el)revealSettingsControl(el);
  });
 }
-function sourceOperationEnd(){sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;}
+function sourceOperationEnd(){cancelSourceOperationTimer();sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;}
 function beginPreviewUpdate(p,entry,action){
  const id=p.id;
  const previous={version:entry.installed,health:entry.health,working:entry.health==='healthy'};
@@ -6980,7 +6983,7 @@ function beginPreviewUpdate(p,entry,action){
   sourcesFeedback=`${p.name}: ${SOURCE_UPDATE_PHASES[phase].toLowerCase()} (simulation).`;
   renderSourcesPreview();
   if(result==='rejected'&&phase===SOURCE_UPDATE_PHASES.indexOf('Validating extension')){
-   setTimeout(()=>{
+   scheduleSourceOperation(token,()=>{
     if(token!==sourceDemoOpToken)return;
     sourceOperationEnd();
     entry.notice={kind:'error',text:`Update validation failed. ${previous.version?`v${previous.version} remains installed ${previous.working?'and working':'but was already unavailable'}.`:'No version was installed.'} Nothing was replaced.`};
@@ -6988,8 +6991,8 @@ function beginPreviewUpdate(p,entry,action){
     renderSourcesPreview();
    },850);return;
   }
-  if(phase<SOURCE_UPDATE_PHASES.length-1){setTimeout(()=>advance(phase+1),850);return;}
-  setTimeout(()=>{
+  if(phase<SOURCE_UPDATE_PHASES.length-1){scheduleSourceOperation(token,()=>advance(phase+1),850);return;}
+  scheduleSourceOperation(token,()=>{
    if(token!==sourceDemoOpToken)return;
    // Extension passed validation/activation. Provider reachability is a separate test.
    entry.installed=p.latest;
@@ -7006,7 +7009,7 @@ function beginPreviewUpdate(p,entry,action){
    sourceOperationEnd();renderSourcesPreview();refreshDiscoverFromSourcePreview();
   },900);
  }
- setTimeout(()=>advance(1),700);
+ scheduleSourceOperation(token,()=>advance(1),700);
 }
 function previewSourceAction(action,id){
  const p=SOURCES_PREVIEW_CATALOG.find(x=>x.id===id);if(!p)return;
@@ -7049,7 +7052,7 @@ function previewSourceAction(action,id){
   if(!entry.installed)return;
   sourceDemoBusy=id;sourceDemoBusyAction='retry';sourceDemoPhase=SOURCE_UPDATE_PHASES.length-1;const token=++sourceDemoOpToken;
   entry.notice=null;sourcesFeedback=`Preview: checking ${p.name}'s provider again…`;renderSourcesPreview();
-  setTimeout(()=>{
+  scheduleSourceOperation(token,()=>{
    if(token!==sourceDemoOpToken)return;
    sourceOperationEnd();
    if(entry.nextOutcome==='working'){

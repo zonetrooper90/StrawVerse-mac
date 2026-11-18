@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-17-a2-dialog-settings-ownership-retry",
-  "sha256": "c52a8c8a8a75c1ae5187fbb577c0ea146a36db9d45aae97320d6638c598be009",
-  "bytes": 6939095,
+  "folder": "2026-11-18-a2-background-operation-ownership",
+  "sha256": "f4d7d67df2f04ff9835c800b2fcd7138d1a1274ef94ab17e9ac3f5858b22ea94",
+  "bytes": 6938822,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

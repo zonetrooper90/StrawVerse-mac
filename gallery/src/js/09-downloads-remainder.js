@@ -113,28 +113,16 @@ function dismissAllFinishedDownloads(){
 function simulateNextDownload(){
  const target=visibleDownloadEntries().find(e=>e.status==='Downloading')||visibleDownloadEntries().find(e=>e.status==='Queued');
  if(!target)return;
- const before=downloadProgress(allAnimeDownloadEntries(target.animeId));
  if(target.status==='Downloading'){
   target.status='Completed';target.progress=100;
  }else{
   target.status='Downloading';target.progress=12;
  }
- const after=downloadProgress(allAnimeDownloadEntries(target.animeId));
- if(before<100&&after===100){
-  downloadDemo.fullAt.set(target.animeId,Date.now());
-  clearTimeout(downloadDemo.timers.get(target.animeId));
-  const timer=setTimeout(()=>{
-   const group=Array.from(tabPages.downloads.querySelectorAll('[data-download-group]')).find(el=>el.dataset.downloadGroup===target.animeId);
-   group?.querySelector('.download-group-percent')?.classList.add('is-hidden');
-  },DEMO_COMPLETION_HOLD_MS);
-  downloadDemo.timers.set(target.animeId,timer);
- }
  refreshDownloadDemo();
 }
 function resetDownloadDemo(){
- for(const timer of downloadDemo.timers.values())clearTimeout(timer);
  downloadDemo.entries=makeDemoDownloadEntries();
- downloadDemo.expanded.clear();downloadDemo.dismissed.clear();downloadDemo.fullAt.clear();downloadDemo.timers.clear();
+ downloadDemo.expanded.clear();downloadDemo.dismissed.clear();
  state.downloadStatus='All';sfDownloadUndo=null;sfDownloadScrollPositions.clear();refreshDownloadDemo();
 }
 function downloads(){

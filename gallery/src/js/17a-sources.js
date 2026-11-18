@@ -145,7 +145,7 @@ function setSourcesTab(next,resetScroll=true){
   const el=settingsPage.querySelector('.sources-subnav');if(el)revealSettingsControl(el);
  });
 }
-function sourceOperationEnd(){sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;}
+function sourceOperationEnd(){cancelSourceOperationTimer();sourceDemoBusy=null;sourceDemoBusyAction=null;sourceDemoPhase=-1;}
 function beginPreviewUpdate(p,entry,action){
  const id=p.id;
  const previous={version:entry.installed,health:entry.health,working:entry.health==='healthy'};
@@ -160,7 +160,7 @@ function beginPreviewUpdate(p,entry,action){
   sourcesFeedback=`${p.name}: ${SOURCE_UPDATE_PHASES[phase].toLowerCase()} (simulation).`;
   renderSourcesPreview();
   if(result==='rejected'&&phase===SOURCE_UPDATE_PHASES.indexOf('Validating extension')){
-   setTimeout(()=>{
+   scheduleSourceOperation(token,()=>{
     if(token!==sourceDemoOpToken)return;
     sourceOperationEnd();
     entry.notice={kind:'error',text:`Update validation failed. ${previous.version?`v${previous.version} remains installed ${previous.working?'and working':'but was already unavailable'}.`:'No version was installed.'} Nothing was replaced.`};
@@ -168,8 +168,8 @@ function beginPreviewUpdate(p,entry,action){
     renderSourcesPreview();
    },850);return;
   }
-  if(phase<SOURCE_UPDATE_PHASES.length-1){setTimeout(()=>advance(phase+1),850);return;}
-  setTimeout(()=>{
+  if(phase<SOURCE_UPDATE_PHASES.length-1){scheduleSourceOperation(token,()=>advance(phase+1),850);return;}
+  scheduleSourceOperation(token,()=>{
    if(token!==sourceDemoOpToken)return;
    // Extension passed validation/activation. Provider reachability is a separate test.
    entry.installed=p.latest;
@@ -186,7 +186,7 @@ function beginPreviewUpdate(p,entry,action){
    sourceOperationEnd();renderSourcesPreview();refreshDiscoverFromSourcePreview();
   },900);
  }
- setTimeout(()=>advance(1),700);
+ scheduleSourceOperation(token,()=>advance(1),700);
 }
 function previewSourceAction(action,id){
  const p=SOURCES_PREVIEW_CATALOG.find(x=>x.id===id);if(!p)return;
@@ -229,7 +229,7 @@ function previewSourceAction(action,id){
   if(!entry.installed)return;
   sourceDemoBusy=id;sourceDemoBusyAction='retry';sourceDemoPhase=SOURCE_UPDATE_PHASES.length-1;const token=++sourceDemoOpToken;
   entry.notice=null;sourcesFeedback=`Preview: checking ${p.name}'s provider again…`;renderSourcesPreview();
-  setTimeout(()=>{
+  scheduleSourceOperation(token,()=>{
    if(token!==sourceDemoOpToken)return;
    sourceOperationEnd();
    if(entry.nextOutcome==='working'){
