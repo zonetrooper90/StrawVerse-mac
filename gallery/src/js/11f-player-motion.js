@@ -57,7 +57,7 @@ function sfSetPlayMorph(playing,{instant=false}={}){
  const duration=SF_PLAY_MORPH_DURATION*Math.abs(to-from);
  const start=performance.now();
  function tick(now){
-  const p=Math.min(1,Math.max(0,(now-start)/duration));
+  const p=galleryReducedMotion.matches?1:Math.min(1,Math.max(0,(now-start)/duration));
   const eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
   sfPlayMorph.amount=from+(to-from)*eased;
   sfDrawPlayMorph();
@@ -148,7 +148,7 @@ function morphPlayerTo(target){
  const duration=PLAYER_MORPH_MS*Math.abs(to-from);
  const beginning=performance.now();
  const frame=time=>{
-  const progress=Math.min(1,Math.max(0,(time-beginning)/duration));
+  const progress=galleryReducedMotion.matches?1:Math.min(1,Math.max(0,(time-beginning)/duration));
   const eased=progress<.5?4*progress*progress*progress:1-Math.pow(-2*progress+2,3)/2;
   playNextMorph.amount=from+(to-from)*eased;
   setPlayerMorphGeometry(playNextMorph.amount);
@@ -156,6 +156,12 @@ function morphPlayerTo(target){
  };
  playNextMorph.frame=requestAnimationFrame(frame);
 }
+// Retire only active icon interpolation; media playback and its clock are unchanged.
+galleryReducedMotion.addEventListener('change',event=>{
+ if(!event.matches||!sfPlayerOwnsVideo(document.getElementById('local-video')))return;
+ if(sfPlayMorph.frame)sfSetPlayMorph(Boolean(sfPlayMorph.target),{instant:true});
+ if(playNextMorph.frame)morphPlayerTo(playNextShown);
+});
 function setPlayNextVisible(show){
  if(show===playNextShown)return;
  playNextShown=show;

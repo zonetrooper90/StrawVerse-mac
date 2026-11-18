@@ -54,6 +54,13 @@ function installmentRail(x){
 let activeInstallmentRailObserver=null;
 let activeInstallmentRailFrame=null;
 let activeInstallmentRailEvents=null;
+// Only application-requested native smooth scrolling has an owned destination.
+let activeInstallmentScroll=null;
+function scrollInstallmentRail(rail,left){
+ const smooth=!galleryReducedMotion.matches;
+ activeInstallmentScroll=smooth&&Math.abs(rail.scrollLeft-left)>.5?{rail,left}:null;
+ rail.scrollTo({left,behavior:smooth?'smooth':'instant'});
+}
 // A rail owns its observer, initial refresh frame and refresh listeners.
 // Retire at actual render/departure, not when Settings suspends the same DOM.
 function retireInstallmentRail(){
@@ -63,6 +70,7 @@ function retireInstallmentRail(){
  activeInstallmentRailFrame=null;
  activeInstallmentRailEvents?.abort();
  activeInstallmentRailEvents=null;
+ activeInstallmentScroll=null;
  observer?.disconnect();
 }
 function mountInstallmentRail(rail){
@@ -76,6 +84,19 @@ function mountInstallmentRail(rail){
  activeInstallmentRailObserver=observer;
  activeInstallmentRailEvents=events;
  rail.addEventListener('scroll',refresh,{passive:true,signal:events.signal});
+ rail.addEventListener('scrollend',()=>{
+  if(activeInstallmentScroll?.rail===rail)activeInstallmentScroll=null;
+ },{signal:events.signal});
+ galleryReducedMotion.addEventListener('change',event=>{
+  const pending=activeInstallmentScroll;
+  if(!event.matches||pending?.rail!==rail)return;
+  activeInstallmentScroll=null;
+  if(activeInstallmentRailObserver!==observer||!rail.isConnected||!screen.contains(rail)||screen.hidden||!state.detailId||state.playback||whOpen)return;
+  // An instant scroll cancels the browser's in-flight smooth scroll; keep the
+  // existing snap policy and clamp to the current rail bounds after resizing.
+  rail.scrollTo({left:Math.max(0,Math.min(pending.left,rail.scrollWidth-rail.clientWidth)),behavior:'instant'});
+  refresh();
+ },{signal:events.signal});
  setupInstallmentEdgeGuards(rail.closest('.inline-release-viewport'),refresh,events.signal);
  observer.observe(rail);
  for(const card of rail.children)observer.observe(card);
@@ -147,7 +168,7 @@ function revealInlineInstallment(card,rail){
  if(max<=4)intervals.push([Math.max(0,max-2,end-width),Math.min(2,start,max)]);
  const visibleLeft=x>2?left:0,visibleRight=x<max-2?right:0;
  if(start>=x+visibleLeft-0.01&&end<=x+width-visibleRight+0.01){
-   if(rail.style.scrollSnapType==='none')rail.scrollTo({left:x,behavior:'instant'});
+   if(rail.style.scrollSnapType==='none'){activeInstallmentScroll=null;rail.scrollTo({left:x,behavior:'instant'});}
    return;
  }
  const targets=[];
@@ -161,9 +182,10 @@ function revealInlineInstallment(card,rail){
  // Proximity snap may otherwise pull the chosen exact position back under
  // an arrow. Restore it only for the next intentional manual scroll.
  rail.style.scrollSnapType='none';
- rail.scrollTo({left:target,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ scrollInstallmentRail(rail,target);
 }
 function restoreInstallmentSnap(rail){
+ if(activeInstallmentScroll?.rail===rail)activeInstallmentScroll=null;
  if(rail.style.scrollSnapType==='none'){
    const x=rail.scrollLeft;
    rail.scrollTo({left:x,behavior:'instant'});

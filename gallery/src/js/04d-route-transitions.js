@@ -60,13 +60,25 @@ function transitionGalleryStage(mutator){
  const fadeTiming={duration:150,easing:'ease-in'};
  const showTiming={duration:150,easing:'ease-out'};
  const visible=node=>Boolean(node&&node.getClientRects().length&&getComputedStyle(node).display!=='none');
+ let finished=false,reduceRequested=false;
+ const settleReducedStage=event=>{
+  if(!event.matches||finished)return;
+  reduceRequested=true;
+  // Finish the current phase, never cancel its completion promise before the
+  // midpoint mutation. The existing chain then commits the route exactly once.
+  const phase=newWorkspace?[newWorkspace,newTabs,newBorderAnim]:[oldWorkspace,oldTabs,oldBorderAnim];
+  for(const anim of phase)if(anim&&anim.playState!=='idle')anim.finish();
+ };
  const finish=()=>{
+  if(finished)return;finished=true;
+  galleryReducedMotion.removeEventListener('change',settleReducedStage);
   for(const anim of [oldWorkspace,oldTabs,oldBorderAnim,newWorkspace,newTabs,newBorderAnim])anim?.cancel();
   workspace.style.opacity='';tabs.style.opacity='';header.style.borderBottomColor='';
   app.removeAttribute('aria-busy');app.classList.remove('gallery-route-transitioning');
   galleryStageFadeInProgress=false;
   if(galleryStagePending){const next=galleryStagePending;galleryStagePending=null;queueMicrotask(()=>transitionGalleryStage(next));}
  };
+ galleryReducedMotion.addEventListener('change',settleReducedStage);
  try{
   oldWorkspace=animate(workspace,[{opacity:1},{opacity:0}],fadeTiming);
   if(visible(tabs))oldTabs=animate(tabs,[{opacity:1},{opacity:0}],fadeTiming);
@@ -79,6 +91,7 @@ function transitionGalleryStage(mutator){
   oldWorkspace.cancel();oldTabs?.cancel();oldBorderAnim?.cancel();
   galleryStageMutating=true;
   try{mutator();}finally{galleryStageMutating=false;}
+  if(reduceRequested||galleryReducedMotion.matches)return;
   // Reading layout ensures that the new tab/header geometry is in effect
   // before either incoming opacity starts. Shared branding never moves.
   void workspace.offsetWidth;

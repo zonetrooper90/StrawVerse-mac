@@ -3882,13 +3882,25 @@ function transitionGalleryStage(mutator){
  const fadeTiming={duration:150,easing:'ease-in'};
  const showTiming={duration:150,easing:'ease-out'};
  const visible=node=>Boolean(node&&node.getClientRects().length&&getComputedStyle(node).display!=='none');
+ let finished=false,reduceRequested=false;
+ const settleReducedStage=event=>{
+  if(!event.matches||finished)return;
+  reduceRequested=true;
+  // Finish the current phase, never cancel its completion promise before the
+  // midpoint mutation. The existing chain then commits the route exactly once.
+  const phase=newWorkspace?[newWorkspace,newTabs,newBorderAnim]:[oldWorkspace,oldTabs,oldBorderAnim];
+  for(const anim of phase)if(anim&&anim.playState!=='idle')anim.finish();
+ };
  const finish=()=>{
+  if(finished)return;finished=true;
+  galleryReducedMotion.removeEventListener('change',settleReducedStage);
   for(const anim of [oldWorkspace,oldTabs,oldBorderAnim,newWorkspace,newTabs,newBorderAnim])anim?.cancel();
   workspace.style.opacity='';tabs.style.opacity='';header.style.borderBottomColor='';
   app.removeAttribute('aria-busy');app.classList.remove('gallery-route-transitioning');
   galleryStageFadeInProgress=false;
   if(galleryStagePending){const next=galleryStagePending;galleryStagePending=null;queueMicrotask(()=>transitionGalleryStage(next));}
  };
+ galleryReducedMotion.addEventListener('change',settleReducedStage);
  try{
   oldWorkspace=animate(workspace,[{opacity:1},{opacity:0}],fadeTiming);
   if(visible(tabs))oldTabs=animate(tabs,[{opacity:1},{opacity:0}],fadeTiming);
@@ -3901,6 +3913,7 @@ function transitionGalleryStage(mutator){
   oldWorkspace.cancel();oldTabs?.cancel();oldBorderAnim?.cancel();
   galleryStageMutating=true;
   try{mutator();}finally{galleryStageMutating=false;}
+  if(reduceRequested||galleryReducedMotion.matches)return;
   // Reading layout ensures that the new tab/header geometry is in effect
   // before either incoming opacity starts. Shared branding never moves.
   void workspace.offsetWidth;
@@ -4191,6 +4204,10 @@ function snapTabTrack(view){
  tabTrackTarget=view;
  tabPagesTrack.style.transform=tabTrackTransform(-tabOrder.indexOf(view)*100);
 }
+// Reduced motion settles the current requested tab, not its sampled midpoint.
+galleryReducedMotion.addEventListener('change',event=>{
+ if(event.matches&&tabTrackAnimation)snapTabTrack(tabTrackTarget);
+});
 function animateTabTrack(view){
  const width=tabPagesViewport.clientWidth;
  if(width<=0)return;
@@ -5363,6 +5380,13 @@ function installmentRail(x){
 let activeInstallmentRailObserver=null;
 let activeInstallmentRailFrame=null;
 let activeInstallmentRailEvents=null;
+// Only application-requested native smooth scrolling has an owned destination.
+let activeInstallmentScroll=null;
+function scrollInstallmentRail(rail,left){
+ const smooth=!galleryReducedMotion.matches;
+ activeInstallmentScroll=smooth&&Math.abs(rail.scrollLeft-left)>.5?{rail,left}:null;
+ rail.scrollTo({left,behavior:smooth?'smooth':'instant'});
+}
 // A rail owns its observer, initial refresh frame and refresh listeners.
 // Retire at actual render/departure, not when Settings suspends the same DOM.
 function retireInstallmentRail(){
@@ -5372,6 +5396,7 @@ function retireInstallmentRail(){
  activeInstallmentRailFrame=null;
  activeInstallmentRailEvents?.abort();
  activeInstallmentRailEvents=null;
+ activeInstallmentScroll=null;
  observer?.disconnect();
 }
 function mountInstallmentRail(rail){
@@ -5385,6 +5410,19 @@ function mountInstallmentRail(rail){
  activeInstallmentRailObserver=observer;
  activeInstallmentRailEvents=events;
  rail.addEventListener('scroll',refresh,{passive:true,signal:events.signal});
+ rail.addEventListener('scrollend',()=>{
+  if(activeInstallmentScroll?.rail===rail)activeInstallmentScroll=null;
+ },{signal:events.signal});
+ galleryReducedMotion.addEventListener('change',event=>{
+  const pending=activeInstallmentScroll;
+  if(!event.matches||pending?.rail!==rail)return;
+  activeInstallmentScroll=null;
+  if(activeInstallmentRailObserver!==observer||!rail.isConnected||!screen.contains(rail)||screen.hidden||!state.detailId||state.playback||whOpen)return;
+  // An instant scroll cancels the browser's in-flight smooth scroll; keep the
+  // existing snap policy and clamp to the current rail bounds after resizing.
+  rail.scrollTo({left:Math.max(0,Math.min(pending.left,rail.scrollWidth-rail.clientWidth)),behavior:'instant'});
+  refresh();
+ },{signal:events.signal});
  setupInstallmentEdgeGuards(rail.closest('.inline-release-viewport'),refresh,events.signal);
  observer.observe(rail);
  for(const card of rail.children)observer.observe(card);
@@ -5456,7 +5494,7 @@ function revealInlineInstallment(card,rail){
  if(max<=4)intervals.push([Math.max(0,max-2,end-width),Math.min(2,start,max)]);
  const visibleLeft=x>2?left:0,visibleRight=x<max-2?right:0;
  if(start>=x+visibleLeft-0.01&&end<=x+width-visibleRight+0.01){
-   if(rail.style.scrollSnapType==='none')rail.scrollTo({left:x,behavior:'instant'});
+   if(rail.style.scrollSnapType==='none'){activeInstallmentScroll=null;rail.scrollTo({left:x,behavior:'instant'});}
    return;
  }
  const targets=[];
@@ -5470,9 +5508,10 @@ function revealInlineInstallment(card,rail){
  // Proximity snap may otherwise pull the chosen exact position back under
  // an arrow. Restore it only for the next intentional manual scroll.
  rail.style.scrollSnapType='none';
- rail.scrollTo({left:target,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ scrollInstallmentRail(rail,target);
 }
 function restoreInstallmentSnap(rail){
+ if(activeInstallmentScroll?.rail===rail)activeInstallmentScroll=null;
  if(rail.style.scrollSnapType==='none'){
    const x=rail.scrollLeft;
    rail.scrollTo({left:x,behavior:'instant'});
@@ -5922,7 +5961,7 @@ function sfSetPlayMorph(playing,{instant=false}={}){
  const duration=SF_PLAY_MORPH_DURATION*Math.abs(to-from);
  const start=performance.now();
  function tick(now){
-  const p=Math.min(1,Math.max(0,(now-start)/duration));
+  const p=galleryReducedMotion.matches?1:Math.min(1,Math.max(0,(now-start)/duration));
   const eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
   sfPlayMorph.amount=from+(to-from)*eased;
   sfDrawPlayMorph();
@@ -6013,7 +6052,7 @@ function morphPlayerTo(target){
  const duration=PLAYER_MORPH_MS*Math.abs(to-from);
  const beginning=performance.now();
  const frame=time=>{
-  const progress=Math.min(1,Math.max(0,(time-beginning)/duration));
+  const progress=galleryReducedMotion.matches?1:Math.min(1,Math.max(0,(time-beginning)/duration));
   const eased=progress<.5?4*progress*progress*progress:1-Math.pow(-2*progress+2,3)/2;
   playNextMorph.amount=from+(to-from)*eased;
   setPlayerMorphGeometry(playNextMorph.amount);
@@ -6021,6 +6060,12 @@ function morphPlayerTo(target){
  };
  playNextMorph.frame=requestAnimationFrame(frame);
 }
+// Retire only active icon interpolation; media playback and its clock are unchanged.
+galleryReducedMotion.addEventListener('change',event=>{
+ if(!event.matches||!sfPlayerOwnsVideo(document.getElementById('local-video')))return;
+ if(sfPlayMorph.frame)sfSetPlayMorph(Boolean(sfPlayMorph.target),{instant:true});
+ if(playNextMorph.frame)morphPlayerTo(playNextShown);
+});
 function setPlayNextVisible(show){
  if(show===playNextShown)return;
  playNextShown=show;
@@ -6462,7 +6507,7 @@ function render(options={}){
        const limit=Math.max(0,rail.scrollWidth-rail.clientWidth);
        if(target===undefined)return;
        restoreInstallmentSnap(rail);
-       rail.scrollTo({left:Math.max(0,Math.min(target,limit)),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+       scrollInstallmentRail(rail,Math.max(0,Math.min(target,limit)));
      });
      for(const card of rail.querySelectorAll('[data-inline-installment]'))
        card.addEventListener('click',()=>selectInlineInstallment(card,rail));
@@ -6592,7 +6637,7 @@ function revealModalControl(control,edge='nearest'){
   if(generation!==modalScrollGeneration||modalScrollContainer!==scroller)return;
   if(modalHost.firstElementChild!==overlay||overlay.classList.contains('is-closing')||!scroller.isConnected){cancelModalKeyboardScroll();return;}
   if(started===null)started=time;
-  const fraction=Math.min(1,(time-started)/duration);
+  const fraction=galleryReducedMotion.matches?1:Math.min(1,(time-started)/duration);
   const eased=1-Math.pow(1-fraction,3);
   scroller.scrollTop=start+(target-start)*eased;
   if(fraction<1)modalScrollFrame=requestAnimationFrame(step);
@@ -8206,7 +8251,7 @@ function revealSettingsControl(el){
  function step(time){
   if(generation!==settingsScrollGeneration)return;
   if(!ownsSettingsControl(el)){cancelSettingsKeyboardScroll();return;}
-  if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
+  if(started===null)started=time;const p=galleryReducedMotion.matches?1:Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
  }
  settingsScrollFrame=requestAnimationFrame(step);
 }

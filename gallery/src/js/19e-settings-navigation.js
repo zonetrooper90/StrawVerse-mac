@@ -226,7 +226,7 @@ function revealSettingsControl(el){
  function step(time){
   if(generation!==settingsScrollGeneration)return;
   if(!ownsSettingsControl(el)){cancelSettingsKeyboardScroll();return;}
-  if(started===null)started=time;const p=Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
+  if(started===null)started=time;const p=galleryReducedMotion.matches?1:Math.min(1,(time-started)/duration);workspace.scrollTop=from+distance*(1-Math.pow(1-p,3));if(p<1)settingsScrollFrame=requestAnimationFrame(step);else settingsScrollFrame=null;
  }
  settingsScrollFrame=requestAnimationFrame(step);
 }

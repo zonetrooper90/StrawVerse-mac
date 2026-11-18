@@ -104,7 +104,7 @@ function revealModalControl(control,edge='nearest'){
   if(generation!==modalScrollGeneration||modalScrollContainer!==scroller)return;
   if(modalHost.firstElementChild!==overlay||overlay.classList.contains('is-closing')||!scroller.isConnected){cancelModalKeyboardScroll();return;}
   if(started===null)started=time;
-  const fraction=Math.min(1,(time-started)/duration);
+  const fraction=galleryReducedMotion.matches?1:Math.min(1,(time-started)/duration);
   const eased=1-Math.pow(1-fraction,3);
   scroller.scrollTop=start+(target-start)*eased;
   if(fraction<1)modalScrollFrame=requestAnimationFrame(step);

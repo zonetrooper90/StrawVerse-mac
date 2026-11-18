@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-18-global-toolbar-spacing",
-  "sha256": "e7ebd13cb49423448f3878e5f163d74840a7c5691f65708d036028cb8dd7650d",
-  "bytes": 6938816,
+  "folder": "2026-11-18-a3-live-reduced-motion",
+  "sha256": "9ff90e5f458778b76be835afe178d6c4b9273229a2af9bb457bc4738f75071a1",
+  "bytes": 6941329,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

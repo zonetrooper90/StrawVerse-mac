@@ -26,6 +26,10 @@ function snapTabTrack(view){
  tabTrackTarget=view;
  tabPagesTrack.style.transform=tabTrackTransform(-tabOrder.indexOf(view)*100);
 }
+// Reduced motion settles the current requested tab, not its sampled midpoint.
+galleryReducedMotion.addEventListener('change',event=>{
+ if(event.matches&&tabTrackAnimation)snapTabTrack(tabTrackTarget);
+});
 function animateTabTrack(view){
  const width=tabPagesViewport.clientWidth;
  if(width<=0)return;

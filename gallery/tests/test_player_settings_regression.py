@@ -387,3 +387,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A2.5 background operation ownership regression.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-18-a2-background-operation-ownership-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A3.1 live reduced-motion settlement and normal-motion controls.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-18-a3-live-reduced-motion-regression.py'),sys.argv[1]],check=True)

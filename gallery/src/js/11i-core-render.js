@@ -75,7 +75,7 @@ function render(options={}){
        const limit=Math.max(0,rail.scrollWidth-rail.clientWidth);
        if(target===undefined)return;
        restoreInstallmentSnap(rail);
-       rail.scrollTo({left:Math.max(0,Math.min(target,limit)),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+       scrollInstallmentRail(rail,Math.max(0,Math.min(target,limit)));
      });
      for(const card of rail.querySelectorAll('[data-inline-installment]'))
        card.addEventListener('click',()=>selectInlineInstallment(card,rail));
