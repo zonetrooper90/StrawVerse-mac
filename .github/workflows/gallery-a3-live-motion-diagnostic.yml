@@ -1,0 +1,42 @@
+name: Gallery A3.1 live reduced-motion diagnostic
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-18-a3-live-motion-diagnostic.py']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    name: Diagnose (${{ matrix.mode }}, ${{ matrix.policy }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+        policy: [live, reduce, normal]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify exact immutable baseline and source assembly
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Collect actual animation frames and preference delivery
+        run: python3 -B gallery/audits/2026-11-18-a3-live-motion-diagnostic.py "${{ matrix.mode }}" "${{ matrix.policy }}" "$RUNNER_TEMP/a31.json"
+      - name: Upload complete diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a31-${{ matrix.mode }}-${{ matrix.policy }}
+          path: ${{ runner.temp }}/a31.json
+          if-no-files-found: error
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
