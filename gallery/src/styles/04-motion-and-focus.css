@@ -29,13 +29,13 @@
 .overlay.is-closing{animation:gallery-backdrop-out .14s ease-in forwards;pointer-events:none}
 .overlay.is-closing .dialog{animation:gallery-dialog-out .14s ease-in forwards}
 @keyframes gallery-backdrop-in{from{opacity:0}to{opacity:1}}
-@keyframes gallery-backdrop-out{from{opacity:1}to{opacity:0}}
+@keyframes gallery-backdrop-out{from{opacity:var(--gallery-backdrop-exit-opacity,1)}to{opacity:0}}
 @keyframes gallery-dialog-in{
  from{opacity:0;transform:translateY(8px) scale(.99)}
  to{opacity:1;transform:translateY(0) scale(1)}
 }
 @keyframes gallery-dialog-out{
- from{opacity:1;transform:translateY(0) scale(1)}
+ from{opacity:var(--gallery-dialog-exit-opacity,1);transform:var(--gallery-dialog-exit-transform,translateY(0) scale(1))}
  to{opacity:0;transform:translateY(4px) scale(.995)}
 }
 /* Use understated feedback across themes; don't animate the player's established fade. */
@@ -53,5 +53,8 @@ html[data-focus-modality="pointer"] :is(input,select,textarea):focus-visible{out
 .theme-tile:hover:not([aria-pressed="true"]),.searchresult:hover{background:var(--hover)}
 @media(prefers-reduced-motion:reduce){
  #screen.surface-enter,.overlay,.overlay .dialog,.overlay.is-closing,.overlay.is-closing .dialog{animation:none!important}
+ /* Suppressing the exit keyframes must not restore a closing dialog to full
+    opacity before its preference-change handler removes it. */
+ .overlay.is-closing{opacity:0}
 }
 

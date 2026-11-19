@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-18-a3-live-reduced-motion",
-  "sha256": "9ff90e5f458778b76be835afe178d6c4b9273229a2af9bb457bc4738f75071a1",
-  "bytes": 6941329,
+  "folder": "2026-11-19-a3-dialog-completion",
+  "sha256": "421e0301f43bb1d56b6be913e58b3e8ee5464576ab3edf951f20e0689cd446df",
+  "bytes": 6943973,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

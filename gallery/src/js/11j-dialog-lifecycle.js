@@ -2,6 +2,11 @@
    Preserve the original opener even when a dialog replaces another (e.g. import preview). */
 const galleryApp=document.querySelector('.app');
 let modalReturnFocus=null;
+let modalExitController=null;
+function cancelModalExit(){
+ modalExitController?.abort();modalExitController=null;
+ clearTimeout(modalExitTimer);modalExitTimer=null;
+}
 const modalFocusable='button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 function visibleModalControls(){
  const dialog=modalHost.querySelector('.dialog');
@@ -14,7 +19,7 @@ function modal(title,inner,actions=''){
   const opener=document.activeElement;
   modalReturnFocus=opener instanceof HTMLElement&&opener!==document.body&&!modalHost.contains(opener)?opener:null;
  }
- clearTimeout(modalExitTimer);modalExitTimer=null;
+ cancelModalExit();
  if(outgoing)retireModalWork(outgoing);
  modalHost.innerHTML=`<div class="overlay" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-label="${escapeHTML(title)}" tabindex="-1"><div class="dialog-scroll"><div class="dialog-head"><h2>${escapeHTML(title)}</h2><button class="iconbtn" aria-label="Close dialog" id="close-dialog">${icon('close',20)}</button></div>${inner}${actions?`<div class="dialog-actions">${actions}</div>`:''}</div></div></div>`;
  galleryApp.inert=true;
@@ -24,6 +29,7 @@ function modal(title,inner,actions=''){
 }
 function finishModalClose(overlay){
  if(modalHost.firstElementChild!==overlay)return;
+ cancelModalExit();
  retireModalWork(overlay);
  modalHost.innerHTML='';
  galleryApp.inert=false;
@@ -35,15 +41,53 @@ function finishModalClose(overlay){
 function closeModal(){
  const overlay=modalHost.querySelector('.overlay');
  if(!overlay||overlay.classList.contains('is-closing'))return;
- clearTimeout(modalExitTimer);
+ cancelModalExit();
+ if(galleryReducedMotion.matches){finishModalClose(overlay);return;}
+ // Read the current animated values before changing the animation name.
+ // A settled entrance uses the original exit keyframes without overrides.
+ const dialog=overlay.querySelector('.dialog');
+ const backdropOpacity=getComputedStyle(overlay).opacity;
+ const front=getComputedStyle(dialog);
+ const dialogOpacity=front.opacity,dialogTransform=front.transform;
+ if(Number(backdropOpacity)<1)overlay.style.setProperty('--gallery-backdrop-exit-opacity',backdropOpacity);
+ if(Number(dialogOpacity)<1){
+  dialog.style.setProperty('--gallery-dialog-exit-opacity',dialogOpacity);
+  if(dialogTransform!=='none')dialog.style.setProperty('--gallery-dialog-exit-transform',dialogTransform);
+ }
  retireModalWork(overlay);
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){finishModalClose(overlay);return;}
+ // Listen before starting the exits; only this overlay and its dialog can
+ // complete their own pair. A replacement aborts the entire old owner.
+ const controller=new AbortController();
+ modalExitController=controller;
+ const owned=()=>modalExitController===controller&&modalHost.firstElementChild===overlay&&overlay.classList.contains('is-closing');
+ let backdropDone=false,dialogDone=false;
+ overlay.addEventListener('animationend',event=>{
+  if(!owned()||!event.isTrusted||event.pseudoElement)return;
+  if(event.target===overlay&&event.animationName==='gallery-backdrop-out')backdropDone=true;
+  if(event.target===dialog&&event.animationName==='gallery-dialog-out')dialogDone=true;
+  if(backdropDone&&dialogDone)finishModalClose(overlay);
+ },{signal:controller.signal});
  overlay.classList.add('is-closing');
- modalExitTimer=setTimeout(()=>{
+ // Safety only: missing completion events must not strand inert input.
+ // Settle any remaining owned exit animations before fallback removal.
+ const timer=setTimeout(()=>{
+  if(!owned()||modalExitTimer!==timer)return;
+  for(const [node,name] of [[overlay,'gallery-backdrop-out'],[dialog,'gallery-dialog-out']]){
+   for(const animation of node.getAnimations?.()||[]){
+    if(animation.animationName===name){try{animation.finish()}catch(_){}}
+   }
+  }
   finishModalClose(overlay);
-  modalExitTimer=null;
- },150);
+ },300);
+ modalExitTimer=timer;
 }
+// A live preference change cancels the owned exit timer and releases focus
+// and inert state in the same handler. An open dialog stays open.
+galleryReducedMotion.addEventListener('change',event=>{
+ if(!event.matches)return;
+ const overlay=modalHost.querySelector('.overlay.is-closing');
+ if(overlay&&modalHost.firstElementChild===overlay)finishModalClose(overlay);
+});
 /* v41: All Tab / Shift+Tab focus changes in dialogs are managed here.
    Prevent Chrome's instant implicit focus scroll, then reveal the newly
    focused control through the same smooth scroll path as wraparound.

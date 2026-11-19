@@ -390,3 +390,6 @@ subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/
 
 # Mandatory A3.1 live reduced-motion settlement and normal-motion controls.
 subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-18-a3-live-reduced-motion-regression.py'),sys.argv[1]],check=True)
+
+# Mandatory A3.2 interrupted dialog continuity and live-reduced closure.
+subprocess.run([sys.executable,str(Path(__file__).resolve().parents[1]/'audits'/'2026-11-19-a3-dialog-completion-regression.py'),sys.argv[1]],check=True)
