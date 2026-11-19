@@ -1,0 +1,66 @@
+name: Gallery A3.2 exact dialog endpoint investigation
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/audits/2026-11-19-a3-dialog-endpoint-diagnostic.py']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnose:
+    name: Compare exact baseline and candidate (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, lightweight]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify immutable baseline and exact assembly
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          git worktree add --detach "$RUNNER_TEMP/a32-candidate" 9e8ef5409a7515fc05e7c69b16776e193382f3eb
+      - name: Download original failed candidate artifact by ID
+        uses: actions/download-artifact@v8.0.2
+        with:
+          artifact-ids: '14486568275'
+          run-id: '44432113276'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/a32-patch
+          digest-mismatch: error
+      - name: Restore exact candidate without rebuilding or publication
+        working-directory: ${{ runner.temp }}/a32-candidate
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" restore --base 9e8ef5409a7515fc05e7c69b16776e193382f3eb --tree 03c6cd649fa902c3d9104f04a021b30147368df7 --sha256 2de422bce6d2cd0de8e8f3f7fc41d179aee36ad60222d415687364a1880f1c8f --patch "$RUNNER_TEMP/a32-patch/candidate.patch"
+      - uses: ./.github/actions/gallery-browser
+      - name: Observe baseline and candidate on the same runner
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          case "$MODE" in full) HTML=Gallery-current.html;; lightweight) HTML=Gallery-development.html;; *) exit 1;; esac
+          python3 -B gallery/audits/2026-11-19-a3-dialog-endpoint-diagnostic.py baseline "$MODE" "$GITHUB_WORKSPACE/gallery/$HTML" "$RUNNER_TEMP/a32-baseline.json"
+          python3 -B gallery/audits/2026-11-19-a3-dialog-endpoint-diagnostic.py candidate "$MODE" "$RUNNER_TEMP/a32-candidate/gallery/$HTML" "$RUNNER_TEMP/a32-candidate.json"
+      - name: Upload complete endpoint traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: a32-endpoint-${{ matrix.mode }}
+          path: |
+            ${{ runner.temp }}/a32-baseline.json
+            ${{ runner.temp }}/a32-candidate.json
+          if-no-files-found: error
+      - name: Verify exact candidate tree again
+        working-directory: ${{ runner.temp }}/a32-candidate
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tools/publisher-candidate.py" verify --base 9e8ef5409a7515fc05e7c69b16776e193382f3eb --tree 03c6cd649fa902c3d9104f04a021b30147368df7
+      - name: Confirm authoritative checkout unchanged
+        if: always()
+        run: test -z "$(git status --porcelain)"
