@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Gallery G1 — Search capsule, Delete and placeholder fade trial</title>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}
+body[data-theme=ocean]{--bg:#101e26;--window:#132832;--surface:#1c3940;--raised:#214249;--accent:#a0f1d6;--muted:#9db9ba;--ink:#ecfaf7;--line:#7ebbbb48;--hover:#335961;--backdrop:#193640}
+body[data-theme=twilight]{--bg:#181827;--window:#22233a;--surface:#302f4d;--raised:#3a385c;--accent:#c8bcff;--muted:#b8b3d4;--ink:#f3f1ff;--line:#c1b8ff46;--hover:#433f6a;--backdrop:#2b2b45}
+body[data-theme=ember]{--bg:#211518;--window:#342227;--surface:#4a2d30;--raised:#573439;--accent:#f0c0ab;--muted:#d5b2a8;--ink:#fff1ea;--line:#f1d1c548;--hover:#6a4247;--backdrop:#42292d}
+body[data-theme=slate]{--bg:#1a1f24;--window:#253139;--surface:#344049;--raised:#3d4b55;--accent:#c7d2da;--muted:#bac3ca;--ink:#f1f4f6;--line:#cfd8df44;--hover:#536069;--backdrop:#303b44}
+body[data-theme=glacier]{--bg:#12232c;--window:#1a343e;--surface:#26444f;--raised:#30535c;--accent:#b0e9ee;--muted:#a8c8cd;--ink:#edfbfe;--line:#a0d4de46;--hover:#41636e;--backdrop:#21404c}
+body[data-theme=verdant]{--bg:#17231c;--window:#24372a;--surface:#314937;--raised:#3a5540;--accent:#bde6b5;--muted:#b0c9ae;--ink:#f0f9ed;--line:#bde2b64a;--hover:#4c6a51;--backdrop:#2a4232}
+body{margin:0;min-height:100vh;padding:clamp(12px,3vw,28px);background:var(--bg);color:var(--ink);transition:background-color .2s ease}
+.screen{max-width:1100px;margin:auto;border:1px solid var(--line);border-radius:20px;min-height:480px;background:var(--window);overflow:hidden;box-shadow:0 22px 70px #0003}
+.header{border-bottom:1px solid var(--line);padding:22px clamp(14px,3vw,28px) 17px;position:relative;z-index:2}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:40px}
+.brand{display:flex;gap:12px;align-items:center;min-width:0;white-space:nowrap;transition:opacity .2s ease}
+.brandmark{width:28px;height:28px;display:grid;place-items:center;color:var(--accent)}
+.brandname{font-size:21px;font-weight:680;letter-spacing:-.03em}
+.brand-version{font-size:10px;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:5px 9px;margin-left:4px}
+.toolbar{position:relative;flex:0 0 136px;display:flex;align-items:center;gap:8px;justify-content:flex-end;height:40px;z-index:3}
+.slot{flex:0 0 40px;width:40px;height:40px}
+.icon-button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.icon-button:hover{background:var(--hover)}
+.icon-button:focus-visible,.search-trigger:focus-visible,.search-field button:focus-visible,.search-field input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#watch svg{width:19px;height:19px;stroke-width:1.8}
+#settings svg{width:23px;height:23px}
+/* Fixed right edge: the icon never changes position or SVG geometry. */
+.search-shell{--expanded-width:clamp(190px,58vw,560px);position:absolute;right:96px;top:0;width:40px;height:40px;border-radius:20px;border:1px solid var(--line);background:var(--surface);transition:width .36s cubic-bezier(.22,.72,.2,1),border-radius .36s cubic-bezier(.22,.72,.2,1),background-color .18s ease,box-shadow .18s ease;overflow:hidden;z-index:4}
+.search-shell.open{width:min(var(--expanded-width),calc(100vw - 176px));border-radius:20px;background:var(--raised)}
+.search-shell:focus-within{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 48%,transparent)}
+.search-trigger{position:absolute;right:0;top:0;width:38px;height:38px;display:grid;place-items:center;background:transparent;border:0;color:var(--ink);padding:0;cursor:pointer;z-index:2;border-radius:50%}
+.search-trigger:hover{color:var(--accent)}
+.search-trigger svg{width:21px;height:21px}
+.search-field{position:absolute;left:0;top:0;right:38px;bottom:0;min-width:0;display:flex;gap:4px;align-items:center;padding-left:16px;opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .12s ease,transform .24s ease;white-space:nowrap}
+.search-shell.open .search-field{opacity:1;transform:translateX(0);pointer-events:auto;transition:opacity .2s ease .12s,transform .26s ease .07s}
+.search-field input{color:var(--ink);font:inherit;font-size:15px;flex:1;min-width:0;width:0;padding:0;border:0;outline:0!important;background:transparent;appearance:none}
+/* Native placeholder: no overlay can cover or delay the first typed character. */
+.search-field input::placeholder{color:var(--muted);opacity:0;transition:opacity .12s ease}
+.search-shell.open .search-field input::placeholder{opacity:1}
+.search-shell.open .search-field input.placeholder-muted::placeholder{opacity:0;transition:none}
+.search-field #search-clear{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .1s ease,visibility 0s .1s}
+.search-field.has-query #search-clear{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .1s ease,visibility 0s}
+.search-field input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.search-field button{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.search-field button:hover{background:var(--hover);color:var(--ink)}
+.search-field button svg{width:19px;height:19px;stroke-width:2px}
+.nav{display:flex;align-items:center;gap:8px;margin-top:22px}
+.tab{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:transparent;padding:8px 12px}
+.tab.active{color:var(--ink);background:var(--surface);border-color:var(--accent)}
+.main{padding:30px clamp(14px,3vw,28px)}
+.kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.11em;font-size:10px;font-weight:700}
+h1{font-size:clamp(20px,4vw,29px);font-weight:650;letter-spacing:-.025em;margin:12px 0}
+.description{max-width:690px;font-size:14px;line-height:1.7;color:var(--muted)}
+.info{margin-top:22px;padding:17px;border:1px solid var(--line);background:var(--backdrop);border-radius:13px;font-size:13px;line-height:1.65}
+.bottom{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:20px auto;max-width:1100px;color:var(--muted);font-size:13px}
+.bottom label{display:flex;align-items:center;gap:9px}
+select{font:inherit;background:var(--window);color:var(--ink);border:1px solid var(--line);padding:8px;border-radius:8px}
+.bottom .note{margin-left:auto;font-size:12px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:980px){.header-row.searching .brand{opacity:0;pointer-events:none}}
+@media(max-width:760px){.brand-version{display:none}.header-row.searching .brand{opacity:0;pointer-events:none}.header{padding-top:18px}.search-shell{--expanded-width:calc(100vw - 182px)}.screen{min-height:410px}}
+@media(max-width:430px){.brandname{font-size:18px}.header-row.searching .brand{opacity:0}.search-shell{--expanded-width:calc(100vw - 164px)}.nav{margin-top:18px}.tab{padding:7px 10px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:0ms!important;animation-duration:0ms!important}.search-field input::placeholder{transition:none!important}}
+</style>
+</head>
+<body data-theme="ocean">
+<div class="screen">
+ <header class="header">
+  <div class="header-row" id="header-row">
+   <div class="brand" aria-label="Gallery demonstration">
+    <div class="brandmark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" width="25" height="25"><path d="M4 11h16v10H4zM4 11 2 6l17-4 3 5zM7 5l4 5m3-7 4 5"/></svg></div>
+    <div class="brandname">Gallery</div><span class="brand-version">Standalone Search trial</span>
+   </div>
+   <div class="toolbar" aria-label="Gallery toolbar">
+    <div class="slot" aria-hidden="true"></div>
+    <div class="search-shell" id="search-shell">
+     <div class="search-field" id="search-field" aria-hidden="true" inert>
+      <label class="sr-only" for="search-input">Search anime</label>
+      <input id="search-input" type="search" placeholder="Search anime..." autocomplete="off" spellcheck="false" maxlength="100">
+      <button type="button" id="search-clear" aria-label="Clear search" title="Clear search"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-backspace"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0" /><path d="M12 10l4 4m0 -4l-4 4" /></svg></button>
+     </div>
+     <button type="button" class="search-trigger" id="search-toggle" aria-label="Open search" aria-controls="search-field" aria-expanded="false" title="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button>
+    </div>
+    <button class="icon-button" id="watch" type="button" aria-label="Watch History (static in trial)" title="Watch History"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg></button>
+    <button class="icon-button" id="settings" type="button" aria-label="Settings (static in trial)" title="Settings"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--window)"/><circle cx="15" cy="17" r="2" fill="var(--window)"/></svg></button>
+   </div>
+  </div>
+  <nav class="nav" aria-label="Gallery navigation preview"><span class="tab active">Discover</span><span class="tab">Library</span><span class="tab">Downloads</span></nav>
+ </header>
+ <main class="main">
+  <div class="kicker">G1 · Search · Isolated concept</div>
+  <h1>Stationary icon, expanding control</h1>
+  <p class="description">Click the magnifying glass. The 40px circular button stretches to the left into a connected search field while the icon and the adjacent toolbar buttons remain stationary. Results update as you type in Gallery. The Delete key icon clears the query without closing the bar; the magnifying glass or Escape closes it. The placeholder fades in gently but never delays typing.</p>
+  <div class="info" id="message" aria-live="polite">This is a standalone interaction trial. Typing is supported, but no catalogue search is connected. The Watch History and Settings icons are deliberately nonfunctional in this preview.</div>
+ </main>
+</div>
+<div class="bottom"><label for="theme">Preview theme <select id="theme"><option value="ocean">Ocean</option><option value="twilight">Twilight</option><option value="ember">Ember</option><option value="slate">Slate</option><option value="glacier">Glacier</option><option value="verdant">Verdant</option></select></label><span class="note">No external dependencies · No Gallery application changes</span></div>
+<script>
+(()=>{
+ const shell=document.getElementById('search-shell');
+ const trigger=document.getElementById('search-toggle');
+ const field=document.getElementById('search-field');
+ const input=document.getElementById('search-input');
+ const clear=document.getElementById('search-clear');
+ const row=document.getElementById('header-row');
+ const message=document.getElementById('message');
+ let opened=false;
+ let placeholderFrame=0;
+ let revealFrame=0;
+ function stopReveal(){cancelAnimationFrame(placeholderFrame);cancelAnimationFrame(revealFrame);placeholderFrame=0;revealFrame=0;}
+ function refreshClear(){field.classList.toggle('has-query',Boolean(input.value));}
+ function fadePlaceholderBack(){
+  stopReveal();
+  input.classList.add('placeholder-muted');
+  // Two frames guarantee the placeholder enters at opacity 0 before the 120ms fade.
+  placeholderFrame=requestAnimationFrame(()=>{
+   if(!opened||input.value)return;
+   revealFrame=requestAnimationFrame(()=>{if(opened&&!input.value)input.classList.remove('placeholder-muted');});
+  });
+ }
+ function setOpen(value,restoreFocus=false){
+  const next=Boolean(value);
+  if(opened===next)return;
+  opened=next;
+  stopReveal();
+  shell.classList.toggle('open',opened);
+  row.classList.toggle('searching',opened);
+  trigger.setAttribute('aria-expanded',String(opened));
+  trigger.setAttribute('aria-label',opened?'Close search':'Open search');
+  trigger.title=opened?'Close search':'Search';
+  field.inert=!opened;
+  field.setAttribute('aria-hidden',String(!opened));
+  if(opened){
+   input.value='';refreshClear();input.classList.remove('placeholder-muted');
+   input.focus({preventScroll:true});
+   message.textContent='Search opened. The placeholder fades into the capsule; typing appears immediately. Delete clears the query while Search stays open.';
+  }else{
+   input.blur();input.value='';refreshClear();input.classList.remove('placeholder-muted');
+   if(restoreFocus)trigger.focus({preventScroll:true});
+   message.textContent='Search closed. The capsule contracted to the original 40px circle without moving the magnifier or neighboring icons.';
+  }
+ }
+ trigger.addEventListener('click',()=>setOpen(!opened));
+ clear.addEventListener('click',()=>{
+  input.classList.add('placeholder-muted');input.value='';refreshClear();fadePlaceholderBack();input.focus({preventScroll:true});
+  message.textContent='Search cleared; the placeholder fades back in and the input stays focused.';
+ });
+ document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&opened){e.preventDefault();setOpen(false,true)}
+  else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'){
+   e.preventDefault();setOpen(true);input.focus({preventScroll:true});
+  }
+ });
+ input.addEventListener('input',()=>{
+  refreshClear();
+  if(input.value){stopReveal();input.classList.remove('placeholder-muted');}
+  else if(opened)fadePlaceholderBack();
+  message.textContent=input.value?'Typing updates immediately; this isolated trial does not connect to a catalogue.':'The search is empty; the placeholder returns with a short fade.';
+ });
+ document.getElementById('theme').addEventListener('change',e=>document.body.dataset.theme=e.target.value);
+})();
+</script>
+</body>
+</html>
