@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "scope": "A3.3+A6+A7 documentation package",
+  "baseline": "4e7f4eeeed62114b844bf65b057a95bd707f24ba",
+  "branch": "gallery/development-clean",
+  "checkpoint": {
+    "folder": "2026-11-19-a3-dialog-completion",
+    "full_sha256": "421e0301f43bb1d56b6be913e58b3e8ee5464576ab3edf951f20e0689cd446df",
+    "full_bytes": 6943973,
+    "light_sha256": "faabf8cf2bca16c12b172e3a99d5661cdc4aecac036ab15273b6c72b2d8cccc7",
+    "light_bytes": 628283
+  },
+  "changed_paths": [
+    ".github/workflows/gallery-maintenance-verification-supervisor.yml",
+    "gallery/APPROVED-DECISIONS.md",
+    "gallery/DEVELOPMENT-STATE.md",
+    "gallery/MAINTENANCE-GUIDE.md",
+    "gallery/README-WORKING.md",
+    "gallery/WORKFLOW.md",
+    "gallery/queues/2026-11-19-maintenance-documentation.json",
+    "gallery/tests/test_maintenance_verification_supervisor.py",
+    "gallery/tools/supervise-maintenance-verification.py"
+  ],
+  "max_attempts": 2,
+  "workflow_files": [
+    "gallery-checkpoint-integrity.yml",
+    "gallery-transition-ui.yml"
+  ]
+}

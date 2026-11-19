@@ -1,0 +1,34 @@
+name: Gallery consolidated maintenance verification supervisor
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths: ['gallery/queues/2026-11-19-maintenance-documentation.json']
+permissions:
+  contents: read
+  actions: write
+jobs:
+  supervise:
+    name: Verify exact documentation package and retry eligible jobs once
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    concurrency:
+      group: gallery-maintenance-supervisor-${{ github.sha }}
+      cancel-in-progress: false
+    steps:
+      - name: Check out exact approved package and baseline
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Test retry policy without remote mutations
+        run: python3 -B gallery/tests/test_maintenance_verification_supervisor.py
+      - name: Supervise both independent exact-commit workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -B gallery/tools/supervise-maintenance-verification.py
