@@ -17,7 +17,7 @@ def geometry(page):
       const buttons=['search','header-watch-history','settings'].map(id=>document.getElementById(id));
       return {buttons:buttons.map(box),icons:buttons.map(e=>box(e.querySelector('svg'))),wrapper:box(document.querySelector('#header-search')),
       field:box(document.querySelector('#header-search-field')),gap:getComputedStyle(document.querySelector('.toolbar')).columnGap,
-      disabled:buttons[1].disabled,viewport:innerWidth,theme:document.body.dataset.theme};
+      disabled:buttons[1].disabled,g1:!!document.querySelector('#header-watch-history .g1-history-icon'),viewport:innerWidth,theme:document.body.dataset.theme};
     }""")
 def close(a,b):return abs(a-b)<=.5
 def assert_geometry(data,disabled):
@@ -29,7 +29,15 @@ def assert_geometry(data,disabled):
     assert close(a["cy"],b["cy"]) and close(b["cy"],c["cy"]),data
     assert a["x"]>=0 and c["right"]<=data["viewport"]+.5,data
     assert all(close(a[k],data["wrapper"][k]) for k in ("x","y","w","h")),data
-    assert [(e["w"],e["h"]) for e in data["icons"]]==[(21,21),(21,21),(23,23)],data
+    # Preserve the exact intended glyph sizes with subpixel float tolerance: optical
+    # transforms can report 21.0000038 instead of exactly 21 browser pixels.
+    assert len(data["icons"])==3,data
+    assert all(close(icon["w"],size) and close(icon["h"],size)
+               for icon,size in zip(data["icons"],(21,21,23))),data
+    # Icon artwork may need a subpixel optical correction; the buttons themselves
+    # must remain on the same mathematical centerlines (checked above).
+    assert all(abs(icon["cx"]-button["cx"])<=.75 and abs(icon["cy"]-button["cy"])<=.75
+               for icon,button in zip(data["icons"],data["buttons"])),data
 def sweep(page,label,disabled=False):
     for theme in themes:
         page.evaluate("t=>{state.theme=t;document.body.dataset.theme=t}",theme)
@@ -48,8 +56,12 @@ def search_cycle(page,motion):
         page.wait_for_timeout(380 if motion=="no-preference" else 30)
         after=geometry(page);assert_geometry(after,False)
         assert before["buttons"]==after["buttons"],(before,after)
-        # G1 joins the input capsule directly to the stationary magnifier; no 8px seam.
-        assert close(after["buttons"][0]["x"]-after["field"]["right"],0),after
+        # Old immutable Gallery build has an 8px field-to-button gap; the exact
+        # approved G1 candidate uses a contiguous capsule (0px). This is
+        # identified by G1's real history SVG markup, not by test-mode flags.
+        assert after["g1"]==before["g1"],(before,after)
+        expected_seam=0 if after["g1"] else 8
+        assert close(after["buttons"][0]["x"]-after["field"]["right"],expected_seam),after
         assert after["field"]["x"]>=-.5,after
         assert page.locator("#header-search-input").evaluate("e=>document.activeElement===e")
         page.locator("#header-search-input").press("Escape")
