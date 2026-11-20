@@ -3753,15 +3753,23 @@ body[data-theme] #header-watch-history:hover:not(:disabled),
 body[data-theme] #settings:hover:not(:disabled){
  background:var(--circle-hover);border-color:var(--sat-border);
 }
-body[data-theme] #header-watch-history[aria-pressed="true"]:not(:disabled),
-body[data-theme] #settings[aria-expanded="true"]{
+/* The legacy aria-pressed border must not outlive an immediate G1 close.
+   Keep ordinary and hover outlines intact throughout the outgoing fade. */
+body[data-theme] #header-watch-history[data-g1-active="false"]:not(:disabled){
+ color:var(--fg);border-color:var(--circle-border);
+}
+body[data-theme] #header-watch-history[data-g1-active="false"]:hover:not(:disabled){
+ border-color:var(--sat-border);
+}
+body[data-theme] #header-watch-history[data-g1-active="true"]:not(:disabled),
+body[data-theme] #settings[data-g1-active="true"]{
  color:var(--fg);background:var(--raised);
  border-color:color-mix(in srgb,var(--accent) 53%,transparent);
  box-shadow:0 0 0 .65px color-mix(in srgb,var(--accent) 28%,transparent),
             0 0 5px color-mix(in srgb,var(--accent) 20%,transparent);
 }
-body[data-theme] #header-watch-history[aria-pressed="true"]:hover:not(:disabled),
-body[data-theme] #settings[aria-expanded="true"]:hover:not(:disabled){background:var(--circle-hover)}
+body[data-theme] #header-watch-history[data-g1-active="true"]:hover:not(:disabled),
+body[data-theme] #settings[data-g1-active="true"]:hover:not(:disabled){background:var(--circle-hover)}
 body[data-theme] #header-watch-history:active:not(:disabled),
 body[data-theme] #settings:active:not(:disabled){transform:none}
 body[data-theme] #header-watch-history>.g1-history-icon{
@@ -3774,12 +3782,12 @@ body[data-theme] #settings>.g1-settings-icon{
  transform-box:view-box;transform-origin:12px 12px;
  transform:rotate(0deg);transition:transform 1.1s cubic-bezier(.22,.72,.2,1);
 }
-#header-watch-history[aria-pressed="true"] .g1-history-rim{transform:rotate(-360deg)}
+#header-watch-history[data-g1-active="true"] .g1-history-rim{transform:rotate(-360deg)}
 #settings .g1-settings-knob{
- transform:translateX(0);transition:transform .3s cubic-bezier(.22,.72,.2,1);
+ transform:translateX(0);transition:transform .45s cubic-bezier(.22,.72,.2,1);
 }
-#settings[aria-expanded="true"] .g1-settings-knob.upper{transform:translateX(6px)}
-#settings[aria-expanded="true"] .g1-settings-knob.lower{transform:translateX(-6px)}
+#settings[data-g1-active="true"] .g1-settings-knob.upper{transform:translateX(6px)}
+#settings[data-g1-active="true"] .g1-settings-knob.lower{transform:translateX(-6px)}
 @media(max-width:950px){
  body[data-theme] .brand-row.is-searching .brand{opacity:0;pointer-events:none}
 }
@@ -4969,6 +4977,8 @@ function syncHeaderWatchHistory(){
  button.hidden=whRecentLegacyMode;
  button.disabled=settings||Boolean(state.playback);
  button.setAttribute('aria-pressed',String(whOpen&&!settings));
+ // Keep the icon's settled state if Settings temporarily overlays History.
+ button.dataset.g1Active=String(whOpen);
 }
 function toggleHeaderWatchHistory(){
  if(whRecentLegacyMode||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
@@ -4997,6 +5007,8 @@ function whRestorePrimaryScroll(saved){
 }
 function whEnter(){
  if(whOpen||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
+ // Animate on the accepted action, before the 150ms outgoing page fade.
+ document.getElementById('header-watch-history').dataset.g1Active='true';
  transitionGalleryStage(()=>{
   if(searchOpen)closeInlineSearch(false);
   whOriginDetail=state.detailId?captureSearchDetailReturn():null;
@@ -5023,6 +5035,8 @@ function whResumeFromDetail(){
 }
 function whExit({renderAfter=true}={}){
  if(!whOpen)return;
+ // Reverse the ring immediately, including History's Back action.
+ document.getElementById('header-watch-history').dataset.g1Active='false';
  const exit=()=>{
   if(searchOpen)closeInlineSearch(false);
   const origin=whOriginDetail,primaryScroll=whOriginTabs;whOriginDetail=null;whOriginTabs=null;
@@ -8223,6 +8237,8 @@ let gallerySettingsOpening=false;
 function showSettings(afterOpen=null){
  if(document.body.classList.contains('settings-view')||settingsClosing||gallerySettingsOpening||modalHost.firstChild)return;
  gallerySettingsOpening=true;
+ // Decouple immediate slider feedback from the delayed route commit.
+ document.getElementById('settings').dataset.g1Active='true';
  transitionGalleryStage(()=>{
   try{
    galleryOpenSettingsNow();
@@ -8264,6 +8280,7 @@ function galleryOpenSettingsNow(){
  settingsButton.setAttribute('aria-label','Close settings');
  settingsButton.setAttribute('title','Close settings');
  settingsButton.setAttribute('aria-expanded','true');
+ settingsButton.dataset.g1Active='true';
  settingsButton.setAttribute('aria-controls','settings-page');
  for(const button of settingsPage.querySelectorAll('[data-settings-section]'))button.addEventListener('click',()=>setSettingsSection(button.dataset.settingsSection));
  for(const button of settingsPage.querySelectorAll('[data-appearance-tab]'))button.addEventListener('click',()=>setAppearanceTab(button.dataset.appearanceTab));
@@ -8364,6 +8381,8 @@ function galleryOpenSettingsNow(){
 }
 function closeSettings(){
  if(!document.body.classList.contains('settings-view')||settingsClosing)return;
+ // Reverse immediately for toolbar, Back and Escape without moving the page midpoint.
+ document.getElementById('settings').dataset.g1Active='false';
  cancelGalleryTextColorPopover(false);
  hideTabScrollOverlay();
  if(searchOpen)closeInlineSearch(false);
@@ -8390,6 +8409,7 @@ function closeSettings(){
   button.setAttribute('aria-label','Open settings');
   button.setAttribute('title','Settings');
   button.setAttribute('aria-expanded','false');
+  button.dataset.g1Active='false';
   syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
   settingsClosing=false;
   requestAnimationFrame(updateTabScrollOverlay);

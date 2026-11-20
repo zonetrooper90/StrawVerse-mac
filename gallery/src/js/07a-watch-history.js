@@ -516,6 +516,8 @@ function syncHeaderWatchHistory(){
  button.hidden=whRecentLegacyMode;
  button.disabled=settings||Boolean(state.playback);
  button.setAttribute('aria-pressed',String(whOpen&&!settings));
+ // Keep the icon's settled state if Settings temporarily overlays History.
+ button.dataset.g1Active=String(whOpen);
 }
 function toggleHeaderWatchHistory(){
  if(whRecentLegacyMode||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
@@ -544,6 +546,8 @@ function whRestorePrimaryScroll(saved){
 }
 function whEnter(){
  if(whOpen||state.playback||document.body.classList.contains('settings-view')||modalHost.firstChild)return;
+ // Animate on the accepted action, before the 150ms outgoing page fade.
+ document.getElementById('header-watch-history').dataset.g1Active='true';
  transitionGalleryStage(()=>{
   if(searchOpen)closeInlineSearch(false);
   whOriginDetail=state.detailId?captureSearchDetailReturn():null;
@@ -570,6 +574,8 @@ function whResumeFromDetail(){
 }
 function whExit({renderAfter=true}={}){
  if(!whOpen)return;
+ // Reverse the ring immediately, including History's Back action.
+ document.getElementById('header-watch-history').dataset.g1Active='false';
  const exit=()=>{
   if(searchOpen)closeInlineSearch(false);
   const origin=whOriginDetail,primaryScroll=whOriginTabs;whOriginDetail=null;whOriginTabs=null;

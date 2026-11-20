@@ -26,6 +26,8 @@ let gallerySettingsOpening=false;
 function showSettings(afterOpen=null){
  if(document.body.classList.contains('settings-view')||settingsClosing||gallerySettingsOpening||modalHost.firstChild)return;
  gallerySettingsOpening=true;
+ // Decouple immediate slider feedback from the delayed route commit.
+ document.getElementById('settings').dataset.g1Active='true';
  transitionGalleryStage(()=>{
   try{
    galleryOpenSettingsNow();
@@ -67,6 +69,7 @@ function galleryOpenSettingsNow(){
  settingsButton.setAttribute('aria-label','Close settings');
  settingsButton.setAttribute('title','Close settings');
  settingsButton.setAttribute('aria-expanded','true');
+ settingsButton.dataset.g1Active='true';
  settingsButton.setAttribute('aria-controls','settings-page');
  for(const button of settingsPage.querySelectorAll('[data-settings-section]'))button.addEventListener('click',()=>setSettingsSection(button.dataset.settingsSection));
  for(const button of settingsPage.querySelectorAll('[data-appearance-tab]'))button.addEventListener('click',()=>setAppearanceTab(button.dataset.appearanceTab));
@@ -167,6 +170,8 @@ function galleryOpenSettingsNow(){
 }
 function closeSettings(){
  if(!document.body.classList.contains('settings-view')||settingsClosing)return;
+ // Reverse immediately for toolbar, Back and Escape without moving the page midpoint.
+ document.getElementById('settings').dataset.g1Active='false';
  cancelGalleryTextColorPopover(false);
  hideTabScrollOverlay();
  if(searchOpen)closeInlineSearch(false);
@@ -193,6 +198,7 @@ function closeSettings(){
   button.setAttribute('aria-label','Open settings');
   button.setAttribute('title','Settings');
   button.setAttribute('aria-expanded','false');
+  button.dataset.g1Active='false';
   syncHeaderWatchHistory();if(!whRecentLegacyMode)configureHeaderSearchContext();
   settingsClosing=false;
   requestAnimationFrame(updateTabScrollOverlay);

@@ -207,15 +207,23 @@ body[data-theme] #header-watch-history:hover:not(:disabled),
 body[data-theme] #settings:hover:not(:disabled){
  background:var(--circle-hover);border-color:var(--sat-border);
 }
-body[data-theme] #header-watch-history[aria-pressed="true"]:not(:disabled),
-body[data-theme] #settings[aria-expanded="true"]{
+/* The legacy aria-pressed border must not outlive an immediate G1 close.
+   Keep ordinary and hover outlines intact throughout the outgoing fade. */
+body[data-theme] #header-watch-history[data-g1-active="false"]:not(:disabled){
+ color:var(--fg);border-color:var(--circle-border);
+}
+body[data-theme] #header-watch-history[data-g1-active="false"]:hover:not(:disabled){
+ border-color:var(--sat-border);
+}
+body[data-theme] #header-watch-history[data-g1-active="true"]:not(:disabled),
+body[data-theme] #settings[data-g1-active="true"]{
  color:var(--fg);background:var(--raised);
  border-color:color-mix(in srgb,var(--accent) 53%,transparent);
  box-shadow:0 0 0 .65px color-mix(in srgb,var(--accent) 28%,transparent),
             0 0 5px color-mix(in srgb,var(--accent) 20%,transparent);
 }
-body[data-theme] #header-watch-history[aria-pressed="true"]:hover:not(:disabled),
-body[data-theme] #settings[aria-expanded="true"]:hover:not(:disabled){background:var(--circle-hover)}
+body[data-theme] #header-watch-history[data-g1-active="true"]:hover:not(:disabled),
+body[data-theme] #settings[data-g1-active="true"]:hover:not(:disabled){background:var(--circle-hover)}
 body[data-theme] #header-watch-history:active:not(:disabled),
 body[data-theme] #settings:active:not(:disabled){transform:none}
 body[data-theme] #header-watch-history>.g1-history-icon{
@@ -228,12 +236,12 @@ body[data-theme] #settings>.g1-settings-icon{
  transform-box:view-box;transform-origin:12px 12px;
  transform:rotate(0deg);transition:transform 1.1s cubic-bezier(.22,.72,.2,1);
 }
-#header-watch-history[aria-pressed="true"] .g1-history-rim{transform:rotate(-360deg)}
+#header-watch-history[data-g1-active="true"] .g1-history-rim{transform:rotate(-360deg)}
 #settings .g1-settings-knob{
- transform:translateX(0);transition:transform .3s cubic-bezier(.22,.72,.2,1);
+ transform:translateX(0);transition:transform .45s cubic-bezier(.22,.72,.2,1);
 }
-#settings[aria-expanded="true"] .g1-settings-knob.upper{transform:translateX(6px)}
-#settings[aria-expanded="true"] .g1-settings-knob.lower{transform:translateX(-6px)}
+#settings[data-g1-active="true"] .g1-settings-knob.upper{transform:translateX(6px)}
+#settings[data-g1-active="true"] .g1-settings-knob.lower{transform:translateX(-6px)}
 @media(max-width:950px){
  body[data-theme] .brand-row.is-searching .brand{opacity:0;pointer-events:none}
 }

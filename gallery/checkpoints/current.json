@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-20-g1-toolbar-three-controls-geometry-retry",
-  "sha256": "084899eb9f15cf85eaa7a2360a0e5ca7e2a8b5173eeb717eeeb86a97646e80c6",
-  "bytes": 6951344,
+  "folder": "2026-11-20-g11-immediate-toolbar-feedback",
+  "sha256": "20f1a2c0ac0092d498ddadf0d40536b32eeb4136fe18c763d51fd8a5e1a926e3",
+  "bytes": 6952522,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
