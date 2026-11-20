@@ -81,10 +81,10 @@ with sync_playwright() as pw:
           assert page.locator('.tab-page[data-tab-page="discover"] .search-empty').count()==1
           page.locator("#header-search-input").press("Escape")
           restored(page,before)
-          # Empty-query X dismiss, repeated opening, and related release identity.
+          # Empty-query magnifier-toggle dismiss, repeated opening, and related release identity.
           select_release(page,"quints-movie");scroll_detail(page);before=snapshot(page)
           search(page,"discover")
-          page.locator("#header-search-close").click()
+          page.locator("#search").click()
           restored(page,before)
           search(page,"discover")
           page.locator("#search").click()
