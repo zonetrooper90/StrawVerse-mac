@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark light"><title>Gallery G1 — active outline comparison</title><style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}
+body[data-theme=ocean]{--bg:#101e26;--window:#132832;--surface:#1c3940;--raised:#214249;--accent:#a0f1d6;--muted:#9db9ba;--ink:#ecfaf7;--line:#7ebbbb48;--hover:#335961;--backdrop:#193640}
+body[data-theme=twilight]{--bg:#181827;--window:#22233a;--surface:#302f4d;--raised:#3a385c;--accent:#c8bcff;--muted:#b8b3d4;--ink:#f3f1ff;--line:#c1b8ff46;--hover:#433f6a;--backdrop:#2b2b45}
+body[data-theme=ember]{--bg:#211518;--window:#342227;--surface:#4a2d30;--raised:#573439;--accent:#f0c0ab;--muted:#d5b2a8;--ink:#fff1ea;--line:#f1d1c548;--hover:#6a4247;--backdrop:#42292d}
+body[data-theme=slate]{--bg:#1a1f24;--window:#253139;--surface:#344049;--raised:#3d4b55;--accent:#c7d2da;--muted:#bac3ca;--ink:#f1f4f6;--line:#cfd8df44;--hover:#536069;--backdrop:#303b44}
+body[data-theme=glacier]{--bg:#12232c;--window:#1a343e;--surface:#26444f;--raised:#30535c;--accent:#b0e9ee;--muted:#a8c8cd;--ink:#edfbfe;--line:#a0d4de46;--hover:#41636e;--backdrop:#21404c}
+body[data-theme=verdant]{--bg:#17231c;--window:#24372a;--surface:#314937;--raised:#3a5540;--accent:#bde6b5;--muted:#b0c9ae;--ink:#f0f9ed;--line:#bde2b64a;--hover:#4c6a51;--backdrop:#2a4232}
+body{margin:0;min-height:100vh;padding:clamp(12px,3vw,28px);background:var(--bg);color:var(--ink)}
+.screen{max-width:1050px;margin:auto;background:var(--window);border:1px solid var(--line);border-radius:20px;padding:clamp(16px,3vw,28px);box-shadow:0 20px 60px #0002}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+h1{font-size:clamp(23px,4vw,30px);line-height:1.2;letter-spacing:-.03em;margin:10px 0}
+.description{color:var(--muted);font-size:14px;line-height:1.6;max-width:720px;margin:0 0 22px}
+.comparison{display:grid;gap:14px}
+.sample{background:var(--window);border:1px solid var(--line);border-radius:16px;padding:17px;min-height:116px;position:relative}
+.sample-row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:40px}
+.sample-name{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.sample-desc{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45;max-width:520px}
+.sample footer{font-size:12px;color:var(--muted);margin-top:14px}
+.toolbar{position:relative;flex:0 0 136px;display:flex;justify-content:flex-end;align-items:center;gap:8px;height:40px;z-index:1}
+.slot{flex:0 0 40px;width:40px;height:40px}
+.icon-button{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;padding:0;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:50%;cursor:pointer;position:relative;isolation:isolate}
+.icon-button:hover{background:var(--hover)}
+.icon-button:focus-visible,.search-trigger:focus-visible,select:focus-visible,.search-field button:focus-visible,.search-field input:focus-visible,.test-all:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+svg.icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.icon-button.watch svg{width:19px;height:19px;stroke-width:1.8;overflow:visible}
+.icon-button.settings svg{width:23px;height:23px}
+/* Preserve the exact G1 Watch History/Settings animation timings and endpoints. */
+.watch .history-rim{transform-box:view-box;transform-origin:12px 12px;transform:rotate(0deg);transition:transform 1.1s cubic-bezier(.22,.72,.2,1)}
+.watch[aria-pressed=true] .history-rim{transform:rotate(-360deg)}
+.settings .settings-knob{transform:translateX(0);transition:transform .30s cubic-bezier(.22,.72,.2,1)}
+.settings[aria-pressed=true] .settings-knob.upper{transform:translateX(6px)}
+.settings[aria-pressed=true] .settings-knob.lower{transform:translateX(-6px)}
+/* Search retains fixed right-edge geometry, 468px maximum expanded width. */
+.search-shell{--expanded-width:clamp(190px,58vw,468px);position:absolute;right:96px;top:0;width:40px;height:40px;border-radius:20px;border:1px solid var(--line);background:var(--surface);overflow:hidden;z-index:4;transition:width .36s cubic-bezier(.22,.72,.2,1),background-color .18s ease}
+.search-shell.open{width:min(var(--expanded-width),calc(100vw - 90px));background:var(--raised)}
+.search-trigger{position:absolute;right:0;top:0;width:38px;height:38px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink);cursor:pointer;z-index:2}
+.search-trigger svg{width:21px;height:21px}
+.search-trigger:hover{color:var(--accent)}
+.search-field{position:absolute;inset:0 38px 0 0;display:flex;gap:4px;align-items:center;padding-left:16px;opacity:0;transform:translateX(7px);pointer-events:none;transition:opacity .12s ease,transform .24s ease;white-space:nowrap}
+.search-shell.open .search-field{opacity:1;transform:translateX(0);pointer-events:auto;transition:opacity .2s ease .12s,transform .26s ease .07s}
+.search-field input{color:var(--ink);font:inherit;font-size:15px;min-width:0;width:0;flex:1;padding:0;border:0;outline:0!important;background:transparent;appearance:none}
+.search-field input::placeholder{color:var(--muted);opacity:0;transition:opacity .12s ease}
+.search-shell.open .search-field input::placeholder{opacity:1}
+.search-shell.open .search-field input.placeholder-muted::placeholder{opacity:0;transition:none}
+.search-field input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.search-field .clear{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .14s ease,visibility 0s .14s}
+.search-field.has-query .clear{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .16s ease,visibility 0s}
+.search-field .clear{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.search-field .clear:hover{background:var(--hover)}
+.search-field .clear svg{width:19px;height:19px;stroke-width:2}
+/* A. Exact active-state behaviour from prior trial: immediate accent border. */
+.sample.current .outlined[aria-pressed=true]{background:var(--raised);border-color:var(--accent)}
+.sample.current .search-shell.open{background:var(--raised)}
+.sample.current .search-shell:focus-within{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 48%,transparent)}
+/* B. Inlaid accent stroke with gradual onset; outer one-pixel border stays muted. */
+.sample.inset .outlined,.sample.inset .search-shell{transition-property:border-color,background-color,box-shadow;transition-duration:.17s;transition-timing-function:ease}
+.sample.inset .search-shell{transition-property:width,border-color,background-color,box-shadow;transition-duration:.36s,.17s,.17s,.17s;transition-timing-function:cubic-bezier(.22,.72,.2,1),ease,ease,ease}
+.sample.inset .outlined[aria-pressed=true],.sample.inset .search-shell.open{background:var(--raised);border-color:var(--line);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 70%,transparent)}
+/* C. Less intense outline plus a low-opacity halo, never a blur on the icon. */
+.sample.halo .outlined,.sample.halo .search-shell{transition-property:border-color,background-color,box-shadow;transition-duration:.17s;transition-timing-function:ease}
+.sample.halo .search-shell{transition-property:width,border-color,background-color,box-shadow;transition-duration:.36s,.17s,.17s,.17s;transition-timing-function:cubic-bezier(.22,.72,.2,1),ease,ease,ease}
+.sample.halo .outlined[aria-pressed=true],.sample.halo .search-shell.open{background:var(--raised);border-color:color-mix(in srgb,var(--accent) 53%,transparent);box-shadow:0 0 0 .65px color-mix(in srgb,var(--accent) 28%,transparent),0 0 5px color-mix(in srgb,var(--accent) 20%,transparent)}
+.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px;color:var(--muted);font-size:13px}
+.controls select{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px;font:inherit}
+.test-all{background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:9px;font:inherit;padding:9px 12px;cursor:pointer}
+.test-all:hover{background:var(--hover)}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:15px 0 0}
+.sr-only{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
+@media(max-width:700px){.sample-row{align-items:flex-start;flex-direction:column;gap:12px}.toolbar{align-self:flex-end}.sample{min-height:145px}.sample footer{margin-top:12px}}
+@media(max-width:420px){.sample{padding:14px}.search-shell.open{width:min(var(--expanded-width),calc(100vw - 66px))}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style></head>
+<body data-theme="ocean"><main class="screen"><div class="kicker">G1 · Toolbar active-state border review</div><h1>Compare active outlines</h1>
+<p class="description">These are the same three Gallery toolbar icons, at their actual sizes. Tap Watch History or Settings to see the active circular border, or Search to see its expanded capsule. Only the outline treatment differs between examples; the icon animations stay the same. You can activate the same button in each row or use the comparison toggle.</p>
+<div class="comparison">
+<section class="sample current" data-variant="current"><div class="sample-row"><div class="sample-copy"><div class="sample-name">A · Current border</div><div class="sample-desc">Unmodified Watch History/Settings active border and Search focus ring.</div></div><div class="toolbar" aria-label="A · Current border toolbar"><div class="slot" aria-hidden="true"></div>
+<div class="search-shell"><div class="search-field" aria-hidden="true" inert><label class="sr-only">Search anime</label><input type="search" placeholder="Search anime..." autocomplete="off" spellcheck="false" maxlength="100" aria-label="Search anime"><button type="button" class="clear" aria-label="Clear search" title="Clear search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0"/><path d="M12 10l4 4m0 -4l-4 4"/></svg></button></div><button type="button" class="search-trigger" aria-label="Open search" aria-expanded="false" title="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button></div><button type="button" class="icon-button outlined watch" aria-label="Open Watch History" title="Watch History" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><g class="history-rim"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5"/></g><path d="M12 7v5l4 2"/></svg></button><button type="button" class="icon-button outlined settings" aria-label="Open Settings" title="Settings" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><g class="settings-knob upper"><circle cx="9" cy="7" r="2" fill="var(--window)"/></g><g class="settings-knob lower"><circle cx="15" cy="17" r="2" fill="var(--window)"/></g></svg></button></div></div><footer aria-live="polite">Watch History: off · Settings: off</footer></section>
+<section class="sample inset" data-variant="inset"><div class="sample-row"><div class="sample-copy"><div class="sample-name">B · Inset ring</div><div class="sample-desc">Muted outer border, thin inset accent line, 170 ms transition.</div></div><div class="toolbar" aria-label="B · Inset ring toolbar"><div class="slot" aria-hidden="true"></div>
+<div class="search-shell"><div class="search-field" aria-hidden="true" inert><label class="sr-only">Search anime</label><input type="search" placeholder="Search anime..." autocomplete="off" spellcheck="false" maxlength="100" aria-label="Search anime"><button type="button" class="clear" aria-label="Clear search" title="Clear search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0"/><path d="M12 10l4 4m0 -4l-4 4"/></svg></button></div><button type="button" class="search-trigger" aria-label="Open search" aria-expanded="false" title="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button></div><button type="button" class="icon-button outlined watch" aria-label="Open Watch History" title="Watch History" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><g class="history-rim"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5"/></g><path d="M12 7v5l4 2"/></svg></button><button type="button" class="icon-button outlined settings" aria-label="Open Settings" title="Settings" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><g class="settings-knob upper"><circle cx="9" cy="7" r="2" fill="var(--window)"/></g><g class="settings-knob lower"><circle cx="15" cy="17" r="2" fill="var(--window)"/></g></svg></button></div></div><footer aria-live="polite">Watch History: off · Settings: off</footer></section>
+<section class="sample halo" data-variant="halo"><div class="sample-row"><div class="sample-copy"><div class="sample-name">C · Soft halo</div><div class="sample-desc">Softer accent outline plus a very restrained outer halo, 170 ms transition.</div></div><div class="toolbar" aria-label="C · Soft halo toolbar"><div class="slot" aria-hidden="true"></div>
+<div class="search-shell"><div class="search-field" aria-hidden="true" inert><label class="sr-only">Search anime</label><input type="search" placeholder="Search anime..." autocomplete="off" spellcheck="false" maxlength="100" aria-label="Search anime"><button type="button" class="clear" aria-label="Clear search" title="Clear search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0"/><path d="M12 10l4 4m0 -4l-4 4"/></svg></button></div><button type="button" class="search-trigger" aria-label="Open search" aria-expanded="false" title="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button></div><button type="button" class="icon-button outlined watch" aria-label="Open Watch History" title="Watch History" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><g class="history-rim"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5"/></g><path d="M12 7v5l4 2"/></svg></button><button type="button" class="icon-button outlined settings" aria-label="Open Settings" title="Settings" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><g class="settings-knob upper"><circle cx="9" cy="7" r="2" fill="var(--window)"/></g><g class="settings-knob lower"><circle cx="15" cy="17" r="2" fill="var(--window)"/></g></svg></button></div></div><footer aria-live="polite">Watch History: off · Settings: off</footer></section>
+</div>
+<div class="controls"><button type="button" class="test-all" id="toggle-pair">Activate Watch History + Settings in all rows</button><label for="theme">Theme <select id="theme"><option value="ocean">Ocean</option><option value="twilight">Twilight</option><option value="ember">Ember</option><option value="slate">Slate</option><option value="glacier">Glacier</option><option value="verdant">Verdant</option></select></label></div>
+<p class="note">Search expands left, up to 468px. Watch History: 1,100 ms outer-ring rotation; Settings: 300 ms knob movement. Reduced-motion preferences respected. No changes to Gallery itself. This trial compares border rendering, not app navigation.</p>
+</main>
+<script>
+(()=>{
+  const samples=[...document.querySelectorAll('.sample')];
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  function refresh(sample){
+    const w=sample.querySelector('.watch').getAttribute('aria-pressed')==='true';
+    const s=sample.querySelector('.settings').getAttribute('aria-pressed')==='true';
+    sample.querySelector('footer').textContent=`Watch History: ${w?'on':'off'} · Settings: ${s?'on':'off'}${reduced.matches?' · Reduced motion':''}`;
+  }
+  function state(button,on){
+    button.setAttribute('aria-pressed',String(on));
+    const label=button.classList.contains('watch')?'Watch History':'Settings';
+    button.setAttribute('aria-label',(on?'Close ':'Open ')+label);
+  }
+  for(const sample of samples){
+    for(const btn of sample.querySelectorAll('.outlined')){
+      btn.addEventListener('click',()=>{state(btn,btn.getAttribute('aria-pressed')!=='true');refresh(sample);});
+    }
+    const shell=sample.querySelector('.search-shell'),trigger=sample.querySelector('.search-trigger'),field=sample.querySelector('.search-field'),input=field.querySelector('input'),clear=field.querySelector('.clear');
+    let opened=false,placeholderFrame=0,revealFrame=0;
+    function stopFrames(){cancelAnimationFrame(placeholderFrame);cancelAnimationFrame(revealFrame);}
+    function refreshClear(){field.classList.toggle('has-query',!!input.value);}
+    function fadePlaceholderBack(){
+      stopFrames();input.classList.add('placeholder-muted');
+      placeholderFrame=requestAnimationFrame(()=>{if(!opened||input.value)return;revealFrame=requestAnimationFrame(()=>{if(opened&&!input.value)input.classList.remove('placeholder-muted');});});
+    }
+    function searchOpen(value){
+      if(opened===value)return;
+      opened=value;stopFrames();shell.classList.toggle('open',opened);
+      trigger.setAttribute('aria-expanded',String(opened));trigger.setAttribute('aria-label',opened?'Close search':'Open search');
+      field.inert=!opened;field.setAttribute('aria-hidden',String(!opened));
+      input.value='';refreshClear();input.classList.remove('placeholder-muted');
+      if(opened)input.focus({preventScroll:true});else input.blur();
+    }
+    trigger.addEventListener('click',()=>searchOpen(!opened));
+    clear.addEventListener('click',()=>{input.value='';refreshClear();fadePlaceholderBack();input.focus({preventScroll:true});});
+    input.addEventListener('input',()=>{refreshClear();if(input.value){stopFrames();input.classList.remove('placeholder-muted');}else if(opened)fadePlaceholderBack();});
+    sample.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();searchOpen(false);trigger.focus({preventScroll:true});}});
+  }
+  document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'){e.preventDefault();const sample=document.activeElement.closest('.sample')||samples[0];const trigger=sample.querySelector('.search-trigger');if(trigger.getAttribute('aria-expanded')==='false')trigger.click();sample.querySelector('.search-field input').focus({preventScroll:true});}});
+  let allOn=false;
+  document.getElementById('toggle-pair').addEventListener('click',e=>{
+    allOn=!allOn;
+    for(const sample of samples){for(const btn of sample.querySelectorAll('.outlined'))state(btn,allOn);refresh(sample);}
+    e.currentTarget.textContent=allOn?'Deactivate Watch History + Settings in all rows':'Activate Watch History + Settings in all rows';
+  });
+  document.getElementById('theme').addEventListener('change',e=>document.body.dataset.theme=e.target.value);
+  reduced.addEventListener('change',()=>samples.forEach(refresh));
+})();
+</script></body></html>
