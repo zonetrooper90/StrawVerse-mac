@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Gallery G1 — Watch History click animation trial</title>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}
+body[data-theme=ocean]{--bg:#101e26;--window:#132832;--surface:#1c3940;--raised:#214249;--accent:#a0f1d6;--muted:#9db9ba;--ink:#ecfaf7;--line:#7ebbbb48;--hover:#335961;--backdrop:#193640}
+body[data-theme=twilight]{--bg:#181827;--window:#22233a;--surface:#302f4d;--raised:#3a385c;--accent:#c8bcff;--muted:#b8b3d4;--ink:#f3f1ff;--line:#c1b8ff46;--hover:#433f6a;--backdrop:#2b2b45}
+body[data-theme=ember]{--bg:#211518;--window:#342227;--surface:#4a2d30;--raised:#573439;--accent:#f0c0ab;--muted:#d5b2a8;--ink:#fff1ea;--line:#f1d1c548;--hover:#6a4247;--backdrop:#42292d}
+body[data-theme=slate]{--bg:#1a1f24;--window:#253139;--surface:#344049;--raised:#3d4b55;--accent:#c7d2da;--muted:#bac3ca;--ink:#f1f4f6;--line:#cfd8df44;--hover:#536069;--backdrop:#303b44}
+body[data-theme=glacier]{--bg:#12232c;--window:#1a343e;--surface:#26444f;--raised:#30535c;--accent:#b0e9ee;--muted:#a8c8cd;--ink:#edfbfe;--line:#a0d4de46;--hover:#41636e;--backdrop:#21404c}
+body[data-theme=verdant]{--bg:#17231c;--window:#24372a;--surface:#314937;--raised:#3a5540;--accent:#bde6b5;--muted:#b0c9ae;--ink:#f0f9ed;--line:#bde2b64a;--hover:#4c6a51;--backdrop:#2a4232}
+body{margin:0;min-height:100vh;padding:clamp(12px,3vw,28px);background:var(--bg);color:var(--ink)}
+.screen{max-width:1100px;margin:auto;border:1px solid var(--line);border-radius:20px;min-height:480px;background:var(--window);overflow:hidden;box-shadow:0 22px 70px #0003}
+.header{border-bottom:1px solid var(--line);padding:22px clamp(14px,3vw,28px) 17px}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:40px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;white-space:nowrap}
+.brandmark{width:28px;height:28px;display:grid;place-items:center;color:var(--accent)}
+.brandname{font-size:21px;font-weight:680;letter-spacing:-.03em}
+.brand-version{font-size:10px;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:5px 9px;margin-left:4px}
+.toolbar{flex:none;display:flex;align-items:center;gap:8px;height:40px}
+.icon-button{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.icon-button{font:inherit;cursor:pointer}
+button.icon-button:hover{background:var(--hover)}
+button.icon-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon-button.static{color:var(--muted);pointer-events:none}
+svg.icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#watch-history svg{width:19px;height:19px;stroke-width:1.8}
+#settings svg{width:23px;height:23px}
+/* Exact Gallery clock geometry split into a stationary return arrow and a rotating hand. */
+.clock-hand{transform-box:view-box;transform-origin:12px 12px;transform:rotate(0deg);transition:transform .24s cubic-bezier(.22,.72,.2,1)}
+#watch-history[aria-pressed=true] .clock-hand{transform:rotate(-75deg)}
+.nav{display:flex;align-items:center;gap:8px;margin-top:22px}
+.tab{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:transparent;padding:8px 12px}
+.tab.active{color:var(--ink);background:var(--surface);border-color:var(--accent)}
+.main{padding:30px clamp(14px,3vw,28px)}
+.kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.11em;font-size:10px;font-weight:700}
+h1{font-size:clamp(20px,4vw,29px);font-weight:650;letter-spacing:-.025em;margin:12px 0}
+.description{max-width:690px;font-size:14px;line-height:1.7;color:var(--muted)}
+.info{margin-top:22px;padding:17px;border:1px solid var(--line);background:var(--backdrop);border-radius:13px;font-size:13px;line-height:1.65}
+.demo-state{display:inline-block;min-width:105px;padding:5px 9px;margin-left:4px;border-radius:99px;color:var(--ink);border:1px solid var(--line);background:var(--raised);font-size:12px}
+.bottom{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:20px auto;max-width:1100px;color:var(--muted);font-size:13px}
+.bottom label{display:flex;align-items:center;gap:9px}
+select{font:inherit;background:var(--window);color:var(--ink);border:1px solid var(--line);padding:8px;border-radius:8px}
+.bottom .note{margin-left:auto;font-size:12px}
+@media(max-width:760px){.brand-version{display:none}.header{padding-top:18px}.screen{min-height:410px}}
+@media(max-width:430px){.brandname{font-size:18px}.nav{margin-top:18px}.tab{padding:7px 10px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.clock-hand{transition:none!important}}
+</style>
+</head>
+<body data-theme="ocean">
+<div class="screen">
+ <header class="header">
+  <div class="header-row">
+   <div class="brand" aria-label="Gallery demonstration">
+    <div class="brandmark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11h16v10H4zM4 11 2 6l17-4 3 5zM7 5l4 5m3-7 4 5"/></svg></div>
+    <div class="brandname">Gallery</div><span class="brand-version">Watch History motion trial</span>
+   </div>
+   <div class="toolbar" aria-label="Gallery toolbar">
+    <span class="icon-button static" aria-label="Search: not interactive in this trial" title="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></span>
+    <button class="icon-button" id="watch-history" type="button" aria-label="Open Watch History" aria-pressed="false" title="Open Watch History"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path class="history-ring" d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path class="history-arrow" d="M3 3v5h5"/><path class="clock-hand" d="M12 7v5l4 2"/></svg></button>
+    <span class="icon-button static" id="settings" aria-label="Settings: not interactive in this trial" title="Settings"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--window)"/><circle cx="15" cy="17" r="2" fill="var(--window)"/></svg></span>
+   </div>
+  </div>
+  <nav class="nav" aria-label="Gallery navigation preview"><span class="tab active">Discover</span><span class="tab">Library</span><span class="tab">Downloads</span></nav>
+ </header>
+ <main class="main">
+  <div class="kicker">G1 · Watch History · Isolated concept</div>
+  <h1>Clock hand moves on click</h1>
+  <p class="description">Click the Watch History icon in the top-right toolbar. The hands rotate 75° counterclockwise as Watch History opens, then return when you click it again. The circular return arrow, other icons and all toolbar button centers remain fixed.</p>
+  <div class="info" aria-live="polite">Simulated Watch History state: <strong class="demo-state" id="watch-state">Closed</strong><p id="watch-message">Click the middle toolbar button to open the simulated Watch History view. Click it again to close. Repeated quick clicks reverse the movement naturally.</p>This is a standalone icon interaction trial, not an actual Watch History page. No application data or pages are modified.</div>
+ </main>
+</div>
+<div class="bottom"><label for="theme">Preview theme <select id="theme"><option value="ocean">Ocean</option><option value="twilight">Twilight</option><option value="ember">Ember</option><option value="slate">Slate</option><option value="glacier">Glacier</option><option value="verdant">Verdant</option></select></label><span class="note">No external dependencies · No Gallery application changes</span></div>
+<script>
+(()=>{
+ const button=document.getElementById('watch-history');
+ const label=document.getElementById('watch-state');
+ const message=document.getElementById('watch-message');
+ button.addEventListener('click',()=>{
+  const open=button.getAttribute('aria-pressed')!=='true';
+  button.setAttribute('aria-pressed',String(open));
+  button.setAttribute('aria-label',open?'Close Watch History':'Open Watch History');
+  button.title=open?'Close Watch History':'Open Watch History';
+  label.textContent=open?'Open':'Closed';
+  message.textContent=open?'The hand has swept counterclockwise. Click the icon again to return it to its original position.':'The hand has returned to its resting position. Click again to reopen.';
+ });
+ document.getElementById('theme').addEventListener('change',event=>{document.body.dataset.theme=event.target.value});
+})();
+</script>
+</body>
+</html>
