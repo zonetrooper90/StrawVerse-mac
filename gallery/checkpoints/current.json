@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-19-a3-dialog-completion",
-  "sha256": "421e0301f43bb1d56b6be913e58b3e8ee5464576ab3edf951f20e0689cd446df",
-  "bytes": 6943973,
+  "folder": "2026-11-20-g1-toolbar-three-controls-geometry-retry",
+  "sha256": "084899eb9f15cf85eaa7a2360a0e5ca7e2a8b5173eeb717eeeb86a97646e80c6",
+  "bytes": 6951344,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

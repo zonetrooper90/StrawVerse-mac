@@ -122,3 +122,128 @@ body[data-theme] :is(.detail-page-header .detail-back,.playback-compactbar .deta
   background:color-mix(in srgb,var(--panel) 76%,var(--accent) 24%);
   border-color:color-mix(in srgb,var(--panel2) 18%,var(--accent) 82%);
 }
+
+/* G1 — Three globally aligned toolbar controls. This override keeps the
+   approved 40px button centers, 8px gaps and every page's navigation state. */
+body[data-theme] .brand-row .toolbar{position:relative;z-index:3}
+body[data-theme] #header-search{
+ --g1-capsule-width:min(468px,calc(100vw - 176px));
+ position:relative;isolation:isolate;z-index:3;overflow:visible;
+ flex:0 0 40px;width:40px;min-width:40px;height:40px;
+ border:0;border-radius:20px;background:transparent;box-shadow:none;
+}
+body[data-theme] #header-search::before{
+ content:"";position:absolute;z-index:-1;top:0;right:0;
+ width:40px;height:40px;border:1px solid var(--circle-border);
+ border-radius:20px;background:var(--circle-bg);pointer-events:none;
+ transition:width .36s cubic-bezier(.22,.72,.2,1),
+   background-color .17s ease,border-color .17s ease,box-shadow .17s ease;
+}
+body[data-theme] #header-search:hover::before{
+ background:var(--circle-hover);border-color:var(--sat-border);
+}
+body[data-theme] #header-search.is-open::before{
+ width:var(--g1-capsule-width);border-color:color-mix(in srgb,var(--accent) 53%,transparent);
+ background:var(--raised);
+ box-shadow:0 0 0 .65px color-mix(in srgb,var(--accent) 28%,transparent),
+            0 0 5px color-mix(in srgb,var(--accent) 20%,transparent);
+}
+body[data-theme] #header-search.is-open:hover::before{background:var(--circle-hover)}
+body[data-theme] #header-search #search{
+ display:grid;place-items:center;position:relative;z-index:2;
+ flex:0 0 40px;width:40px;min-width:40px;height:40px;padding:0;
+ border:0;border-radius:50%;background:transparent;color:var(--fg);transform:none;
+}
+body[data-theme] #header-search #search:hover{background:transparent;color:var(--fg)}
+body[data-theme] #search>.icon{
+ width:21px;height:21px;display:block;transform:translate(-.45px,-.45px);
+}
+body[data-theme] #header-search .header-search-field{
+ position:absolute;z-index:1;top:0;right:40px;left:auto;
+ width:0;min-width:0;max-width:none;height:40px;gap:4px;
+ padding:0;border:0;border-radius:0;background:transparent;
+ opacity:0;visibility:hidden;overflow:hidden;
+ transition:width .36s cubic-bezier(.22,.72,.2,1),
+   opacity .2s ease,visibility 0s .36s;
+}
+body[data-theme] #header-search.is-open .header-search-field{
+ width:max(0px,calc(var(--g1-capsule-width) - 40px));
+ max-width:none;padding:0 4px 0 12px;
+ border:0;opacity:1;visibility:visible;transition-delay:0s,.12s,0s;
+}
+body[data-theme] #header-search .header-search-field input{
+ flex:1 1 auto;width:0;min-width:0;height:38px;padding:0;
+ font-size:15px;background:transparent;
+}
+body[data-theme] #header-search .header-search-field input::placeholder{
+ color:var(--muted);opacity:0;transition:opacity .12s ease;
+}
+body[data-theme] #header-search.is-open .header-search-field input::placeholder{opacity:1}
+body[data-theme] #header-search.is-open .header-search-field input.g1-placeholder-muted::placeholder{
+ opacity:0;transition:none;
+}
+body[data-theme] #header-search #header-search-close{display:none!important}
+body[data-theme] #header-search #header-search-clear{
+ flex:0 0 30px;display:grid!important;width:30px;min-width:30px;height:30px;
+ padding:0;margin:0;border:0;border-radius:8px;background:transparent;
+ opacity:1;visibility:visible;pointer-events:auto;
+ transition:opacity .16s ease,visibility 0s;
+}
+body[data-theme] #header-search #header-search-clear[hidden]{
+ display:grid!important;opacity:0;visibility:hidden;pointer-events:none;
+ transition:opacity .14s ease,visibility 0s .14s;
+}
+body[data-theme] #header-search #header-search-clear:hover{background:var(--circle-hover)}
+body[data-theme] #header-search #header-search-clear .icon{width:19px;height:19px}
+body[data-theme] #header-watch-history,
+body[data-theme] #settings{
+ flex:0 0 40px;width:40px;min-width:40px;height:40px;
+ display:grid;place-items:center;padding:0;transform:none;
+ background:var(--circle-bg);border:1px solid var(--circle-border);
+ color:var(--fg);border-radius:50%;
+ transition:background-color .17s ease,border-color .17s ease,box-shadow .17s ease;
+}
+body[data-theme] #header-watch-history:hover:not(:disabled),
+body[data-theme] #settings:hover:not(:disabled){
+ background:var(--circle-hover);border-color:var(--sat-border);
+}
+body[data-theme] #header-watch-history[aria-pressed="true"]:not(:disabled),
+body[data-theme] #settings[aria-expanded="true"]{
+ color:var(--fg);background:var(--raised);
+ border-color:color-mix(in srgb,var(--accent) 53%,transparent);
+ box-shadow:0 0 0 .65px color-mix(in srgb,var(--accent) 28%,transparent),
+            0 0 5px color-mix(in srgb,var(--accent) 20%,transparent);
+}
+body[data-theme] #header-watch-history[aria-pressed="true"]:hover:not(:disabled),
+body[data-theme] #settings[aria-expanded="true"]:hover:not(:disabled){background:var(--circle-hover)}
+body[data-theme] #header-watch-history:active:not(:disabled),
+body[data-theme] #settings:active:not(:disabled){transform:none}
+body[data-theme] #header-watch-history>.g1-history-icon{
+ display:block;width:21px;height:21px;transform:translateX(.35px);
+}
+body[data-theme] #settings>.g1-settings-icon{
+ display:block;width:23px;height:23px;transform:translate(0,0);
+}
+#header-watch-history .g1-history-rim{
+ transform-box:view-box;transform-origin:12px 12px;
+ transform:rotate(0deg);transition:transform 1.1s cubic-bezier(.22,.72,.2,1);
+}
+#header-watch-history[aria-pressed="true"] .g1-history-rim{transform:rotate(-360deg)}
+#settings .g1-settings-knob{
+ transform:translateX(0);transition:transform .3s cubic-bezier(.22,.72,.2,1);
+}
+#settings[aria-expanded="true"] .g1-settings-knob.upper{transform:translateX(6px)}
+#settings[aria-expanded="true"] .g1-settings-knob.lower{transform:translateX(-6px)}
+@media(max-width:950px){
+ body[data-theme] .brand-row.is-searching .brand{opacity:0;pointer-events:none}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-theme] #header-search::before,
+ body[data-theme] #header-search .header-search-field,
+ body[data-theme] #header-search .header-search-field input::placeholder,
+ body[data-theme] #header-search #header-search-clear,
+ body[data-theme] #header-watch-history,
+ body[data-theme] #settings,
+ #header-watch-history .g1-history-rim,
+ #settings .g1-settings-knob{transition:none!important}
+}

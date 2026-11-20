@@ -167,6 +167,7 @@ function updateDiscoverSearchResults(){
 function updateInlineSearchResults(){
  if(!searchOpen)return;
  state.query=searchInput.value;
+ searchInput.classList.toggle('g1-placeholder-muted',Boolean(state.query));
  searchClear.hidden=!state.query;
  searchClose.hidden=!!state.query;
  if(document.body.classList.contains('settings-view')){renderSettingsSearchResults();requestAnimationFrame(updateTabScrollOverlay);return;}
@@ -204,6 +205,7 @@ function openInlineSearch(){
  searchField.setAttribute('aria-hidden','false');
  searchInput.placeholder=searchPlaceholder();
  searchInput.value='';
+ searchInput.classList.remove('g1-placeholder-muted');
  searchClear.hidden=true;
  searchClose.hidden=false;
  if(whOpen){whSearch='';whRender();searchInput.focus({preventScroll:true});return;}
@@ -235,6 +237,7 @@ function closeInlineSearch(restoreFocus=true){
  searchField.inert=true;
  searchField.setAttribute('aria-hidden','true');
  searchInput.value='';
+ searchInput.classList.remove('g1-placeholder-muted');
  searchClear.hidden=true;
  searchClose.hidden=false;
  if(whOpen){whSearch='';whRender();if(!whRecentLegacyMode)configureHeaderSearchContext();if(restoreFocus)searchToggle.focus({preventScroll:true});return;}
