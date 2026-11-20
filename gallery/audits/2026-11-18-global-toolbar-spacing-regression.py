@@ -48,7 +48,8 @@ def search_cycle(page,motion):
         page.wait_for_timeout(380 if motion=="no-preference" else 30)
         after=geometry(page);assert_geometry(after,False)
         assert before["buttons"]==after["buttons"],(before,after)
-        assert close(after["buttons"][0]["x"]-after["field"]["right"],8),after
+        # G1 joins the input capsule directly to the stationary magnifier; no 8px seam.
+        assert close(after["buttons"][0]["x"]-after["field"]["right"],0),after
         assert after["field"]["x"]>=-.5,after
         assert page.locator("#header-search-input").evaluate("e=>document.activeElement===e")
         page.locator("#header-search-input").press("Escape")

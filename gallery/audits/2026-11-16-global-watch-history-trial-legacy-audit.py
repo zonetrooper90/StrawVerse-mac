@@ -17,5 +17,11 @@ if name.endswith("loopback-regression.py"):
 else:
     source,count=re.subn(r'(?m)^( +)(page)\.set_content\(',r'\1\2.goto("about:blank#recently-watched-legacy");\2.set_content(',source)
     assert count==(2 if name.endswith("directional-stack-regression.py") else 1),(name,count)
+    if name=="2026-11-15-anime-detail-search-return-synchronized-regression.py":
+        # Keep the historical file byte-identical and its hash gate unchanged.
+        # G1 replaces its removed X button with the approved magnifier toggle.
+        old='page.locator("#header-search-close").click()'
+        assert source.count(old)==1, "Historical Search X action drifted"
+        source=source.replace(old,'page.locator("#search").click()',1)
 sys.argv=[str(path),html]
 exec(compile(source,str(path),"exec"),{"__name__":"__main__","__file__":str(path)})
