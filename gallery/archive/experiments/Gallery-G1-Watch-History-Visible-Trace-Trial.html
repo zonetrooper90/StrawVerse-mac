@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Gallery G1 — Watch History visible circular trace trial</title>
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}
+body[data-theme=ocean]{--bg:#101e26;--window:#132832;--surface:#1c3940;--raised:#214249;--accent:#a0f1d6;--muted:#9db9ba;--ink:#ecfaf7;--line:#7ebbbb48;--hover:#335961;--backdrop:#193640}
+body[data-theme=twilight]{--bg:#181827;--window:#22233a;--surface:#302f4d;--raised:#3a385c;--accent:#c8bcff;--muted:#b8b3d4;--ink:#f3f1ff;--line:#c1b8ff46;--hover:#433f6a;--backdrop:#2b2b45}
+body[data-theme=ember]{--bg:#211518;--window:#342227;--surface:#4a2d30;--raised:#573439;--accent:#f0c0ab;--muted:#d5b2a8;--ink:#fff1ea;--line:#f1d1c548;--hover:#6a4247;--backdrop:#42292d}
+body[data-theme=slate]{--bg:#1a1f24;--window:#253139;--surface:#344049;--raised:#3d4b55;--accent:#c7d2da;--muted:#bac3ca;--ink:#f1f4f6;--line:#cfd8df44;--hover:#536069;--backdrop:#303b44}
+body[data-theme=glacier]{--bg:#12232c;--window:#1a343e;--surface:#26444f;--raised:#30535c;--accent:#b0e9ee;--muted:#a8c8cd;--ink:#edfbfe;--line:#a0d4de46;--hover:#41636e;--backdrop:#21404c}
+body[data-theme=verdant]{--bg:#17231c;--window:#24372a;--surface:#314937;--raised:#3a5540;--accent:#bde6b5;--muted:#b0c9ae;--ink:#f0f9ed;--line:#bde2b64a;--hover:#4c6a51;--backdrop:#2a4232}
+body{margin:0;min-height:100vh;padding:clamp(12px,3vw,28px);background:var(--bg);color:var(--ink)}
+.screen{max-width:1100px;margin:auto;border:1px solid var(--line);border-radius:20px;min-height:470px;background:var(--window);overflow:hidden;box-shadow:0 22px 70px #0003}
+.header{padding:22px clamp(14px,3vw,28px) 17px;border-bottom:1px solid var(--line)}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:40px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;white-space:nowrap}
+.brandmark{width:28px;height:28px;display:grid;place-items:center;color:var(--accent)}
+.brandname{font-size:21px;font-weight:680;letter-spacing:-.03em}
+.brand-version{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 9px;margin-left:4px}
+.toolbar{flex:0 0 136px;display:flex;gap:8px;align-items:center;justify-content:flex-end;height:40px}
+.icon-button{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:50%;color:var(--ink);cursor:pointer}
+.icon-button:hover{background:var(--hover)}
+.icon-button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon-button[aria-pressed="true"]{background:var(--raised);border-color:var(--accent)}
+svg.icon{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#watch svg{width:19px;height:19px;stroke-width:1.8}
+#settings svg{width:23px;height:23px}
+/* These are Gallery's actual outer history-circle, return-arrow and clock-hand paths.
+   The overlay is a stroke highlight: it never replaces, rotates or hides the base icon. */
+/* A full tracing arc is legible at the actual 19px Gallery icon size.
+   CSS SVG dash animation is preferable to JS keyframes of a tiny traveling dash. */
+.history-highlight{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0;stroke-dasharray:100 100;stroke-dashoffset:100;pointer-events:none}
+.history-highlight.sweeping{animation:wh-circle-trace .46s cubic-bezier(.22,.72,.2,1) both}
+@keyframes wh-circle-trace{
+  0%{stroke-dashoffset:100;opacity:0}
+  12%{opacity:1}
+  78%{stroke-dashoffset:0;opacity:1}
+  100%{stroke-dashoffset:0;opacity:0}
+}
+.nav{display:flex;align-items:center;gap:8px;margin-top:22px}
+.tab{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:transparent;padding:8px 12px}
+.tab.active{color:var(--ink);background:var(--surface);border-color:var(--accent)}
+.main{padding:30px clamp(14px,3vw,28px)}
+.kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.11em;font-size:10px;font-weight:700}
+h1{font-size:clamp(20px,4vw,29px);font-weight:650;letter-spacing:-.025em;margin:12px 0}
+.description{max-width:690px;font-size:14px;line-height:1.7;color:var(--muted)}
+.info{margin-top:22px;padding:17px;border:1px solid var(--line);background:var(--backdrop);border-radius:13px;font-size:13px;line-height:1.6}
+.bottom{max-width:1100px;margin:20px auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.bottom label{display:flex;align-items:center;gap:8px}
+select{font:inherit;background:var(--window);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.bottom .note{margin-left:auto;font-size:12px}
+@media(max-width:760px){.brand-version{display:none}.header{padding-top:18px}.screen{min-height:410px}}
+@media(max-width:420px){.brandname{font-size:18px}.nav{margin-top:18px}.tab{padding:7px 10px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-theme="ocean">
+<div class="screen">
+  <header class="header">
+    <div class="header-row">
+      <div class="brand" aria-label="Gallery demonstration">
+        <div class="brandmark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11h16v10H4zM4 11 2 6l17-4 3 5zM7 5l4 5m3-7 4 5"/></svg></div>
+        <div class="brandname">Gallery</div><span class="brand-version">Watch History trace trial</span>
+      </div>
+      <div class="toolbar" aria-label="Global toolbar">
+        <button type="button" class="icon-button" id="search" title="Search (static in trial)" aria-label="Search (static in trial)"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button>
+        <button type="button" class="icon-button" id="watch" title="Open Watch History" aria-label="Open Watch History" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="history-ring" d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/>
+          <path class="history-arrow" d="M3 3v5h5"/>
+          <path class="history-clock" d="M12 7v5l4 2"/>
+          <path class="history-highlight" d="M3 12a9 9 0 1 0 2.7-6.3" pathLength="100"/>
+        </svg></button>
+        <button type="button" class="icon-button" id="settings" title="Settings (static in trial)" aria-label="Settings (static in trial)"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--window)"/><circle cx="15" cy="17" r="2" fill="var(--window)"/></svg></button>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Gallery navigation preview"><span class="tab active">Discover</span><span class="tab">Library</span><span class="tab">Downloads</span></nav>
+  </header>
+  <main class="main">
+    <div class="kicker">G1 · Watch History · Isolated concept B</div>
+    <h1>Stationary clock, circular sweep</h1>
+    <p class="description">Click the middle toolbar button. A bright line briefly traces the outer arrow's counterclockwise circle. The entire original clock, its hands, and the arrowhead stay fixed. A second click repeats the sweep while closing Watch History.</p>
+    <div class="info" id="message" aria-live="polite">Watch History is closed. Click its toolbar icon to preview the circular sweep. This does not open real Gallery history.</div>
+  </main>
+</div>
+<div class="bottom"><label for="theme">Preview theme <select id="theme"><option value="ocean">Ocean</option><option value="twilight">Twilight</option><option value="ember">Ember</option><option value="slate">Slate</option><option value="glacier">Glacier</option><option value="verdant">Verdant</option></select></label><span class="note">Click-triggered only · No libraries · No Gallery app changes</span></div>
+<script>
+(()=>{
+  const watch=document.getElementById('watch');
+  const highlight=watch.querySelector('.history-highlight');
+  const message=document.getElementById('message');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let opened=false;
+  // A single bright stroke draws progressively around the same unmodified ring.
+  // Reflow restarts CSS keyframes after a rapid repeat click, without accumulating timers.
+  function sweep(){
+    highlight.classList.remove('sweeping');
+    if(reduced.matches)return;
+    void highlight.getBoundingClientRect().width;
+    highlight.classList.add('sweeping');
+  }
+  highlight.addEventListener('animationend',event=>{
+    if(event.animationName==='wh-circle-trace')highlight.classList.remove('sweeping');
+  });
+  watch.addEventListener('click',()=>{
+    opened=!opened;
+    watch.setAttribute('aria-pressed',String(opened));
+    watch.setAttribute('aria-label',opened?'Close Watch History':'Open Watch History');
+    watch.title=opened?'Close Watch History':'Open Watch History';
+    message.textContent=reduced.matches?'Reduced Motion is enabled: Watch History changes state without animating.':opened?'Watch History opened. The outer circle traces counterclockwise without moving the original clock or arrow.':'Watch History closed. The outer circle traces again on click.';
+    sweep();
+  });
+  reduced.addEventListener('change',()=>{if(reduced.matches){highlight.classList.remove('sweeping');message.textContent='Reduced Motion is enabled: the visual sweep is disabled, but clicking Watch History still changes its active state.';}});
+  document.getElementById('theme').addEventListener('change',e=>document.body.dataset.theme=e.target.value);
+})();
+</script>
+</body>
+</html>
