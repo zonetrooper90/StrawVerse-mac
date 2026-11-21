@@ -3839,6 +3839,31 @@ body[data-theme] #settings>.g1-settings-icon{
  }
  #nav-library:is(:hover,:focus-visible) .g2-library-line{animation:none!important}
 }
+
+
+/* G3 — approved Library action icon motion. Preserve original paths, button
+   geometry, palette, focus, menu actions and all other tab/icon behavior. */
+.page-header-library #newtag .g3-plus-mark{
+ transform-box:view-box;transform-origin:12px 12px;transform:rotate(0deg);
+ transition:transform .4s cubic-bezier(.22,.72,.2,1);
+}
+/* JS retains each +90deg target across hover exit (never reverses). */
+.library-collection #tag-options.g3-waving .g3-thinking-dot{
+ animation:g3-thinking-wave .45s cubic-bezier(.22,.72,.2,1) 1 both;
+ transform-box:fill-box;transform-origin:center;
+}
+.library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(2){animation-delay:.105s}
+.library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(3){animation-delay:.21s}
+/* Only position changes; the three dots always remain fully opaque. */
+@keyframes g3-thinking-wave{
+ 0%,100%{transform:translateY(0)}
+ 38%{transform:translateY(-3px)}
+ 64%{transform:translateY(-1px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .page-header-library #newtag .g3-plus-mark{transition:none!important}
+ .library-collection #tag-options.g3-waving .g3-thinking-dot{animation:none!important}
+}
 </style></head><body data-theme="ocean">
 <div class="app" aria-label="Gallery for macOS preview">
   <header class="top">
@@ -4288,6 +4313,33 @@ function bindTabPageEvents(view){
   menu.hidden=!menu.hidden;
   button.setAttribute('aria-expanded',String(!menu.hidden));
  });
+ // G3: bind only to this Library render's controls; no stale listeners on rerender.
+ if(view==='library'){
+  const plus=content.querySelector('#newtag');
+  const mark=plus?.querySelector('.g3-plus-mark');
+  if(mark){
+   let turns=0;
+   const turn=()=>{mark.style.transform='rotate('+(++turns*90)+'deg)';};
+   plus.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')turn()});
+   plus.addEventListener('focus',()=>{if(plus.matches(':focus-visible'))turn()});
+  }
+  const options=content.querySelector('#tag-options');
+  if(options){
+   const wave=()=>{
+    if(options.getAttribute('aria-expanded')==='true' || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    options.classList.remove('g3-waving');
+    void options.offsetWidth;
+    options.classList.add('g3-waving');
+   };
+   options.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')wave()});
+   options.addEventListener('focus',()=>{if(options.matches(':focus-visible'))wave()});
+   options.addEventListener('click',()=>options.classList.remove('g3-waving'));
+   const last=options.querySelector('.g3-thinking-dot:last-child');
+   const clear=e=>{if(e.animationName==='g3-thinking-wave')options.classList.remove('g3-waving');};
+   last?.addEventListener('animationend',clear);
+   last?.addEventListener('animationcancel',clear);
+  }
+ }
  on('openfolder',showFolderInfo);
  for(const el of content.querySelectorAll('[data-download-toggle]'))el.addEventListener('click',()=>setDownloadGroupExpanded(el.dataset.downloadToggle,!downloadDemo.expanded.has(el.dataset.downloadToggle)));
  for(const el of content.querySelectorAll('[data-download-dismiss]'))el.addEventListener('click',()=>dismissDownloadEpisode(el.dataset.downloadDismiss));
@@ -5190,11 +5242,11 @@ function library(){
  const titles=isSearching?searchItems(demo):visibleTag==='All Titles'?demo:demo.filter(x=>x.tags.includes(visibleTag));
  const isCustom=state.kind[visibleTag]==='custom';
  const isAll=visibleTag==='All Titles';
- const actions=`${GALLERY_COLLECTION_TRANSFER_UI_ENABLED?`<button class="btn" id="import">${icon('import',16)} <span>Import</span></button>`:''}<button class="btn primary" id="newtag">${icon('plus',17)} <span>New Tag</span></button>`;
+ const actions=`${GALLERY_COLLECTION_TRANSFER_UI_ENABLED?`<button class="btn" id="import">${icon('import',16)} <span>Import</span></button>`:''}<button class="btn primary" id="newtag">${icon('plus',17).replace('<path ','<g class="g3-plus-mark"><path ').replace('</svg>','</g></svg>')} <span>New Tag</span></button>`;
  const tagChip=(tag)=>{const active=visibleTag===tag,custom=state.kind[tag]==='custom',count=countTag(tag);return `<button type="button" class="tagchip ${active?'active':''}" data-tag="${escapeHTML(tag)}" aria-pressed="${active}" aria-label="${escapeHTML(tag)}${custom?', custom tag':''}, ${count} titles" title="${custom?'Custom tag':'Built-in collection'}"><span>${escapeHTML(tag)}</span>${custom?`<span class="custom-tag-icon">${icon('bookmark',11)}</span>`:''}<span class="count">${count}</span></button>`;};
  const tags=`<div class="library-tag-row"><button type="button" class="library-tag-arrow library-tag-prev" id="library-tag-prev" aria-label="Scroll collections left">${icon('chevron',16)}</button><div class="tagbar" role="group" aria-label="Library collections">${tagChip('All Titles')}${state.tags.map(tagChip).join('')}</div><button type="button" class="library-tag-arrow library-tag-next" id="library-tag-next" aria-label="Scroll collections right">${icon('chevron',16)}</button></div>`;
  const shareAction=isAll||!GALLERY_COLLECTION_TRANSFER_UI_ENABLED?'':`<button class="btn small" id="sharetag" title="Share ${escapeHTML(state.tag)}">${icon('share',15)} <span>Share</span></button>`;
- const menu=isCustom?`<div class="collection-menu-wrap"><button class="btn small collection-options" id="tag-options" aria-label="More actions for ${escapeHTML(state.tag)}" aria-haspopup="menu" aria-expanded="false">${icon('dots',19)}</button><div class="collection-menu" id="tag-options-menu" role="menu" hidden><button type="button" role="menuitem" id="renametag">${icon('bookmark',15)} Rename tag</button><button type="button" role="menuitem" class="delete-tag-action" id="deletetag">${icon('close',15)} Delete tag</button></div></div>`:'';
+ const menu=isCustom?`<div class="collection-menu-wrap"><button class="btn small collection-options" id="tag-options" aria-label="More actions for ${escapeHTML(state.tag)}" aria-haspopup="menu" aria-expanded="false">${icon('dots',19).replaceAll('<circle','<circle class="g3-thinking-dot"')}</button><div class="collection-menu" id="tag-options-menu" role="menu" hidden><button type="button" role="menuitem" id="renametag">${icon('bookmark',15)} Rename tag</button><button type="button" role="menuitem" class="delete-tag-action" id="deletetag">${icon('close',15)} Delete tag</button></div></div>`:'';
  const kind=isAll?'All anime in your library':isCustom?'Custom tag':'Built-in collection';
  const label=visibleTag;
  const subtitle=isSearching?`${titles.length} ${titles.length===1?'match':'matches'} · Across all tags`: `${titles.length} ${titles.length===1?'title':'titles'} · ${kind}`;

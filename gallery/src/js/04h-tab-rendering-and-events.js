@@ -26,6 +26,33 @@ function bindTabPageEvents(view){
   menu.hidden=!menu.hidden;
   button.setAttribute('aria-expanded',String(!menu.hidden));
  });
+ // G3: bind only to this Library render's controls; no stale listeners on rerender.
+ if(view==='library'){
+  const plus=content.querySelector('#newtag');
+  const mark=plus?.querySelector('.g3-plus-mark');
+  if(mark){
+   let turns=0;
+   const turn=()=>{mark.style.transform='rotate('+(++turns*90)+'deg)';};
+   plus.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')turn()});
+   plus.addEventListener('focus',()=>{if(plus.matches(':focus-visible'))turn()});
+  }
+  const options=content.querySelector('#tag-options');
+  if(options){
+   const wave=()=>{
+    if(options.getAttribute('aria-expanded')==='true' || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    options.classList.remove('g3-waving');
+    void options.offsetWidth;
+    options.classList.add('g3-waving');
+   };
+   options.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')wave()});
+   options.addEventListener('focus',()=>{if(options.matches(':focus-visible'))wave()});
+   options.addEventListener('click',()=>options.classList.remove('g3-waving'));
+   const last=options.querySelector('.g3-thinking-dot:last-child');
+   const clear=e=>{if(e.animationName==='g3-thinking-wave')options.classList.remove('g3-waving');};
+   last?.addEventListener('animationend',clear);
+   last?.addEventListener('animationcancel',clear);
+  }
+ }
  on('openfolder',showFolderInfo);
  for(const el of content.querySelectorAll('[data-download-toggle]'))el.addEventListener('click',()=>setDownloadGroupExpanded(el.dataset.downloadToggle,!downloadDemo.expanded.has(el.dataset.downloadToggle)));
  for(const el of content.querySelectorAll('[data-download-dismiss]'))el.addEventListener('click',()=>dismissDownloadEpisode(el.dataset.downloadDismiss));

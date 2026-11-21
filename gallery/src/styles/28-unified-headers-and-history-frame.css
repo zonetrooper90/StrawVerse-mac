@@ -293,3 +293,28 @@ body[data-theme] #settings>.g1-settings-icon{
  }
  #nav-library:is(:hover,:focus-visible) .g2-library-line{animation:none!important}
 }
+
+
+/* G3 — approved Library action icon motion. Preserve original paths, button
+   geometry, palette, focus, menu actions and all other tab/icon behavior. */
+.page-header-library #newtag .g3-plus-mark{
+ transform-box:view-box;transform-origin:12px 12px;transform:rotate(0deg);
+ transition:transform .4s cubic-bezier(.22,.72,.2,1);
+}
+/* JS retains each +90deg target across hover exit (never reverses). */
+.library-collection #tag-options.g3-waving .g3-thinking-dot{
+ animation:g3-thinking-wave .45s cubic-bezier(.22,.72,.2,1) 1 both;
+ transform-box:fill-box;transform-origin:center;
+}
+.library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(2){animation-delay:.105s}
+.library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(3){animation-delay:.21s}
+/* Only position changes; the three dots always remain fully opaque. */
+@keyframes g3-thinking-wave{
+ 0%,100%{transform:translateY(0)}
+ 38%{transform:translateY(-3px)}
+ 64%{transform:translateY(-1px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .page-header-library #newtag .g3-plus-mark{transition:none!important}
+ .library-collection #tag-options.g3-waving .g3-thinking-dot{animation:none!important}
+}
