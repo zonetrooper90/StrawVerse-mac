@@ -3801,6 +3801,44 @@ body[data-theme] #settings>.g1-settings-icon{
  #header-watch-history .g1-history-rim,
  #settings .g1-settings-knob{transition:none!important}
 }
+
+
+/* G2 — Approved hover/focus-only main-navigation motion. No tab geometry,
+   navigation, active highlight or global-toolbar changes. */
+#nav-discover .g2-compass-needle{
+ transform-box:view-box;transform-origin:12px 12px;
+ transform:rotate(0deg);transition:transform .78s cubic-bezier(.22,.72,.2,1);
+}
+#nav-discover:is(:hover,:focus-visible) .g2-compass-needle{transform:rotate(270deg)}
+#nav-downloads .g2-download-arrow{
+ transform-box:view-box;transform-origin:12px 12px;
+ transform:translateY(0);transition:transform .64s cubic-bezier(.22,.72,.2,1);
+}
+#nav-downloads:is(:hover,:focus-visible) .g2-download-arrow{transform:translateY(2.25px)}
+#nav-library .g2-library-line{transform:translateX(0);opacity:1}
+@keyframes g2-library-first-enter{
+ from{transform:translateX(4px);opacity:0}
+ to{transform:translateX(0);opacity:1}
+}
+@keyframes g2-library-second-enter{
+ from{transform:translateX(2px);opacity:0}
+ to{transform:translateX(0);opacity:1}
+}
+/* Exact supplied Horizontal End SVG, with an immediate first line followed
+   by a second line after 250ms. One-shot entrance, no invented reversal. */
+#nav-library:is(:hover,:focus-visible) .g2-library-first{
+ animation:g2-library-first-enter .38s cubic-bezier(.22,.72,.2,1) 0s both;
+}
+#nav-library:is(:hover,:focus-visible) .g2-library-second{
+ animation:g2-library-second-enter .38s cubic-bezier(.22,.72,.2,1) .25s both;
+}
+@media(prefers-reduced-motion:reduce){
+ #nav-discover .g2-compass-needle,#nav-discover:is(:hover,:focus-visible) .g2-compass-needle,
+ #nav-downloads .g2-download-arrow,#nav-downloads:is(:hover,:focus-visible) .g2-download-arrow{
+  transform:none!important;transition:none!important;
+ }
+ #nav-library:is(:hover,:focus-visible) .g2-library-line{animation:none!important}
+}
 </style></head><body data-theme="ocean">
 <div class="app" aria-label="Gallery for macOS preview">
   <header class="top">
@@ -8790,6 +8828,11 @@ document.addEventListener('keydown',event=>{
  const menu=tabPages.library?.querySelector('#tag-options-menu');
  if(menu&&!menu.hidden){menu.hidden=true;const button=tabPages.library.querySelector('#tag-options');button?.setAttribute('aria-expanded','false');button?.focus();event.preventDefault();}
 });
-for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.body.classList.toggle('recently-watched-legacy',whRecentLegacyMode);const headerWatchHistory=document.getElementById('header-watch-history');headerWatchHistory.innerHTML='<svg class="icon g1-history-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="g1-history-rim"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5"/></g><path d="M12 7v5l4 2"/></svg>';headerWatchHistory.onclick=toggleHeaderWatchHistory;document.getElementById('settings').innerHTML='<svg class="icon g1-settings-icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><g class="g1-settings-knob upper"><circle cx="9" cy="7" r="2" fill="var(--window)"/></g><g class="g1-settings-knob lower"><circle cx="15" cy="17" r="2" fill="var(--window)"/></g></svg>';document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML='<svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0"/><path d="M12 10l4 4m0 -4l-4 4"/></svg>';searchClose.innerHTML=icon('close',16);for(const [name,ico] of [['discover','compass'],['library','library'],['downloads','download']])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${icon(ico,19)}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});document.body.dataset.theme=state.theme;render();setupDesktopSettings();
+for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>{closeInlineSearch(false);setView(tab.dataset.view);});document.getElementById('brand-icon').innerHTML=icon('clapper',25);searchToggle.innerHTML=icon('search',21);searchToggle.onclick=toggleInlineSearch;document.body.classList.toggle('recently-watched-legacy',whRecentLegacyMode);const headerWatchHistory=document.getElementById('header-watch-history');headerWatchHistory.innerHTML='<svg class="icon g1-history-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="g1-history-rim"><path d="M3 12a9 9 0 1 0 2.7-6.3L3 8"/><path d="M3 3v5h5"/></g><path d="M12 7v5l4 2"/></svg>';headerWatchHistory.onclick=toggleHeaderWatchHistory;document.getElementById('settings').innerHTML='<svg class="icon g1-settings-icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><g class="g1-settings-knob upper"><circle cx="9" cy="7" r="2" fill="var(--window)"/></g><g class="g1-settings-knob lower"><circle cx="15" cy="17" r="2" fill="var(--window)"/></g></svg>';document.getElementById('settings').onclick=()=>{if(document.body.classList.contains('settings-view'))closeSettings();else showSettings();};searchClear.innerHTML='<svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5l11 0"/><path d="M12 10l4 4m0 -4l-4 4"/></svg>';searchClose.innerHTML=icon('close',16);const galleryNavSvg={
+ discover:'<svg class="icon g2-nav-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path class="g2-compass-needle" d="m16 8-3 5-5 3 3-5 5-3z"/></svg>',
+ library:'<svg class="icon g2-nav-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="g2-library-line g2-library-first" d="M6 5v14"/><path class="g2-library-line g2-library-second" d="M2 7v10"/><rect height="18" rx="2" width="12" x="10" y="3"/></svg>',
+ downloads:'<svg class="icon g2-nav-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="g2-download-arrow"><path d="M12 2v13m-5-5 5 5 5-5"/></g><path d="M4 18v3h16v-3"/></svg>'
+};
+for(const name of ['discover','library','downloads'])document.getElementById('nav-'+name).innerHTML=`<span class="tab-label-wrap">${galleryNavSvg[name]}<span>${name[0].toUpperCase()+name.slice(1)}</span></span>`;document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalHost.firstChild)closeModal();else if(searchOpen){e.preventDefault();closeInlineSearch();}}else if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='f'&&!modalHost.firstChild&&!state.playback){e.preventDefault();document.documentElement.dataset.focusModality='keyboard';openInlineSearch();}});document.body.dataset.theme=state.theme;render();setupDesktopSettings();
 window.addEventListener('resize',()=>tabPages.library?.querySelector('.tagbar')?.galleryRefresh?.(true));
 </script></body></html>

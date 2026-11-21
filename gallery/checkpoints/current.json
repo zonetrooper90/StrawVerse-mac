@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-20-g11-immediate-toolbar-feedback",
-  "sha256": "20f1a2c0ac0092d498ddadf0d40536b32eeb4136fe18c763d51fd8a5e1a926e3",
-  "bytes": 6952522,
+  "folder": "2026-11-21-g2-nav-hover-icons",
+  "sha256": "839bb0592ee14c36fe93801d6f37a205cf8cac7cf047a79c7c753dd000bd076a",
+  "bytes": 6955249,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."

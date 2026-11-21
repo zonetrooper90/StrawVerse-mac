@@ -255,3 +255,41 @@ body[data-theme] #settings>.g1-settings-icon{
  #header-watch-history .g1-history-rim,
  #settings .g1-settings-knob{transition:none!important}
 }
+
+
+/* G2 — Approved hover/focus-only main-navigation motion. No tab geometry,
+   navigation, active highlight or global-toolbar changes. */
+#nav-discover .g2-compass-needle{
+ transform-box:view-box;transform-origin:12px 12px;
+ transform:rotate(0deg);transition:transform .78s cubic-bezier(.22,.72,.2,1);
+}
+#nav-discover:is(:hover,:focus-visible) .g2-compass-needle{transform:rotate(270deg)}
+#nav-downloads .g2-download-arrow{
+ transform-box:view-box;transform-origin:12px 12px;
+ transform:translateY(0);transition:transform .64s cubic-bezier(.22,.72,.2,1);
+}
+#nav-downloads:is(:hover,:focus-visible) .g2-download-arrow{transform:translateY(2.25px)}
+#nav-library .g2-library-line{transform:translateX(0);opacity:1}
+@keyframes g2-library-first-enter{
+ from{transform:translateX(4px);opacity:0}
+ to{transform:translateX(0);opacity:1}
+}
+@keyframes g2-library-second-enter{
+ from{transform:translateX(2px);opacity:0}
+ to{transform:translateX(0);opacity:1}
+}
+/* Exact supplied Horizontal End SVG, with an immediate first line followed
+   by a second line after 250ms. One-shot entrance, no invented reversal. */
+#nav-library:is(:hover,:focus-visible) .g2-library-first{
+ animation:g2-library-first-enter .38s cubic-bezier(.22,.72,.2,1) 0s both;
+}
+#nav-library:is(:hover,:focus-visible) .g2-library-second{
+ animation:g2-library-second-enter .38s cubic-bezier(.22,.72,.2,1) .25s both;
+}
+@media(prefers-reduced-motion:reduce){
+ #nav-discover .g2-compass-needle,#nav-discover:is(:hover,:focus-visible) .g2-compass-needle,
+ #nav-downloads .g2-download-arrow,#nav-downloads:is(:hover,:focus-visible) .g2-download-arrow{
+  transform:none!important;transition:none!important;
+ }
+ #nav-library:is(:hover,:focus-visible) .g2-library-line{animation:none!important}
+}
