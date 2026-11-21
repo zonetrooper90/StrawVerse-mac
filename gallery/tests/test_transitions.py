@@ -92,3 +92,6 @@ print('RESULT',len(checks),'checks, issues',len(issues),issues)
 if issues:raise SystemExit(1)
 # Mandatory in both existing browser/publisher regression runners.
 subprocess.run([sys.executable,str(Path(__file__).with_name('test_first_release_reveal.py')),str(PATH)],check=True)
+
+# G1.2 read-only user-approved mid-animation toolbar regression.
+subprocess.run([sys.executable,str(Path(__file__).with_name('test_g12_toolbar_motion.py')),str(PATH)],check=True)
