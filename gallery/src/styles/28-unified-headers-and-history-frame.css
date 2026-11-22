@@ -302,17 +302,71 @@ body[data-theme] #settings>.g1-settings-icon{
  transition:transform .4s cubic-bezier(.22,.72,.2,1);
 }
 /* JS retains each +90deg target across hover exit (never reverses). */
+/* G3.1 — user-approved smoothly sampled bidirectional wave, scoped to the
+   original custom-tag More Actions dots. All three remain fully opaque. */
 .library-collection #tag-options.g3-waving .g3-thinking-dot{
- animation:g3-thinking-wave .45s cubic-bezier(.22,.72,.2,1) 1 both;
+ --g31-rise:3px;--g31-dip:1.85px;
+ animation:g3-thinking-wave .55s linear 1 both;
  transform-box:fill-box;transform-origin:center;
+ backface-visibility:hidden;will-change:transform;
 }
 .library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(2){animation-delay:.105s}
 .library-collection #tag-options.g3-waving .g3-thinking-dot:nth-child(3){animation-delay:.21s}
-/* Only position changes; the three dots always remain fully opaque. */
+/* Exact sampled curve from the approved HTML trial: 3px rise, 1.85px dip,
+   550ms per dot and 105ms left-to-right stagger, no keyframe easing resets. */
 @keyframes g3-thinking-wave{
- 0%,100%{transform:translateY(0)}
- 38%{transform:translateY(-3px)}
- 64%{transform:translateY(-1px)}
+ 0%{transform:translate3d(0,calc(var(--g31-rise) * 0.00000000),0)}
+ 2%{transform:translate3d(0,calc(var(--g31-rise) * -0.00326501),0)}
+ 4%{transform:translate3d(0,calc(var(--g31-rise) * -0.02326412),0)}
+ 6%{transform:translate3d(0,calc(var(--g31-rise) * -0.06947998),0)}
+ 8%{transform:translate3d(0,calc(var(--g31-rise) * -0.14470161),0)}
+ 10%{transform:translate3d(0,calc(var(--g31-rise) * -0.24636312),0)}
+ 12%{transform:translate3d(0,calc(var(--g31-rise) * -0.36788243),0)}
+ 14%{transform:translate3d(0,calc(var(--g31-rise) * -0.50000000),0)}
+ 16%{transform:translate3d(0,calc(var(--g31-rise) * -0.63211757),0)}
+ 18%{transform:translate3d(0,calc(var(--g31-rise) * -0.75363688),0)}
+ 20%{transform:translate3d(0,calc(var(--g31-rise) * -0.85529839),0)}
+ 22%{transform:translate3d(0,calc(var(--g31-rise) * -0.93052002),0)}
+ 24%{transform:translate3d(0,calc(var(--g31-rise) * -0.97673588),0)}
+ 26%{transform:translate3d(0,calc(var(--g31-rise) * -0.99673499),0)}
+ 28%{transform:translate3d(0,calc(var(--g31-rise) * -1.00000000),0)}
+ 30%{transform:translate3d(0,calc(var(--g31-rise) * -0.99883245),0)}
+ 32%{transform:translate3d(0,calc(var(--g31-rise) * -0.99126323),0)}
+ 34%{transform:translate3d(0,calc(var(--g31-rise) * -0.97247754),0)}
+ 36%{transform:translate3d(0,calc(var(--g31-rise) * -0.93924410),0)}
+ 38%{transform:translate3d(0,calc(var(--g31-rise) * -0.88975270),0)}
+ 40%{transform:translate3d(0,calc(var(--g31-rise) * -0.82345184),0)}
+ 42%{transform:translate3d(0,calc(var(--g31-rise) * -0.74088626),0)}
+ 44%{transform:translate3d(0,calc(var(--g31-rise) * -0.64353457),0)}
+ 46%{transform:translate3d(0,calc(var(--g31-rise) * -0.53364684),0)}
+ 48%{transform:translate3d(0,calc(var(--g31-rise) * -0.41408215),0)}
+ 50%{transform:translate3d(0,calc(var(--g31-rise) * -0.28814624),0)}
+ 52%{transform:translate3d(0,calc(var(--g31-rise) * -0.15942906),0)}
+ 54%{transform:translate3d(0,calc(var(--g31-rise) * -0.03164235),0)}
+ 56%{transform:translate3d(0,calc(var(--g31-rise) * 0.09154274),0)}
+ 58%{transform:translate3d(0,calc(var(--g31-rise) * 0.20665805),0)}
+ 60%{transform:translate3d(0,calc(var(--g31-rise) * 0.31060090),0)}
+ 62%{transform:translate3d(0,calc(var(--g31-rise) * 0.40079638),0)}
+ 64%{transform:translate3d(0,calc(var(--g31-rise) * 0.47535987),0)}
+ 66%{transform:translate3d(0,calc(var(--g31-rise) * 0.53325938),0)}
+ 68%{transform:translate3d(0,calc(var(--g31-rise) * 0.57447799),0)}
+ 70%{transform:translate3d(0,calc(var(--g31-rise) * 0.60017627),0)}
+ 72%{transform:translate3d(0,calc(var(--g31-rise) * 0.61285465),0)}
+ 74%{transform:translate3d(0,calc(var(--g31-rise) * 0.61651588),0)}
+ 75%{transform:translate3d(0,var(--g31-dip),0)}
+ 76%{transform:translate3d(0,calc(var(--g31-rise) * 0.61629530),0)}
+ 78%{transform:translate3d(0,calc(var(--g31-rise) * 0.60783668),0)}
+ 80%{transform:translate3d(0,calc(var(--g31-rise) * 0.58094933),0)}
+ 82%{transform:translate3d(0,calc(var(--g31-rise) * 0.53178384),0)}
+ 84%{transform:translate3d(0,calc(var(--g31-rise) * 0.46194666),0)}
+ 86%{transform:translate3d(0,calc(var(--g31-rise) * 0.37704521),0)}
+ 88%{transform:translate3d(0,calc(var(--g31-rise) * 0.28523299),0)}
+ 90%{transform:translate3d(0,calc(var(--g31-rise) * 0.19575467),0)}
+ 92%{transform:translate3d(0,calc(var(--g31-rise) * 0.11749119),0)}
+ 94%{transform:translate3d(0,calc(var(--g31-rise) * 0.05750489),0)}
+ 96%{transform:translate3d(0,calc(var(--g31-rise) * 0.01958456),0)}
+ 98%{transform:translate3d(0,calc(var(--g31-rise) * 0.00279058),0)}
+ 100%{transform:translate3d(0,calc(var(--g31-rise) * 0.00000000),0)}
 }
 @media(prefers-reduced-motion:reduce){
  .page-header-library #newtag .g3-plus-mark{transition:none!important}
