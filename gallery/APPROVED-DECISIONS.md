@@ -533,3 +533,7 @@ After GitHub confirmed successful exact-commit runs `45035207155` (full/lightwei
 ## 2026-11-22 — Compact Gallery Check Status button text
 
 User explicitly approved persisting shorter status-button messages in `gallery/CHATGPT-INSTRUCTIONS.md`. Buttons should send a brief request such as `Check Gallery status.` rather than long repeated checklists, SHA lists or instruction dumps. The assistant must still recover the authoritative GitHub state, exact active task, workflows, checkpoints and retry safeguards before acting; this is a chat UX preference, not reduced verification or a change in publication policy. No Gallery application, generated HTML, artwork, test or checkpoint change is authorized by this preference.
+
+## 2026-11-22 — G3.1 integrated visual approval
+
+After the exact dual-build G3.1 publication `50bf289581c713fea36cf00e5eb6eed5b9619a5b` passed guarded candidate tests and both independent exact-build workflows (`45050371208` integrity, `45050373490` full/lightweight/subtitle browser), the user tested/reviewed the integrated Gallery and said **"looks fine"**. This accepts the existing 550ms continuous, fully opaque More Actions dot ripple, 105ms stagger, 3px rise/1.85px dip and preserved G3 Library behavior as integrated; keep the approved New Tag, Bookmark, disabled controls, six themes and reduced-motion behavior unchanged. This is visual acceptance of G3.1, not approval to modify animations/artwork/other UI, start a new numbered release, edit native code, or skip full verification during future development.
