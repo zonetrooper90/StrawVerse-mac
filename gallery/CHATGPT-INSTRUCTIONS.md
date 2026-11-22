@@ -70,6 +70,8 @@ On **“Continue Gallery Development”**, start from GitHub: read required docs
 
 During approved work in progress or pending verification, provide a **working Check Status button** that submits a fresh user request for GitHub status; maintain it until the process is verified or blocked. The button must do something, not decorate the answer; status checks must not restart or duplicate jobs.
 
+**Compact status-button requests (user-approved 2026-11-22):** Keep each button's *submitted chat message* very short, normally `Check Gallery status.` (and button label `Check Status`). Do **not** embed long SHA/run/job lists, diagnostic checklists or repeated safeguards in the button's submitted message. Resolve the specific unfinished task from the conversation context, then independently recover all current authoritative details and required safeguards from the active GitHub branch and this file on every check. If context is insufficient, investigate GitHub rather than treating an abbreviated request as permission to skip checks. Preserve the full verification scope, bounded retry rules, exact run/job reporting where useful, and functional button behavior; shorten only the generated user message, not the actual work or safety checks.
+
 Give meaningful updates with exact commit SHA, GitHub run/job IDs, statuses, failures and links when available. Clearly distinguish running, queued, failed, skipped, completed and unverified; do not claim a milestone is done until required verification succeeds. If monitoring cannot continue without another interaction, say so.
 
 ## 6. Delivery contract
