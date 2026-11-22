@@ -1,5 +1,7 @@
 # Gallery development — clean branch rules
 
+**ChatGPT Project instruction location:** The version-controlled detailed instructions are at [`gallery/CHATGPT-INSTRUCTIONS.md`](gallery/CHATGPT-INSTRUCTIONS.md). Read this file on the active GitHub branch when starting or resuming Gallery work. It does not replace the mandatory safeguards below. Lightweight-first development and faster verification are approved as a **future migration**, not yet implemented; the existing dual-build/checkpoint/verification workflow remains mandatory until independently verified.
+
 Authoritative development branch: `gallery/development-clean`.
 Historical recovery branch (never modify): `gallery/working-2026-11-10-coordinated-fades`.
 Stable/native application branches remain untouched.

@@ -1,0 +1,91 @@
+# Gallery — ChatGPT development instructions
+
+This is the authoritative **detailed ChatGPT Project operating guide** for `zonetrooper90/StrawVerse-mac`. Keep ChatGPT Project Instructions short and point them to this file. This document is versioned in GitHub; do not assume a previous conversation's copy is current.
+
+- **Active branch:** `gallery/development-clean`.
+- **Protected recovery branch:** `gallery/working-2026-11-10-coordinated-fades` (read-only).
+- **Authoritative source:** `gallery/src/` (ordered HTML/CSS/JS fragments and manifest) and approved `gallery/assets/`.
+- **Current tracked builds:** `gallery/Gallery-current.html` (full, embedded assets) and `gallery/Gallery-development.html` (lightweight).
+- **Recovery reference:** `gallery/checkpoints/current.json`, pointing to an immutable full HTML archive.
+- **Source of truth:** GitHub remote branch, exact commit, source, immutable checkpoint and Actions results—not chat history, attachments, prior summaries or a stale state document.
+
+## 1. Mandatory startup and immutable safeguards
+
+Before development, status checks, planning, recovery, retries or publication:
+1. Retrieve this file from the **active remote GitHub branch** and read `AGENTS.md`, `gallery/WORKFLOW.md`, `gallery/PROJECT-CONTINUITY.md`, `gallery/DEVELOPMENT-STATE.md`, `gallery/APPROVED-DECISIONS.md` and `gallery/checkpoints/current.json`.
+2. Verify branch HEAD, active/pending workflows and current pointer. Before changing source or publishing, verify source-first deterministic reconstruction, the full HTML's size/SHA-256 against its pointer and the immutable archive. Reconcile documentation with actual GitHub evidence. If evidence cannot be retrieved or verified, stop repository changes and report the blocker.
+3. Inspect in-progress and failed Actions runs, published commits and existing requests **before** retrying or beginning potentially overlapping work.
+4. Work exclusively on `gallery/development-clean`, except read-only investigation of historical branches. Never modify the protected recovery branch, stable/native branches or historical immutable checkpoints.
+5. Preserve user-approved design, behavior, animations, themes, accessibility, assets and test expectations. Make only scoped, explicitly approved application changes in authoritative modular source. Never hand-edit generated HTML. Discuss new architecture, changed scope and new numbered versions before implementation.
+6. Never create, edit, replace or generate images without explicit prior user approval. Never force-push, silently advance checkpoints, weaken assertions, skip required verification or duplicate a publication request.
+7. Record approved pending work and verified milestones/blockers in `gallery/DEVELOPMENT-STATE.md`; record settled user decisions in `gallery/APPROVED-DECISIONS.md`. Keep earlier historical records intact. A stated plan is not evidence of an implemented or verified result.
+
+## 2. Lightweight-first — approved direction, NOT yet deployed
+
+The user approved using the **lightweight HTML for routine development** and reserving the complete full build for meaningful milestones, artwork-dependent testing and Mac app integration. The user also approved **fail-fast preflight, safe parallel test sharding, reuse of verified candidate artifacts and benchmarking** to reduce turnaround time.
+
+**Strict transition gate:** These are approved objectives, NOT permission to bypass the CURRENT dual-build publisher, immutable checkpoint, candidate test matrix or two independent workflow gates. Existing `AGENTS.md`, `gallery/WORKFLOW.md`, builder, publisher and CI rules stay binding until a distinct, scoped migration is implemented, independently verified and documented. Do not describe lightweight-only publication as operational before that verification.
+
+### Intended routine development after migration
+
+- Edit modular authoritative source, never generated output; generate a lightweight **development preview** for focused UI, motion, layout and behavior checks.
+- Run syntax/anchor/hash checks and targeted browser preflight first, then applicable lightweight regressions. Fail early on focused test failures; do not schedule costly downstream jobs.
+- Keep provisional development changes and a development reference/record **distinct** from the last delivered release checkpoint. The most recently verified full build and its immutable archive remain intact and independently reconstructible.
+- Consolidate related approved changes before promoting them to a full milestone. A lightweight preview must be labeled **Development Preview — Not a Verified Release** and linked to its exact source commit. It is not a full release or evidence that the full build was regenerated, published or checkpointed.
+- If an iteration changes embedded artwork, assets, full-mode-only behavior or a feature the lightweight build cannot faithfully represent, generate and test the full mode as needed.
+- Do not retroactively label older commits as lightweight-only milestones or reinterpret their CI failures as successes.
+
+### Full milestones, release and Mac app integration
+
+- Generate **both** full and lightweight HTML from the **same approved source and exact commit**.
+- Run all applicable candidate tests, full/lightweight UI regressions, asset parity, reduced-motion/timing/accessibility checks and any dedicated feature comparison.
+- Checkpoint the full HTML in a NEW immutable archive with exact byte count and SHA-256. Do not overwrite or reassign an older checkpoint; the lightweight output remains verified by deterministic source reconstruction.
+- Publish both HTML files, approved source and new checkpoint together in a single GitHub build commit. Require **both independent GitHub verification workflows** to pass on the **exact published build commit**, not merely the originating request commit.
+- Release only after all gates pass; integrated user visual approval remains separate from CI. Do not equate HTML testing with native macOS build success.
+
+## 3. Verification-efficiency migration
+
+Implement optimizations incrementally with an agreed architecture and measurable benchmarks:
+1. **Preflight:** Static syntax, exact expected source/text anchors and hashes, immutable baseline, test setup plus focused browser assertions on the exact candidate. Catch test-wrapper mistakes before large matrices. A failed preflight prevents expensive candidate regression jobs from starting.
+2. **Parallelization:** Separate independent long-running regression scripts/contexts into GitHub job shards while keeping all original checks and coverage; aggregate with a required success gate. Preserve exact candidate tree/hash validation across shards. Measure elapsed time and Actions runner consumption.
+3. **Reuse:** Reuse exact immutable candidate/build artifacts and avoid redundant prepublication work where safe. Keep both full/lightweight final milestone checks and both independent exact-build postpublication workflows.
+4. **Synchronization:** Replace needless fixed waits with actual lifecycle completion signals **only** where the assertions and real user behavior remain equivalent. Preserve intentional real-timing measurements, regression cases, themes, viewport sizes and reduced-motion conditions.
+5. **Safety:** Never shorten tests by disabling coverage, skipping modes, loosening tolerances, weakening checks, reducing required job count or treating a predictable test failure as transient. Verify each infrastructure change before relying on it.
+
+Changes to workflows, builders, publisher, checkpoint semantics or verification policy are separate from cosmetic application changes. Docs stating the desired future architecture do not activate it.
+
+## 4. Recovery, progress and failure handling
+
+On **“Continue Gallery Development”**, start from GitHub: read required docs, inspect active branch/current pointer, recent publisher and both independent workflows; identify approved unfinished work; resume only the exact safe pending scope. Do not repeat already completed operations. If interrupted or a tool reports an Unknown Error, check GitHub remote state before taking action.
+
+- Distinguish GitHub runner/network/installation/timeouts from deterministic code, test-harness and application regressions.
+- Inspect the failed **job and step logs**, exact run attempt, remote branch and checkpoint before any retry. Retry eligible transient failures at most **two** times, preserving original candidate/commit whenever possible. Never restart an active job, duplicate an original publication, blindly retry reproducible failures or restart a completed publisher without a new approved correction.
+- For reproducible failures, diagnose and explain. Fixing a test bug may require a scoped, explicitly authorized test-only correction, tested before new GitHub publisher dispatch. Do not quietly change approved application code or assertions.
+- Continue an approved operation through verification and eligible safe recovery during active execution without repeated approval; stop when a new design decision, additional scope or exhausted retries requires user input.
+- Do not claim asynchronous unattended monitoring or retries unless an actual supported automation has been created. Otherwise act during the live response or on user-requested Check Status.
+
+## 5. User-facing status and required timestamps
+
+**End EVERY user-visible assistant message**—including interim commentary, questions, errors, status summaries and final responses—with a **freshly obtained** Copenhagen local time in `DD-MM-YYYY HH:MM` format (`Europe/Copenhagen`, CET/CEST). Never reuse a previous timestamp.
+
+During approved work in progress or pending verification, provide a **working Check Status button** that submits a fresh user request for GitHub status; maintain it until the process is verified or blocked. The button must do something, not decorate the answer; status checks must not restart or duplicate jobs.
+
+Give meaningful updates with exact commit SHA, GitHub run/job IDs, statuses, failures and links when available. Clearly distinguish running, queued, failed, skipped, completed and unverified; do not claim a milestone is done until required verification succeeds. If monitoring cannot continue without another interaction, say so.
+
+## 6. Delivery contract
+
+**After the lightweight-first migration has actually passed its independent checks:** a specifically requested provisional lightweight preview may be delivered alone with its commit-pinned GitHub file-page link, source SHA, appropriate checks and the label **Development Preview — Not a Verified Release**; do not claim a new full checkpoint or release.
+
+**Every verified full milestone/release:** deliver BOTH:
+- **Full Version:** `gallery/Gallery-current.html` (complete, standalone with embedded assets), byte-identical to its new immutable checkpoint.
+- **Lightweight Version:** `gallery/Gallery-development.html`, deterministic from the same approved source.
+
+For each, provide a separate **commit-pinned GitHub file-page URL**, size and SHA-256 checksum when available. Provide the **separate exact build commit link**. Explain GitHub's **Download raw file** option. Both versions must be published in the same verified build commit, and **both independent postpublication GitHub workflows must pass** before describing delivery as verified. Never deliver only one full-milestone version unless the user explicitly requests otherwise. Documentation-only changes that alter neither HTML file do not require build delivery or a new checkpoint; they still require GitHub verification.
+
+## 7. Operational priorities and current blocker
+
+1. Finish already approved G3.1 More Actions 550ms ripple **without changing the approved animation** and with strict original candidate full/lightweight hashes. The first request publisher `44968614799` failed comparison due to destructive time sampling; corrected request publisher `44972340945` failed comparison because its passive wrapper uses the wrong source anchor. Both were deterministic **test** issues, not eligible for unchanged retry. The current full G3 checkpoint remains authoritative until a new verified publisher passes. Inspect fresh GitHub status before resuming or creating a correction.
+2. Implement the approved, *still pending* lightweight-first workflow and fail-fast/parallel verification improvements safely, with no partial cutover.
+3. Preserve deterministic modular source, reviewed app behavior and all historical recovery points. Full milestone/native app release requires full verification.
+
+For detailed currently operational procedures, read `AGENTS.md`, `gallery/WORKFLOW.md` and `gallery/PROJECT-CONTINUITY.md`. Where an approved **future** workflow conflicts with today's verified implementation, today's mandatory controls win until the migration is independently verified.
