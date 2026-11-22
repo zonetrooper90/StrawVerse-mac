@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "status": "g31-iteration-rehearsal-not-release",
+  "baseline_ref": "gallery/development/verified-baseline.json",
+  "baseline_git_blob": "13ab6668c650e1d8981796cb65cdec8bf33f4b65",
+  "mode": "baseline-only-no-source-changes",
+  "iterations": [],
+  "promotion": {
+    "status": "not-authorized",
+    "published_commit": null
+  }
+}

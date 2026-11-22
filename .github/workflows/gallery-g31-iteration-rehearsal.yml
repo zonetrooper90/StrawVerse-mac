@@ -1,0 +1,171 @@
+name: Gallery G3.1 lightweight iteration and parallel timing rehearsal (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/development/g31-iterations.json'
+      - 'gallery/tools/g31-iteration-rehearsal.py'
+      - 'gallery/tests/test_g31_iteration_rehearsal.py'
+      - '.github/workflows/gallery-g31-iteration-rehearsal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-g31-iteration-rehearsal-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Exact G3.1 contract and fail-fast candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      seconds: ${{ steps.generate.outputs.seconds }}
+    steps:
+      - name: Check out exact candidate commit and full history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up pinned Python version
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Fail immediately on invalid steps or changed G3.1 reference
+        run: python3 -B gallery/tests/test_g31_iteration_rehearsal.py
+      - name: Create disposable isolated worktree at exact commit
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-g31-iteration-worktree" "$BASE"
+      - name: Reconcile G3.1 and build the exact lightweight candidate, no publication
+        id: generate
+        working-directory: ${{ runner.temp }}/gallery-g31-iteration-worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          start=$SECONDS
+          python3 -B gallery/tools/g31-iteration-rehearsal.py --base "$BASE" \
+            --output "$RUNNER_TEMP/gallery-g31-iteration/Gallery-development-preview.html"
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+          test -f "$RUNNER_TEMP/gallery-g31-iteration/rehearsal-manifest.json"
+          echo 'Fail-fast preflight succeeded without modifying any published source or checkpoint.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload exact-commit ephemeral candidate and manifest
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-g31-iteration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-g31-iteration/
+          if-no-files-found: error
+          retention-days: 7
+
+  focused-smoke:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      seconds: ${{ steps.run-test.outputs.seconds }}
+    steps:
+      - name: Exact commit checkout; no publish token
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Python for provenance and browser smoke
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Download immutable preflight artifact, never publish
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: gallery-g31-iteration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-g31-iteration/
+      - name: Verify original G3.1 source and exact artifact BEFORE Chromium
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          python3 -B gallery/tools/g31-iteration-rehearsal.py --base "$BASE" \
+            --check-artifact "$RUNNER_TEMP/gallery-g31-iteration/Gallery-development-preview.html" \
+            --manifest "$RUNNER_TEMP/gallery-g31-iteration/rehearsal-manifest.json"
+      - name: Install the same pinned Chromium as existing Gallery checks
+        uses: ./.github/actions/gallery-browser
+      - name: Run unchanged menu, custom-tag and reduced-motion browser smoke; measure test time
+        id: run-test
+        run: |
+          set -euo pipefail
+          start=$SECONDS
+          python3 -B gallery/tests/test_lightweight_preview_smoke.py "$RUNNER_TEMP/gallery-g31-iteration/Gallery-development-preview.html"
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+          echo 'Focused browser smoke passed; no full release validation was replaced.' >> "$GITHUB_STEP_SUMMARY"
+
+  asset-parity:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      seconds: ${{ steps.run-test.outputs.seconds }}
+    steps:
+      - name: Exact commit checkout; no publish token
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Python for provenance and geometry tests
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Download same exact preflight artifact
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: gallery-g31-iteration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-g31-iteration/
+      - name: Verify original G3.1 source and exact artifact BEFORE Chromium
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          python3 -B gallery/tools/g31-iteration-rehearsal.py --base "$BASE" \
+            --check-artifact "$RUNNER_TEMP/gallery-g31-iteration/Gallery-development-preview.html" \
+            --manifest "$RUNNER_TEMP/gallery-g31-iteration/rehearsal-manifest.json"
+      - name: Install existing pinned Chromium runner
+        uses: ./.github/actions/gallery-browser
+      - name: Run unchanged original full/lightweight subtitle asset geometry tests; measure test time
+        id: run-test
+        run: |
+          set -euo pipefail
+          start=$SECONDS
+          python3 -B gallery/tests/test_asset_build_modes.py
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+          echo 'Existing asset-mode and geometry checks passed, independent of focused smoke.' >> "$GITHUB_STEP_SUMMARY"
+
+  aggregate:
+    name: Strict success gate and comparative test-time measurements
+    needs: [preflight, focused-smoke, asset-parity]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every independent preceding test job passed
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          SMOKE: ${{ needs.focused-smoke.result }}
+          ASSETS: ${{ needs.asset-parity.result }}
+          P: ${{ needs.preflight.outputs.seconds }}
+          S: ${{ needs.focused-smoke.outputs.seconds }}
+          A: ${{ needs.asset-parity.outputs.seconds }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success && test "$SMOKE" = success && test "$ASSETS" = success
+          test -n "$P" && test -n "$S" && test -n "$A"
+          echo 'G3.1 source-only rehearsal is read-only; historical and current full build remain untouched.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Measured script-step seconds (excludes runner startup/install/queue):' >> "$GITHUB_STEP_SUMMARY"
+          echo "Preflight: $P s; focused smoke: $S s; asset geometry: $A s." >> "$GITHUB_STEP_SUMMARY"
+          echo "Modeled sequential measured test work: $((P+S+A)) s; parallel-stage measured critical path: $((P+(S>A?S:A))) s." >> "$GITHUB_STEP_SUMMARY"
+          echo 'These are modeling estimates, NOT measured end-to-end speedup or evidence of a lighter full-release verification policy.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Development Preview — Not a Verified Release. No changes, release, publisher, checkpoint or app/native build.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Existing dual-build, full candidate tests and both independent postpublication verifiers remain mandatory.' >> "$GITHUB_STEP_SUMMARY"
