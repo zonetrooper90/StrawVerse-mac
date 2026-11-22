@@ -1,0 +1,46 @@
+name: Gallery G3.1 verified development baseline (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/development/verified-baseline.json'
+      - 'gallery/tools/verify-development-baseline.py'
+      - 'gallery/tests/test_verified_development_baseline.py'
+      - '.github/workflows/gallery-g31-verified-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-g31-baseline-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  baseline:
+    name: Exact published G3.1 source and immutable checkpoint audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact commit and full build ancestry
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Fail-closed G3.1 baseline tests
+        run: python3 -B gallery/tests/test_verified_development_baseline.py
+      - name: Reverify original source, release bytes and immutable archive
+        run: python3 -B gallery/tools/verify-development-baseline.py --verify
+      - name: Assert audit did not mutate tracked or untracked files
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'G3.1 baseline reconciled; read-only only. Historical G3 contracts retained.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'NOT a development preview, publisher, new checkpoint, release, or lightweight-first cutover.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Both full-release HTML modes, all candidate tests and both exact-published-build verifiers remain mandatory.' >> "$GITHUB_STEP_SUMMARY"

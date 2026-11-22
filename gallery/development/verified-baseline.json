@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "status": "verified-development-baseline-not-release-promotion",
+  "baseline": {
+    "verified_build_commit": "50bf289581c713fea36cf00e5eb6eed5b9619a5b",
+    "checkpoint_folder": "2026-11-22-g31-more-actions-smooth-ripple-verified-publish",
+    "full_sha256": "2e01412a4da6874398af9e3373346208508e66be15ca3113c4c17023c05dff50",
+    "full_bytes": 6961644,
+    "lightweight_sha256": "e9fa6ac3816f50c25b98c3f49e9332c9241cd6437e5005a5c98be80481602e93",
+    "lightweight_bytes": 645954
+  },
+  "release_blobs": {
+    "gallery/Gallery-current.html": "4ffdac117518090065b90f31cd6efc9c494921da",
+    "gallery/Gallery-development.html": "278a0cace67fe3387088230a89dafc0ea82365d0"
+  },
+  "source_blobs": {
+    "gallery/src/build-manifest.json": "1c61099236e2f25cdb8203172ebb6538317a5044",
+    "gallery/src/styles/28-unified-headers-and-history-frame.css": "a8cd52c9a9dd1b9b1b8c6760db3c850ce711542c"
+  },
+  "checkpoint_manifest_blob": "bba00a81f6fe56d9d8bf8b4dcce14865e7966163",
+  "historical_contract_blobs": {
+    "gallery/development/provisional.json": "ce5e7f215181cbe14d5f555128b1233f22c61729",
+    "gallery/development/iterations.json": "4051f1c50441500af995890eb2232a0311318e39"
+  },
+  "verified_runs": {
+    "publisher": 45046653548,
+    "checkpoint_integrity": 45050371208,
+    "full_lightweight_browser": 45050373490
+  },
+  "promotion": {
+    "status": "not-authorized",
+    "published_commit": null
+  }
+}
