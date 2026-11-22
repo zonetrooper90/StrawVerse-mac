@@ -9,6 +9,9 @@ on:
       - 'gallery/tools/lightweight-preview.py'
       - 'gallery/tests/test_lightweight_preview_runner.py'
       - 'gallery/tests/test_lightweight_preview_smoke.py'
+      - 'gallery/tools/provisional-contract.py'
+      - 'gallery/tests/test_provisional_contract.py'
+      - 'gallery/development/provisional.json'
       - '.github/workflows/gallery-lightweight-preview.yml'
   workflow_dispatch:
     inputs:
@@ -41,6 +44,8 @@ jobs:
           python-version: '3.12'
       - name: Run fail-closed lightweight preview gate unit tests
         run: python3 -B gallery/tests/test_lightweight_preview_runner.py
+      - name: Verify fail-closed provisional state contract unit tests
+        run: python3 -B gallery/tests/test_provisional_contract.py
       - name: Prepare detached read-only source-patch worktree
         env:
           BASE: ${{ github.sha }}
@@ -56,6 +61,17 @@ jobs:
           python3 -B "$GITHUB_WORKSPACE/gallery/tools/lightweight-preview.py" \
             --base "$BASE" --previous "$PREVIOUS" --request "$REQUEST" \
             --output "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+      - name: Validate durable provisional source and exact preview bytes before Chromium
+        working-directory: ${{ runner.temp }}/gallery-preview-worktree
+        run: |
+          set -euo pipefail
+          R="$(python3 -c "import json,os,pathlib; print(json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'gallery-preview/preview-manifest.json').read_text())['request'])")"
+          if [[ "$R" != "baseline" ]]; then
+            python3 -B "$GITHUB_WORKSPACE/gallery/tools/provisional-contract.py" \
+              --request "$R" \
+              --preview "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html" \
+              --manifest "$RUNNER_TEMP/gallery-preview/preview-manifest.json"
+          fi
       - name: Install exact pinned Chromium for focused preview smoke
         uses: ./.github/actions/gallery-browser
       - name: Test actual provisional lightweight navigation and Library controls

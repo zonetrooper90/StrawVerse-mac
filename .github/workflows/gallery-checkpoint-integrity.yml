@@ -8,6 +8,7 @@ on:
       - 'gallery/**'
       # Provisional preview-request scripts do not modify published HTML/source.
       - '!gallery/changes/previews/**'
+      - '!gallery/development/provisional.json'
       - '.github/workflows/gallery-checkpoint-integrity.yml'
   workflow_dispatch:
 

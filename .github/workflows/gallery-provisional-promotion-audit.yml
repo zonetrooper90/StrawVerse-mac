@@ -1,0 +1,62 @@
+name: Gallery provisional promotion readiness (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - '.github/workflows/gallery-provisional-promotion-audit.yml'
+      - 'gallery/tools/provisional-contract.py'
+      - 'gallery/tests/test_provisional_contract.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-provisional-readiness-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact infrastructure commit and history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Validate fail-closed provisional reference
+        run: |
+          python3 -B gallery/tests/test_provisional_contract.py
+          python3 -B gallery/tests/test_lightweight_preview_runner.py
+      - name: Prepare disposable candidate worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-readiness-worktree" "$BASE"
+      - name: Reconstruct exact approved candidate without publishing
+        working-directory: ${{ runner.temp }}/gallery-readiness-worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          REQ="$(python3 -c "import json; print(json.load(open('gallery/development/provisional.json'))['request']['slug'])")"
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/lightweight-preview.py" \
+            --base "$BASE" --request "$REQ" \
+            --output "$RUNNER_TEMP/gallery-readiness/Gallery-development-preview.html"
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/provisional-contract.py" \
+            --request "$REQ" \
+            --preview "$RUNNER_TEMP/gallery-readiness/Gallery-development-preview.html" \
+            --manifest "$RUNNER_TEMP/gallery-readiness/preview-manifest.json" \
+            --promotion-dry-run
+          test -z "$(git diff --name-only -- gallery/Gallery-current.html gallery/Gallery-development.html gallery/checkpoints)"
+      - name: Report read-only result
+        run: |
+          echo 'PASS: full candidate reconstructed in memory and checksum-verified; no tracked release artifact, checkpoint, native app, or remote Git ref changed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This dry-run DOES NOT authorize publication or replace full candidate tests and both independent postpublication workflows.' >> "$GITHUB_STEP_SUMMARY"
