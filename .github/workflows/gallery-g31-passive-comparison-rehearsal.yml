@@ -1,0 +1,118 @@
+name: Gallery G3.1 passive comparison correction rehearsal (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/audits/2026-11-22-g31-more-actions-smooth-ripple-passive-corrected-compare.py'
+      - 'gallery/tests/test_g31_passive_corrected_preflight.py'
+      - '.github/workflows/gallery-g31-passive-comparison-rehearsal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-g31-passive-correction-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact audit correction commit
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify archive and unchanged G3 baseline
+        run: |
+          python3 -B gallery/tools/restore-checkpoint.py --verify-only
+          python3 -B gallery/tools/build-gallery.py --check
+      - name: Reject wrong inherited test anchors and dropped assertions before browser setup
+        run: |
+          python3 -B gallery/tests/test_g31_passive_corrected_preflight.py
+          python3 -B gallery/audits/2026-11-22-g31-more-actions-smooth-ripple-passive-corrected-compare.py --preflight
+
+  comparison:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact audit correction commit and history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Prepare detached disposable approved-source worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-g31-correction-worktree" "$BASE"
+      - name: Rebuild both exact G3.1 HTML candidates outside Git and verify source + SHA-256
+        working-directory: ${{ runner.temp }}/gallery-g31-correction-worktree
+        env:
+          BASE: ${{ github.sha }}
+          OUT: ${{ runner.temp }}/gallery-g31-correction-build
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PY'
+          import hashlib,json,os,runpy,subprocess,sys
+          from pathlib import Path
+          def sha(raw): return hashlib.sha256(raw).hexdigest()
+          def blob(raw): return hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          def require(test,reason): assert test,reason
+          base=os.environ['BASE']
+          require(subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==base,'candidate base drift')
+          require(not subprocess.check_output(['git','status','--porcelain']).strip(),'dirty worktree')
+          subprocess.run([sys.executable,'-B','gallery/tools/restore-checkpoint.py','--verify-only'],check=True)
+          subprocess.run([sys.executable,'-B','gallery/tools/build-gallery.py','--check'],check=True)
+          pointer=Path('gallery/checkpoints/current.json').read_bytes()
+          old_full=Path('gallery/Gallery-current.html').read_bytes()
+          old_light=Path('gallery/Gallery-development.html').read_bytes()
+          contract=json.loads(Path('gallery/development/provisional.json').read_text())
+          require(contract['promotion']['status']=='not-approved','publication flag changed')
+          baseline=contract['baseline']
+          require(sha(old_full)==baseline['full_sha256'] and len(old_full)==baseline['full_bytes'],'full G3 changed')
+          require(sha(old_light)==baseline['lightweight_sha256'] and len(old_light)==baseline['lightweight_bytes'],'light G3 changed')
+          runpy.run_path('gallery/changes/previews/2026-11-22-g31-more-actions-smooth-ripple.py',run_name='__main__')
+          changes=subprocess.check_output(['git','diff','--name-only','HEAD'],text=True).splitlines()
+          require(changes==['gallery/src/styles/28-unified-headers-and-history-frame.css'],'unauthorized source modifications')
+          expected_blob=contract['candidate']['changed_source_git_blobs'][changes[0]]
+          require(blob(Path(changes[0]).read_bytes())==expected_blob,'G3.1 approved source blob mismatch')
+          builder=runpy.run_path('gallery/tools/build-gallery.py')
+          for mode,filename in [('full','Gallery-current.html'),('development','Gallery-development.html')]:
+              built=builder['build'](mode)
+              expected_sha=contract['candidate']['full_sha256' if mode=='full' else 'lightweight_sha256']
+              expected_size=contract['candidate']['full_bytes' if mode=='full' else 'lightweight_bytes']
+              require(sha(built)==expected_sha and len(built)==expected_size,'candidate '+mode+' digest mismatch')
+              target=Path(os.environ['OUT'])/'gallery'/filename
+              target.parent.mkdir(parents=True,exist_ok=True)
+              target.write_bytes(built)
+              require(target.read_bytes()==built,'candidate read-back failed')
+              print('PASS temporary test-only',mode,len(built),sha(built),flush=True)
+          require(Path('gallery/checkpoints/current.json').read_bytes()==pointer,'checkpoint moved')
+          require(Path('gallery/Gallery-current.html').read_bytes()==old_full and
+                  Path('gallery/Gallery-development.html').read_bytes()==old_light,'tracked HTML touched')
+          require(not subprocess.check_output(['git','ls-files','--others','--exclude-standard']).strip(),'untracked content')
+          print('PASS exact G3.1 source; both generated files outside Git; no release/pointer changes',flush=True)
+          PY
+      - name: Install pinned Chromium only after exact candidate preflight
+        uses: ./.github/actions/gallery-browser
+      - name: Run strict passive actual-browser comparison for both modes and all 48 contexts
+        working-directory: ${{ runner.temp }}/gallery-g31-correction-build
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/audits/2026-11-22-g31-more-actions-smooth-ripple-passive-corrected-compare.py"
+      - name: Confirm read-only test-only outcome
+        run: |
+          echo 'PASS: corrected passive wrapper, exact G3.1 full/lightweight source/hashes, 48-context browser comparison.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Test-only rehearsal. No HTML publication, new checkpoint, independent published-build approval, or native release.' >> "$GITHUB_STEP_SUMMARY"
