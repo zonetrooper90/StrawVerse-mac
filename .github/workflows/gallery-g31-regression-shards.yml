@@ -1,0 +1,173 @@
+name: Gallery G3.1 regression sharding benchmark (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/development/g31-regression-shards.json'
+      - 'gallery/tools/g31-regression-shards.py'
+      - 'gallery/tests/test_g31_regression_shards.py'
+      - '.github/workflows/gallery-g31-regression-shards.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-g31-regression-shards-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Pin original coverage, unchanged G3.1 release and fail-closed contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Exact triggering commit and original history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reject shortened, missing, duplicated, tampered or promoted regression contracts
+        run: python3 -B gallery/tests/test_g31_regression_shards.py
+      - name: Verify exact original nine-suite matrix, G3.1 HTML, checkpoint and source
+        env:
+          BASE: ${{ github.sha }}
+        run: python3 -B gallery/tools/g31-regression-shards.py --base "$BASE" --verify
+      - name: Preflight green does not change existing release requirements
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'Read-only G3.1 preflight passed. Original browser regression workflow remains mandatory and unchanged.' >> "$GITHUB_STEP_SUMMARY"
+
+  shards:
+    name: Strict regression ${{ matrix.mode }} / ${{ matrix.suite }}
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mode: full, suite: transitions }
+          - { mode: full, suite: coordinated-fades }
+          - { mode: full, suite: history-row-maintenance }
+          - { mode: full, suite: player-settings-regression }
+          - { mode: lightweight, suite: transitions }
+          - { mode: lightweight, suite: coordinated-fades }
+          - { mode: lightweight, suite: history-row-maintenance }
+          - { mode: lightweight, suite: player-settings-regression }
+          - { mode: both, suite: subtitle-preview-modes }
+    steps:
+      - name: Exact commit and complete verified-build ancestry
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Revalidate immutable original test and release/checkpoint before Chromium
+        env:
+          BASE: ${{ github.sha }}
+        run: python3 -B gallery/tools/g31-regression-shards.py --base "$BASE" --verify
+      - name: Install the same pinned Chromium as the original mandatory regression
+        uses: ./.github/actions/gallery-browser
+      - name: Run exactly one unchanged original test script for one mode
+        id: execution
+        env:
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          set -euo pipefail
+          case "$SUITE" in
+            transitions) script=gallery/tests/test_transitions.py ;;
+            coordinated-fades) script=gallery/tests/test_coordinated_fades.py ;;
+            history-row-maintenance) script=gallery/tests/test_history_row_maintenance.py ;;
+            player-settings-regression) script=gallery/tests/test_player_settings_regression.py ;;
+            subtitle-preview-modes) script=gallery/tests/test_asset_build_modes.py ;;
+            *) echo 'Unknown shard' >&2; exit 1 ;;
+          esac
+          case "$MODE" in
+            full) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-current.html ;;
+            lightweight) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-development.html ;;
+            both) test "$SUITE" = subtitle-preview-modes; html= ;;
+            *) echo 'Unknown mode' >&2; exit 1 ;;
+          esac
+          start=$SECONDS
+          if [ "$MODE" = both ]; then
+            python3 "$script"
+          else
+            python3 "$script" "$html"
+          fi
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+      - name: Record exact commit/source/suite hash and successful elapsed test seconds
+        env:
+          BASE: ${{ github.sha }}
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+          SECONDS_RESULT: ${{ steps.execution.outputs.seconds }}
+        run: |
+          set -euo pipefail
+          python3 -B gallery/tools/g31-regression-shards.py --base "$BASE" \
+            --record --mode "$MODE" --suite "$SUITE" --seconds "$SECONDS_RESULT" \
+            --output "$RUNNER_TEMP/gallery-g31-shard/${MODE}-${SUITE}.json"
+          test -z "$(git status --porcelain)"
+          echo "PASS $MODE/$SUITE original unchanged test, $SECONDS_RESULT script-step seconds" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload only successful read-only shard proof, never a release
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-g31-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.mode }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/gallery-g31-shard/
+          if-no-files-found: error
+          retention-days: 7
+
+  aggregate:
+    name: Mandatory exact nine-shard coverage and benchmark gate
+    needs: [preflight, shards]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Fail if preflight or ANY of nine independent shards failed, skipped or canceled
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          SHARDS: ${{ needs.shards.result }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success
+          test "$SHARDS" = success
+      - name: Checkout exact commit for independent proof validation
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Retrieve all nine successful proofs by exact run and attempt
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: gallery-g31-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/gallery-g31-shard-proofs/
+          merge-multiple: true
+      - name: Reject missing/mismatched provenance and calculate complete benchmark model
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 -B gallery/tools/g31-regression-shards.py --base "$BASE" \
+            --aggregate "$RUNNER_TEMP/gallery-g31-shard-proofs" | tee "$RUNNER_TEMP/gallery-g31-shard-model.txt"
+          cat "$RUNNER_TEMP/gallery-g31-shard-model.txt" >> "$GITHUB_STEP_SUMMARY"
+          echo 'This is a read-only additional benchmark, not an existing regression replacement.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'The original dual-build release publisher, immutable checkpoint, all candidate tests and two independent exact-build workflows remain mandatory.' >> "$GITHUB_STEP_SUMMARY"
+          test -z "$(git status --porcelain)"
