@@ -6,6 +6,8 @@ on:
       - 'gallery/development-clean'
     paths:
       - 'gallery/**'
+      # Provisional preview-request scripts do not modify published HTML/source.
+      - '!gallery/changes/previews/**'
       - '.github/workflows/gallery-transition-ui.yml'
       - '.github/actions/gallery-browser/action.yml'
   workflow_dispatch:

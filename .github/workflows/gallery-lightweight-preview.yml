@@ -1,0 +1,70 @@
+name: Gallery lightweight development preview
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/changes/previews/*.py'
+      - 'gallery/tools/lightweight-preview.py'
+      - 'gallery/tests/test_lightweight_preview_runner.py'
+      - 'gallery/tests/test_lightweight_preview_smoke.py'
+      - '.github/workflows/gallery-lightweight-preview.yml'
+  workflow_dispatch:
+    inputs:
+      request:
+        description: 'Optional existing approved request slug (or baseline)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-lightweight-preview-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact branch revision and request history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Run fail-closed lightweight preview gate unit tests
+        run: python3 -B gallery/tests/test_lightweight_preview_runner.py
+      - name: Prepare detached read-only source-patch worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-preview-worktree" "$BASE"
+      - name: Verify original release and generate only provisional lightweight HTML
+        working-directory: ${{ runner.temp }}/gallery-preview-worktree
+        env:
+          BASE: ${{ github.sha }}
+          PREVIOUS: ${{ github.event.before }}
+          REQUEST: ${{ inputs.request }}
+        run: |
+          set -euo pipefail
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/lightweight-preview.py" \
+            --base "$BASE" --previous "$PREVIOUS" --request "$REQUEST" \
+            --output "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+      - name: Install exact pinned Chromium for focused preview smoke
+        uses: ./.github/actions/gallery-browser
+      - name: Test actual provisional lightweight navigation and Library controls
+        working-directory: ${{ runner.temp }}/gallery-preview-worktree
+        run: python3 -B "$GITHUB_WORKSPACE/gallery/tests/test_lightweight_preview_smoke.py" "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+      - name: Upload provisional preview and exact provenance (not a release)
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-lightweight-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-preview/
+          if-no-files-found: error
+          retention-days: 7
