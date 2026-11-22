@@ -1,0 +1,119 @@
+name: Gallery G3.1 guarded lightweight development preview
+
+on:
+  push:
+    branches: ['gallery/development-clean']
+    paths:
+      - 'gallery/development/g31-active-preview.json'
+      - 'gallery/tools/g31-active-preview.py'
+      - 'gallery/tests/test_g31_active_preview.py'
+      - 'gallery/development/preview-scripts/*.py'
+      - '.github/workflows/gallery-g31-active-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-g31-active-preview-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Fail-closed schema and approval checks before browser setup
+        run: python3 -B gallery/tests/test_g31_active_preview.py
+      - name: Exact-commit isolated source-only preview
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/gallery-g31-preview-worktree" "$BASE"
+          cd "$RUNNER_TEMP/gallery-g31-preview-worktree"
+          python3 -B gallery/tools/g31-active-preview.py --base "$BASE" \
+            --output "$RUNNER_TEMP/gallery-g31-preview/Gallery-development-preview.html"
+          test -z "$(git diff --name-only HEAD | grep -v '^gallery/src/' || true)"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-g31-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-g31-preview/
+          if-no-files-found: error
+          retention-days: 7
+
+  smoke:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: gallery-g31-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-g31-preview/
+      - name: Reject altered preview/manifest and verify full checkpoint
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          python3 -B gallery/tools/g31-active-preview.py --base "$BASE" \
+            --check-artifact "$RUNNER_TEMP/gallery-g31-preview/Gallery-development-preview.html" \
+            --manifest "$RUNNER_TEMP/gallery-g31-preview/preview-manifest.json"
+      - uses: ./.github/actions/gallery-browser
+      - name: Real lightweight Library/menu/reduced-motion browser smoke
+        run: python3 -B gallery/tests/test_lightweight_preview_smoke.py "$RUNNER_TEMP/gallery-g31-preview/Gallery-development-preview.html"
+
+  asset-parity:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Preserve original source and immutable full release
+        run: |
+          python3 -B gallery/tools/restore-checkpoint.py --verify-only
+          python3 -B gallery/tools/build-gallery.py --check
+      - uses: ./.github/actions/gallery-browser
+      - name: Unchanged subtitle artwork parity and layout coverage
+        run: python3 -B gallery/tests/test_asset_build_modes.py
+
+  aggregate:
+    needs: [preflight, smoke, asset-parity]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: All preview checks mandatory; release not promoted
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          SMOKE: ${{ needs.smoke.result }}
+          ASSETS: ${{ needs.asset-parity.result }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success
+          test "$SMOKE" = success
+          test "$ASSETS" = success
+          echo 'Development Preview — Not a Verified Release.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Full milestones still require dual-build checkpoint publisher, all candidate checks and both independent exact-build workflows.' >> "$GITHUB_STEP_SUMMARY"
