@@ -1,0 +1,98 @@
+name: Gallery provisional sequential iterations (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/development/iterations.json'
+      - 'gallery/tools/provisional-iterations.py'
+      - 'gallery/tests/test_provisional_iterations.py'
+      - '.github/workflows/gallery-provisional-iterations.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-provisional-iterations-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact infrastructure commit and history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reject invalid stage stack, paths, hashes, and release attempts
+        run: python3 -B gallery/tests/test_provisional_iterations.py
+      - name: Prepare isolated detached worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: git worktree add --detach "$RUNNER_TEMP/gallery-stage3-worktree" "$BASE"
+      - name: Verify immutable baseline and sequential exact-source lightweight candidate
+        working-directory: ${{ runner.temp }}/gallery-stage3-worktree
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 -B "$GITHUB_WORKSPACE/gallery/tools/provisional-iterations.py" \
+            --base "$BASE" \
+            --output "$RUNNER_TEMP/gallery-stage3/Gallery-development-preview.html"
+      - name: Retain only provisional artifact and provenance for dependent smoke
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-stage3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-stage3/
+          if-no-files-found: error
+          retention-days: 7
+
+  smoke:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the same exact commit
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reverify unchanged release and deterministic source baseline
+        run: |
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+      - name: Download exact preflight artifact (not a release)
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: gallery-stage3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gallery-stage3/
+      - name: Reject tampered artifact or mismatched exact-commit manifest before browser installation
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          python3 -B gallery/tools/provisional-iterations.py \
+            --base "$BASE" \
+            --check-artifact "$RUNNER_TEMP/gallery-stage3/Gallery-development-preview.html" \
+            --manifest "$RUNNER_TEMP/gallery-stage3/iteration-manifest.json"
+      - name: Install same pinned Chromium as existing full verification
+        uses: ./.github/actions/gallery-browser
+      - name: Verify actual custom-tag, menu, and reduced-motion lightweight controls
+        run: python3 -B gallery/tests/test_lightweight_preview_smoke.py "$RUNNER_TEMP/gallery-stage3/Gallery-development-preview.html"
+      - name: Mark as provisional, not promoted or released
+        run: |
+          echo 'Stage 3 exact candidate preflight and focused browser smoke passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Development Preview — Not a Verified Release. No full HTML publication, checkpoint or native build.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Full release still requires the guarded publisher, complete candidate matrices and both independent postpublication workflows.' >> "$GITHUB_STEP_SUMMARY"
