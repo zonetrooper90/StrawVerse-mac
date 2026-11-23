@@ -1,4 +1,6 @@
 name: Gallery G3.1 regression sharding benchmark (read-only)
+# 2026-11-23 approved read-only repeatability trial A: no runtime changes.
+# This isolated workflow remains an ADDITIONAL benchmark, never a release gate replacement.
 
 on:
   push:
