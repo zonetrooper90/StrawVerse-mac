@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "status": "read-only-dynamic-exact-build-regression-trial-not-release",
+  "baseline_ancestor": "50bf289581c713fea36cf00e5eb6eed5b9619a5b",
+  "original_workflow_blob": "70a42d79ba235a775f89eea8c9d618936046ec52",
+  "integrity_workflow_blob": "b3527dfb994a571e230a40f2399eb2251730980b",
+  "immutable_test_blobs": {
+    "gallery/tests/test_transitions.py": "ef6bea6d29ed5e4ae87453ddd232a5d6fb74d1c7",
+    "gallery/tests/test_coordinated_fades.py": "eee6550b01abec3af67638a1f657a0bfd4f92c7e",
+    "gallery/tests/test_history_row_maintenance.py": "2a4000f3e215f49a9bc4d3ff2254fe1f5704a49c",
+    "gallery/tests/test_player_settings_regression.py": "d74f5ad0ec0add9c38a5bf9c12e094e4652d3641",
+    "gallery/tests/test_asset_build_modes.py": "90518178368a25782eb1d164288c67e9756d4cbe"
+  },
+  "matrix": [
+    {
+      "mode": "full",
+      "suite": "transitions"
+    },
+    {
+      "mode": "full",
+      "suite": "coordinated-fades"
+    },
+    {
+      "mode": "full",
+      "suite": "history-row-maintenance"
+    },
+    {
+      "mode": "full",
+      "suite": "player-settings-regression"
+    },
+    {
+      "mode": "lightweight",
+      "suite": "transitions"
+    },
+    {
+      "mode": "lightweight",
+      "suite": "coordinated-fades"
+    },
+    {
+      "mode": "lightweight",
+      "suite": "history-row-maintenance"
+    },
+    {
+      "mode": "lightweight",
+      "suite": "player-settings-regression"
+    },
+    {
+      "mode": "both",
+      "suite": "subtitle-preview-modes"
+    }
+  ],
+  "promotion": {
+    "status": "not-authorized",
+    "published_commit": null
+  }
+}

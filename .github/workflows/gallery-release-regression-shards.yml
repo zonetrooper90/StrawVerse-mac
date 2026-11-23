@@ -1,0 +1,178 @@
+name: Gallery dynamic exact-build parallel regression trial (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - 'gallery/development/release-regression-shards.json'
+      - 'gallery/tools/release-regression-shards.py'
+      - 'gallery/tests/test_release_regression_shards.py'
+      - '.github/workflows/gallery-release-regression-shards.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-release-shards-trial-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Guard exact commit, dynamic dual build, immutable checkpoint and original tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout triggering commit and preserved ancestry
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reject malformed coverage, promoted contracts and forged or incomplete proofs
+        run: python3 -B gallery/tests/test_release_regression_shards.py
+      - name: Verify exact HEAD, both deterministic HTML files, archive and unchanged original gates
+        env:
+          SHA: ${{ github.sha }}
+        run: python3 -B gallery/tools/release-regression-shards.py --exact-commit "$SHA" --verify
+      - name: Fail if any preflight tool changed the source checkout
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          echo 'PASS: dynamic read-only preflight. Existing mandatory regression/publisher remain unchanged.' >> "$GITHUB_STEP_SUMMARY"
+
+  shards:
+    name: Exact original ${{ matrix.mode }} / ${{ matrix.suite }}
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mode: full, suite: transitions }
+          - { mode: full, suite: coordinated-fades }
+          - { mode: full, suite: history-row-maintenance }
+          - { mode: full, suite: player-settings-regression }
+          - { mode: lightweight, suite: transitions }
+          - { mode: lightweight, suite: coordinated-fades }
+          - { mode: lightweight, suite: history-row-maintenance }
+          - { mode: lightweight, suite: player-settings-regression }
+          - { mode: both, suite: subtitle-preview-modes }
+    steps:
+      - name: Checkout original complete exact Git history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Recheck dynamic original exact-build/checkpoint and original suites before Chromium
+        env:
+          SHA: ${{ github.sha }}
+        run: python3 -B gallery/tools/release-regression-shards.py --exact-commit "$SHA" --verify
+      - name: Install pinned original Chromium runner
+        uses: ./.github/actions/gallery-browser
+      - name: Run one complete unchanged original Python script in original HTML mode
+        id: execution
+        env:
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          set -euo pipefail
+          case "$SUITE" in
+            transitions) script=gallery/tests/test_transitions.py ;;
+            coordinated-fades) script=gallery/tests/test_coordinated_fades.py ;;
+            history-row-maintenance) script=gallery/tests/test_history_row_maintenance.py ;;
+            player-settings-regression) script=gallery/tests/test_player_settings_regression.py ;;
+            subtitle-preview-modes) script=gallery/tests/test_asset_build_modes.py ;;
+            *) echo 'Unrecognized test shard' >&2; exit 1 ;;
+          esac
+          case "$MODE" in
+            full) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-current.html ;;
+            lightweight) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-development.html ;;
+            both) test "$SUITE" = subtitle-preview-modes; html= ;;
+            *) echo 'Unrecognized HTML mode' >&2; exit 1 ;;
+          esac
+          start=$SECONDS
+          if [ "$MODE" = both ]; then
+            python3 "$script"
+          else
+            python3 "$script" "$html"
+          fi
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+      - name: Record passing script and exact source/build/checkpoint provenance
+        env:
+          SHA: ${{ github.sha }}
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+          SECONDS_RESULT: ${{ steps.execution.outputs.seconds }}
+          RUN: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 -B gallery/tools/release-regression-shards.py --exact-commit "$SHA" \
+            --record --mode "$MODE" --suite "$SUITE" --seconds "$SECONDS_RESULT" \
+            --run-id "$RUN" --run-attempt "$ATTEMPT" \
+            --output "$RUNNER_TEMP/gallery-release-shard/$MODE-$SUITE.json"
+          test -z "$(git status --porcelain)"
+      - name: Publish short-lived proof artifact only, NOT HTML or release
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-release-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.mode }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/gallery-release-shard/
+          retention-days: 7
+          if-no-files-found: error
+
+  aggregate:
+    name: Strict nine-shard all-success aggregate - NOT a release gate
+    needs: [preflight, shards]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Fail closed if ANY preflight or shard failed skipped or canceled
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          SHARDS: ${{ needs.shards.result }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success
+          test "$SHARDS" = success
+      - name: Checkout exact source commit with full ancestry for independent validation
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Retrieve nine successful proofs only from this run AND attempt
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: gallery-release-shard-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/gallery-release-shard-proofs/
+          merge-multiple: true
+      - name: Reverify dynamic build and all nine exact commit/test/proof identities
+        env:
+          SHA: ${{ github.sha }}
+          RUN: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 -B gallery/tools/release-regression-shards.py --exact-commit "$SHA" \
+            --aggregate "$RUNNER_TEMP/gallery-release-shard-proofs" \
+            --run-id "$RUN" --run-attempt "$ATTEMPT" \
+            | tee "$RUNNER_TEMP/gallery-release-regression-summary.txt"
+          cat "$RUNNER_TEMP/gallery-release-regression-summary.txt" >> "$GITHUB_STEP_SUMMARY"
+          echo 'READ-ONLY trial only; original browser regression, checkpoint integrity and publisher are still mandatory.' >> "$GITHUB_STEP_SUMMARY"
+          test -z "$(git status --porcelain)"
