@@ -7,7 +7,18 @@ import runpy
 
 api = runpy.run_path("gallery/tools/g31-active-preview.py")
 original = json.loads(Path("gallery/development/g31-active-preview.json").read_text())
-assert api["validate"](original) == []
+assert len(api["validate"](original)) == 1
+assert original["mode"] == "approved-source-only"
+assert original["steps"][0]["slug"] == "2026-11-23-stage7-source-probe"
+assert original["steps"][0]["preview_bytes"] == 646042
+assert original["steps"][0]["preview_sha256"] == (
+    "6cd42f43e04c3a678bc6e5eb67d839616bd7a3c972ef40eec0c4e69da4ad9922")
+assert original["steps"][0]["source_blobs"] == {
+    "gallery/src/styles/28-unified-headers-and-history-frame.css":
+        "8fbefc98cba2123482963db830de36289a591ef1"}
+assert original["steps"][0]["approval_heading"] == (
+    "## 2026-11-23 — Approved Stage 7 nonvisual source-change preview probe")
+assert original["promotion"] == {"status": "not-authorized", "published_commit": None}
 
 
 def reject(x):
@@ -18,7 +29,7 @@ def reject(x):
     raise AssertionError("Unsafe preview contract accepted")
 
 
-for k, value in (("schema", 2), ("mode", "approved-source-only"),
+for k, value in (("schema", 2), ("mode", "baseline-only"),
                  ("status", "release"), ("baseline_git_blob", "../wrong")):
     x = copy.deepcopy(original)
     x[k] = value

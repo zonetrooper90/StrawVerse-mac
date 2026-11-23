@@ -3,8 +3,20 @@
   "status": "g31-source-preview-not-release",
   "baseline_ref": "gallery/development/verified-baseline.json",
   "baseline_git_blob": "13ab6668c650e1d8981796cb65cdec8bf33f4b65",
-  "mode": "baseline-only",
-  "steps": [],
+  "mode": "approved-source-only",
+  "steps": [
+    {
+      "slug": "2026-11-23-stage7-source-probe",
+      "script": "gallery/development/preview-scripts/2026-11-23-stage7-source-probe.py",
+      "script_blob": "1aec46b0807562bf7b6bb746e22f0e9a53ea0c01",
+      "approval_heading": "## 2026-11-23 — Approved Stage 7 nonvisual source-change preview probe",
+      "source_blobs": {
+        "gallery/src/styles/28-unified-headers-and-history-frame.css": "8fbefc98cba2123482963db830de36289a591ef1"
+      },
+      "preview_bytes": 646042,
+      "preview_sha256": "6cd42f43e04c3a678bc6e5eb67d839616bd7a3c972ef40eec0c4e69da4ad9922"
+    }
+  ],
   "promotion": {
     "status": "not-authorized",
     "published_commit": null
