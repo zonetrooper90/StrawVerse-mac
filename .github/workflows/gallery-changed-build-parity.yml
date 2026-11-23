@@ -1,0 +1,276 @@
+name: Gallery nonpublished changed-build parallel parity trial (read-only)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - '.github/workflows/gallery-changed-build-parity.yml'
+      - 'gallery/tools/changed-build-parity-fixture.py'
+      - 'gallery/tests/test_changed_build_parity_fixture.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-changed-build-parity-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Guard nonvisual isolated source change, both builds and experimental checkpoint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      candidate_sha: ${{ steps.fixture.outputs.sha }}
+    steps:
+      - name: Checkout exact unchanged Gallery branch commit
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reject unsafe scratch fixture and forged parallel proof contracts before Chromium
+        run: |
+          set -euo pipefail
+          python3 -B gallery/tests/test_changed_build_parity_fixture.py
+          python3 -B gallery/tests/test_release_regression_shards.py
+          python3 -B gallery/tools/build-gallery.py --check
+          python3 -B gallery/tools/restore-checkpoint.py --verify-only
+          test -z "$(git status --porcelain)"
+      - name: Prepare deterministic LOCAL-only changed source and both changed HTML builds
+        id: fixture
+        env:
+          BASE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B gallery/tools/changed-build-parity-fixture.py \
+            --base "$BASE" --scratch "$SCRATCH" \
+            --summary "$RUNNER_TEMP/gallery-fixture-identity.json"
+          sha="$(git -C "$SCRATCH" rev-parse HEAD)"
+          test "$sha" != "$BASE"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          python3 -B "$SCRATCH/gallery/tools/release-regression-shards.py" \
+            --exact-commit "$sha" --verify
+          test "$(git rev-parse HEAD)" = "$BASE"
+          test -z "$(git status --porcelain)"
+          echo "PASS: nonpublished synthetic commit $sha; original Gallery HEAD/checkpoint unchanged." >> "$GITHUB_STEP_SUMMARY"
+
+  candidate-original:
+    name: Original serial test grouping on scratch / ${{ matrix.group }}
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { group: full, html: gallery/Gallery-current.html }
+          - { group: lightweight, html: gallery/Gallery-development.html }
+          - { group: subtitle-preview-modes, html: '' }
+    steps:
+      - name: Checkout original exact baseline commit (not the candidate)
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Recreate exact detached synthetic candidate and verify its commit identity
+        env:
+          BASE: ${{ github.sha }}
+          EXPECTED: ${{ needs.preflight.outputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B gallery/tools/changed-build-parity-fixture.py --base "$BASE" --scratch "$SCRATCH"
+          test "$(git -C "$SCRATCH" rev-parse HEAD)" = "$EXPECTED"
+          python3 -B "$SCRATCH/gallery/tools/release-regression-shards.py" \
+            --exact-commit "$EXPECTED" --verify
+      - name: Install exact original pinned Chromium
+        uses: ./.github/actions/gallery-browser
+      - name: Run unchanged original serial scripts for this HTML mode
+        env:
+          MODE: ${{ matrix.group }}
+          HTML: ${{ matrix.html }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/gallery-nonpublished-candidate"
+          case "$MODE" in
+            full|lightweight)
+              python3 gallery/tests/test_transitions.py "$HTML"
+              python3 gallery/tests/test_coordinated_fades.py "$HTML"
+              python3 gallery/tests/test_history_row_maintenance.py "$HTML"
+              python3 gallery/tests/test_player_settings_regression.py "$HTML"
+              ;;
+            subtitle-preview-modes)
+              python3 gallery/tests/test_asset_build_modes.py
+              ;;
+            *) exit 1 ;;
+          esac
+          test -z "$(git status --porcelain)"
+          echo "PASS original serial $MODE on disposable candidate $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+
+  candidate-shards:
+    name: Nine-shard changed candidate ${{ matrix.mode }} / ${{ matrix.suite }}
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mode: full, suite: transitions }
+          - { mode: full, suite: coordinated-fades }
+          - { mode: full, suite: history-row-maintenance }
+          - { mode: full, suite: player-settings-regression }
+          - { mode: lightweight, suite: transitions }
+          - { mode: lightweight, suite: coordinated-fades }
+          - { mode: lightweight, suite: history-row-maintenance }
+          - { mode: lightweight, suite: player-settings-regression }
+          - { mode: both, suite: subtitle-preview-modes }
+    steps:
+      - name: Checkout exact baseline and full history
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Create exact same detached candidate SHA, reconstruct both builds and checkpoint
+        env:
+          BASE: ${{ github.sha }}
+          EXPECTED: ${{ needs.preflight.outputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B gallery/tools/changed-build-parity-fixture.py --base "$BASE" --scratch "$SCRATCH"
+          test "$(git -C "$SCRATCH" rev-parse HEAD)" = "$EXPECTED"
+          python3 -B "$SCRATCH/gallery/tools/release-regression-shards.py" \
+            --exact-commit "$EXPECTED" --verify
+      - name: Install exact original pinned Chromium
+        uses: ./.github/actions/gallery-browser
+      - name: Run exactly one unchanged original test script on the candidate mode
+        id: test
+        env:
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/gallery-nonpublished-candidate"
+          case "$SUITE" in
+            transitions) script=gallery/tests/test_transitions.py ;;
+            coordinated-fades) script=gallery/tests/test_coordinated_fades.py ;;
+            history-row-maintenance) script=gallery/tests/test_history_row_maintenance.py ;;
+            player-settings-regression) script=gallery/tests/test_player_settings_regression.py ;;
+            subtitle-preview-modes) script=gallery/tests/test_asset_build_modes.py ;;
+            *) exit 1 ;;
+          esac
+          case "$MODE" in
+            full) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-current.html ;;
+            lightweight) test "$SUITE" != subtitle-preview-modes; html=gallery/Gallery-development.html ;;
+            both) test "$SUITE" = subtitle-preview-modes; html= ;;
+            *) exit 1 ;;
+          esac
+          start=$SECONDS
+          if [ "$MODE" = both ]; then
+            python3 "$script"
+          else
+            python3 "$script" "$html"
+          fi
+          echo "seconds=$((SECONDS-start))" >> "$GITHUB_OUTPUT"
+          test -z "$(git status --porcelain)"
+      - name: Create exact synthetic commit and passed unchanged test proof
+        env:
+          CANDIDATE: ${{ needs.preflight.outputs.candidate_sha }}
+          MODE: ${{ matrix.mode }}
+          SUITE: ${{ matrix.suite }}
+          DURATION: ${{ steps.test.outputs.seconds }}
+          RUN: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B "$SCRATCH/gallery/tools/release-regression-shards.py" \
+            --exact-commit "$CANDIDATE" --record --mode "$MODE" --suite "$SUITE" \
+            --seconds "$DURATION" --run-id "$RUN" --run-attempt "$ATTEMPT" \
+            --output "$RUNNER_TEMP/gallery-changed-parity-proof/$MODE-$SUITE.json"
+          test -z "$(git status --porcelain)"
+      - name: Upload passing PROOF only; never HTML, checkpoint or synthetic local commit
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: gallery-changed-parity-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.mode }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/gallery-changed-parity-proof/
+          retention-days: 7
+          if-no-files-found: error
+
+  aggregate:
+    name: Exact changed candidate serial/shard parity - non-release aggregate
+    needs: [preflight, candidate-original, candidate-shards]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Refuse missing, skipped, canceled or failed serial and shard tests
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          ORIGINAL: ${{ needs.candidate-original.result }}
+          SHARDS: ${{ needs.candidate-shards.result }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success
+          test "$ORIGINAL" = success
+          test "$SHARDS" = success
+      - name: Checkout exact remote HEAD, without any changed candidate publication
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Pinned Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Recreate exact candidate and require same commit identity as all test jobs
+        env:
+          BASE: ${{ github.sha }}
+          CANDIDATE: ${{ needs.preflight.outputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B gallery/tools/changed-build-parity-fixture.py --base "$BASE" --scratch "$SCRATCH"
+          test "$(git -C "$SCRATCH" rev-parse HEAD)" = "$CANDIDATE"
+      - name: Retrieve only the nine proofs from same run and attempt
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: gallery-changed-parity-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/gallery-changed-parity-proofs/
+          merge-multiple: true
+      - name: Verify every original test and changed full/light checkpoint digest at local exact SHA
+        env:
+          CANDIDATE: ${{ needs.preflight.outputs.candidate_sha }}
+          RUN: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          SCRATCH="$RUNNER_TEMP/gallery-nonpublished-candidate"
+          python3 -B "$SCRATCH/gallery/tools/release-regression-shards.py" \
+            --exact-commit "$CANDIDATE" --aggregate "$RUNNER_TEMP/gallery-changed-parity-proofs" \
+            --run-id "$RUN" --run-attempt "$ATTEMPT" \
+            | tee "$RUNNER_TEMP/gallery-changed-parity-summary.txt"
+          cat "$RUNNER_TEMP/gallery-changed-parity-summary.txt" >> "$GITHUB_STEP_SUMMARY"
+          echo 'PASS scratch-only changed source, BOTH changed HTML modes, isolated experimental checkpoint, original serial and 9 shard browser tests.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'NOT a release. No commit or generated HTML was pushed; original mandatory workflows still gate release.' >> "$GITHUB_STEP_SUMMARY"
+          test -z "$(git status --porcelain)"
