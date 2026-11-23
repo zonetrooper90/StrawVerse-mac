@@ -1,0 +1,52 @@
+name: Gallery actual published-build handoff audit (read-only, historical)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - '.github/workflows/gallery-published-handoff-audit.yml'
+      - 'gallery/tools/published-handoff-audit.py'
+      - 'gallery/tests/test_published_handoff_audit.py'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  handoff-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Test exact-commit provenance and 14 negative cases
+        run: python3 -B gallery/tests/test_published_handoff_audit.py
+      - name: Read real historical G3.1 publisher, build, and independent verifier records
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/gallery-handoff-proof"
+          mkdir -p "$d"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45046653548" > "$d/publisher.json"
+          gh api "repos/$GITHUB_REPOSITORY/commits/50bf289581c713fea36cf00e5eb6eed5b9619a5b" > "$d/commit.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45050371208" > "$d/integrity.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45050373490" > "$d/browser.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45050371208/jobs?per_page=100" > "$d/integrity_jobs.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45050373490/jobs?per_page=100" > "$d/browser_jobs.json"
+          python3 -B gallery/tools/published-handoff-audit.py --directory "$d" | tee "$RUNNER_TEMP/handoff-summary.txt"
+          cat "$RUNNER_TEMP/handoff-summary.txt" >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep approved G3.1 source/build/archive and working tree unchanged
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 50bf289581c713fea36cf00e5eb6eed5b9619a5b HEAD
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          test -z "$(git status --porcelain)"
+          echo 'Historical proof only; no shadow dispatch and no production cutover.' >> "$GITHUB_STEP_SUMMARY"
