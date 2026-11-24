@@ -1,0 +1,41 @@
+name: Gallery publisher shadow SHA contract (read-only; no publication)
+
+on:
+  push:
+    branches:
+      - 'gallery/development-clean'
+    paths:
+      - '.github/workflows/gallery-controlled-publish.yml'
+      - '.github/workflows/gallery-publisher-shadow-contract.yml'
+      - 'gallery/tools/published-shadow-target.py'
+      - 'gallery/tests/test_publisher_shadow_contract.py'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Verify exact published SHA and original publisher preservation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Reject wrong targets and ensure original publisher operations are byte-identical
+        run: python3 -B gallery/tests/test_publisher_shadow_contract.py
+      - name: Rehearse direct parent and branch SHA contract on infrastructure commit only
+        run: |
+          set -euo pipefail
+          REQUEST="$(git rev-parse HEAD^)"
+          python3 -B gallery/tools/published-shadow-target.py \
+            --request "$REQUEST" --target "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF" --event "$GITHUB_EVENT_NAME" --checkout .
+          python3 gallery/tools/restore-checkpoint.py --verify-only
+          python3 gallery/tools/build-gallery.py --check
+          test -z "$(git status --porcelain)"
+          echo 'Read-only infrastructure-SHA rehearsal. NO new published Gallery release or shadow execution.' >> "$GITHUB_STEP_SUMMARY"
