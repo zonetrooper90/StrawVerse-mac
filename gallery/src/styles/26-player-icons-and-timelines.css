@@ -139,3 +139,20 @@ body[data-theme] .gallery-split-timeline .sf-dl-track-done,
 body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
 #wh-root .gallery-split-timeline .wh-progress-rest{min-width:0;flex:1 1 0%}
 
+
+/* Scoped Player fullscreen icon: exact rounded four-corner SVG from the user.
+   Windowed hover spreads corners, fullscreen hover contracts them. JS retains
+   the current visual target through click/fullscreenchange, including Escape.
+   Do not move the button itself or alter the surrounding Player control sizes. */
+#fullscreen .g4-fullscreen-svg{display:block;overflow:visible;pointer-events:none}
+#fullscreen .g4-fullscreen-piece{
+ transform:translate(0,0);
+ transition:transform 300ms cubic-bezier(.24,.68,.27,1);
+}
+#fullscreen[data-g4-expanded="true"] .g4-fullscreen-tl{transform:translate(-1.75px,-1.75px)}
+#fullscreen[data-g4-expanded="true"] .g4-fullscreen-tr{transform:translate(1.75px,-1.75px)}
+#fullscreen[data-g4-expanded="true"] .g4-fullscreen-bl{transform:translate(-1.75px,1.75px)}
+#fullscreen[data-g4-expanded="true"] .g4-fullscreen-br{transform:translate(1.75px,1.75px)}
+@media(prefers-reduced-motion:reduce){
+ #fullscreen .g4-fullscreen-piece{transition:none!important}
+}

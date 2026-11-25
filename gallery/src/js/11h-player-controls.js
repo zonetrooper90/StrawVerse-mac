@@ -85,13 +85,46 @@ function initializePlayer(){
   on(v,'ended',()=>{if(state.autoplayNextEpisode&&!playNextCanceled&&playerCanAdvance()&&!playNextPreview)showPlayerNotice('This local-file test ended. Play Next cannot load the following episode until a real episode source is connected.');});
  for(const name of ['pause','ended','emptied'])on(v,name,()=>{clearTimeout(playerControlsTimer);playerControlsTimer=null;document.getElementById('player-area')?.classList.remove('controls-hidden');});
  const playerArea=document.getElementById('player-area');
+ const fullscreenButton=document.getElementById('fullscreen');
+ // The current Player session owns exactly one icon pose. While hovered or
+ // keyboard-focused, capture the direction on entry so click/fullscreenchange
+ // cannot reset the four corners. Leaving returns to the actual fullscreen
+ // resting pose; browser Escape and external OS exits use the same sync.
+ let fullscreenPointerHover=false,fullscreenKeyboardFocus=false;
+ let fullscreenPreviewWasActive=false,fullscreenPreviewExpanded=false;
+ const refreshFullscreenIcon=()=>{
+  if(!owns()||!fullscreenButton)return;
+  const active=fullscreenPointerHover||fullscreenKeyboardFocus;
+  const isFull=document.fullscreenElement===playerArea;
+  if(active&&!fullscreenPreviewWasActive)fullscreenPreviewExpanded=!isFull;
+  fullscreenButton.dataset.g4Expanded=String(active?fullscreenPreviewExpanded:isFull);
+  fullscreenButton.dataset.g4Fullscreen=String(isFull);
+  fullscreenPreviewWasActive=active;
+ };
+ on(fullscreenButton,'pointerenter',e=>{
+  if(e.pointerType==='mouse'||e.pointerType==='pen'){
+   fullscreenPointerHover=true;refreshFullscreenIcon();
+  }
+ });
+ on(fullscreenButton,'pointerleave',()=>{
+  fullscreenPointerHover=false;refreshFullscreenIcon();
+ });
+ on(fullscreenButton,'focus',()=>{
+  if(fullscreenButton.matches(':focus-visible')){
+   fullscreenKeyboardFocus=true;refreshFullscreenIcon();
+  }
+ });
+ on(fullscreenButton,'blur',()=>{
+  fullscreenKeyboardFocus=false;refreshFullscreenIcon();
+ });
+ refreshFullscreenIcon();
  on(playerArea,'pointermove',()=>{playerKeyboardFocus=false;playerControlsWake();});
  on(playerArea,'pointerdown',()=>{playerKeyboardFocus=false;playerControlsWake();});
  on(playerArea,'keydown',()=>{playerKeyboardFocus=true;playerControlsWake();});
  on(document,'keydown',e=>{if(e.key==='Tab')playerKeyboardFocus=true;});
  on(playerArea,'focusin',playerControlsWake);
  on(playerArea,'focusout',()=>{clearTimeout(playerFocusTimer);playerFocusTimer=setTimeout(()=>{playerFocusTimer=null;if(owns())playerControlsScheduleHide();},0);});
- on(document,'fullscreenchange',playerControlsWake);
+ on(document,'fullscreenchange',()=>{playerControlsWake();refreshFullscreenIcon();});
  document.getElementById('open-local-video').onclick=openLocalForPlayer;
  document.getElementById('sf-player-browser-file').onchange=e=>{sfPlayerPickBrowserVideo(e.target.files?.[0]);e.target.value='';};
  document.body.dataset.sfPlayAccent='secondary';
