@@ -179,7 +179,28 @@ function initializePlayer(){
   rememberGalleryPlayerVolume(v);
   updatePlayerVolumeIcon(v);
  };
- document.getElementById('player-settings').onclick=()=>openPlayerSettings(v);
+ const playerSettingsButton=document.getElementById('player-settings');
+ playerSettingsButton.dataset.g1Active='false';
+ playerSettingsButton.onclick=()=>{
+  // Preserve the original Player's synchronous reopen/replacement while an
+  // older modal is still exiting; modal() owns the existing exit cleanup.
+  // Begin the same G1 slider move on the accepted click, not modal appearance.
+  playerSettingsButton.dataset.g1Active='true';
+  openPlayerSettings(v);
+  const overlay=modalHost.querySelector('.overlay');
+  if(!overlay?.querySelector('.dialog[aria-label="Player settings"]')){
+   playerSettingsButton.dataset.g1Active='false';return;
+  }
+  // Replacing an outgoing Player dialog dispatched its will-close callback
+  // during openPlayerSettings(). Keep the just-opened dialog in active pose.
+  // Both state writes occur within the same click before browser paint.
+  playerSettingsButton.dataset.g1Active='true';
+  // Session-bound, one-dialog listener: immediate reverse on Apply, X,
+  // Escape, backdrop, or replacement; no global Settings state changes.
+  on(overlay,'gallery-modal-will-close',()=>{
+   playerSettingsButton.dataset.g1Active='false';
+  });
+ };
  const fullscreen=()=>{const area=document.getElementById('player-area');if(!document.fullscreenElement)area.requestFullscreen?.().catch(()=>{if(owns())showPlayerNotice('Fullscreen is not available in this environment.');});else document.exitFullscreen?.();};
  document.getElementById('fullscreen').onclick=fullscreen;
  on(document.getElementById('previous-episode'),'click',()=>advanceEpisode(-1));

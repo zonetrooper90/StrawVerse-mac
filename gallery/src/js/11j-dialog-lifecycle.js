@@ -20,7 +20,7 @@ function modal(title,inner,actions=''){
   modalReturnFocus=opener instanceof HTMLElement&&opener!==document.body&&!modalHost.contains(opener)?opener:null;
  }
  cancelModalExit();
- if(outgoing)retireModalWork(outgoing);
+ if(outgoing){outgoing.dispatchEvent(new Event('gallery-modal-will-close'));retireModalWork(outgoing);}
  modalHost.innerHTML=`<div class="overlay" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-label="${escapeHTML(title)}" tabindex="-1"><div class="dialog-scroll"><div class="dialog-head"><h2>${escapeHTML(title)}</h2><button class="iconbtn" aria-label="Close dialog" id="close-dialog">${icon('close',20)}</button></div>${inner}${actions?`<div class="dialog-actions">${actions}</div>`:''}</div></div></div>`;
  galleryApp.inert=true;
  modalHost.querySelector('.overlay').addEventListener('click',e=>{if(e.target.classList.contains('overlay'))closeModal()});
@@ -41,6 +41,8 @@ function finishModalClose(overlay){
 function closeModal(){
  const overlay=modalHost.querySelector('.overlay');
  if(!overlay||overlay.classList.contains('is-closing'))return;
+ // Notify only this dialog before its exit (or reduced-motion removal).
+ overlay.dispatchEvent(new Event('gallery-modal-will-close'));
  cancelModalExit();
  if(galleryReducedMotion.matches){finishModalClose(overlay);return;}
  // Read the current animated values before changing the animation name.

@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-25-player-fullscreen-corners-hover-retry",
-  "sha256": "9589a80b09c85e615d7367bd9a79b0df161093f6cdf358925e88f5a5bf4be518",
-  "bytes": 6964716,
+  "folder": "2026-11-26-player-settings-shared-click-motion-retry",
+  "sha256": "078deec2a55c6732104572b5a2bcd3efc0874c18a6f26fb050eb7dd83e061e8d",
+  "bytes": 6966921,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
