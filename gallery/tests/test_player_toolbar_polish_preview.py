@@ -34,6 +34,7 @@ with sync_playwright() as pw:
     });
     return {vals,search:getComputedStyle(document.querySelector("#search>.icon")).transform,
       history:getComputedStyle(document.querySelector("#header-watch-history>.g1-history-icon")).transform}
+    }
    """)
    assert all(abs(q[2]-40)<.2 and abs(q[3]-40)<.2 for q in metrics["vals"]),(theme,width,"toolbar circle size",metrics)
    assert metrics["search"] not in ("none","matrix(1, 0, 0, 1, -0.45, -0.45)"),(theme,"search correction",metrics)
