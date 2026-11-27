@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "status": "active-development-preview-not-release",
+  "baseline": {
+    "verified_build_commit": "89382154bbf90af45cf14022a71577057f3a429d",
+    "checkpoint_folder": "2026-11-27-player-settings-in-video-menu-retry",
+    "pointer_blob": "1b1a43b7458a771f537abd53b189cf02110c6162",
+    "full_blob": "79609b5d26e2c8fda39734fe8b4e6e9db09f110b",
+    "full_sha256": "c675a01dc0c1cb128d2a75d7b05d9c11f825a099507f6c362c55db9a2335c5fd",
+    "full_bytes": 6974210,
+    "lightweight_blob": "b9c7898328b07915f68b980bd1f67d6cfecf8d9d",
+    "lightweight_sha256": "c6882fd8ecae8faf0375640aafd7e1c118a9f6b52e2e972cc1e6ece1f27ac287",
+    "lightweight_bytes": 658520,
+    "manifest_blob": "1c61099236e2f25cdb8203172ebb6538317a5044",
+    "archive_manifest_blob": "4ee368433182840302f956679f0e24712dda3362",
+    "integrity_run": 45917837076,
+    "browser_run": 45917839149
+  },
+  "mode": "baseline-only",
+  "request": null,
+  "promotion": {
+    "status": "not-authorized",
+    "published_commit": null
+  }
+}

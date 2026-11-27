@@ -12,6 +12,9 @@ on:
       - 'gallery/tools/provisional-contract.py'
       - 'gallery/tests/test_provisional_contract.py'
       - 'gallery/development/provisional.json'
+      - 'gallery/development/active-preview.json'
+      - 'gallery/tools/active-preview-contract.py'
+      - 'gallery/tests/test_active_preview_contract.py'
       - '.github/workflows/gallery-lightweight-preview.yml'
   workflow_dispatch:
     inputs:
@@ -46,6 +49,8 @@ jobs:
         run: python3 -B gallery/tests/test_lightweight_preview_runner.py
       - name: Verify fail-closed provisional state contract unit tests
         run: python3 -B gallery/tests/test_provisional_contract.py
+      - name: Verify new current-release preview contract and negative safety cases
+        run: python3 -B gallery/tests/test_active_preview_contract.py
       - name: Prepare detached read-only source-patch worktree
         env:
           BASE: ${{ github.sha }}
@@ -66,8 +71,15 @@ jobs:
         run: |
           set -euo pipefail
           R="$(python3 -c "import json,os,pathlib; print(json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'gallery-preview/preview-manifest.json').read_text())['request'])")"
-          if [[ "$R" != "baseline" ]]; then
+          # Keep the older G3.1 rehearsal contract unchanged; new requests are
+          # pinned to the current independently verified published build.
+          if [[ "$R" == "2026-11-22-g31-more-actions-smooth-ripple" ]]; then
             python3 -B "$GITHUB_WORKSPACE/gallery/tools/provisional-contract.py" \
+              --request "$R" \
+              --preview "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html" \
+              --manifest "$RUNNER_TEMP/gallery-preview/preview-manifest.json"
+          else
+            python3 -B "$GITHUB_WORKSPACE/gallery/tools/active-preview-contract.py" \
               --request "$R" \
               --preview "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html" \
               --manifest "$RUNNER_TEMP/gallery-preview/preview-manifest.json"
