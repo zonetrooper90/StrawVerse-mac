@@ -21,5 +21,19 @@
   "promotion": {
     "status": "not-authorized",
     "published_commit": null
+  },
+  "approved_scopes": {
+    "player-toolbar-polish": {
+      "approval_heading": "## 2026-11-27 — Approved current-release lightweight-first workflow and seven-item Player/toolbar polish",
+      "slug_prefix": "2026-11-27-player-toolbar-polish",
+      "source_paths": [
+        "gallery/src/js/11f-player-motion.js",
+        "gallery/src/styles/26-player-icons-and-timelines.css",
+        "gallery/src/js/11b-player-page.js",
+        "gallery/src/js/11g-player-playback.js",
+        "gallery/src/js/11h-player-controls.js",
+        "gallery/src/styles/28-unified-headers-and-history-frame.css"
+      ]
+    }
   }
 }

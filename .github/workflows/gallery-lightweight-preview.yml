@@ -15,6 +15,7 @@ on:
       - 'gallery/development/active-preview.json'
       - 'gallery/tools/active-preview-contract.py'
       - 'gallery/tests/test_active_preview_contract.py'
+      - 'gallery/tests/test_player_toolbar_polish_preview.py'
       - '.github/workflows/gallery-lightweight-preview.yml'
   workflow_dispatch:
     inputs:
@@ -89,6 +90,14 @@ jobs:
       - name: Test actual provisional lightweight navigation and Library controls
         working-directory: ${{ runner.temp }}/gallery-preview-worktree
         run: python3 -B "$GITHUB_WORKSPACE/gallery/tests/test_lightweight_preview_smoke.py" "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+      - name: Focused Player and toolbar UI preview smoke for the approved polish batch
+        working-directory: ${{ runner.temp }}/gallery-preview-worktree
+        run: |
+          set -euo pipefail
+          R="$(python3 -c "import json,os,pathlib; print(json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'gallery-preview/preview-manifest.json').read_text())['request'])")"
+          if [[ "$R" == "2026-11-27-player-toolbar-polish" ]]; then
+            python3 -B "$GITHUB_WORKSPACE/gallery/tests/test_player_toolbar_polish_preview.py" "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+          fi
       - name: Upload provisional preview and exact provenance (not a release)
         uses: actions/upload-artifact@v7.0.2
         with:

@@ -7,6 +7,8 @@ byte-identical provisional preview. It fails closed if the release advances
 without a separate reviewed baseline reconciliation.
 """
 import argparse
+import ast
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -31,7 +33,7 @@ def git(*args):
  return subprocess.check_output(["git",*args],text=True).strip()
 
 def validate(state):
- must(type(state) is dict and set(state)=={"schema","status","baseline","mode","request","promotion"},"state schema")
+ must(type(state) is dict and set(state)=={"schema","status","baseline","mode","request","promotion","approved_scopes"},"state schema")
  must(state["schema"]==1 and state["status"]=="active-development-preview-not-release","state version")
  must(state["promotion"]=={"status":"not-authorized","published_commit":None},"no release promotion")
  base=state["baseline"]
@@ -49,20 +51,52 @@ def validate(state):
       "verified release checksums and workflow references")
  must(type(base["checkpoint_folder"]) is str and SLUG.fullmatch(base["checkpoint_folder"]),
       "immutable archive folder")
+ scopes=state["approved_scopes"]
+ must(type(scopes) is dict and 1<=len(scopes)<=12,"explicit reviewed preview scopes")
+ for key,scope in scopes.items():
+  must(type(key) is str and re.fullmatch(r"[a-z0-9-]+",key) and
+       type(scope) is dict and set(scope)=={"approval_heading","slug_prefix","source_paths"},
+       "approved scope schema")
+  must(type(scope["approval_heading"]) is str and
+       re.fullmatch(r"## 20\d\d-\d\d-\d\d — Approved [^\n]+",scope["approval_heading"]),
+       "scope references an explicit user decision")
+  must(type(scope["slug_prefix"]) is str and SLUG.fullmatch(scope["slug_prefix"]),
+       "approved dated preview slug family")
+  allowed=scope["source_paths"]
+  must(type(allowed) is list and 1<=len(allowed)<=32 and
+       len(allowed)==len(set(allowed)) and all(type(p) is str and
+       p.startswith("gallery/src/") and ".." not in Path(p).parts and
+       Path(p).suffix in (".html",".css",".js",".json") for p in allowed),
+       "approved scoped source-only allowlist")
  mode,request=state["mode"],state["request"]
  must(mode in ("baseline-only","approved-source-only"),"known mode")
  if mode=="baseline-only":
   must(request is None,"baseline rehearsal cannot apply a source patch")
  else:
   must(type(request) is dict and set(request)=={
-   "slug","script_blob","approval_heading","source_blobs","preview_sha256","preview_bytes"},
-   "explicit approved request schema")
+   "slug","scope","approval_heading","base_source_blobs","source_blobs","preview_sha256","preview_bytes"} or
+       set(request)=={"slug","script_blob","scope","approval_heading","base_source_blobs",
+                      "source_blobs","preview_sha256","preview_bytes"}),
+   "explicit approved source request schema")
   must(type(request["slug"]) is str and SLUG.fullmatch(request["slug"]),"unique dated request")
-  must(SHA40.fullmatch(request["script_blob"]),"immutable script SHA")
+  if "script_blob" in request:
+   must(type(request["script_blob"]) is str and SHA40.fullmatch(request["script_blob"]),
+        "immutable script SHA")
   must(type(request["approval_heading"]) is str and
        re.fullmatch(r"## 20\d\d-\d\d-\d\d — Approved [^\n]+",
                     request["approval_heading"]),"approved decision heading")
+  chosen=scopes.get(request["scope"])
+  must(chosen is not None and
+       request["approval_heading"]==chosen["approval_heading"] and
+       request["slug"].startswith(chosen["slug_prefix"]),
+       "request must match one specifically user-approved work package")
   changes=request["source_blobs"]
+  must(set(changes).issubset(chosen["source_paths"]),
+       "request changes only approved source files")
+  prior=request["base_source_blobs"]
+  must(type(prior) is dict and set(prior)==set(changes) and all(
+       type(value) is str and SHA40.fullmatch(value) for value in prior.values()),
+       "exact pre-change authoritative source blobs")
   must(type(changes) is dict and 1<=len(changes)<=32 and all(
        type(path) is str and path.startswith("gallery/src/") and
        ".." not in Path(path).parts and Path(path).suffix in (".css",".js",".html",".json") and
@@ -122,14 +156,19 @@ def verify(state,artifact,manifest):
  else:
   slug=request["slug"]
   script=Path("gallery/changes/previews")/(slug+".py")
-  must(script.is_file() and blob(script.read_bytes())==request["script_blob"],
-       "immutable approved script")
+  must(script.is_file() and
+       git("rev-parse","HEAD:"+script.as_posix())==blob(script.read_bytes()),
+       "script must match the exact immutable triggering Git commit")
+  if "script_blob" in request:
+   must(blob(script.read_bytes())==request["script_blob"],"immutable approved script blob")
   must(APPROVALS.read_text(encoding="utf-8").splitlines().count(
       request["approval_heading"])==1,"explicit user approval must be recorded once")
   must(manifest.get("request")==slug and
        manifest.get("request_sha256")==digest(script.read_bytes()) and
        actual==set(request["source_blobs"]),"source patch identity and scope")
   for path,expected in request["source_blobs"].items():
+   must(git("rev-parse","HEAD:"+path)==request["base_source_blobs"][path],
+        "unexpected previous source version: "+path)
    must(Path(path).is_file() and blob(Path(path).read_bytes())==expected,
         "changed source blob mismatch: "+path)
   must(len(data)==request["preview_bytes"] and
@@ -142,6 +181,24 @@ def verify(state,artifact,manifest):
                    "preview_sha256":digest(data),"checkpoint":base["checkpoint_folder"],
                    "promotion_authorized":False},sort_keys=True),flush=True)
 
+def embedded_request(slug):
+ must(type(slug) is str and SLUG.fullmatch(slug),"dated request slug")
+ script=Path("gallery/changes/previews")/(slug+".py")
+ must(script.is_file(),"approved request script exists at immutable preview path")
+ raw=script.read_bytes()
+ must(git("rev-parse","HEAD:"+script.as_posix())==blob(raw),
+      "request script bytes match exact triggering commit")
+ tree=ast.parse(raw,filename=str(script))
+ records=[node.value for node in tree.body if isinstance(node,ast.Assign) and
+          any(isinstance(t,ast.Name) and t.id=="PREVIEW_CONTRACT" for t in node.targets)]
+ must(len(records)==1,"one literal self-contained preview contract")
+ try:data=ast.literal_eval(records[0])
+ except (SyntaxError,ValueError,TypeError) as error:
+  raise AssertionError("Gallery active preview: nonliteral preview request metadata") from error
+ must(type(data) is dict and data.get("slug")==slug,
+      "request metadata tied to exact filename")
+ return data
+
 def main():
  ap=argparse.ArgumentParser(description=__doc__)
  ap.add_argument("--request",required=True)
@@ -150,6 +207,14 @@ def main():
  args=ap.parse_args()
  state=json.loads(CONTRACT.read_text(encoding="utf-8"))
  _,request=validate(state)
+ # Each new source-only preview is one immutable, self-contained script under
+ # the path excluded from full-release push verification. This avoids changing
+ # any tracked baseline/contract/test/HTML between routine preview iterations.
+ if args.request!="baseline" and request is None:
+  state=copy.deepcopy(state)
+  state["mode"]="approved-source-only"
+  state["request"]=embedded_request(args.request)
+  _,request=validate(state)
  must(args.request==("baseline" if request is None else request["slug"]),
       "unapproved or mismatched preview request")
  verify(state,args.preview,json.loads(args.manifest.read_text(encoding="utf-8")))
