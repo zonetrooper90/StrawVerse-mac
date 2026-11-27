@@ -73,10 +73,11 @@ def validate(state):
  if mode=="baseline-only":
   must(request is None,"baseline rehearsal cannot apply a source patch")
  else:
-  must(type(request) is dict and set(request)=={
-   "slug","scope","approval_heading","base_source_blobs","source_blobs","preview_sha256","preview_bytes"} or
-       set(request)=={"slug","script_blob","scope","approval_heading","base_source_blobs",
-                      "source_blobs","preview_sha256","preview_bytes"}),
+  must(type(request) is dict and set(request) in (
+   {"slug","scope","approval_heading","base_source_blobs","source_blobs",
+    "preview_sha256","preview_bytes"},
+   {"slug","script_blob","scope","approval_heading","base_source_blobs",
+    "source_blobs","preview_sha256","preview_bytes"}),
    "explicit approved source request schema")
   must(type(request["slug"]) is str and SLUG.fullmatch(request["slug"]),"unique dated request")
   if "script_blob" in request:
