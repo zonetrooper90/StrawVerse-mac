@@ -15,6 +15,7 @@ function sfPlayerOwnsRequest(owner,request){
 }
 function sfPlayerRetire(){
  const owner=sfPlayerSession;if(!owner?.active)return;
+ closePlayerSettings();
  owner.active=false;++owner.request;
  playerEventController?.abort();playerEventController=null;
  clearTimeout(playerControlsTimer);playerControlsTimer=null;
@@ -45,7 +46,7 @@ function playerControlsScheduleHide(){
  if((!isLocalVideoReady&&!sfPlayerDemo.active)||!playingNow||playNextShown){area.classList.remove('controls-hidden');return;}
  const focused=document.activeElement;
  if(playerKeyboardFocus&&focused&&area.contains(focused)&&focused!==area)return;
- if(document.getElementById('modal-host')?.firstElementChild)return;
+ if(playerSettingsMenu || document.getElementById('modal-host')?.firstElementChild)return;
  playerControlsTimer=setTimeout(()=>{
   if(!sfPlayerOwnsVideo(video))return;
   playerControlsTimer=null;
@@ -53,7 +54,7 @@ function playerControlsScheduleHide(){
   if(!currentArea||!currentVideo||currentVideo!==video||!(sfPlayerDemo.active?sfPlayerDemo.playing:(!currentVideo.paused&&!currentVideo.ended))||playNextShown)return;
   const active=document.activeElement;
   if(playerKeyboardFocus&&active&&currentArea.contains(active)&&active!==currentArea)return;
-  if(document.getElementById('modal-host')?.firstElementChild)return;
+  if(playerSettingsMenu || document.getElementById('modal-host')?.firstElementChild)return;
   currentArea.classList.add('controls-hidden');
  },PLAYER_CONTROLS_IDLE_MS);
 }
@@ -122,6 +123,26 @@ function initializePlayer(){
  on(playerArea,'pointerdown',()=>{playerKeyboardFocus=false;playerControlsWake();});
  on(playerArea,'keydown',()=>{playerKeyboardFocus=true;playerControlsWake();});
  on(document,'keydown',e=>{if(e.key==='Tab')playerKeyboardFocus=true;});
+ on(document,'pointerdown',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ // Also handle programmatic, assistive-technology and keyboard clicks.
+ on(document,'click',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ on(document,'focusin',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ on(document,'keydown',e=>{
+  if(playerSettingsMenu&&e.key==='Escape'){
+   e.preventDefault();e.stopPropagation();closePlayerSettings({restoreFocus:true});
+  }
+ });
+ on(window,'resize',positionPlayerSettingsMenu);
+ on(document,'fullscreenchange',positionPlayerSettingsMenu);
  on(playerArea,'focusin',playerControlsWake);
  on(playerArea,'focusout',()=>{clearTimeout(playerFocusTimer);playerFocusTimer=setTimeout(()=>{playerFocusTimer=null;if(owns())playerControlsScheduleHide();},0);});
  on(document,'fullscreenchange',()=>{playerControlsWake();refreshFullscreenIcon();});
@@ -181,26 +202,9 @@ function initializePlayer(){
  };
  const playerSettingsButton=document.getElementById('player-settings');
  playerSettingsButton.dataset.g1Active='false';
- playerSettingsButton.onclick=()=>{
-  // Preserve the original Player's synchronous reopen/replacement while an
-  // older modal is still exiting; modal() owns the existing exit cleanup.
-  // Begin the same G1 slider move on the accepted click, not modal appearance.
-  playerSettingsButton.dataset.g1Active='true';
-  openPlayerSettings(v);
-  const overlay=modalHost.querySelector('.overlay');
-  if(!overlay?.querySelector('.dialog[aria-label="Player settings"]')){
-   playerSettingsButton.dataset.g1Active='false';return;
-  }
-  // Replacing an outgoing Player dialog dispatched its will-close callback
-  // during openPlayerSettings(). Keep the just-opened dialog in active pose.
-  // Both state writes occur within the same click before browser paint.
-  playerSettingsButton.dataset.g1Active='true';
-  // Session-bound, one-dialog listener: immediate reverse on Apply, X,
-  // Escape, backdrop, or replacement; no global Settings state changes.
-  on(overlay,'gallery-modal-will-close',()=>{
-   playerSettingsButton.dataset.g1Active='false';
-  });
- };
+ playerSettingsButton.setAttribute('aria-haspopup','dialog');
+ playerSettingsButton.setAttribute('aria-expanded','false');
+ playerSettingsButton.onclick=()=>openPlayerSettings(v);
  const fullscreen=()=>{const area=document.getElementById('player-area');if(!document.fullscreenElement)area.requestFullscreen?.().catch(()=>{if(owns())showPlayerNotice('Fullscreen is not available in this environment.');});else document.exitFullscreen?.();};
  document.getElementById('fullscreen').onclick=fullscreen;
  on(document.getElementById('previous-episode'),'click',()=>advanceEpisode(-1));

@@ -163,3 +163,49 @@ body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
 #player-settings>.g1-settings-icon{
  display:block;width:21px;height:21px;flex:none;pointer-events:none;
 }
+
+/* Player-only YouTube-style menu, wholly inside .player-area. No page
+   backdrop, inert root, or changes to shared Gallery dialogs. */
+.player-settings-popover{
+ position:absolute;z-index:6;box-sizing:border-box;
+ display:flex;flex-direction:column;min-width:0;
+ overflow-y:auto;overscroll-behavior:contain;
+ color:#f8f6fa;background:rgba(17,17,21,.94);
+ border:1px solid rgba(255,255,255,.18);border-radius:16px;
+ box-shadow:0 12px 35px rgba(0,0,0,.52);
+ backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+ animation:player-settings-in 180ms cubic-bezier(.2,.8,.2,1) both;
+ scrollbar-width:thin;scrollbar-color:#777 #252329;
+}
+@keyframes player-settings-in{
+ from{opacity:0;transform:translateY(7px) scale(.985)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+.player-settings-popover-head{
+ display:flex;align-items:center;gap:7px;min-height:44px;
+ padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.13);
+ font-size:14px;letter-spacing:.01em;
+}
+.player-settings-popover-head strong{font-weight:650}
+/* Submenus advance within the same anchored menu, without shifting its frame. */
+.player-settings-popover-items{display:flex;flex-direction:column;padding:4px 0;animation:player-settings-section-in 160ms ease-out both}
+@keyframes player-settings-section-in{from{opacity:.6;transform:translateX(7px)}to{opacity:1;transform:translateX(0)}}
+.player-settings-row-button,.player-settings-choice{
+ display:flex;align-items:center;width:100%;min-height:43px;gap:10px;
+ padding:9px 14px;border:0;border-radius:0;
+ background:transparent;color:inherit;text-align:left;font:inherit;font-size:13px;
+ cursor:pointer;
+}
+.player-settings-row-button:hover,.player-settings-choice:hover,.player-settings-back:hover{
+ background:rgba(255,255,255,.13)
+}
+.player-settings-row-button:focus-visible,.player-settings-choice:focus-visible,.player-settings-back:focus-visible{
+ outline:2px solid var(--accent);outline-offset:-3px
+}
+.player-settings-row-name{flex:1;min-width:0}
+.player-settings-row-value{min-width:0;max-width:44%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#c5c1c9;font-size:12px}
+.player-settings-chevron{font-size:23px;line-height:1;color:#c5c1c9}
+.player-settings-back{display:grid;place-items:center;min-width:31px;height:31px;margin-left:-7px;border:0;border-radius:8px;background:transparent;color:inherit;font-size:27px;line-height:1;cursor:pointer}
+.player-settings-choice{justify-content:space-between}
+.player-settings-selected{font-size:16px;color:#d9b7f4;min-width:18px;text-align:right}
+@media(prefers-reduced-motion:reduce){.player-settings-popover,.player-settings-popover-items{animation:none!important}.player-settings-popover{backdrop-filter:none;-webkit-backdrop-filter:none}}

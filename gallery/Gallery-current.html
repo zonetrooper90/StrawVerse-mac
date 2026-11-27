@@ -3416,6 +3416,52 @@ body[data-theme] .gallery-split-timeline .sf-dl-track-rest,
 #player-settings>.g1-settings-icon{
  display:block;width:21px;height:21px;flex:none;pointer-events:none;
 }
+
+/* Player-only YouTube-style menu, wholly inside .player-area. No page
+   backdrop, inert root, or changes to shared Gallery dialogs. */
+.player-settings-popover{
+ position:absolute;z-index:6;box-sizing:border-box;
+ display:flex;flex-direction:column;min-width:0;
+ overflow-y:auto;overscroll-behavior:contain;
+ color:#f8f6fa;background:rgba(17,17,21,.94);
+ border:1px solid rgba(255,255,255,.18);border-radius:16px;
+ box-shadow:0 12px 35px rgba(0,0,0,.52);
+ backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+ animation:player-settings-in 180ms cubic-bezier(.2,.8,.2,1) both;
+ scrollbar-width:thin;scrollbar-color:#777 #252329;
+}
+@keyframes player-settings-in{
+ from{opacity:0;transform:translateY(7px) scale(.985)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+.player-settings-popover-head{
+ display:flex;align-items:center;gap:7px;min-height:44px;
+ padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.13);
+ font-size:14px;letter-spacing:.01em;
+}
+.player-settings-popover-head strong{font-weight:650}
+/* Submenus advance within the same anchored menu, without shifting its frame. */
+.player-settings-popover-items{display:flex;flex-direction:column;padding:4px 0;animation:player-settings-section-in 160ms ease-out both}
+@keyframes player-settings-section-in{from{opacity:.6;transform:translateX(7px)}to{opacity:1;transform:translateX(0)}}
+.player-settings-row-button,.player-settings-choice{
+ display:flex;align-items:center;width:100%;min-height:43px;gap:10px;
+ padding:9px 14px;border:0;border-radius:0;
+ background:transparent;color:inherit;text-align:left;font:inherit;font-size:13px;
+ cursor:pointer;
+}
+.player-settings-row-button:hover,.player-settings-choice:hover,.player-settings-back:hover{
+ background:rgba(255,255,255,.13)
+}
+.player-settings-row-button:focus-visible,.player-settings-choice:focus-visible,.player-settings-back:focus-visible{
+ outline:2px solid var(--accent);outline-offset:-3px
+}
+.player-settings-row-name{flex:1;min-width:0}
+.player-settings-row-value{min-width:0;max-width:44%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#c5c1c9;font-size:12px}
+.player-settings-chevron{font-size:23px;line-height:1;color:#c5c1c9}
+.player-settings-back{display:grid;place-items:center;min-width:31px;height:31px;margin-left:-7px;border:0;border-radius:8px;background:transparent;color:inherit;font-size:27px;line-height:1;cursor:pointer}
+.player-settings-choice{justify-content:space-between}
+.player-settings-selected{font-size:16px;color:#d9b7f4;min-width:18px;text-align:right}
+@media(prefers-reduced-motion:reduce){.player-settings-popover,.player-settings-popover-items{animation:none!important}.player-settings-popover{backdrop-filter:none;-webkit-backdrop-filter:none}}
 /* Player Navigation Refinement — a single clean header row, no duplicated
    episode/audio metadata, stable navigation width and a centered episode label. */
 .playback-compactbar{justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:1px 3px 7px;margin-bottom:6px}
@@ -6180,39 +6226,123 @@ function applyPlayerSubtitleState(video){
   if(selected.track.language)playerSubtitleState.lastLanguage=selected.track.language.toLowerCase();
  }
 }
+/* Player-only nonmodal, in-video settings panel. Keep the global Gallery
+   modal(), its focus trap and all other dialogs completely unchanged. */
+let playerSettingsMenu=null;
+const PLAYER_SPEED_CHOICES=[.5,.75,1,1.25,1.5,2];
+function playerSpeedName(rate){return Number(rate)===1?'Normal':Number(rate)+'×';}
+function playerSubtitleName(track,index){
+ const lang=track.language||'';
+ const names={en:'English',da:'Danish',ja:'Japanese',de:'German',fr:'French',es:'Spanish',pt:'Portuguese',it:'Italian',ko:'Korean',zh:'Chinese'};
+ return track.label||names[lang.toLowerCase().split('-')[0]]||lang||'Subtitle track '+(index+1);
+}
+function playerSubtitleSelection(video){
+ const entries=playerSubtitleTracks(video),selected=preferredPlayerSubtitleTrack(entries);
+ return {entries,selected,value:playerSubtitleState.enabled&&selected?'track-'+selected.index:'off'};
+}
+function positionPlayerSettingsMenu(){
+ const menu=playerSettingsMenu;if(!menu||!menu.panel.isConnected)return;
+ const area=menu.area.getBoundingClientRect(),button=menu.button.getBoundingClientRect();
+ const right=Math.max(9,Math.min(area.width-130,area.right-button.right));
+ const width=Math.max(130,Math.min(350,area.width-right-10));
+ const bottom=Math.max(8,area.bottom-button.top+9);
+ const available=Math.max(70,button.top-area.top-18);
+ menu.panel.style.right=right+'px';
+ menu.panel.style.bottom=bottom+'px';
+ menu.panel.style.width=width+'px';
+ menu.panel.style.maxHeight=available+'px';
+}
+function renderPlayerSettingsMenu(focusTarget){
+ const menu=playerSettingsMenu;if(!menu)return;
+ const video=menu.video,panel=menu.panel,subtitle=playerSubtitleSelection(video);
+ const subtitleLabel=subtitle.value==='off'?'Off':playerSubtitleName(subtitle.selected.track,subtitle.selected.index);
+ const row=(name,value,action)=>'<button type="button" id="player-'+action+'-option" class="player-settings-row-button" data-player-menu="'+action+'"><span class="player-settings-row-name">'+name+'</span><span class="player-settings-row-value">'+escapeHTML(value)+'</span><span class="player-settings-chevron" aria-hidden="true">›</span></button>';
+ const header=(name,back)=>'<div class="player-settings-popover-head">'+(back?'<button type="button" class="player-settings-back" data-player-menu="back" aria-label="Back to player settings">‹</button>':'')+'<strong>'+name+'</strong></div>';
+ let content;
+ if(menu.view==='speed'){
+  content=header('Playback speed',true)+'<div class="player-settings-popover-items">'+PLAYER_SPEED_CHOICES.map(rate=>'<button type="button" class="player-settings-choice" data-player-menu="speed:'+rate+'" aria-pressed="'+String(Number(video.playbackRate)===rate)+'"><span>'+playerSpeedName(rate)+'</span><span class="player-settings-selected" aria-hidden="true">'+(Number(video.playbackRate)===rate?'✓':'')+'</span></button>').join('')+'</div>';
+ }else if(menu.view==='subtitles'){
+  const options=[{value:'off',label:'Off'},...subtitle.entries.map(({track,index})=>({value:'track-'+index,label:playerSubtitleName(track,index)}))];
+  content=header('Subtitles',true)+'<div class="player-settings-popover-items">'+options.map(option=>'<button type="button" class="player-settings-choice" data-player-menu="subtitle:'+option.value+'" aria-pressed="'+String(subtitle.value===option.value)+'"><span>'+escapeHTML(option.label)+'</span><span class="player-settings-selected" aria-hidden="true">'+(subtitle.value===option.value?'✓':'')+'</span></button>').join('')+'</div>';
+ }else{
+  content=header('Player settings',false)+'<div class="player-settings-popover-items">'+row('Playback speed',playerSpeedName(video.playbackRate),'speed')+row('Subtitles',subtitleLabel,'subtitles')+'</div>';
+ }
+ panel.dataset.view=menu.view;
+ panel.innerHTML=content;
+ positionPlayerSettingsMenu();
+ if(focusTarget){
+  const target=focusTarget==='back'?panel.querySelector('.player-settings-back'):panel.querySelector('[data-player-menu="'+focusTarget+'"]');
+  (target||panel.querySelector('button'))?.focus({preventScroll:true});
+ }
+}
+function closePlayerSettings({restoreFocus=false}={}){
+ const menu=playerSettingsMenu;if(!menu)return;
+ playerSettingsMenu=null;
+ menu.panel.remove();
+ if(menu.button.isConnected){
+  menu.button.dataset.g1Active='false';
+  menu.button.setAttribute('aria-expanded','false');
+  if(restoreFocus)menu.button.focus({preventScroll:true});
+ }
+ if(sfPlayerOwnsVideo(menu.video))playerControlsScheduleHide();
+}
 function openPlayerSettings(video){
- const entries=playerSubtitleTracks(video);
- const selected=preferredPlayerSubtitleTrack(entries);
- const selectedValue=playerSubtitleState.enabled&&selected?`track-${selected.index}`:'off';
- const choices=entries.map(({track,index})=>{
-  const lang=track.language||'';
-  const languageNames={en:'English',da:'Danish',ja:'Japanese',de:'German',fr:'French',es:'Spanish',pt:'Portuguese',it:'Italian',ko:'Korean',zh:'Chinese'};
-  const displayName=track.label||languageNames[lang.toLowerCase().split('-')[0]]||lang||`Subtitle track ${index+1}`;
-  return `<option value="track-${index}" ${selectedValue===`track-${index}`?'selected':''}>${escapeHTML(displayName)}</option>`;
- }).join('');
- const trackInfo=entries.length
-  ?'<p class="tip">Choose a subtitle track or turn subtitles Off. Changing subtitles does not change the audio language.</p>'
-  :'<p class="tip">No selectable subtitle tracks are available in this video. External subtitle imports are not connected in this HTML build.</p>';
- modal('Player settings',`<div class="field"><label for="video-rate">Playback speed</label><select id="video-rate">${[0.5,0.75,1,1.25,1.5,2].map(r=>`<option value="${r}" ${video.playbackRate===r?'selected':''}>${r}×</option>`).join('')}</select></div><div class="field"><label for="player-subtitle-track">Subtitles</label><select id="player-subtitle-track"><option value="off" ${selectedValue==='off'?'selected':''}>Off</option>${choices}</select>${trackInfo}</div>`,`<button class="btn primary" id="save-player-settings">Apply</button>`);
- document.getElementById('save-player-settings').onclick=()=>{
-  if(!sfPlayerOwnsVideo(video))return;
-  video.playbackRate=Number(document.getElementById('video-rate').value);
-  const value=document.getElementById('player-subtitle-track').value;
-  if(value==='off')playerSubtitleState.enabled=false;
-  else{
-   const index=Number(value.slice('track-'.length));
-   const item=entries.find(entry=>entry.index===index);
-   if(item){
+ if(!sfPlayerOwnsVideo(video))return;
+ if(playerSettingsMenu?.video===video){closePlayerSettings({restoreFocus:true});return;}
+ closePlayerSettings();
+ const area=document.getElementById('player-area'),button=document.getElementById('player-settings');
+ if(!area||!button)return;
+ const panel=document.createElement('section');
+ panel.id='player-settings-popover';
+ panel.className='player-settings-popover';
+ panel.setAttribute('role','dialog');
+ panel.setAttribute('aria-modal','false');
+ panel.setAttribute('aria-label','Player settings');
+ panel.tabIndex=-1;
+ area.appendChild(panel);
+ playerSettingsMenu={video,area,button,panel,view:'main'};
+ button.dataset.g1Active='true';
+ button.setAttribute('aria-expanded','true');
+ button.setAttribute('aria-controls',panel.id);
+ panel.addEventListener('click',event=>{
+  const action=event.target.closest('button[data-player-menu]');
+  if(!action||!panel.contains(action)||playerSettingsMenu?.panel!==panel||!sfPlayerOwnsVideo(video))return;
+  const cmd=action.dataset.playerMenu;
+  if(cmd==='speed'||cmd==='subtitles'){
+   playerSettingsMenu.view=cmd;
+   renderPlayerSettingsMenu('back');
+  }else if(cmd==='back'){
+   const last=playerSettingsMenu.view;
+   playerSettingsMenu.view='main';
+   renderPlayerSettingsMenu(last);
+  }else if(cmd.startsWith('speed:')){
+   const next=Number(cmd.slice(6));
+   if(!PLAYER_SPEED_CHOICES.includes(next))return;
+   video.playbackRate=next;
+   playerSettingsMenu.view='main';
+   renderPlayerSettingsMenu('speed');
+  }else if(cmd.startsWith('subtitle:')){
+   const choice=cmd.slice(9),selection=playerSubtitleSelection(video);
+   if(choice==='off')playerSubtitleState.enabled=false;
+   else{
+    const index=Number(choice.slice(6));
+    const item=selection.entries.find(entry=>entry.index===index);
+    if(!choice.startsWith('track-')||!item)return;
     playerSubtitleState.enabled=true;
     playerSubtitleState.lastIndex=index;
     if(item.track.language)playerSubtitleState.lastLanguage=item.track.language.toLowerCase();
    }
+   if(state.playback)state.playback.subtitles=playerSubtitleState.enabled;
+   applyPlayerSubtitleState(video);
+   playerSettingsMenu.view='main';
+   renderPlayerSettingsMenu('subtitles');
   }
-  if(state.playback)state.playback.subtitles=playerSubtitleState.enabled;
-  applyPlayerSubtitleState(video);
-  closeModal();
- };
+ });
+ renderPlayerSettingsMenu();
+ panel.querySelector('button')?.focus({preventScroll:true});
+ playerControlsWake();
 }
+
 function fmtTime(sec){if(!Number.isFinite(sec)||sec<0)return '00:00';const x=Math.floor(sec);return `${String(Math.floor(x/3600)).padStart(x>=3600?1:2,'0')}:${String(Math.floor(x%3600/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`.replace(/^00:/,'');}
 
 
@@ -6589,6 +6719,7 @@ function sfPlayerOwnsRequest(owner,request){
 }
 function sfPlayerRetire(){
  const owner=sfPlayerSession;if(!owner?.active)return;
+ closePlayerSettings();
  owner.active=false;++owner.request;
  playerEventController?.abort();playerEventController=null;
  clearTimeout(playerControlsTimer);playerControlsTimer=null;
@@ -6619,7 +6750,7 @@ function playerControlsScheduleHide(){
  if((!isLocalVideoReady&&!sfPlayerDemo.active)||!playingNow||playNextShown){area.classList.remove('controls-hidden');return;}
  const focused=document.activeElement;
  if(playerKeyboardFocus&&focused&&area.contains(focused)&&focused!==area)return;
- if(document.getElementById('modal-host')?.firstElementChild)return;
+ if(playerSettingsMenu || document.getElementById('modal-host')?.firstElementChild)return;
  playerControlsTimer=setTimeout(()=>{
   if(!sfPlayerOwnsVideo(video))return;
   playerControlsTimer=null;
@@ -6627,7 +6758,7 @@ function playerControlsScheduleHide(){
   if(!currentArea||!currentVideo||currentVideo!==video||!(sfPlayerDemo.active?sfPlayerDemo.playing:(!currentVideo.paused&&!currentVideo.ended))||playNextShown)return;
   const active=document.activeElement;
   if(playerKeyboardFocus&&active&&currentArea.contains(active)&&active!==currentArea)return;
-  if(document.getElementById('modal-host')?.firstElementChild)return;
+  if(playerSettingsMenu || document.getElementById('modal-host')?.firstElementChild)return;
   currentArea.classList.add('controls-hidden');
  },PLAYER_CONTROLS_IDLE_MS);
 }
@@ -6696,6 +6827,26 @@ function initializePlayer(){
  on(playerArea,'pointerdown',()=>{playerKeyboardFocus=false;playerControlsWake();});
  on(playerArea,'keydown',()=>{playerKeyboardFocus=true;playerControlsWake();});
  on(document,'keydown',e=>{if(e.key==='Tab')playerKeyboardFocus=true;});
+ on(document,'pointerdown',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ // Also handle programmatic, assistive-technology and keyboard clicks.
+ on(document,'click',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ on(document,'focusin',e=>{
+  const menu=playerSettingsMenu;
+  if(menu&&!e.composedPath().includes(menu.panel)&&!e.composedPath().includes(menu.button))closePlayerSettings();
+ });
+ on(document,'keydown',e=>{
+  if(playerSettingsMenu&&e.key==='Escape'){
+   e.preventDefault();e.stopPropagation();closePlayerSettings({restoreFocus:true});
+  }
+ });
+ on(window,'resize',positionPlayerSettingsMenu);
+ on(document,'fullscreenchange',positionPlayerSettingsMenu);
  on(playerArea,'focusin',playerControlsWake);
  on(playerArea,'focusout',()=>{clearTimeout(playerFocusTimer);playerFocusTimer=setTimeout(()=>{playerFocusTimer=null;if(owns())playerControlsScheduleHide();},0);});
  on(document,'fullscreenchange',()=>{playerControlsWake();refreshFullscreenIcon();});
@@ -6755,26 +6906,9 @@ function initializePlayer(){
  };
  const playerSettingsButton=document.getElementById('player-settings');
  playerSettingsButton.dataset.g1Active='false';
- playerSettingsButton.onclick=()=>{
-  // Preserve the original Player's synchronous reopen/replacement while an
-  // older modal is still exiting; modal() owns the existing exit cleanup.
-  // Begin the same G1 slider move on the accepted click, not modal appearance.
-  playerSettingsButton.dataset.g1Active='true';
-  openPlayerSettings(v);
-  const overlay=modalHost.querySelector('.overlay');
-  if(!overlay?.querySelector('.dialog[aria-label="Player settings"]')){
-   playerSettingsButton.dataset.g1Active='false';return;
-  }
-  // Replacing an outgoing Player dialog dispatched its will-close callback
-  // during openPlayerSettings(). Keep the just-opened dialog in active pose.
-  // Both state writes occur within the same click before browser paint.
-  playerSettingsButton.dataset.g1Active='true';
-  // Session-bound, one-dialog listener: immediate reverse on Apply, X,
-  // Escape, backdrop, or replacement; no global Settings state changes.
-  on(overlay,'gallery-modal-will-close',()=>{
-   playerSettingsButton.dataset.g1Active='false';
-  });
- };
+ playerSettingsButton.setAttribute('aria-haspopup','dialog');
+ playerSettingsButton.setAttribute('aria-expanded','false');
+ playerSettingsButton.onclick=()=>openPlayerSettings(v);
  const fullscreen=()=>{const area=document.getElementById('player-area');if(!document.fullscreenElement)area.requestFullscreen?.().catch(()=>{if(owns())showPlayerNotice('Fullscreen is not available in this environment.');});else document.exitFullscreen?.();};
  document.getElementById('fullscreen').onclick=fullscreen;
  on(document.getElementById('previous-episode'),'click',()=>advanceEpisode(-1));

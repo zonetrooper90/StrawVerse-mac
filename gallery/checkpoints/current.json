@@ -1,7 +1,7 @@
 {
-  "folder": "2026-11-26-player-settings-shared-click-motion-retry",
-  "sha256": "078deec2a55c6732104572b5a2bcd3efc0874c18a6f26fb050eb7dd83e061e8d",
-  "bytes": 6966921,
+  "folder": "2026-11-27-player-settings-in-video-menu-retry",
+  "sha256": "c675a01dc0c1cb128d2a75d7b05d9c11f825a099507f6c362c55db9a2335c5fd",
+  "bytes": 6974210,
   "source_name": "Gallery-current.html",
   "status": "delivered-for-user-testing",
   "note": "Local staging only until GitHub commit and CI verification."
