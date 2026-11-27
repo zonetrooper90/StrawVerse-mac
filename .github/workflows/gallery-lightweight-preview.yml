@@ -64,6 +64,17 @@ jobs:
           REQUEST: ${{ inputs.request }}
         run: |
           set -euo pipefail
+          # One-time replay of the already approved immutable Player/toolbar patch.
+          # The preceding test-only fix did not re-add the request script, so
+          # automatic discovery produced the unchanged baseline instead.
+          # Restrict replay to the exact known parent and exact correction diff.
+          if [[ "${{ github.event_name }}" == "push" && "$PREVIOUS" == "f52919ea99f78461296179213b5de4e1beabcb30" ]]; then
+            [[ -z "$REQUEST" ]] || { echo "Unexpected competing preview request"; exit 1; }
+            EXPECTED_CHANGED="$(printf '%s\n' '.github/workflows/gallery-lightweight-preview.yml' 'gallery/DEVELOPMENT-STATE.md')"
+            [[ "$(git diff --name-only "$PREVIOUS" "$BASE")" == "$EXPECTED_CHANGED" ]] || { echo "Replay commit contains unapproved changes"; exit 1; }
+            [[ "$(git rev-parse HEAD:gallery/changes/previews/2026-11-27-player-toolbar-polish.py)" == "b261c267084d8d08875d307222f079f24e17ca48" ]] || { echo "Immutable preview script drift"; exit 1; }
+            REQUEST="2026-11-27-player-toolbar-polish"
+          fi
           python3 -B "$GITHUB_WORKSPACE/gallery/tools/lightweight-preview.py" \
             --base "$BASE" --previous "$PREVIOUS" --request "$REQUEST" \
             --output "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
