@@ -36,7 +36,7 @@ dummy={
  "slug":"2026-11-27-player-toolbar-polish",
  "scope":"player-toolbar-polish",
  "script_blob":"a"*40,
- "approval_heading":"## 2026-11-27 — Approved Player and toolbar polish batch",
+ "approval_heading":state["approved_scopes"]["player-toolbar-polish"]["approval_heading"],
  "base_source_blobs":{"gallery/src/styles/26-player-icons-and-timelines.css":"d"*40},
  "source_blobs":{"gallery/src/styles/26-player-icons-and-timelines.css":"b"*40},
  "preview_sha256":"c"*64,"preview_bytes":123
