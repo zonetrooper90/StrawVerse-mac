@@ -8,6 +8,14 @@ optical corrections without changing the existing toolbar/button dimensions.
 import os
 from pathlib import Path
 import sys
+REQUEST=os.environ.get("GALLERY_POLISH_REQUEST","2026-11-27-player-toolbar-polish")
+APPROVED_REQUESTS={
+ "2026-11-27-player-toolbar-polish":("0.84",False),
+ "2026-11-27-player-toolbar-polish-no-slide":("0.84",True),
+ "2026-11-27-player-toolbar-polish-translucency":("0.65",True),
+}
+assert REQUEST in APPROVED_REQUESTS,"Unexpected Player/toolbar test request"
+EXPECTED_BG_ALPHA,EXPECTED_INSTANT_SUBMENU=APPROVED_REQUESTS[REQUEST]
 from playwright.sync_api import sync_playwright
 
 raw=Path(sys.argv[1]).read_bytes()
@@ -76,8 +84,10 @@ with sync_playwright() as pw:
        width:r.width,right:r.right,scrollX:window.scrollX};
   }""")
   assert state["overflowX"]=="hidden",(width,"no transient horizontal scrollbar",state)
-  assert state["background"].endswith(", 0.84)"),(width,"translucent popover",state)
+  assert state["background"].endswith(", "+EXPECTED_BG_ALPHA+")"),(width,"exact Player Settings glass opacity",REQUEST,state)
   page.locator("#player-speed-option").click()
+  if EXPECTED_INSTANT_SUBMENU:
+   assert menu.locator(".player-settings-popover-items").evaluate("e=>getComputedStyle(e).animationName")=="none",(REQUEST,width,"no submenu slide")
   page.wait_for_timeout(35)
   during=menu.evaluate("""e=>({r:e.getBoundingClientRect().toJSON(),scrollX:window.scrollX})""")
   assert abs(during["r"]["width"]-state["width"])<.2 and abs(during["r"]["right"]-state["right"])<.2,(width,"menu width/edge jump")

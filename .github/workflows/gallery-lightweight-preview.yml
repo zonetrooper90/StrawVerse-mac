@@ -106,9 +106,11 @@ jobs:
         run: |
           set -euo pipefail
           R="$(python3 -c "import json,os,pathlib; print(json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'gallery-preview/preview-manifest.json').read_text())['request'])")"
-          if [[ "$R" == "2026-11-27-player-toolbar-polish" ]]; then
-            python3 -B "$GITHUB_WORKSPACE/gallery/tests/test_player_toolbar_polish_preview.py" "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
-          fi
+          case "$R" in
+            "2026-11-27-player-toolbar-polish"|"2026-11-27-player-toolbar-polish-no-slide"|"2026-11-27-player-toolbar-polish-translucency")
+              GALLERY_POLISH_REQUEST="$R" python3 -B "$GITHUB_WORKSPACE/gallery/tests/test_player_toolbar_polish_preview.py" "$RUNNER_TEMP/gallery-preview/Gallery-development-preview.html"
+              ;;
+          esac
       - name: Upload provisional preview and exact provenance (not a release)
         uses: actions/upload-artifact@v7.0.2
         with:
